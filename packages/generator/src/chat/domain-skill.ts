@@ -182,6 +182,12 @@ export function renderDomainSkill(model: ParsedModel, options: DomainSkillOption
       lines.push(`- ${title(rule.operation)} only by: ${rule.roles.map(title).join(", ")}`);
     }
     if (writes.length) lines.push("");
+    if (entity.concurrency === "last-write-wins") {
+      lines.push(
+        "When two people save the same record, the later save replaces the earlier one: this record type is last-write-wins, so no conflict is reported.",
+        ""
+      );
+    }
     lines.push("Fields:", ...fieldLines(entity, enums, target), "");
     for (const child of children.get(entity.name) ?? []) {
       lines.push(
@@ -198,7 +204,7 @@ export function renderDomainSkill(model: ParsedModel, options: DomainSkillOption
   if (model.workflows.length > 0) {
     lines.push("## Lifecycles", "");
     lines.push(
-      "A record with a lifecycle moves only along the moves listed — the application refuses any other, for every role. A **final** state is a completed transaction: the application refuses every change to such a record, including an administrator's. Say so when a record is final.",
+      "A record with a lifecycle moves only along the moves listed — the application refuses any other, for every role. A **final** state is a completed transaction: the application refuses every change to such a record and every deletion of it, including an administrator's. Say so when a record is final.",
       ""
     );
     for (const workflow of model.workflows) {

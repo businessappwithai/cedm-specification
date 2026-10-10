@@ -119,6 +119,23 @@
     "AuditCaseFollowUpRequired on AuditCase (1 steps, rule)",
     "RiskTreatmentFollowUpRequired on RiskTreatment (1 steps, rule)"
   ],
+  "lastWriteWins": [],
+  "finalStates": [
+    "Party: RETIRED",
+    "Organization: RETIRED",
+    "PartyRole: EXPIRED",
+    "Address: RETIRED",
+    "Location: CLOSED, RETIRED",
+    "Currency: RETIRED",
+    "ExchangeRate: EXPIRED, CANCELLED",
+    "UnitOfMeasure: RETIRED",
+    "Task: COMPLETED, CANCELLED, FAILED",
+    "Policy: RETIRED",
+    "Control: RETIRED",
+    "Risk: CLOSED, MATERIALIZED",
+    "AuditCase: CLOSED, CANCELLED",
+    "RiskTreatment: COMPLETED, CANCELLED"
+  ],
   "packageManager": "bun",
-  "generatedAt": "2026-10-10T02:39:17.714Z"
+  "generatedAt": "2026-10-10T09:25:35.003Z"
 }

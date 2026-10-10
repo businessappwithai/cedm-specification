@@ -125,6 +125,26 @@
     "GradeFollowUpRequired on Grade (1 steps, rule)",
     "FeeFollowUpRequired on Fee (1 steps, rule)"
   ],
+  "lastWriteWins": [],
+  "finalStates": [
+    "Party: RETIRED",
+    "Organization: RETIRED",
+    "PartyRole: EXPIRED",
+    "Address: RETIRED",
+    "Location: CLOSED, RETIRED",
+    "Currency: RETIRED",
+    "ExchangeRate: EXPIRED, CANCELLED",
+    "UnitOfMeasure: RETIRED",
+    "Task: COMPLETED, CANCELLED, FAILED",
+    "EducationProgram: RETIRED",
+    "EducationCourse: RETIRED",
+    "Class: COMPLETED, CANCELLED",
+    "EducationStudent: WITHDRAWN, ALUMNI",
+    "Enrollment: COMPLETED, WITHDRAWN, CANCELLED",
+    "Assessment: CLOSED, CANCELLED",
+    "Grade: FINAL, VOID",
+    "Fee: PAID, WAIVED, CANCELLED"
+  ],
   "packageManager": "bun",
-  "generatedAt": "2026-10-10T02:39:47.885Z"
+  "generatedAt": "2026-10-10T09:25:50.599Z"
 }

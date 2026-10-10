@@ -8,7 +8,7 @@
  * The harness also owns cleanup: anything registered with `track()` is deleted
  * on teardown, in reverse creation order so children go before parents.
  *
- * Generated: 2026-10-09T15:28:20.651Z
+ * Generated: 2026-10-10T09:25:45.122Z
  * Project: document-management
  */
 
@@ -134,6 +134,26 @@ class TestHarness {
       headers: { ...precondition, ...(headers ?? {}) },
     });
   }
+  /**
+   * Delete a record the way a person does: read it, then delete naming the
+   * version that was read (`If-Match`). An optimistic entity refuses a delete
+   * that names none (428), and a record in a final state is not deleted at all
+   * (409 `RECORD_FINAL`).
+   */
+  async deleteRecord(route: string, id: string, options: RequestOptions = {}) {
+    const { headers, ...rest } = options;
+    const read = await this.client.get<Record<string, unknown>>(`/bus/${route}/${id}`, {
+      allowFailure: true,
+    });
+    const version = read.ok ? read.data?.version : undefined;
+    const precondition =
+      typeof version === "number" ? { "If-Match": `"v${version}"` } : ({} as Record<string, string>);
+    return this.client.delete(`/bus/${route}/${id}`, {
+      ...rest,
+      headers: { ...precondition, ...(headers ?? {}) },
+    });
+  }
+
 
   async createWithParents(
     entity: EntityMeta,
@@ -254,7 +274,13 @@ class TestHarness {
 
     for (const record of this.records.splice(0).reverse()) {
       try {
-        await this.client.delete(`/bus/${record.entity}/${record.id}`, { allowFailure: true });
+        // `*`: these are the suite's own rows, removed deliberately whatever
+        // version they reached. A record a suite moved to a final state is a
+        // completed transaction and stays — the API refuses it to everyone.
+        await this.client.delete(`/bus/${record.entity}/${record.id}`, {
+          allowFailure: true,
+          headers: { "If-Match": "*" },
+        });
       } catch {
         // best effort
       }

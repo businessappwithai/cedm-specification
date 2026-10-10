@@ -121,6 +121,16 @@ export async function writeManifest(
           sagas: model.sagas.map(
             (saga) => `${saga.name} on ${saga.entity} (${saga.steps.length} steps, ${saga.trigger})`
           ),
+          // Every other entity is optimistic: an update or delete names the
+          // version it read. These accept one that names none.
+          lastWriteWins: model.entities
+            .filter((entity) => entity.concurrency === "last-write-wins")
+            .map((entity) => entity.name),
+          // A record in one of these is a completed transaction: closed to
+          // every update and delete.
+          finalStates: model.workflows
+            .filter((workflow) => workflow.terminal.length > 0)
+            .map((workflow) => `${workflow.entity}: ${workflow.terminal.join(", ")}`),
           packageManager: extras.packageManager,
           generatedAt: new Date().toISOString(),
         },

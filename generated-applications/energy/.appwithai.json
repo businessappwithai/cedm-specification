@@ -104,6 +104,21 @@
     "MeterReadingSuspectReadingRecorded on MeterReading (1 steps, rule)",
     "MeterReadingReadingMarkedSuspect on MeterReading (1 steps, rule)"
   ],
+  "lastWriteWins": [],
+  "finalStates": [
+    "Party: RETIRED",
+    "Organization: RETIRED",
+    "PartyRole: EXPIRED",
+    "Address: RETIRED",
+    "Location: CLOSED, RETIRED",
+    "Currency: RETIRED",
+    "ExchangeRate: EXPIRED, CANCELLED",
+    "UnitOfMeasure: RETIRED",
+    "Task: COMPLETED, CANCELLED, FAILED",
+    "EnergyAsset: DECOMMISSIONED",
+    "EnergyMeter: RETIRED",
+    "EnergyTariff: EXPIRED, RETIRED"
+  ],
   "packageManager": "bun",
-  "generatedAt": "2026-10-10T02:39:52.732Z"
+  "generatedAt": "2026-10-10T09:25:53.006Z"
 }

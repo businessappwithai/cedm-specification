@@ -136,6 +136,29 @@
     "AllergyFollowUpRequired on Allergy (1 steps, rule)",
     "CarePlanFollowUpRequired on CarePlan (1 steps, rule)"
   ],
+  "lastWriteWins": [],
+  "finalStates": [
+    "Party: RETIRED",
+    "Organization: RETIRED",
+    "PartyRole: EXPIRED",
+    "Address: RETIRED",
+    "Location: CLOSED, RETIRED",
+    "Currency: RETIRED",
+    "ExchangeRate: EXPIRED, CANCELLED",
+    "UnitOfMeasure: RETIRED",
+    "Task: COMPLETED, CANCELLED, FAILED",
+    "HealthcarePatient: DECEASED, MERGED",
+    "HealthcareProvider: RETIRED",
+    "Practitioner: RETIRED",
+    "Appointment: COMPLETED, CANCELLED, NO_SHOW",
+    "HealthcareEncounter: COMPLETED, CANCELLED",
+    "HealthcareOrder: COMPLETED, CANCELLED",
+    "Procedure: COMPLETED, CANCELLED",
+    "Medication: RETIRED",
+    "Prescription: COMPLETED, CANCELLED, DISCONTINUED",
+    "Allergy: COMPLETED, CANCELLED",
+    "CarePlan: COMPLETED, CANCELLED"
+  ],
   "packageManager": "bun",
-  "generatedAt": "2026-10-10T02:40:14.252Z"
+  "generatedAt": "2026-10-10T09:26:05.282Z"
 }

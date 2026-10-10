@@ -1,6 +1,6 @@
 //! Two people, one record: optimistic locking and closed transactions.
 //!
-//! Generated: 2026-10-09T15:28:57.748Z
+//! Generated: 2026-10-10T09:26:06.472Z
 //! Project: hospitality
 //!
 //! Every entity is optimistic unless the model says `concurrency:
@@ -9,6 +9,9 @@
 //! now stands, so the screen can offer to refresh or to overwrite. A record in a
 //! final state of its machine is a completed transaction and refuses every
 //! update.
+//!
+//! A delete is held to the same two rules: it names the version it was read
+//! at, and a record in a final state is not deleted, by anyone.
 //!
 //! Every other suite sends the version it read and so never sees a conflict.
 //! This one makes them on purpose: two readers of one version, ten writers
@@ -427,6 +430,209 @@ async fn a_record_in_a_final_state_is_closed() {
     .await;
 }
 
+/// A delete against a version someone else has replaced is refused with the
+/// record as it now stands; deleting the version the refusal named succeeds.
+#[tokio::test]
+#[serial]
+async fn a_stale_delete_is_refused_with_the_record_as_it_stands() {
+    support::with_app(|request, _ctx, token| async move {
+        let Some((meta, field)) = optimistic_entity() else {
+            return;
+        };
+        let read = create_with_parents(&request, &token, meta, &[])
+            .await
+            .unwrap_or_else(|| panic!("could not create a {}", meta.name));
+        let id = read["id"]
+            .as_str()
+            .expect("create returns an id")
+            .to_string();
+        let url = format!("/api/bus/{}/{id}", meta.route);
+        let field_meta = meta.first_text_field().expect("chosen for its text field");
+
+        // Somebody saves after this reader opened the record.
+        let theirs = marked(field_meta, "before-delete");
+        let saved = request
+            .patch(&url)
+            .add_header("authorization", bearer(&token))
+            .add_header("if-match", if_match(&read))
+            .json(&json!({ field: theirs.clone() }))
+            .await;
+        assert_eq!(
+            saved.status_code(),
+            200,
+            "the intervening save: {}",
+            saved.text()
+        );
+
+        let stale = request
+            .delete(&url)
+            .add_header("authorization", bearer(&token))
+            .add_header("if-match", if_match(&read))
+            .await;
+        assert_eq!(
+            stale.status_code(),
+            409,
+            "a stale delete must be refused: {}",
+            stale.text()
+        );
+        let refusal = stale.json::<Value>();
+        assert_eq!(refusal["error"], "VERSION_CONFLICT");
+        let conflict = &refusal["conflict"];
+        assert_eq!(
+            conflict["current"][field],
+            json!(theirs),
+            "the refusal carries what was saved"
+        );
+        assert_eq!(conflict["overwritable"], json!(true));
+
+        // Still there: a refused delete leaves the record exactly as it was.
+        let still = request
+            .get(&url)
+            .add_header("authorization", bearer(&token))
+            .await;
+        assert_eq!(still.status_code(), 200, "a refused delete must not delete");
+
+        let deleted = request
+            .delete(&url)
+            .add_header("authorization", bearer(&token))
+            .add_header("if-match", if_match(&conflict["current"]))
+            .await;
+        assert_eq!(
+            deleted.status_code(),
+            204,
+            "deleting the current version: {}",
+            deleted.text()
+        );
+        let gone = request
+            .get(&url)
+            .add_header("authorization", bearer(&token))
+            .await;
+        assert_eq!(gone.status_code(), 404);
+    })
+    .await;
+}
+
+/// An optimistic entity refuses a delete that names no version.
+#[tokio::test]
+#[serial]
+async fn a_delete_that_names_no_version_is_428() {
+    support::with_app(|request, _ctx, token| async move {
+        let Some((meta, _)) = optimistic_entity() else {
+            return;
+        };
+        let read = create_with_parents(&request, &token, meta, &[])
+            .await
+            .unwrap_or_else(|| panic!("could not create a {}", meta.name));
+        let id = read["id"]
+            .as_str()
+            .expect("create returns an id")
+            .to_string();
+        let url = format!("/api/bus/{}/{id}", meta.route);
+
+        let blind = request
+            .delete(&url)
+            .add_header("authorization", bearer(&token))
+            .await;
+        assert_eq!(
+            blind.status_code(),
+            428,
+            "a client that never read the record must not delete it blind: {}",
+            blind.text()
+        );
+        let still = request
+            .get(&url)
+            .add_header("authorization", bearer(&token))
+            .await;
+        assert_eq!(still.status_code(), 200, "a refused delete must not delete");
+    })
+    .await;
+}
+
+/// An entity the model declares `last-write-wins` deletes without a version.
+#[tokio::test]
+#[serial]
+async fn a_last_write_wins_entity_deletes_without_a_version() {
+    support::with_app(|request, _ctx, token| async move {
+        let Some(meta) = ENTITIES
+            .iter()
+            .find(|meta| LAST_WRITE_WINS.contains(&meta.table_name))
+        else {
+            return; // the model declares none
+        };
+        let read = create_with_parents(&request, &token, meta, &[])
+            .await
+            .unwrap_or_else(|| panic!("could not create a {}", meta.name));
+        let id = read["id"]
+            .as_str()
+            .expect("create returns an id")
+            .to_string();
+
+        let response = request
+            .delete(&format!("/api/bus/{}/{id}", meta.route))
+            .add_header("authorization", bearer(&token))
+            .await;
+        assert_eq!(response.status_code(), 204, "{}", response.text());
+    })
+    .await;
+}
+
+/// A record in a final state is a completed transaction: it is not deleted —
+/// with the version it was read at, or with `*` — and the refusal says why.
+#[tokio::test]
+#[serial]
+async fn a_record_in_a_final_state_is_not_deleted() {
+    support::with_app(|request, _ctx, token| async move {
+        let Some(&(entity_name, status_field, final_state)) = FINAL_STATES.first() else {
+            return; // the model declares no final state
+        };
+        let meta = ENTITIES
+            .iter()
+            .find(|meta| meta.name == entity_name)
+            .expect("a machine names a declared entity");
+        let read = create_with_parents(
+            &request,
+            &token,
+            meta,
+            &[(status_field, json!(final_state))],
+        )
+        .await
+        .unwrap_or_else(|| panic!("could not create a {} in {}", meta.name, final_state));
+        let id = read["id"]
+            .as_str()
+            .expect("create returns an id")
+            .to_string();
+        let url = format!("/api/bus/{}/{id}", meta.route);
+
+        for precondition in [if_match(&read), "*".to_string()] {
+            let response = request
+                .delete(&url)
+                .add_header("authorization", bearer(&token))
+                .add_header("if-match", precondition.clone())
+                .await;
+            assert_eq!(
+                response.status_code(),
+                409,
+                "a record in {final_state} must refuse a delete with If-Match {precondition}: {}",
+                response.text()
+            );
+            let body = response.json::<Value>();
+            assert_eq!(body["error"], "RECORD_FINAL");
+            assert_eq!(body["conflict"]["overwritable"], json!(false));
+            assert_eq!(body["conflict"]["status"]["isFinal"], json!(true));
+        }
+        let still = request
+            .get(&url)
+            .add_header("authorization", bearer(&token))
+            .await;
+        assert_eq!(
+            still.status_code(),
+            200,
+            "a completed transaction must still be readable"
+        );
+    })
+    .await;
+}
+
 /// Two moves race out of one state: one lands, the other is refused.
 #[tokio::test]
 #[serial]
@@ -452,18 +658,24 @@ async fn of_two_moves_out_of_one_state_one_lands() {
         let url = format!("/api/bus/{}/{id}", meta.route);
         let second = targets.get(1).copied().unwrap_or(targets[0]);
 
-        // `*`: neither names a version, so only the from-state decides.
+        // Both people read the record in its initial state, and each names the
+        // version it read. Without that the race has no fixed starting point:
+        // a request whose own read lands after the other's commit sees the new
+        // state, and when the model draws an edge onward from it (Lead:
+        // working → disqualified) that is a legal second move, not a race.
+        let read_at = if_match(&read);
         let moves = [targets[0], second]
             .into_iter()
             .map(|to| {
                 let request = &request;
                 let token = &token;
                 let url = &url;
+                let read_at = read_at.as_str();
                 async move {
                     request
                         .patch(url)
                         .add_header("authorization", bearer(token))
-                        .add_header("if-match", "*")
+                        .add_header("if-match", read_at)
                         .json(&json!({ status_field: to }))
                         .await
                         .status_code()
@@ -471,12 +683,14 @@ async fn of_two_moves_out_of_one_state_one_lands() {
                 }
             })
             .collect::<Vec<_>>();
-        let statuses = all(moves).await;
+        let mut statuses = all(moves).await;
+        statuses.sort_unstable();
 
         assert_eq!(
-            statuses.iter().filter(|status| **status == 200).count(),
-            1,
-            "two moves out of {initial} landed, or none did: {statuses:?}"
+            statuses,
+            vec![200, 409],
+            "of two moves out of {initial} made from one read, exactly one lands \
+             and the other is told the record changed: {statuses:?}"
         );
     })
     .await;

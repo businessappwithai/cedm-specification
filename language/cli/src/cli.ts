@@ -308,7 +308,11 @@ async function cmdInfo(f: Flags): Promise<number> {
     console.log(c.bold("\nEntities"));
     for (const e of model.entities) {
       console.log(
-        `  ${e.name} ${c.dim(`→ /api/${collectionName(e)} (${e.attributes.length} fields)`)}`
+        `  ${e.name} ${c.dim(
+          `→ /api/${collectionName(e)} (${e.attributes.length} fields${
+            e.concurrency === "last-write-wins" ? ", last-write-wins" : ""
+          })`
+        )}`
       );
     }
   }
@@ -320,7 +324,13 @@ async function cmdInfo(f: Flags): Promise<number> {
   if (model.workflows.length) {
     console.log(c.bold("\nWorkflows"));
     for (const w of model.workflows)
-      console.log(`  ${w.name} ${c.dim(`(${w.kind}) on ${w.entity ?? "-"}`)}`);
+      console.log(
+        `  ${w.name} ${c.dim(
+          `(${w.kind}) on ${w.entity ?? "-"}${
+            w.kind === "state" && w.final?.length ? `; final, closed: ${w.final.join(", ")}` : ""
+          }`
+        )}`
+      );
   }
   console.log();
   return 0;

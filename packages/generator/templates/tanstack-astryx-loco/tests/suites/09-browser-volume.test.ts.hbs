@@ -352,7 +352,13 @@ describe(`volume CRUD via the browser — ${entity.displayName}`, () => {
         for (let offset = 0; offset < createdIds.length; offset += WRITE_BATCH) {
           const batch = createdIds.slice(offset, offset + WRITE_BATCH);
           await session.apiBatch(
-            batch.map((id) => ({ path: `/bus/${entity.route}/${id}`, method: "DELETE" })),
+            // `*`: the suite removes its own rows deliberately, whatever
+            // version the update phase left them at.
+            batch.map((id) => ({
+              path: `/bus/${entity.route}/${id}`,
+              method: "DELETE",
+              headers: { "If-Match": "*" },
+            })),
             CONCURRENCY
           );
           process.stdout.write(

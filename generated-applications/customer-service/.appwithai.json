@@ -137,6 +137,28 @@
     "EscalationFollowUpRequired on Escalation (1 steps, rule)",
     "ContractFollowUpRequired on Contract (1 steps, rule)"
   ],
+  "lastWriteWins": [],
+  "finalStates": [
+    "Party: RETIRED",
+    "Organization: RETIRED",
+    "PartyRole: EXPIRED",
+    "Address: RETIRED",
+    "Location: CLOSED, RETIRED",
+    "Currency: RETIRED",
+    "ExchangeRate: EXPIRED, CANCELLED",
+    "UnitOfMeasure: RETIRED",
+    "Task: COMPLETED, CANCELLED, FAILED",
+    "Customer: RETIRED",
+    "ServiceCase: CLOSED, CANCELLED",
+    "ServiceRequest: CLOSED, CANCELLED",
+    "Ticket: CLOSED, CANCELLED",
+    "ServiceOrder: COMPLETED, CANCELLED",
+    "ServiceContract: EXPIRED, TERMINATED",
+    "Entitlement: EXHAUSTED, EXPIRED, TERMINATED",
+    "ServiceLevelAgreement: RETIRED",
+    "Escalation: COMPLETED, CANCELLED",
+    "Contract: EXPIRED, TERMINATED, CANCELLED"
+  ],
   "packageManager": "bun",
-  "generatedAt": "2026-10-10T02:39:33.624Z"
+  "generatedAt": "2026-10-10T09:25:43.038Z"
 }

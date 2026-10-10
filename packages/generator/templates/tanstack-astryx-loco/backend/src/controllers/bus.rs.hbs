@@ -27,8 +27,8 @@ use crate::services::concurrency::{self, Refusal};
 use crate::services::dictionary::{ConcurrencyMode, DictionaryCache};
 use crate::services::field_meta::{self, FieldLayout};
 use crate::services::dynamic_repo::{
-    DynamicRepo, Filter, FilterOp, OrderDir, PaginationOptions, RawVersion, UpdateResult,
-    WriteGuard,
+    DeleteResult, DynamicRepo, Filter, FilterOp, OrderDir, PaginationOptions, RawVersion,
+    UpdateResult, WriteGuard,
 };
 use crate::services::promotion::{
     PromotionOutcome, PromotionService, STATUS_DRAFT, STATUS_REJECTED,
@@ -301,6 +301,7 @@ pub async fn update(
         &meta.table_name,
         id,
         &body,
+        expected_version,
     )
     .await?;
 
@@ -397,11 +398,14 @@ pub async fn update(
     responses(
         (status = 204, description = "Soft-deleted — the row stays auditable and drops out of every read"),
         (status = 404, description = "No such record"),
+        (status = 409, description = "`VERSION_CONFLICT`: the record changed since the `If-Match` version — `conflict` carries it as it now stands, who changed it, when, and its status. `RECORD_FINAL`: the record is in a final state, a completed transaction, and is not deleted"),
+        (status = 428, description = "No `If-Match` on an entity whose `concurrency` is optimistic"),
     ),
 )]
 pub async fn remove(
     auth: auth::JWTWithUser<users::Model>,
     Path((entity, id)): Path<(String, Uuid)>,
+    headers: HeaderMap,
     State(ctx): State<AppContext>,
     SharedStore(dictionary): SharedStore<DictionaryCache>,
     SharedStore(repo): SharedStore<DynamicRepo>,
@@ -415,8 +419,40 @@ pub async fn remove(
         authz::Operation::Delete,
     )
     .await?;
+    // A delete is a write like any other: it names the version it was read
+    // at, exactly as `update` does, or it would remove a record somebody else
+    // has changed since — or moved to a final state — without anyone deciding to.
+    let expected_version = match parse_if_match(&headers)? {
+        Precondition::Version(version) => Some(version),
+        Precondition::Any => None,
+        Precondition::Absent if meta.concurrency == ConcurrencyMode::Optimistic => {
+            return Err(AppError::PreconditionRequired(format!(
+                "A delete from {} must name the version it was read at: send If-Match: \"v<version>\" from the record's ETag.",
+                meta.name
+            )));
+        }
+        Precondition::Absent => None,
+    };
     let table = dictionary.resolve(&entity).await?;
     let before = repo.find_by_id(&table, id).await.ok().flatten();
+
+    // A record in a final state is a completed transaction, and deleting it
+    // would undo that as surely as editing it — closed to every caller, `*`
+    // included. The delete below repeats the condition, so a record that
+    // becomes final in between is refused just the same.
+    if let Some(current) = before.as_ref() {
+        if meta.lifecycle.as_ref().is_some_and(|lifecycle| lifecycle.is_final(current)) {
+            return Err(concurrency::refusal(
+                ctx.db.get_postgres_connection_pool(),
+                &meta,
+                current,
+                expected_version,
+                &Map::new(),
+                Refusal::RecordFinal,
+            )
+            .await);
+        }
+    }
 
     // A `beforeDelete` hook is a guard: returning `Ok(false)` refuses the
     // request rather than raising, which is how a model says "this record is
@@ -431,7 +467,27 @@ pub async fn remove(
     // is handed has to be cloned out first.
     let deleted = before.clone();
 
-    if repo.soft_delete(&table, id).await? {
+    let guard = WriteGuard {
+        expected_version,
+        status_from: &[],
+        closed_by: meta.lifecycle.as_ref(),
+    };
+    let removed = match repo.soft_delete(&meta, id, &guard).await? {
+        DeleteResult::Deleted => true,
+        DeleteResult::Gone => false,
+        DeleteResult::Refused { current } => {
+            return Err(concurrency::refusal(
+                ctx.db.get_postgres_connection_pool(),
+                &meta,
+                &current,
+                expected_version,
+                &Map::new(),
+                Refusal::of(&meta, &current),
+            )
+            .await);
+        }
+    };
+    if removed {
         record_audit(
             &ctx,
             &meta,

@@ -55,6 +55,7 @@ pub fn registry() -> Handlebars<'static> {
 
     hb.register_helper("typeToReferenceId", Box::new(type_to_reference_id));
     hb.register_helper("seaOrmType", Box::new(sea_orm_type));
+    hb.register_helper("rustIdent", Box::new(rust_ident));
 
     // Shell parameter expansion. See the note on `shell_default` for why these
     // exist rather than the expansion being written inline.
@@ -123,6 +124,27 @@ handlebars_helper!(type_to_reference_id: |ty: str| {
 // those are the only two branches where `m0002_bus_tables` consults
 // `isForeignKey`. A `decimal … FK` column really is `DECIMAL(18,6)` in the DDL,
 // so claiming `Uuid` for it here would compile and then fail on first use.
+/// Rust's strict and reserved keywords (2021 edition) that a raw identifier can
+/// stand for. `RUST_KEYWORDS` in packages/generator/src/templates/loader.ts is
+/// the same list.
+const RUST_KEYWORDS: &[&str] = &[
+    "as", "async", "await", "break", "const", "continue", "dyn", "else", "enum", "extern", "false",
+    "fn", "for", "if", "impl", "in", "let", "loop", "match", "mod", "move", "mut", "pub", "ref",
+    "return", "static", "struct", "trait", "true", "try", "type", "unsafe", "use", "where",
+    "while", "abstract", "become", "box", "do", "final", "macro", "override", "priv", "typeof",
+    "unsized", "virtual", "yield", "gen",
+];
+
+// A column name as a Rust field: a reserved word becomes a raw identifier
+// (`r#type`); SeaORM and serde strip the `r#`, so the column stays `type`.
+handlebars_helper!(rust_ident: |name: str| {
+    if RUST_KEYWORDS.contains(&name) {
+        format!("r#{name}")
+    } else {
+        name.to_string()
+    }
+});
+
 handlebars_helper!(sea_orm_type: |rid: i64, required: Json, is_fk: Json| {
     let base = if is_fk.is_truthy(true) && (rid == 10 || rid == 11) {
         "Uuid"
@@ -523,6 +545,18 @@ pub fn render_file(
 mod tests {
     use super::*;
     use serde_json::json;
+
+    #[test]
+    fn a_rust_keyword_column_becomes_a_raw_identifier() {
+        let hb = registry();
+        for (name, field) in [("type", "r#type"), ("match", "r#match"), ("name", "name")] {
+            assert_eq!(
+                hb.render_template("{{rustIdent n}}", &json!({ "n": name }))
+                    .unwrap(),
+                field
+            );
+        }
+    }
 
     #[test]
     fn case_helpers_render() {

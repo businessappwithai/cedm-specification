@@ -146,6 +146,30 @@
     "ContainerVisitFollowUpRequired on ContainerVisit (1 steps, rule)",
     "VoyageFollowUpRequired on Voyage (1 steps, rule)"
   ],
+  "lastWriteWins": [],
+  "finalStates": [
+    "Party: RETIRED",
+    "Organization: RETIRED",
+    "PartyRole: EXPIRED",
+    "Address: RETIRED",
+    "Location: CLOSED, RETIRED",
+    "Currency: RETIRED",
+    "ExchangeRate: EXPIRED, CANCELLED",
+    "UnitOfMeasure: RETIRED",
+    "Task: COMPLETED, CANCELLED, FAILED",
+    "Container: SOLD, SCRAPPED, LOST, RETIRED",
+    "ContainerMovement: COMPLETED, CANCELLED, FAILED",
+    "Yard: CLOSED",
+    "YardBlock: CLOSED",
+    "YardBay: CLOSED",
+    "YardTier: CLOSED",
+    "Berth: RETIRED",
+    "Gate: RETIRED",
+    "GateEvent: VERIFIED, REVERSED",
+    "ContainerVisit: COMPLETED, CANCELLED",
+    "Vessel: RETIRED",
+    "Voyage: COMPLETED, CANCELLED"
+  ],
   "packageManager": "bun",
-  "generatedAt": "2026-10-10T02:39:28.287Z"
+  "generatedAt": "2026-10-10T09:25:40.368Z"
 }

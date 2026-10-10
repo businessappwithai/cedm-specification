@@ -140,6 +140,27 @@
     "QualityInspectionFollowUpRequired on QualityInspection (1 steps, rule)",
     "ProductionRecordFollowUpRequired on ProductionRecord (1 steps, rule)"
   ],
+  "lastWriteWins": [],
+  "finalStates": [
+    "Party: RETIRED",
+    "Organization: RETIRED",
+    "PartyRole: EXPIRED",
+    "Address: RETIRED",
+    "Location: CLOSED, RETIRED",
+    "Currency: RETIRED",
+    "ExchangeRate: EXPIRED, CANCELLED",
+    "UnitOfMeasure: RETIRED",
+    "Task: COMPLETED, CANCELLED, FAILED",
+    "Product: DISCONTINUED, RETIRED",
+    "BillOfMaterial: OBSOLETE",
+    "Routing: OBSOLETE",
+    "WorkCenter: RETIRED",
+    "ManufacturingWorkOrder: CLOSED, CANCELLED",
+    "Lot: CONSUMED, EXPIRED, REJECTED, CLOSED",
+    "SerialNumber: CONSUMED, SCRAPPED, RETIRED",
+    "QualityInspection: PASSED, FAILED, CANCELLED",
+    "ProductionRecord: VERIFIED, REJECTED"
+  ],
   "packageManager": "bun",
-  "generatedAt": "2026-10-09T15:29:37.723Z"
+  "generatedAt": "2026-10-10T09:26:29.634Z"
 }

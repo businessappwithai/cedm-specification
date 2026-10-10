@@ -100,6 +100,20 @@
     "CustomsDeclarationApprovalRequested on CustomsDeclaration (1 steps, rule)",
     "CustomsDeclarationFollowUpRequired on CustomsDeclaration (1 steps, rule)"
   ],
+  "lastWriteWins": [],
+  "finalStates": [
+    "Party: RETIRED",
+    "Organization: RETIRED",
+    "PartyRole: EXPIRED",
+    "Address: RETIRED",
+    "Location: CLOSED, RETIRED",
+    "Currency: RETIRED",
+    "ExchangeRate: EXPIRED, CANCELLED",
+    "UnitOfMeasure: RETIRED",
+    "Task: COMPLETED, CANCELLED, FAILED",
+    "TradeDeclaration: RELEASED, REJECTED, CANCELLED",
+    "CustomsDeclaration: CLEARED, REJECTED, CANCELLED"
+  ],
   "packageManager": "bun",
-  "generatedAt": "2026-10-09T15:31:06.456Z"
+  "generatedAt": "2026-10-10T09:27:16.819Z"
 }

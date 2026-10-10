@@ -269,7 +269,7 @@ caller: a move the machine does not draw is refused. A `trigger` is what an
 enum carrying exactly these states.
 
 A `final` state is a completed transaction. A record in one is closed: every
-update is refused with 409 `RECORD_FINAL`, for every caller, the master role
+update and every delete is refused with 409 `RECORD_FINAL`, for every caller, the master role
 included, and the screen offers only to refresh. Seeded into
 `sys_workflow_states` with the machine's `initial` state and labels.
 

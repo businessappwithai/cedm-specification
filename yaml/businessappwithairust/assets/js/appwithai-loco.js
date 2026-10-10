@@ -23,13 +23,15 @@ var __toESM = (mod, isNodeMode, target) => {
       return cached;
   }
   target = mod != null ? __create(__getProtoOf(mod)) : {};
-  const to = isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target;
-  for (let key of __getOwnPropNames(mod))
-    if (!__hasOwnProp.call(to, key))
-      __defProp(to, key, {
-        get: __accessProp.bind(mod, key),
-        enumerable: true
-      });
+  const to = isNodeMode || !mod || !mod.__esModule || !__hasOwnProp.call(mod, "default") ? __defProp(target, "default", { value: mod, enumerable: true }) : target;
+  if (mod && typeof mod === "object" || typeof mod === "function") {
+    for (let key of __getOwnPropNames(mod))
+      if (!__hasOwnProp.call(to, key))
+        __defProp(to, key, {
+          get: __accessProp.bind(mod, key),
+          enumerable: true
+        });
+  }
   if (canCache)
     cache.set(mod, to);
   return to;
@@ -65,36 +67,30 @@ var __export = (target, all) => {
       set: __exportSetter.bind(all, name)
     });
 };
-var __esm = (fn, res) => () => (fn && (res = fn(fn = 0)), res);
+var __esm = (fn, res, err) => () => {
+  if (fn)
+    try {
+      res = fn(fn = 0);
+    } catch (e) {
+      err = [e];
+    }
+  if (err)
+    throw err[0];
+  return res;
+};
 
 // language/browser/shims/fs.ts
 var exports_fs = {};
 __export(exports_fs, {
-  writeFileSync: () => writeFileSync,
-  writeFile: () => writeFile,
-  unmount: () => unmount,
-  statSync: () => statSync,
-  stat: () => stat,
-  snapshot: () => snapshot,
-  rmSync: () => rmSync,
-  rm: () => rm,
-  readdirSync: () => readdirSync,
-  readdir: () => readdir,
-  readFileSync: () => readFileSync,
-  readFile: () => readFile,
-  promises: () => promises,
-  mount: () => mount,
-  mkdtemp: () => mkdtemp,
-  mkdirSync: () => mkdirSync,
-  mkdir: () => mkdir,
-  existsSync: () => existsSync,
   executables: () => executables,
-  default: () => fs_default,
-  cp: () => cp,
-  copyFile: () => copyFile,
-  chmodSync: () => chmodSync,
-  chmod: () => chmod,
-  access: () => access
+  existsSync: () => existsSync,
+  mount: () => mount,
+  promises: () => promises,
+  readFileSync: () => readFileSync,
+  readdirSync: () => readdirSync,
+  snapshot: () => snapshot,
+  statSync: () => statSync,
+  unmount: () => unmount
 });
 function normalize(input) {
   const raw = typeof input === "string" ? input : input.pathname;
@@ -114,9 +110,9 @@ function parent(path) {
   const at = path.lastIndexOf("/");
   return at <= 0 ? "/" : path.slice(0, at);
 }
-function fail(code2, syscall, path) {
-  const error = new Error(`${code2}: ${syscall} '${path}'`);
-  error.code = code2;
+function fail(code, syscall, path) {
+  const error = new Error(`${code}: ${syscall} '${path}'`);
+  error.code = code;
   error.syscall = syscall;
   error.path = path;
   throw error;
@@ -229,8 +225,8 @@ function remove(path, options) {
     if (key === at || key.startsWith(prefix))
       directories.delete(key);
 }
-function copyTree(from2, to) {
-  const source = normalize(from2);
+function copyTree(from, to) {
+  const source = normalize(from);
   const target = normalize(to);
   if (files.has(source)) {
     ensureDirectory(parent(target));
@@ -251,9 +247,6 @@ function existsSync(path) {
 function readFileSync(path, options) {
   return read2(typeof path === "string" ? path : path.pathname, options);
 }
-function writeFileSync(path, data) {
-  write2(path, data);
-}
 function mkdirSync(path, options) {
   const at = normalize(path);
   if (options?.recursive)
@@ -271,9 +264,6 @@ function readdirSync(path, options) {
 }
 function statSync(path) {
   return status(path);
-}
-function rmSync(path, options) {
-  remove(path, options);
 }
 function chmodSync(path, mode) {
   const at = normalize(path);
@@ -309,7 +299,7 @@ function executables(root) {
 function unmount(root) {
   remove(root, { recursive: true, force: true });
 }
-var files, directories, modes, encoder, decoder, EPOCH, temporaries = 0, promises, readFile, writeFile, mkdir, readdir, stat, access, copyFile, cp, rm, chmod, mkdtemp, fs_default;
+var files, directories, modes, encoder, decoder, EPOCH, temporaries = 0, promises, readFile, writeFile, mkdir, readdir, stat, access, copyFile, cp, rm, chmod, mkdtemp;
 var init_fs = __esm(() => {
   files = new Map;
   directories = new Set(["/"]);
@@ -337,15 +327,15 @@ var init_fs = __esm(() => {
       if (!existsSync(path))
         fail("ENOENT", "access", normalize(path));
     },
-    async copyFile(from2, to) {
-      const source = normalize(from2);
+    async copyFile(from, to) {
+      const source = normalize(from);
       const contents = files.get(source);
       if (contents === undefined)
         fail("ENOENT", "copyfile", source);
       write2(to, contents);
     },
-    async cp(from2, to) {
-      copyTree(from2, to);
+    async cp(from, to) {
+      copyTree(from, to);
     },
     async rm(path, options) {
       remove(path, options);
@@ -361,17 +351,6 @@ var init_fs = __esm(() => {
     }
   };
   ({ readFile, writeFile, mkdir, readdir, stat, access, copyFile, cp, rm, chmod, mkdtemp } = promises);
-  fs_default = {
-    existsSync,
-    readFileSync,
-    writeFileSync,
-    mkdirSync,
-    readdirSync,
-    statSync,
-    rmSync,
-    chmodSync,
-    promises
-  };
 });
 
 // node:path
@@ -380,18 +359,18 @@ function assertPath(path) {
     throw TypeError("Path must be a string. Received " + JSON.stringify(path));
 }
 function normalizeStringPosix(path, allowAboveRoot) {
-  var res = "", lastSegmentLength = 0, lastSlash = -1, dots = 0, code2;
-  for (var i2 = 0;i2 <= path.length; ++i2) {
-    if (i2 < path.length)
-      code2 = path.charCodeAt(i2);
-    else if (code2 === 47)
+  var res = "", lastSegmentLength = 0, lastSlash = -1, dots = 0, code;
+  for (var i = 0;i <= path.length; ++i) {
+    if (i < path.length)
+      code = path.charCodeAt(i);
+    else if (code === 47)
       break;
     else
-      code2 = 47;
-    if (code2 === 47) {
-      if (lastSlash === i2 - 1 || dots === 1)
+      code = 47;
+    if (code === 47) {
+      if (lastSlash === i - 1 || dots === 1)
         ;
-      else if (lastSlash !== i2 - 1 && dots === 2) {
+      else if (lastSlash !== i - 1 && dots === 2) {
         if (res.length < 2 || lastSegmentLength !== 2 || res.charCodeAt(res.length - 1) !== 46 || res.charCodeAt(res.length - 2) !== 46) {
           if (res.length > 2) {
             var lastSlashIndex = res.lastIndexOf("/");
@@ -400,11 +379,11 @@ function normalizeStringPosix(path, allowAboveRoot) {
                 res = "", lastSegmentLength = 0;
               else
                 res = res.slice(0, lastSlashIndex), lastSegmentLength = res.length - 1 - res.lastIndexOf("/");
-              lastSlash = i2, dots = 0;
+              lastSlash = i, dots = 0;
               continue;
             }
           } else if (res.length === 2 || res.length === 1) {
-            res = "", lastSegmentLength = 0, lastSlash = i2, dots = 0;
+            res = "", lastSegmentLength = 0, lastSlash = i, dots = 0;
             continue;
           }
         }
@@ -417,13 +396,13 @@ function normalizeStringPosix(path, allowAboveRoot) {
         }
       } else {
         if (res.length > 0)
-          res += "/" + path.slice(lastSlash + 1, i2);
+          res += "/" + path.slice(lastSlash + 1, i);
         else
-          res = path.slice(lastSlash + 1, i2);
-        lastSegmentLength = i2 - lastSlash - 1;
+          res = path.slice(lastSlash + 1, i);
+        lastSegmentLength = i - lastSlash - 1;
       }
-      lastSlash = i2, dots = 0;
-    } else if (code2 === 46 && dots !== -1)
+      lastSlash = i, dots = 0;
+    } else if (code === 46 && dots !== -1)
       ++dots;
     else
       dots = -1;
@@ -440,10 +419,10 @@ function _format(sep, pathObject) {
 }
 function resolve() {
   var resolvedPath = "", resolvedAbsolute = false, cwd;
-  for (var i2 = arguments.length - 1;i2 >= -1 && !resolvedAbsolute; i2--) {
+  for (var i = arguments.length - 1;i >= -1 && !resolvedAbsolute; i--) {
     var path;
-    if (i2 >= 0)
-      path = arguments[i2];
+    if (i >= 0)
+      path = arguments[i];
     else {
       if (cwd === undefined)
         cwd = process.cwd();
@@ -482,8 +461,8 @@ function join() {
   if (arguments.length === 0)
     return ".";
   var joined;
-  for (var i2 = 0;i2 < arguments.length; ++i2) {
-    var arg = arguments[i2];
+  for (var i = 0;i < arguments.length; ++i) {
+    var arg = arguments[i];
     if (assertPath(arg), arg.length > 0)
       if (joined === undefined)
         joined = arg;
@@ -494,44 +473,44 @@ function join() {
     return ".";
   return normalize2(joined);
 }
-function relative(from2, to) {
-  if (assertPath(from2), assertPath(to), from2 === to)
+function relative(from, to) {
+  if (assertPath(from), assertPath(to), from === to)
     return "";
-  if (from2 = resolve(from2), to = resolve(to), from2 === to)
+  if (from = resolve(from), to = resolve(to), from === to)
     return "";
   var fromStart = 1;
-  for (;fromStart < from2.length; ++fromStart)
-    if (from2.charCodeAt(fromStart) !== 47)
+  for (;fromStart < from.length; ++fromStart)
+    if (from.charCodeAt(fromStart) !== 47)
       break;
-  var fromEnd = from2.length, fromLen = fromEnd - fromStart, toStart = 1;
+  var fromEnd = from.length, fromLen = fromEnd - fromStart, toStart = 1;
   for (;toStart < to.length; ++toStart)
     if (to.charCodeAt(toStart) !== 47)
       break;
-  var toEnd = to.length, toLen = toEnd - toStart, length = fromLen < toLen ? fromLen : toLen, lastCommonSep = -1, i2 = 0;
-  for (;i2 <= length; ++i2) {
-    if (i2 === length) {
+  var toEnd = to.length, toLen = toEnd - toStart, length = fromLen < toLen ? fromLen : toLen, lastCommonSep = -1, i = 0;
+  for (;i <= length; ++i) {
+    if (i === length) {
       if (toLen > length) {
-        if (to.charCodeAt(toStart + i2) === 47)
-          return to.slice(toStart + i2 + 1);
-        else if (i2 === 0)
-          return to.slice(toStart + i2);
+        if (to.charCodeAt(toStart + i) === 47)
+          return to.slice(toStart + i + 1);
+        else if (i === 0)
+          return to.slice(toStart + i);
       } else if (fromLen > length) {
-        if (from2.charCodeAt(fromStart + i2) === 47)
-          lastCommonSep = i2;
-        else if (i2 === 0)
+        if (from.charCodeAt(fromStart + i) === 47)
+          lastCommonSep = i;
+        else if (i === 0)
           lastCommonSep = 0;
       }
       break;
     }
-    var fromCode = from2.charCodeAt(fromStart + i2), toCode = to.charCodeAt(toStart + i2);
+    var fromCode = from.charCodeAt(fromStart + i), toCode = to.charCodeAt(toStart + i);
     if (fromCode !== toCode)
       break;
     else if (fromCode === 47)
-      lastCommonSep = i2;
+      lastCommonSep = i;
   }
   var out = "";
-  for (i2 = fromStart + lastCommonSep + 1;i2 <= fromEnd; ++i2)
-    if (i2 === fromEnd || from2.charCodeAt(i2) === 47)
+  for (i = fromStart + lastCommonSep + 1;i <= fromEnd; ++i)
+    if (i === fromEnd || from.charCodeAt(i) === 47)
       if (out.length === 0)
         out += "..";
       else
@@ -550,11 +529,11 @@ function _makeLong(path) {
 function dirname(path) {
   if (assertPath(path), path.length === 0)
     return ".";
-  var code2 = path.charCodeAt(0), hasRoot = code2 === 47, end = -1, matchedSlash = true;
-  for (var i2 = path.length - 1;i2 >= 1; --i2)
-    if (code2 = path.charCodeAt(i2), code2 === 47) {
+  var code = path.charCodeAt(0), hasRoot = code === 47, end = -1, matchedSlash = true;
+  for (var i = path.length - 1;i >= 1; --i)
+    if (code = path.charCodeAt(i), code === 47) {
       if (!matchedSlash) {
-        end = i2;
+        end = i;
         break;
       }
     } else
@@ -569,25 +548,25 @@ function basename(path, ext) {
   if (ext !== undefined && typeof ext !== "string")
     throw TypeError('"ext" argument must be a string');
   assertPath(path);
-  var start = 0, end = -1, matchedSlash = true, i2;
+  var start = 0, end = -1, matchedSlash = true, i;
   if (ext !== undefined && ext.length > 0 && ext.length <= path.length) {
     if (ext.length === path.length && ext === path)
       return "";
     var extIdx = ext.length - 1, firstNonSlashEnd = -1;
-    for (i2 = path.length - 1;i2 >= 0; --i2) {
-      var code2 = path.charCodeAt(i2);
-      if (code2 === 47) {
+    for (i = path.length - 1;i >= 0; --i) {
+      var code = path.charCodeAt(i);
+      if (code === 47) {
         if (!matchedSlash) {
-          start = i2 + 1;
+          start = i + 1;
           break;
         }
       } else {
         if (firstNonSlashEnd === -1)
-          matchedSlash = false, firstNonSlashEnd = i2 + 1;
+          matchedSlash = false, firstNonSlashEnd = i + 1;
         if (extIdx >= 0)
-          if (code2 === ext.charCodeAt(extIdx)) {
+          if (code === ext.charCodeAt(extIdx)) {
             if (--extIdx === -1)
-              end = i2;
+              end = i;
           } else
             extIdx = -1, end = firstNonSlashEnd;
       }
@@ -598,14 +577,14 @@ function basename(path, ext) {
       end = path.length;
     return path.slice(start, end);
   } else {
-    for (i2 = path.length - 1;i2 >= 0; --i2)
-      if (path.charCodeAt(i2) === 47) {
+    for (i = path.length - 1;i >= 0; --i)
+      if (path.charCodeAt(i) === 47) {
         if (!matchedSlash) {
-          start = i2 + 1;
+          start = i + 1;
           break;
         }
       } else if (end === -1)
-        matchedSlash = false, end = i2 + 1;
+        matchedSlash = false, end = i + 1;
     if (end === -1)
       return "";
     return path.slice(start, end);
@@ -614,20 +593,20 @@ function basename(path, ext) {
 function extname(path) {
   assertPath(path);
   var startDot = -1, startPart = 0, end = -1, matchedSlash = true, preDotState = 0;
-  for (var i2 = path.length - 1;i2 >= 0; --i2) {
-    var code2 = path.charCodeAt(i2);
-    if (code2 === 47) {
+  for (var i = path.length - 1;i >= 0; --i) {
+    var code = path.charCodeAt(i);
+    if (code === 47) {
       if (!matchedSlash) {
-        startPart = i2 + 1;
+        startPart = i + 1;
         break;
       }
       continue;
     }
     if (end === -1)
-      matchedSlash = false, end = i2 + 1;
-    if (code2 === 46) {
+      matchedSlash = false, end = i + 1;
+    if (code === 46) {
       if (startDot === -1)
-        startDot = i2;
+        startDot = i;
       else if (preDotState !== 1)
         preDotState = 1;
     } else if (startDot !== -1)
@@ -647,25 +626,25 @@ function parse(path) {
   var ret = { root: "", dir: "", base: "", ext: "", name: "" };
   if (path.length === 0)
     return ret;
-  var code2 = path.charCodeAt(0), isAbsolute2 = code2 === 47, start;
+  var code = path.charCodeAt(0), isAbsolute2 = code === 47, start;
   if (isAbsolute2)
     ret.root = "/", start = 1;
   else
     start = 0;
-  var startDot = -1, startPart = 0, end = -1, matchedSlash = true, i2 = path.length - 1, preDotState = 0;
-  for (;i2 >= start; --i2) {
-    if (code2 = path.charCodeAt(i2), code2 === 47) {
+  var startDot = -1, startPart = 0, end = -1, matchedSlash = true, i = path.length - 1, preDotState = 0;
+  for (;i >= start; --i) {
+    if (code = path.charCodeAt(i), code === 47) {
       if (!matchedSlash) {
-        startPart = i2 + 1;
+        startPart = i + 1;
         break;
       }
       continue;
     }
     if (end === -1)
-      matchedSlash = false, end = i2 + 1;
-    if (code2 === 46) {
+      matchedSlash = false, end = i + 1;
+    if (code === 46) {
       if (startDot === -1)
-        startDot = i2;
+        startDot = i;
       else if (preDotState !== 1)
         preDotState = 1;
     } else if (startDot !== -1)
@@ -697,7 +676,7 @@ var init_path = __esm(() => {
 });
 
 // node_modules/.bun/quick-format-unescaped@4.0.4/node_modules/quick-format-unescaped/index.js
-var require_quick_format_unescaped = __commonJS((exports, module) => {
+var require_quick_format_unescaped = __commonJS(function(exports, module) {
   function tryStringify(o) {
     try {
       return JSON.stringify(o);
@@ -705,17 +684,17 @@ var require_quick_format_unescaped = __commonJS((exports, module) => {
       return '"[Circular]"';
     }
   }
-  module.exports = format2;
-  function format2(f, args, opts) {
+  module.exports = format;
+  function format(f, args, opts) {
     var ss = opts && opts.stringify || tryStringify;
     var offset = 1;
     if (typeof f === "object" && f !== null) {
-      var len2 = args.length + offset;
-      if (len2 === 1)
+      var len = args.length + offset;
+      if (len === 1)
         return f;
-      var objects = new Array(len2);
+      var objects = new Array(len);
       objects[0] = ss(f);
-      for (var index = 1;index < len2; index++) {
+      for (var index = 1;index < len; index++) {
         objects[index] = ss(args[index]);
       }
       return objects.join(" ");
@@ -730,32 +709,32 @@ var require_quick_format_unescaped = __commonJS((exports, module) => {
     var a = 1 - offset;
     var lastPos = -1;
     var flen = f && f.length || 0;
-    for (var i2 = 0;i2 < flen; ) {
-      if (f.charCodeAt(i2) === 37 && i2 + 1 < flen) {
+    for (var i = 0;i < flen; ) {
+      if (f.charCodeAt(i) === 37 && i + 1 < flen) {
         lastPos = lastPos > -1 ? lastPos : 0;
-        switch (f.charCodeAt(i2 + 1)) {
+        switch (f.charCodeAt(i + 1)) {
           case 100:
           case 102:
             if (a >= argLen)
               break;
             if (args[a] == null)
               break;
-            if (lastPos < i2)
-              str += f.slice(lastPos, i2);
+            if (lastPos < i)
+              str += f.slice(lastPos, i);
             str += Number(args[a]);
-            lastPos = i2 + 2;
-            i2++;
+            lastPos = i + 2;
+            i++;
             break;
           case 105:
             if (a >= argLen)
               break;
             if (args[a] == null)
               break;
-            if (lastPos < i2)
-              str += f.slice(lastPos, i2);
+            if (lastPos < i)
+              str += f.slice(lastPos, i);
             str += Math.floor(Number(args[a]));
-            lastPos = i2 + 2;
-            i2++;
+            lastPos = i + 2;
+            i++;
             break;
           case 79:
           case 111:
@@ -764,46 +743,46 @@ var require_quick_format_unescaped = __commonJS((exports, module) => {
               break;
             if (args[a] === undefined)
               break;
-            if (lastPos < i2)
-              str += f.slice(lastPos, i2);
+            if (lastPos < i)
+              str += f.slice(lastPos, i);
             var type = typeof args[a];
             if (type === "string") {
               str += "'" + args[a] + "'";
-              lastPos = i2 + 2;
-              i2++;
+              lastPos = i + 2;
+              i++;
               break;
             }
             if (type === "function") {
               str += args[a].name || "<anonymous>";
-              lastPos = i2 + 2;
-              i2++;
+              lastPos = i + 2;
+              i++;
               break;
             }
             str += ss(args[a]);
-            lastPos = i2 + 2;
-            i2++;
+            lastPos = i + 2;
+            i++;
             break;
           case 115:
             if (a >= argLen)
               break;
-            if (lastPos < i2)
-              str += f.slice(lastPos, i2);
+            if (lastPos < i)
+              str += f.slice(lastPos, i);
             str += String(args[a]);
-            lastPos = i2 + 2;
-            i2++;
+            lastPos = i + 2;
+            i++;
             break;
           case 37:
-            if (lastPos < i2)
-              str += f.slice(lastPos, i2);
+            if (lastPos < i)
+              str += f.slice(lastPos, i);
             str += "%";
-            lastPos = i2 + 2;
-            i2++;
+            lastPos = i + 2;
+            i++;
             a--;
             break;
         }
         ++a;
       }
-      ++i2;
+      ++i;
     }
     if (lastPos === -1)
       return f;
@@ -815,8 +794,8 @@ var require_quick_format_unescaped = __commonJS((exports, module) => {
 });
 
 // node_modules/.bun/pino@9.14.0/node_modules/pino/browser.js
-var require_browser = __commonJS((exports, module) => {
-  var format2 = require_quick_format_unescaped();
+var require_browser = __commonJS(function(exports, module) {
+  var format = require_quick_format_unescaped();
   module.exports = pino;
   var _console = pfGlobalThisOrFallback().console || {};
   var stdSerializers = {
@@ -871,8 +850,8 @@ var require_browser = __commonJS((exports, module) => {
   function pino(opts) {
     opts = opts || {};
     opts.browser = opts.browser || {};
-    const transmit2 = opts.browser.transmit;
-    if (transmit2 && typeof transmit2.send !== "function") {
+    const transmit = opts.browser.transmit;
+    if (transmit && typeof transmit.send !== "function") {
       throw Error("pino: transmit option must have a send function");
     }
     const proto = opts.browser.write || _console;
@@ -886,8 +865,8 @@ var require_browser = __commonJS((exports, module) => {
     const customLevels = Object.keys(opts.customLevels || {});
     const levels = ["error", "fatal", "warn", "info", "debug", "trace"].concat(customLevels);
     if (typeof proto === "function") {
-      levels.forEach(function(level2) {
-        proto[level2] = proto;
+      levels.forEach(function(level) {
+        proto[level] = proto;
       });
     }
     if (opts.enabled === false || opts.browser.disabled)
@@ -906,7 +885,7 @@ var require_browser = __commonJS((exports, module) => {
       set: setLevel
     });
     const setOpts = {
-      transmit: transmit2,
+      transmit,
       serialize,
       asObject: opts.browser.asObject,
       asObjectBindingsOnly: opts.browser.asObjectBindingsOnly,
@@ -918,11 +897,11 @@ var require_browser = __commonJS((exports, module) => {
     };
     logger.levels = getLevels(opts);
     logger.level = level;
-    logger.isLevelEnabled = function(level2) {
-      if (!this.levels.values[level2]) {
+    logger.isLevelEnabled = function(level) {
+      if (!this.levels.values[level]) {
         return false;
       }
-      return this.levels.values[level2] >= this.levels.values[this.level];
+      return this.levels.values[level] >= this.levels.values[this.level];
     };
     logger.setMaxListeners = logger.getMaxListeners = logger.emit = logger.addListener = logger.on = logger.prependListener = logger.once = logger.prependOnceListener = logger.removeListener = logger.removeAllListeners = logger.listeners = logger.listenerCount = logger.eventNames = logger.write = logger.flush = noop;
     logger.serializers = serializers;
@@ -931,7 +910,7 @@ var require_browser = __commonJS((exports, module) => {
     logger.child = function(...args) {
       return child.call(this, setOpts, ...args);
     };
-    if (transmit2)
+    if (transmit)
       logger._logEvent = createLogEventShape();
     function getLevelVal() {
       return levelToValue(this.level, this);
@@ -939,22 +918,22 @@ var require_browser = __commonJS((exports, module) => {
     function getLevel() {
       return this._level;
     }
-    function setLevel(level2) {
-      if (level2 !== "silent" && !this.levels.values[level2]) {
-        throw Error("unknown level " + level2);
+    function setLevel(level) {
+      if (level !== "silent" && !this.levels.values[level]) {
+        throw Error("unknown level " + level);
       }
-      this._level = level2;
+      this._level = level;
       set(this, setOpts, logger, "error");
       set(this, setOpts, logger, "fatal");
       set(this, setOpts, logger, "warn");
       set(this, setOpts, logger, "info");
       set(this, setOpts, logger, "debug");
       set(this, setOpts, logger, "trace");
-      customLevels.forEach((level3) => {
-        set(this, setOpts, logger, level3);
+      customLevels.forEach((level) => {
+        set(this, setOpts, logger, level);
       });
     }
-    function child(setOpts2, bindings, childOptions) {
+    function child(setOpts, bindings, childOptions) {
       if (!bindings) {
         throw new Error("missing bindings for child Pino");
       }
@@ -969,25 +948,25 @@ var require_browser = __commonJS((exports, module) => {
         delete bindings.serializers;
         applySerializers([bindings], childSerialize, childSerializers, this._stdErrSerialize);
       }
-      function Child(parent2) {
-        this._childLevel = (parent2._childLevel | 0) + 1;
+      function Child(parent) {
+        this._childLevel = (parent._childLevel | 0) + 1;
         this.bindings = bindings;
         if (childSerializers) {
           this.serializers = childSerializers;
           this._serialize = childSerialize;
         }
-        if (transmit2) {
-          this._logEvent = createLogEventShape([].concat(parent2._logEvent.bindings, bindings));
+        if (transmit) {
+          this._logEvent = createLogEventShape([].concat(parent._logEvent.bindings, bindings));
         }
       }
       Child.prototype = this;
       const newLogger = new Child(this);
       appendChildLogger(this, newLogger);
       newLogger.child = function(...args) {
-        return child.call(this, setOpts2, ...args);
+        return child.call(this, setOpts, ...args);
       };
       newLogger.level = childOptions.level || this.level;
-      setOpts2.onChild(newLogger);
+      setOpts.onChild(newLogger);
       return newLogger;
     }
     return logger;
@@ -1071,22 +1050,22 @@ var require_browser = __commonJS((exports, module) => {
     };
   }
   function createWrap(self2, opts, rootLogger, level) {
-    return function(write3) {
+    return function(write) {
       return function LOG() {
         const ts = opts.timestamp();
         const args = new Array(arguments.length);
         const proto = Object.getPrototypeOf && Object.getPrototypeOf(this) === _console ? _console : this;
-        for (var i2 = 0;i2 < args.length; i2++)
-          args[i2] = arguments[i2];
+        for (var i = 0;i < args.length; i++)
+          args[i] = arguments[i];
         var argsIsSerialized = false;
         if (opts.serialize) {
           applySerializers(args, this._serialize, this.serializers, this._stdErrSerialize);
           argsIsSerialized = true;
         }
         if (opts.asObject || opts.formatters) {
-          write3.call(proto, ...asObject(this, level, args, ts, opts));
+          write.call(proto, ...asObject(this, level, args, ts, opts));
         } else
-          write3.apply(proto, args);
+          write.apply(proto, args);
         if (opts.transmit) {
           const transmitLevel = opts.transmit.level || self2._level;
           const transmitValue = levelToValue(transmitLevel, rootLogger);
@@ -1139,9 +1118,9 @@ var require_browser = __commonJS((exports, module) => {
         while (lvl-- && typeof argsCloned[0] === "object") {
           Object.assign(logObject, argsCloned.shift());
         }
-        msg = argsCloned.length ? format2(argsCloned.shift(), argsCloned) : undefined;
+        msg = argsCloned.length ? format(argsCloned.shift(), argsCloned) : undefined;
       } else if (typeof msg === "string")
-        msg = format2(argsCloned.shift(), argsCloned);
+        msg = format(argsCloned.shift(), argsCloned);
       if (msg !== undefined)
         logObject[opts.messageKey] = msg;
       const formattedLogObject = logObjectFormatter(logObject);
@@ -1149,13 +1128,13 @@ var require_browser = __commonJS((exports, module) => {
     }
   }
   function applySerializers(args, serialize, serializers, stdErrSerialize) {
-    for (const i2 in args) {
-      if (stdErrSerialize && args[i2] instanceof Error) {
-        args[i2] = pino.stdSerializers.err(args[i2]);
-      } else if (typeof args[i2] === "object" && !Array.isArray(args[i2]) && serialize) {
-        for (const k in args[i2]) {
+    for (const i in args) {
+      if (stdErrSerialize && args[i] instanceof Error) {
+        args[i] = pino.stdSerializers.err(args[i]);
+      } else if (typeof args[i] === "object" && !Array.isArray(args[i]) && serialize) {
+        for (const k in args[i]) {
           if (serialize.indexOf(k) > -1 && k in serializers) {
-            args[i2][k] = serializers[k](args[i2][k]);
+            args[i][k] = serializers[k](args[i][k]);
           }
         }
       }
@@ -1295,35 +1274,35 @@ var util, objectUtil, ZodParsedType, getParsedType = (data) => {
   }
 };
 var init_util = __esm(() => {
-  (function(util2) {
-    util2.assertEqual = (_) => {};
+  (function(util) {
+    util.assertEqual = (_) => {};
     function assertIs(_arg) {}
-    util2.assertIs = assertIs;
+    util.assertIs = assertIs;
     function assertNever(_x) {
       throw new Error;
     }
-    util2.assertNever = assertNever;
-    util2.arrayToEnum = (items) => {
+    util.assertNever = assertNever;
+    util.arrayToEnum = (items) => {
       const obj = {};
       for (const item of items) {
         obj[item] = item;
       }
       return obj;
     };
-    util2.getValidEnumValues = (obj) => {
-      const validKeys = util2.objectKeys(obj).filter((k) => typeof obj[obj[k]] !== "number");
+    util.getValidEnumValues = (obj) => {
+      const validKeys = util.objectKeys(obj).filter((k) => typeof obj[obj[k]] !== "number");
       const filtered = {};
       for (const k of validKeys) {
         filtered[k] = obj[k];
       }
-      return util2.objectValues(filtered);
+      return util.objectValues(filtered);
     };
-    util2.objectValues = (obj) => {
-      return util2.objectKeys(obj).map(function(e) {
+    util.objectValues = (obj) => {
+      return util.objectKeys(obj).map(function(e) {
         return obj[e];
       });
     };
-    util2.objectKeys = typeof Object.keys === "function" ? (obj) => Object.keys(obj) : (object) => {
+    util.objectKeys = typeof Object.keys === "function" ? (obj) => Object.keys(obj) : (object) => {
       const keys = [];
       for (const key in object) {
         if (Object.prototype.hasOwnProperty.call(object, key)) {
@@ -1332,27 +1311,27 @@ var init_util = __esm(() => {
       }
       return keys;
     };
-    util2.find = (arr, checker) => {
+    util.find = (arr, checker) => {
       for (const item of arr) {
         if (checker(item))
           return item;
       }
       return;
     };
-    util2.isInteger = typeof Number.isInteger === "function" ? (val) => Number.isInteger(val) : (val) => typeof val === "number" && Number.isFinite(val) && Math.floor(val) === val;
+    util.isInteger = typeof Number.isInteger === "function" ? (val) => Number.isInteger(val) : (val) => typeof val === "number" && Number.isFinite(val) && Math.floor(val) === val;
     function joinValues(array, separator = " | ") {
       return array.map((val) => typeof val === "string" ? `'${val}'` : val).join(separator);
     }
-    util2.joinValues = joinValues;
-    util2.jsonStringifyReplacer = (_, value) => {
+    util.joinValues = joinValues;
+    util.jsonStringifyReplacer = (_, value) => {
       if (typeof value === "bigint") {
         return value.toString();
       }
       return value;
     };
   })(util || (util = {}));
-  (function(objectUtil2) {
-    objectUtil2.mergeShapes = (first, second) => {
+  (function(objectUtil) {
+    objectUtil.mergeShapes = (first, second) => {
       return {
         ...first,
         ...second
@@ -1384,10 +1363,7 @@ var init_util = __esm(() => {
 });
 
 // node_modules/.bun/zod@3.25.76/node_modules/zod/v3/ZodError.js
-var ZodIssueCode, quotelessJson = (obj) => {
-  const json = JSON.stringify(obj, null, 2);
-  return json.replace(/"([^"]+)":/g, "$1:");
-}, ZodError;
+var ZodIssueCode, ZodError;
 var init_ZodError = __esm(() => {
   init_util();
   ZodIssueCode = util.arrayToEnum([
@@ -1447,10 +1423,10 @@ var init_ZodError = __esm(() => {
             fieldErrors._errors.push(mapper(issue));
           } else {
             let curr = fieldErrors;
-            let i2 = 0;
-            while (i2 < issue.path.length) {
-              const el = issue.path[i2];
-              const terminal = i2 === issue.path.length - 1;
+            let i = 0;
+            while (i < issue.path.length) {
+              const el = issue.path[i];
+              const terminal = i === issue.path.length - 1;
               if (!terminal) {
                 curr[el] = curr[el] || { _errors: [] };
               } else {
@@ -1458,7 +1434,7 @@ var init_ZodError = __esm(() => {
                 curr[el]._errors.push(mapper(issue));
               }
               curr = curr[el];
-              i2++;
+              i++;
             }
           }
         }
@@ -1612,9 +1588,6 @@ var init_en = __esm(() => {
 });
 
 // node_modules/.bun/zod@3.25.76/node_modules/zod/v3/errors.js
-function setErrorMap(map) {
-  overrideErrorMap = map;
-}
 function getErrorMap() {
   return overrideErrorMap;
 }
@@ -1653,18 +1626,18 @@ class ParseStatus {
     if (this.value !== "aborted")
       this.value = "aborted";
   }
-  static mergeArray(status2, results) {
+  static mergeArray(status, results) {
     const arrayValue = [];
     for (const s of results) {
       if (s.status === "aborted")
         return INVALID;
       if (s.status === "dirty")
-        status2.dirty();
+        status.dirty();
       arrayValue.push(s.value);
     }
-    return { status: status2.value, value: arrayValue };
+    return { status: status.value, value: arrayValue };
   }
-  static async mergeObjectAsync(status2, pairs) {
+  static async mergeObjectAsync(status, pairs) {
     const syncPairs = [];
     for (const pair of pairs) {
       const key = await pair.key;
@@ -1674,9 +1647,9 @@ class ParseStatus {
         value
       });
     }
-    return ParseStatus.mergeObjectSync(status2, syncPairs);
+    return ParseStatus.mergeObjectSync(status, syncPairs);
   }
-  static mergeObjectSync(status2, pairs) {
+  static mergeObjectSync(status, pairs) {
     const finalObject = {};
     for (const pair of pairs) {
       const { key, value } = pair;
@@ -1685,14 +1658,14 @@ class ParseStatus {
       if (value.status === "aborted")
         return INVALID;
       if (key.status === "dirty")
-        status2.dirty();
+        status.dirty();
       if (value.status === "dirty")
-        status2.dirty();
+        status.dirty();
       if (key.value !== "__proto__" && (typeof value.value !== "undefined" || pair.alwaysSet)) {
         finalObject[key.value] = value.value;
       }
     }
-    return { status: status2.value, value: finalObject };
+    return { status: status.value, value: finalObject };
   }
 }
 var makeIssue = (params) => {
@@ -1719,11 +1692,10 @@ var makeIssue = (params) => {
     path: fullPath,
     message: errorMessage
   };
-}, EMPTY_PATH, INVALID, DIRTY = (value) => ({ status: "dirty", value }), OK = (value) => ({ status: "valid", value }), isAborted = (x) => x.status === "aborted", isDirty = (x) => x.status === "dirty", isValid = (x) => x.status === "valid", isAsync = (x) => typeof Promise !== "undefined" && x instanceof Promise;
+}, INVALID, DIRTY = (value) => ({ status: "dirty", value }), OK = (value) => ({ status: "valid", value }), isAborted = (x) => x.status === "aborted", isDirty = (x) => x.status === "dirty", isValid = (x) => x.status === "valid", isAsync = (x) => typeof Promise !== "undefined" && x instanceof Promise;
 var init_parseUtil = __esm(() => {
   init_errors();
   init_en();
-  EMPTY_PATH = [];
   INVALID = Object.freeze({
     status: "aborted"
   });
@@ -1735,17 +1707,17 @@ var init_typeAliases = () => {};
 // node_modules/.bun/zod@3.25.76/node_modules/zod/v3/helpers/errorUtil.js
 var errorUtil;
 var init_errorUtil = __esm(() => {
-  (function(errorUtil2) {
-    errorUtil2.errToObj = (message) => typeof message === "string" ? { message } : message || {};
-    errorUtil2.toString = (message) => typeof message === "string" ? message : message?.message;
+  (function(errorUtil) {
+    errorUtil.errToObj = (message) => typeof message === "string" ? { message } : message || {};
+    errorUtil.toString = (message) => typeof message === "string" ? message : message?.message;
   })(errorUtil || (errorUtil = {}));
 });
 
 // node_modules/.bun/zod@3.25.76/node_modules/zod/v3/types.js
 class ParseInputLazyPath {
-  constructor(parent2, value, path, key) {
+  constructor(parent, value, path, key) {
     this._cachedPath = [];
-    this.parent = parent2;
+    this.parent = parent;
     this.data = value;
     this._path = path;
     this._key = key;
@@ -1764,12 +1736,12 @@ class ParseInputLazyPath {
 function processCreateParams(params) {
   if (!params)
     return {};
-  const { errorMap: errorMap2, invalid_type_error, required_error, description } = params;
-  if (errorMap2 && (invalid_type_error || required_error)) {
+  const { errorMap, invalid_type_error, required_error, description } = params;
+  if (errorMap && (invalid_type_error || required_error)) {
     throw new Error(`Can't use "invalid_type_error" or "required_error" in conjunction with custom error map.`);
   }
-  if (errorMap2)
-    return { errorMap: errorMap2, description };
+  if (errorMap)
+    return { errorMap, description };
   const customMap = (iss, ctx) => {
     const { message } = params;
     if (iss.code === "invalid_enum_value") {
@@ -2209,33 +2181,6 @@ function createZodEnum(values, params) {
     ...processCreateParams(params)
   });
 }
-function cleanParams(params, data) {
-  const p = typeof params === "function" ? params(data) : typeof params === "string" ? { message: params } : params;
-  const p2 = typeof p === "string" ? { message: p } : p;
-  return p2;
-}
-function custom(check, _params = {}, fatal) {
-  if (check)
-    return ZodAny.create().superRefine((data, ctx) => {
-      const r = check(data);
-      if (r instanceof Promise) {
-        return r.then((r2) => {
-          if (!r2) {
-            const params = cleanParams(_params, data);
-            const _fatal = params.fatal ?? fatal ?? true;
-            ctx.addIssue({ code: "custom", ...params, fatal: _fatal });
-          }
-        });
-      }
-      if (!r) {
-        const params = cleanParams(_params, data);
-        const _fatal = params.fatal ?? fatal ?? true;
-        ctx.addIssue({ code: "custom", ...params, fatal: _fatal });
-      }
-      return;
-    });
-  return ZodAny.create();
-}
 var handleResult = (ctx, result) => {
   if (isValid(result)) {
     return { success: true, data: result.value };
@@ -2284,9 +2229,7 @@ var handleResult = (ctx, result) => {
   } else {
     return [];
   }
-}, ZodDiscriminatedUnion, ZodIntersection, ZodTuple, ZodRecord, ZodMap, ZodSet, ZodFunction, ZodLazy, ZodLiteral, ZodEnum, ZodNativeEnum, ZodPromise, ZodEffects, ZodOptional, ZodNullable, ZodDefault, ZodCatch, ZodNaN, BRAND, ZodBranded, ZodPipeline, ZodReadonly, late, ZodFirstPartyTypeKind, instanceOfType = (cls, params = {
-  message: `Input not instance of ${cls.name}`
-}) => custom((data) => data instanceof cls, params), stringType, numberType, nanType, bigIntType, booleanType, dateType, symbolType, undefinedType, nullType, anyType, unknownType, neverType, voidType, arrayType, objectType, strictObjectType, unionType, discriminatedUnionType, intersectionType, tupleType, recordType, mapType, setType, functionType, lazyType, literalType, enumType, nativeEnumType, promiseType, effectsType, optionalType, nullableType, preprocessType, pipelineType, ostring = () => stringType().optional(), onumber = () => numberType().optional(), oboolean = () => booleanType().optional(), coerce, NEVER;
+}, ZodDiscriminatedUnion, ZodIntersection, ZodTuple, ZodRecord, ZodMap, ZodSet, ZodFunction, ZodLazy, ZodLiteral, ZodEnum, ZodNativeEnum, ZodPromise, ZodEffects, ZodOptional, ZodNullable, ZodDefault, ZodCatch, ZodNaN, BRAND, ZodBranded, ZodPipeline, ZodReadonly, late, ZodFirstPartyTypeKind, stringType, numberType, nanType, bigIntType, booleanType, dateType, symbolType, undefinedType, nullType, anyType, unknownType, neverType, voidType, arrayType, objectType, strictObjectType, unionType, discriminatedUnionType, intersectionType, tupleType, recordType, mapType, setType, functionType, lazyType, literalType, enumType, nativeEnumType, promiseType, effectsType, optionalType, nullableType, preprocessType, pipelineType;
 var init_types = __esm(() => {
   init_ZodError();
   init_errors();
@@ -2315,15 +2258,15 @@ var init_types = __esm(() => {
       }
       const parsedType = this._getType(input);
       if (parsedType !== ZodParsedType.string) {
-        const ctx2 = this._getOrReturnCtx(input);
-        addIssueToContext(ctx2, {
+        const ctx = this._getOrReturnCtx(input);
+        addIssueToContext(ctx, {
           code: ZodIssueCode.invalid_type,
           expected: ZodParsedType.string,
-          received: ctx2.parsedType
+          received: ctx.parsedType
         });
         return INVALID;
       }
-      const status2 = new ParseStatus;
+      const status = new ParseStatus;
       let ctx = undefined;
       for (const check of this._def.checks) {
         if (check.kind === "min") {
@@ -2337,7 +2280,7 @@ var init_types = __esm(() => {
               exact: false,
               message: check.message
             });
-            status2.dirty();
+            status.dirty();
           }
         } else if (check.kind === "max") {
           if (input.data.length > check.value) {
@@ -2350,7 +2293,7 @@ var init_types = __esm(() => {
               exact: false,
               message: check.message
             });
-            status2.dirty();
+            status.dirty();
           }
         } else if (check.kind === "length") {
           const tooBig = input.data.length > check.value;
@@ -2376,7 +2319,7 @@ var init_types = __esm(() => {
                 message: check.message
               });
             }
-            status2.dirty();
+            status.dirty();
           }
         } else if (check.kind === "email") {
           if (!emailRegex.test(input.data)) {
@@ -2386,7 +2329,7 @@ var init_types = __esm(() => {
               code: ZodIssueCode.invalid_string,
               message: check.message
             });
-            status2.dirty();
+            status.dirty();
           }
         } else if (check.kind === "emoji") {
           if (!emojiRegex) {
@@ -2399,7 +2342,7 @@ var init_types = __esm(() => {
               code: ZodIssueCode.invalid_string,
               message: check.message
             });
-            status2.dirty();
+            status.dirty();
           }
         } else if (check.kind === "uuid") {
           if (!uuidRegex.test(input.data)) {
@@ -2409,7 +2352,7 @@ var init_types = __esm(() => {
               code: ZodIssueCode.invalid_string,
               message: check.message
             });
-            status2.dirty();
+            status.dirty();
           }
         } else if (check.kind === "nanoid") {
           if (!nanoidRegex.test(input.data)) {
@@ -2419,7 +2362,7 @@ var init_types = __esm(() => {
               code: ZodIssueCode.invalid_string,
               message: check.message
             });
-            status2.dirty();
+            status.dirty();
           }
         } else if (check.kind === "cuid") {
           if (!cuidRegex.test(input.data)) {
@@ -2429,7 +2372,7 @@ var init_types = __esm(() => {
               code: ZodIssueCode.invalid_string,
               message: check.message
             });
-            status2.dirty();
+            status.dirty();
           }
         } else if (check.kind === "cuid2") {
           if (!cuid2Regex.test(input.data)) {
@@ -2439,7 +2382,7 @@ var init_types = __esm(() => {
               code: ZodIssueCode.invalid_string,
               message: check.message
             });
-            status2.dirty();
+            status.dirty();
           }
         } else if (check.kind === "ulid") {
           if (!ulidRegex.test(input.data)) {
@@ -2449,7 +2392,7 @@ var init_types = __esm(() => {
               code: ZodIssueCode.invalid_string,
               message: check.message
             });
-            status2.dirty();
+            status.dirty();
           }
         } else if (check.kind === "url") {
           try {
@@ -2461,7 +2404,7 @@ var init_types = __esm(() => {
               code: ZodIssueCode.invalid_string,
               message: check.message
             });
-            status2.dirty();
+            status.dirty();
           }
         } else if (check.kind === "regex") {
           check.regex.lastIndex = 0;
@@ -2473,7 +2416,7 @@ var init_types = __esm(() => {
               code: ZodIssueCode.invalid_string,
               message: check.message
             });
-            status2.dirty();
+            status.dirty();
           }
         } else if (check.kind === "trim") {
           input.data = input.data.trim();
@@ -2485,7 +2428,7 @@ var init_types = __esm(() => {
               validation: { includes: check.value, position: check.position },
               message: check.message
             });
-            status2.dirty();
+            status.dirty();
           }
         } else if (check.kind === "toLowerCase") {
           input.data = input.data.toLowerCase();
@@ -2499,7 +2442,7 @@ var init_types = __esm(() => {
               validation: { startsWith: check.value },
               message: check.message
             });
-            status2.dirty();
+            status.dirty();
           }
         } else if (check.kind === "endsWith") {
           if (!input.data.endsWith(check.value)) {
@@ -2509,7 +2452,7 @@ var init_types = __esm(() => {
               validation: { endsWith: check.value },
               message: check.message
             });
-            status2.dirty();
+            status.dirty();
           }
         } else if (check.kind === "datetime") {
           const regex = datetimeRegex(check);
@@ -2520,7 +2463,7 @@ var init_types = __esm(() => {
               validation: "datetime",
               message: check.message
             });
-            status2.dirty();
+            status.dirty();
           }
         } else if (check.kind === "date") {
           const regex = dateRegex;
@@ -2531,7 +2474,7 @@ var init_types = __esm(() => {
               validation: "date",
               message: check.message
             });
-            status2.dirty();
+            status.dirty();
           }
         } else if (check.kind === "time") {
           const regex = timeRegex(check);
@@ -2542,7 +2485,7 @@ var init_types = __esm(() => {
               validation: "time",
               message: check.message
             });
-            status2.dirty();
+            status.dirty();
           }
         } else if (check.kind === "duration") {
           if (!durationRegex.test(input.data)) {
@@ -2552,7 +2495,7 @@ var init_types = __esm(() => {
               code: ZodIssueCode.invalid_string,
               message: check.message
             });
-            status2.dirty();
+            status.dirty();
           }
         } else if (check.kind === "ip") {
           if (!isValidIP(input.data, check.version)) {
@@ -2562,7 +2505,7 @@ var init_types = __esm(() => {
               code: ZodIssueCode.invalid_string,
               message: check.message
             });
-            status2.dirty();
+            status.dirty();
           }
         } else if (check.kind === "jwt") {
           if (!isValidJWT(input.data, check.alg)) {
@@ -2572,7 +2515,7 @@ var init_types = __esm(() => {
               code: ZodIssueCode.invalid_string,
               message: check.message
             });
-            status2.dirty();
+            status.dirty();
           }
         } else if (check.kind === "cidr") {
           if (!isValidCidr(input.data, check.version)) {
@@ -2582,7 +2525,7 @@ var init_types = __esm(() => {
               code: ZodIssueCode.invalid_string,
               message: check.message
             });
-            status2.dirty();
+            status.dirty();
           }
         } else if (check.kind === "base64") {
           if (!base64Regex.test(input.data)) {
@@ -2592,7 +2535,7 @@ var init_types = __esm(() => {
               code: ZodIssueCode.invalid_string,
               message: check.message
             });
-            status2.dirty();
+            status.dirty();
           }
         } else if (check.kind === "base64url") {
           if (!base64urlRegex.test(input.data)) {
@@ -2602,13 +2545,13 @@ var init_types = __esm(() => {
               code: ZodIssueCode.invalid_string,
               message: check.message
             });
-            status2.dirty();
+            status.dirty();
           }
         } else {
           util.assertNever(check);
         }
       }
-      return { status: status2.value, value: input.data };
+      return { status: status.value, value: input.data };
     }
     _regex(regex, validation, message) {
       return this.refinement((data) => regex.test(data), {
@@ -2746,10 +2689,10 @@ var init_types = __esm(() => {
         ...errorUtil.errToObj(message)
       });
     }
-    length(len2, message) {
+    length(len, message) {
       return this._addCheck({
         kind: "length",
-        value: len2,
+        value: len,
         ...errorUtil.errToObj(message)
       });
     }
@@ -2864,16 +2807,16 @@ var init_types = __esm(() => {
       }
       const parsedType = this._getType(input);
       if (parsedType !== ZodParsedType.number) {
-        const ctx2 = this._getOrReturnCtx(input);
-        addIssueToContext(ctx2, {
+        const ctx = this._getOrReturnCtx(input);
+        addIssueToContext(ctx, {
           code: ZodIssueCode.invalid_type,
           expected: ZodParsedType.number,
-          received: ctx2.parsedType
+          received: ctx.parsedType
         });
         return INVALID;
       }
       let ctx = undefined;
-      const status2 = new ParseStatus;
+      const status = new ParseStatus;
       for (const check of this._def.checks) {
         if (check.kind === "int") {
           if (!util.isInteger(input.data)) {
@@ -2884,7 +2827,7 @@ var init_types = __esm(() => {
               received: "float",
               message: check.message
             });
-            status2.dirty();
+            status.dirty();
           }
         } else if (check.kind === "min") {
           const tooSmall = check.inclusive ? input.data < check.value : input.data <= check.value;
@@ -2898,7 +2841,7 @@ var init_types = __esm(() => {
               exact: false,
               message: check.message
             });
-            status2.dirty();
+            status.dirty();
           }
         } else if (check.kind === "max") {
           const tooBig = check.inclusive ? input.data > check.value : input.data >= check.value;
@@ -2912,7 +2855,7 @@ var init_types = __esm(() => {
               exact: false,
               message: check.message
             });
-            status2.dirty();
+            status.dirty();
           }
         } else if (check.kind === "multipleOf") {
           if (floatSafeRemainder(input.data, check.value) !== 0) {
@@ -2922,7 +2865,7 @@ var init_types = __esm(() => {
               multipleOf: check.value,
               message: check.message
             });
-            status2.dirty();
+            status.dirty();
           }
         } else if (check.kind === "finite") {
           if (!Number.isFinite(input.data)) {
@@ -2931,13 +2874,13 @@ var init_types = __esm(() => {
               code: ZodIssueCode.not_finite,
               message: check.message
             });
-            status2.dirty();
+            status.dirty();
           }
         } else {
           util.assertNever(check);
         }
       }
-      return { status: status2.value, value: input.data };
+      return { status: status.value, value: input.data };
     }
     gte(value, message) {
       return this.setLimit("min", value, true, errorUtil.toString(message));
@@ -3102,7 +3045,7 @@ var init_types = __esm(() => {
         return this._getInvalidInput(input);
       }
       let ctx = undefined;
-      const status2 = new ParseStatus;
+      const status = new ParseStatus;
       for (const check of this._def.checks) {
         if (check.kind === "min") {
           const tooSmall = check.inclusive ? input.data < check.value : input.data <= check.value;
@@ -3115,7 +3058,7 @@ var init_types = __esm(() => {
               inclusive: check.inclusive,
               message: check.message
             });
-            status2.dirty();
+            status.dirty();
           }
         } else if (check.kind === "max") {
           const tooBig = check.inclusive ? input.data > check.value : input.data >= check.value;
@@ -3128,7 +3071,7 @@ var init_types = __esm(() => {
               inclusive: check.inclusive,
               message: check.message
             });
-            status2.dirty();
+            status.dirty();
           }
         } else if (check.kind === "multipleOf") {
           if (input.data % check.value !== BigInt(0)) {
@@ -3138,13 +3081,13 @@ var init_types = __esm(() => {
               multipleOf: check.value,
               message: check.message
             });
-            status2.dirty();
+            status.dirty();
           }
         } else {
           util.assertNever(check);
         }
       }
-      return { status: status2.value, value: input.data };
+      return { status: status.value, value: input.data };
     }
     _getInvalidInput(input) {
       const ctx = this._getOrReturnCtx(input);
@@ -3287,22 +3230,22 @@ var init_types = __esm(() => {
       }
       const parsedType = this._getType(input);
       if (parsedType !== ZodParsedType.date) {
-        const ctx2 = this._getOrReturnCtx(input);
-        addIssueToContext(ctx2, {
+        const ctx = this._getOrReturnCtx(input);
+        addIssueToContext(ctx, {
           code: ZodIssueCode.invalid_type,
           expected: ZodParsedType.date,
-          received: ctx2.parsedType
+          received: ctx.parsedType
         });
         return INVALID;
       }
       if (Number.isNaN(input.data.getTime())) {
-        const ctx2 = this._getOrReturnCtx(input);
-        addIssueToContext(ctx2, {
+        const ctx = this._getOrReturnCtx(input);
+        addIssueToContext(ctx, {
           code: ZodIssueCode.invalid_date
         });
         return INVALID;
       }
-      const status2 = new ParseStatus;
+      const status = new ParseStatus;
       let ctx = undefined;
       for (const check of this._def.checks) {
         if (check.kind === "min") {
@@ -3316,7 +3259,7 @@ var init_types = __esm(() => {
               minimum: check.value,
               type: "date"
             });
-            status2.dirty();
+            status.dirty();
           }
         } else if (check.kind === "max") {
           if (input.data.getTime() > check.value) {
@@ -3329,14 +3272,14 @@ var init_types = __esm(() => {
               maximum: check.value,
               type: "date"
             });
-            status2.dirty();
+            status.dirty();
           }
         } else {
           util.assertNever(check);
         }
       }
       return {
-        status: status2.value,
+        status: status.value,
         value: new Date(input.data.getTime())
       };
     }
@@ -3522,7 +3465,7 @@ var init_types = __esm(() => {
   };
   ZodArray = class ZodArray extends ZodType {
     _parse(input) {
-      const { ctx, status: status2 } = this._processInputParams(input);
+      const { ctx, status } = this._processInputParams(input);
       const def = this._def;
       if (ctx.parsedType !== ZodParsedType.array) {
         addIssueToContext(ctx, {
@@ -3545,7 +3488,7 @@ var init_types = __esm(() => {
             exact: true,
             message: def.exactLength.message
           });
-          status2.dirty();
+          status.dirty();
         }
       }
       if (def.minLength !== null) {
@@ -3558,7 +3501,7 @@ var init_types = __esm(() => {
             exact: false,
             message: def.minLength.message
           });
-          status2.dirty();
+          status.dirty();
         }
       }
       if (def.maxLength !== null) {
@@ -3571,20 +3514,20 @@ var init_types = __esm(() => {
             exact: false,
             message: def.maxLength.message
           });
-          status2.dirty();
+          status.dirty();
         }
       }
       if (ctx.common.async) {
-        return Promise.all([...ctx.data].map((item, i2) => {
-          return def.type._parseAsync(new ParseInputLazyPath(ctx, item, ctx.path, i2));
-        })).then((result2) => {
-          return ParseStatus.mergeArray(status2, result2);
+        return Promise.all([...ctx.data].map((item, i) => {
+          return def.type._parseAsync(new ParseInputLazyPath(ctx, item, ctx.path, i));
+        })).then((result) => {
+          return ParseStatus.mergeArray(status, result);
         });
       }
-      const result = [...ctx.data].map((item, i2) => {
-        return def.type._parseSync(new ParseInputLazyPath(ctx, item, ctx.path, i2));
+      const result = [...ctx.data].map((item, i) => {
+        return def.type._parseSync(new ParseInputLazyPath(ctx, item, ctx.path, i));
       });
-      return ParseStatus.mergeArray(status2, result);
+      return ParseStatus.mergeArray(status, result);
     }
     get element() {
       return this._def.type;
@@ -3601,10 +3544,10 @@ var init_types = __esm(() => {
         maxLength: { value: maxLength, message: errorUtil.toString(message) }
       });
     }
-    length(len2, message) {
+    length(len, message) {
       return new ZodArray({
         ...this._def,
-        exactLength: { value: len2, message: errorUtil.toString(message) }
+        exactLength: { value: len, message: errorUtil.toString(message) }
       });
     }
     nonempty(message) {
@@ -3639,15 +3582,15 @@ var init_types = __esm(() => {
     _parse(input) {
       const parsedType = this._getType(input);
       if (parsedType !== ZodParsedType.object) {
-        const ctx2 = this._getOrReturnCtx(input);
-        addIssueToContext(ctx2, {
+        const ctx = this._getOrReturnCtx(input);
+        addIssueToContext(ctx, {
           code: ZodIssueCode.invalid_type,
           expected: ZodParsedType.object,
-          received: ctx2.parsedType
+          received: ctx.parsedType
         });
         return INVALID;
       }
-      const { status: status2, ctx } = this._processInputParams(input);
+      const { status, ctx } = this._processInputParams(input);
       const { shape, keys: shapeKeys } = this._getCached();
       const extraKeys = [];
       if (!(this._def.catchall instanceof ZodNever && this._def.unknownKeys === "strip")) {
@@ -3682,7 +3625,7 @@ var init_types = __esm(() => {
               code: ZodIssueCode.unrecognized_keys,
               keys: extraKeys
             });
-            status2.dirty();
+            status.dirty();
           }
         } else if (unknownKeys === "strip") {} else {
           throw new Error(`Internal ZodObject error: invalid unknownKeys value.`);
@@ -3712,10 +3655,10 @@ var init_types = __esm(() => {
           }
           return syncPairs;
         }).then((syncPairs) => {
-          return ParseStatus.mergeObjectSync(status2, syncPairs);
+          return ParseStatus.mergeObjectSync(status, syncPairs);
         });
       } else {
-        return ParseStatus.mergeObjectSync(status2, pairs);
+        return ParseStatus.mergeObjectSync(status, pairs);
       }
     }
     get shape() {
@@ -3946,7 +3889,7 @@ var init_types = __esm(() => {
           ctx.common.issues.push(...dirty.ctx.common.issues);
           return dirty.result;
         }
-        const unionErrors = issues.map((issues2) => new ZodError(issues2));
+        const unionErrors = issues.map((issues) => new ZodError(issues));
         addIssueToContext(ctx, {
           code: ZodIssueCode.invalid_union,
           unionErrors
@@ -4035,7 +3978,7 @@ var init_types = __esm(() => {
   };
   ZodIntersection = class ZodIntersection extends ZodType {
     _parse(input) {
-      const { status: status2, ctx } = this._processInputParams(input);
+      const { status, ctx } = this._processInputParams(input);
       const handleParsed = (parsedLeft, parsedRight) => {
         if (isAborted(parsedLeft) || isAborted(parsedRight)) {
           return INVALID;
@@ -4048,9 +3991,9 @@ var init_types = __esm(() => {
           return INVALID;
         }
         if (isDirty(parsedLeft) || isDirty(parsedRight)) {
-          status2.dirty();
+          status.dirty();
         }
-        return { status: status2.value, value: merged.data };
+        return { status: status.value, value: merged.data };
       };
       if (ctx.common.async) {
         return Promise.all([
@@ -4088,7 +4031,7 @@ var init_types = __esm(() => {
   };
   ZodTuple = class ZodTuple extends ZodType {
     _parse(input) {
-      const { status: status2, ctx } = this._processInputParams(input);
+      const { status, ctx } = this._processInputParams(input);
       if (ctx.parsedType !== ZodParsedType.array) {
         addIssueToContext(ctx, {
           code: ZodIssueCode.invalid_type,
@@ -4116,7 +4059,7 @@ var init_types = __esm(() => {
           exact: false,
           type: "array"
         });
-        status2.dirty();
+        status.dirty();
       }
       const items = [...ctx.data].map((item, itemIndex) => {
         const schema = this._def.items[itemIndex] || this._def.rest;
@@ -4126,10 +4069,10 @@ var init_types = __esm(() => {
       }).filter((x) => !!x);
       if (ctx.common.async) {
         return Promise.all(items).then((results) => {
-          return ParseStatus.mergeArray(status2, results);
+          return ParseStatus.mergeArray(status, results);
         });
       } else {
-        return ParseStatus.mergeArray(status2, items);
+        return ParseStatus.mergeArray(status, items);
       }
     }
     get items() {
@@ -4161,7 +4104,7 @@ var init_types = __esm(() => {
       return this._def.valueType;
     }
     _parse(input) {
-      const { status: status2, ctx } = this._processInputParams(input);
+      const { status, ctx } = this._processInputParams(input);
       if (ctx.parsedType !== ZodParsedType.object) {
         addIssueToContext(ctx, {
           code: ZodIssueCode.invalid_type,
@@ -4181,9 +4124,9 @@ var init_types = __esm(() => {
         });
       }
       if (ctx.common.async) {
-        return ParseStatus.mergeObjectAsync(status2, pairs);
+        return ParseStatus.mergeObjectAsync(status, pairs);
       } else {
-        return ParseStatus.mergeObjectSync(status2, pairs);
+        return ParseStatus.mergeObjectSync(status, pairs);
       }
     }
     get element() {
@@ -4214,7 +4157,7 @@ var init_types = __esm(() => {
       return this._def.valueType;
     }
     _parse(input) {
-      const { status: status2, ctx } = this._processInputParams(input);
+      const { status, ctx } = this._processInputParams(input);
       if (ctx.parsedType !== ZodParsedType.map) {
         addIssueToContext(ctx, {
           code: ZodIssueCode.invalid_type,
@@ -4241,11 +4184,11 @@ var init_types = __esm(() => {
               return INVALID;
             }
             if (key.status === "dirty" || value.status === "dirty") {
-              status2.dirty();
+              status.dirty();
             }
             finalMap.set(key.value, value.value);
           }
-          return { status: status2.value, value: finalMap };
+          return { status: status.value, value: finalMap };
         });
       } else {
         const finalMap = new Map;
@@ -4256,11 +4199,11 @@ var init_types = __esm(() => {
             return INVALID;
           }
           if (key.status === "dirty" || value.status === "dirty") {
-            status2.dirty();
+            status.dirty();
           }
           finalMap.set(key.value, value.value);
         }
-        return { status: status2.value, value: finalMap };
+        return { status: status.value, value: finalMap };
       }
     }
   };
@@ -4274,7 +4217,7 @@ var init_types = __esm(() => {
   };
   ZodSet = class ZodSet extends ZodType {
     _parse(input) {
-      const { status: status2, ctx } = this._processInputParams(input);
+      const { status, ctx } = this._processInputParams(input);
       if (ctx.parsedType !== ZodParsedType.set) {
         addIssueToContext(ctx, {
           code: ZodIssueCode.invalid_type,
@@ -4294,7 +4237,7 @@ var init_types = __esm(() => {
             exact: false,
             message: def.minSize.message
           });
-          status2.dirty();
+          status.dirty();
         }
       }
       if (def.maxSize !== null) {
@@ -4307,24 +4250,24 @@ var init_types = __esm(() => {
             exact: false,
             message: def.maxSize.message
           });
-          status2.dirty();
+          status.dirty();
         }
       }
       const valueType = this._def.valueType;
-      function finalizeSet(elements2) {
+      function finalizeSet(elements) {
         const parsedSet = new Set;
-        for (const element of elements2) {
+        for (const element of elements) {
           if (element.status === "aborted")
             return INVALID;
           if (element.status === "dirty")
-            status2.dirty();
+            status.dirty();
           parsedSet.add(element.value);
         }
-        return { status: status2.value, value: parsedSet };
+        return { status: status.value, value: parsedSet };
       }
-      const elements = [...ctx.data.values()].map((item, i2) => valueType._parse(new ParseInputLazyPath(ctx, item, ctx.path, i2)));
+      const elements = [...ctx.data.values()].map((item, i) => valueType._parse(new ParseInputLazyPath(ctx, item, ctx.path, i)));
       if (ctx.common.async) {
-        return Promise.all(elements).then((elements2) => finalizeSet(elements2));
+        return Promise.all(elements).then((elements) => finalizeSet(elements));
       } else {
         return finalizeSet(elements);
       }
@@ -4644,15 +4587,15 @@ var init_types = __esm(() => {
       return this._def.schema._def.typeName === ZodFirstPartyTypeKind.ZodEffects ? this._def.schema.sourceType() : this._def.schema;
     }
     _parse(input) {
-      const { status: status2, ctx } = this._processInputParams(input);
+      const { status, ctx } = this._processInputParams(input);
       const effect = this._def.effect || null;
       const checkCtx = {
         addIssue: (arg) => {
           addIssueToContext(ctx, arg);
           if (arg.fatal) {
-            status2.abort();
+            status.abort();
           } else {
-            status2.dirty();
+            status.dirty();
           }
         },
         get path() {
@@ -4663,11 +4606,11 @@ var init_types = __esm(() => {
       if (effect.type === "preprocess") {
         const processed = effect.transform(ctx.data, checkCtx);
         if (ctx.common.async) {
-          return Promise.resolve(processed).then(async (processed2) => {
-            if (status2.value === "aborted")
+          return Promise.resolve(processed).then(async (processed) => {
+            if (status.value === "aborted")
               return INVALID;
             const result = await this._def.schema._parseAsync({
-              data: processed2,
+              data: processed,
               path: ctx.path,
               parent: ctx
             });
@@ -4675,12 +4618,12 @@ var init_types = __esm(() => {
               return INVALID;
             if (result.status === "dirty")
               return DIRTY(result.value);
-            if (status2.value === "dirty")
+            if (status.value === "dirty")
               return DIRTY(result.value);
             return result;
           });
         } else {
-          if (status2.value === "aborted")
+          if (status.value === "aborted")
             return INVALID;
           const result = this._def.schema._parseSync({
             data: processed,
@@ -4691,7 +4634,7 @@ var init_types = __esm(() => {
             return INVALID;
           if (result.status === "dirty")
             return DIRTY(result.value);
-          if (status2.value === "dirty")
+          if (status.value === "dirty")
             return DIRTY(result.value);
           return result;
         }
@@ -4716,17 +4659,17 @@ var init_types = __esm(() => {
           if (inner.status === "aborted")
             return INVALID;
           if (inner.status === "dirty")
-            status2.dirty();
+            status.dirty();
           executeRefinement(inner.value);
-          return { status: status2.value, value: inner.value };
+          return { status: status.value, value: inner.value };
         } else {
           return this._def.schema._parseAsync({ data: ctx.data, path: ctx.path, parent: ctx }).then((inner) => {
             if (inner.status === "aborted")
               return INVALID;
             if (inner.status === "dirty")
-              status2.dirty();
+              status.dirty();
             return executeRefinement(inner.value).then(() => {
-              return { status: status2.value, value: inner.value };
+              return { status: status.value, value: inner.value };
             });
           });
         }
@@ -4744,13 +4687,13 @@ var init_types = __esm(() => {
           if (result instanceof Promise) {
             throw new Error(`Asynchronous transform encountered during synchronous parse operation. Use .parseAsync instead.`);
           }
-          return { status: status2.value, value: result };
+          return { status: status.value, value: result };
         } else {
           return this._def.schema._parseAsync({ data: ctx.data, path: ctx.path, parent: ctx }).then((base) => {
             if (!isValid(base))
               return INVALID;
             return Promise.resolve(effect.transform(base.value, checkCtx)).then((result) => ({
-              status: status2.value,
+              status: status.value,
               value: result
             }));
           });
@@ -4856,10 +4799,10 @@ var init_types = __esm(() => {
         }
       });
       if (isAsync(result)) {
-        return result.then((result2) => {
+        return result.then((result) => {
           return {
             status: "valid",
-            value: result2.status === "valid" ? result2.value : this._def.catchValue({
+            value: result.status === "valid" ? result.value : this._def.catchValue({
               get error() {
                 return new ZodError(newCtx.common.issues);
               },
@@ -4929,7 +4872,7 @@ var init_types = __esm(() => {
   };
   ZodPipeline = class ZodPipeline extends ZodType {
     _parse(input) {
-      const { status: status2, ctx } = this._processInputParams(input);
+      const { status, ctx } = this._processInputParams(input);
       if (ctx.common.async) {
         const handleAsync = async () => {
           const inResult = await this._def.in._parseAsync({
@@ -4940,7 +4883,7 @@ var init_types = __esm(() => {
           if (inResult.status === "aborted")
             return INVALID;
           if (inResult.status === "dirty") {
-            status2.dirty();
+            status.dirty();
             return DIRTY(inResult.value);
           } else {
             return this._def.out._parseAsync({
@@ -4960,7 +4903,7 @@ var init_types = __esm(() => {
         if (inResult.status === "aborted")
           return INVALID;
         if (inResult.status === "dirty") {
-          status2.dirty();
+          status.dirty();
           return {
             status: "dirty",
             value: inResult.value
@@ -5007,43 +4950,43 @@ var init_types = __esm(() => {
   late = {
     object: ZodObject.lazycreate
   };
-  (function(ZodFirstPartyTypeKind2) {
-    ZodFirstPartyTypeKind2["ZodString"] = "ZodString";
-    ZodFirstPartyTypeKind2["ZodNumber"] = "ZodNumber";
-    ZodFirstPartyTypeKind2["ZodNaN"] = "ZodNaN";
-    ZodFirstPartyTypeKind2["ZodBigInt"] = "ZodBigInt";
-    ZodFirstPartyTypeKind2["ZodBoolean"] = "ZodBoolean";
-    ZodFirstPartyTypeKind2["ZodDate"] = "ZodDate";
-    ZodFirstPartyTypeKind2["ZodSymbol"] = "ZodSymbol";
-    ZodFirstPartyTypeKind2["ZodUndefined"] = "ZodUndefined";
-    ZodFirstPartyTypeKind2["ZodNull"] = "ZodNull";
-    ZodFirstPartyTypeKind2["ZodAny"] = "ZodAny";
-    ZodFirstPartyTypeKind2["ZodUnknown"] = "ZodUnknown";
-    ZodFirstPartyTypeKind2["ZodNever"] = "ZodNever";
-    ZodFirstPartyTypeKind2["ZodVoid"] = "ZodVoid";
-    ZodFirstPartyTypeKind2["ZodArray"] = "ZodArray";
-    ZodFirstPartyTypeKind2["ZodObject"] = "ZodObject";
-    ZodFirstPartyTypeKind2["ZodUnion"] = "ZodUnion";
-    ZodFirstPartyTypeKind2["ZodDiscriminatedUnion"] = "ZodDiscriminatedUnion";
-    ZodFirstPartyTypeKind2["ZodIntersection"] = "ZodIntersection";
-    ZodFirstPartyTypeKind2["ZodTuple"] = "ZodTuple";
-    ZodFirstPartyTypeKind2["ZodRecord"] = "ZodRecord";
-    ZodFirstPartyTypeKind2["ZodMap"] = "ZodMap";
-    ZodFirstPartyTypeKind2["ZodSet"] = "ZodSet";
-    ZodFirstPartyTypeKind2["ZodFunction"] = "ZodFunction";
-    ZodFirstPartyTypeKind2["ZodLazy"] = "ZodLazy";
-    ZodFirstPartyTypeKind2["ZodLiteral"] = "ZodLiteral";
-    ZodFirstPartyTypeKind2["ZodEnum"] = "ZodEnum";
-    ZodFirstPartyTypeKind2["ZodEffects"] = "ZodEffects";
-    ZodFirstPartyTypeKind2["ZodNativeEnum"] = "ZodNativeEnum";
-    ZodFirstPartyTypeKind2["ZodOptional"] = "ZodOptional";
-    ZodFirstPartyTypeKind2["ZodNullable"] = "ZodNullable";
-    ZodFirstPartyTypeKind2["ZodDefault"] = "ZodDefault";
-    ZodFirstPartyTypeKind2["ZodCatch"] = "ZodCatch";
-    ZodFirstPartyTypeKind2["ZodPromise"] = "ZodPromise";
-    ZodFirstPartyTypeKind2["ZodBranded"] = "ZodBranded";
-    ZodFirstPartyTypeKind2["ZodPipeline"] = "ZodPipeline";
-    ZodFirstPartyTypeKind2["ZodReadonly"] = "ZodReadonly";
+  (function(ZodFirstPartyTypeKind) {
+    ZodFirstPartyTypeKind["ZodString"] = "ZodString";
+    ZodFirstPartyTypeKind["ZodNumber"] = "ZodNumber";
+    ZodFirstPartyTypeKind["ZodNaN"] = "ZodNaN";
+    ZodFirstPartyTypeKind["ZodBigInt"] = "ZodBigInt";
+    ZodFirstPartyTypeKind["ZodBoolean"] = "ZodBoolean";
+    ZodFirstPartyTypeKind["ZodDate"] = "ZodDate";
+    ZodFirstPartyTypeKind["ZodSymbol"] = "ZodSymbol";
+    ZodFirstPartyTypeKind["ZodUndefined"] = "ZodUndefined";
+    ZodFirstPartyTypeKind["ZodNull"] = "ZodNull";
+    ZodFirstPartyTypeKind["ZodAny"] = "ZodAny";
+    ZodFirstPartyTypeKind["ZodUnknown"] = "ZodUnknown";
+    ZodFirstPartyTypeKind["ZodNever"] = "ZodNever";
+    ZodFirstPartyTypeKind["ZodVoid"] = "ZodVoid";
+    ZodFirstPartyTypeKind["ZodArray"] = "ZodArray";
+    ZodFirstPartyTypeKind["ZodObject"] = "ZodObject";
+    ZodFirstPartyTypeKind["ZodUnion"] = "ZodUnion";
+    ZodFirstPartyTypeKind["ZodDiscriminatedUnion"] = "ZodDiscriminatedUnion";
+    ZodFirstPartyTypeKind["ZodIntersection"] = "ZodIntersection";
+    ZodFirstPartyTypeKind["ZodTuple"] = "ZodTuple";
+    ZodFirstPartyTypeKind["ZodRecord"] = "ZodRecord";
+    ZodFirstPartyTypeKind["ZodMap"] = "ZodMap";
+    ZodFirstPartyTypeKind["ZodSet"] = "ZodSet";
+    ZodFirstPartyTypeKind["ZodFunction"] = "ZodFunction";
+    ZodFirstPartyTypeKind["ZodLazy"] = "ZodLazy";
+    ZodFirstPartyTypeKind["ZodLiteral"] = "ZodLiteral";
+    ZodFirstPartyTypeKind["ZodEnum"] = "ZodEnum";
+    ZodFirstPartyTypeKind["ZodEffects"] = "ZodEffects";
+    ZodFirstPartyTypeKind["ZodNativeEnum"] = "ZodNativeEnum";
+    ZodFirstPartyTypeKind["ZodOptional"] = "ZodOptional";
+    ZodFirstPartyTypeKind["ZodNullable"] = "ZodNullable";
+    ZodFirstPartyTypeKind["ZodDefault"] = "ZodDefault";
+    ZodFirstPartyTypeKind["ZodCatch"] = "ZodCatch";
+    ZodFirstPartyTypeKind["ZodPromise"] = "ZodPromise";
+    ZodFirstPartyTypeKind["ZodBranded"] = "ZodBranded";
+    ZodFirstPartyTypeKind["ZodPipeline"] = "ZodPipeline";
+    ZodFirstPartyTypeKind["ZodReadonly"] = "ZodReadonly";
   })(ZodFirstPartyTypeKind || (ZodFirstPartyTypeKind = {}));
   stringType = ZodString.create;
   numberType = ZodNumber.create;
@@ -5079,130 +5022,9 @@ var init_types = __esm(() => {
   nullableType = ZodNullable.create;
   preprocessType = ZodEffects.createWithPreprocess;
   pipelineType = ZodPipeline.create;
-  coerce = {
-    string: (arg) => ZodString.create({ ...arg, coerce: true }),
-    number: (arg) => ZodNumber.create({ ...arg, coerce: true }),
-    boolean: (arg) => ZodBoolean.create({
-      ...arg,
-      coerce: true
-    }),
-    bigint: (arg) => ZodBigInt.create({ ...arg, coerce: true }),
-    date: (arg) => ZodDate.create({ ...arg, coerce: true })
-  };
-  NEVER = INVALID;
 });
 
 // node_modules/.bun/zod@3.25.76/node_modules/zod/v3/external.js
-var exports_external = {};
-__export(exports_external, {
-  void: () => voidType,
-  util: () => util,
-  unknown: () => unknownType,
-  union: () => unionType,
-  undefined: () => undefinedType,
-  tuple: () => tupleType,
-  transformer: () => effectsType,
-  symbol: () => symbolType,
-  string: () => stringType,
-  strictObject: () => strictObjectType,
-  setErrorMap: () => setErrorMap,
-  set: () => setType,
-  record: () => recordType,
-  quotelessJson: () => quotelessJson,
-  promise: () => promiseType,
-  preprocess: () => preprocessType,
-  pipeline: () => pipelineType,
-  ostring: () => ostring,
-  optional: () => optionalType,
-  onumber: () => onumber,
-  oboolean: () => oboolean,
-  objectUtil: () => objectUtil,
-  object: () => objectType,
-  number: () => numberType,
-  nullable: () => nullableType,
-  null: () => nullType,
-  never: () => neverType,
-  nativeEnum: () => nativeEnumType,
-  nan: () => nanType,
-  map: () => mapType,
-  makeIssue: () => makeIssue,
-  literal: () => literalType,
-  lazy: () => lazyType,
-  late: () => late,
-  isValid: () => isValid,
-  isDirty: () => isDirty,
-  isAsync: () => isAsync,
-  isAborted: () => isAborted,
-  intersection: () => intersectionType,
-  instanceof: () => instanceOfType,
-  getParsedType: () => getParsedType,
-  getErrorMap: () => getErrorMap,
-  function: () => functionType,
-  enum: () => enumType,
-  effect: () => effectsType,
-  discriminatedUnion: () => discriminatedUnionType,
-  defaultErrorMap: () => en_default,
-  datetimeRegex: () => datetimeRegex,
-  date: () => dateType,
-  custom: () => custom,
-  coerce: () => coerce,
-  boolean: () => booleanType,
-  bigint: () => bigIntType,
-  array: () => arrayType,
-  any: () => anyType,
-  addIssueToContext: () => addIssueToContext,
-  ZodVoid: () => ZodVoid,
-  ZodUnknown: () => ZodUnknown,
-  ZodUnion: () => ZodUnion,
-  ZodUndefined: () => ZodUndefined,
-  ZodType: () => ZodType,
-  ZodTuple: () => ZodTuple,
-  ZodTransformer: () => ZodEffects,
-  ZodSymbol: () => ZodSymbol,
-  ZodString: () => ZodString,
-  ZodSet: () => ZodSet,
-  ZodSchema: () => ZodType,
-  ZodRecord: () => ZodRecord,
-  ZodReadonly: () => ZodReadonly,
-  ZodPromise: () => ZodPromise,
-  ZodPipeline: () => ZodPipeline,
-  ZodParsedType: () => ZodParsedType,
-  ZodOptional: () => ZodOptional,
-  ZodObject: () => ZodObject,
-  ZodNumber: () => ZodNumber,
-  ZodNullable: () => ZodNullable,
-  ZodNull: () => ZodNull,
-  ZodNever: () => ZodNever,
-  ZodNativeEnum: () => ZodNativeEnum,
-  ZodNaN: () => ZodNaN,
-  ZodMap: () => ZodMap,
-  ZodLiteral: () => ZodLiteral,
-  ZodLazy: () => ZodLazy,
-  ZodIssueCode: () => ZodIssueCode,
-  ZodIntersection: () => ZodIntersection,
-  ZodFunction: () => ZodFunction,
-  ZodFirstPartyTypeKind: () => ZodFirstPartyTypeKind,
-  ZodError: () => ZodError,
-  ZodEnum: () => ZodEnum,
-  ZodEffects: () => ZodEffects,
-  ZodDiscriminatedUnion: () => ZodDiscriminatedUnion,
-  ZodDefault: () => ZodDefault,
-  ZodDate: () => ZodDate,
-  ZodCatch: () => ZodCatch,
-  ZodBranded: () => ZodBranded,
-  ZodBoolean: () => ZodBoolean,
-  ZodBigInt: () => ZodBigInt,
-  ZodArray: () => ZodArray,
-  ZodAny: () => ZodAny,
-  Schema: () => ZodType,
-  ParseStatus: () => ParseStatus,
-  OK: () => OK,
-  NEVER: () => NEVER,
-  INVALID: () => INVALID,
-  EMPTY_PATH: () => EMPTY_PATH,
-  DIRTY: () => DIRTY,
-  BRAND: () => BRAND
-});
 var init_external = __esm(() => {
   init_errors();
   init_parseUtil();
@@ -5310,197 +5132,197 @@ var init_sys_dictionary_types = __esm(() => {
     EMAIL: 30,
     PHONE: 31
   };
-  SysTableSchema = exports_external.object({
-    sys_table_id: exports_external.string().uuid(),
-    table_name: exports_external.string().min(1).max(100),
-    name: exports_external.string().min(1).max(100),
-    description: exports_external.string().optional(),
-    icon: exports_external.string().max(100).optional(),
-    access_level: exports_external.enum(["S", "C", "O", "CO", "A"]),
-    is_view: exports_external.boolean(),
-    is_document: exports_external.boolean(),
-    is_high_volume: exports_external.boolean(),
-    is_changelog: exports_external.boolean(),
-    replication_type: exports_external.string().optional(),
-    sys_window_id: exports_external.string().uuid().optional(),
-    po_window_id: exports_external.string().uuid().optional(),
-    entity_type: exports_external.string(),
-    is_active: exports_external.boolean(),
-    created_by: exports_external.string(),
-    updated_by: exports_external.string(),
-    created_at: exports_external.date(),
-    updated_at: exports_external.date()
+  SysTableSchema = objectType({
+    sys_table_id: stringType().uuid(),
+    table_name: stringType().min(1).max(100),
+    name: stringType().min(1).max(100),
+    description: stringType().optional(),
+    icon: stringType().max(100).optional(),
+    access_level: enumType(["S", "C", "O", "CO", "A"]),
+    is_view: booleanType(),
+    is_document: booleanType(),
+    is_high_volume: booleanType(),
+    is_changelog: booleanType(),
+    replication_type: stringType().optional(),
+    sys_window_id: stringType().uuid().optional(),
+    po_window_id: stringType().uuid().optional(),
+    entity_type: stringType(),
+    is_active: booleanType(),
+    created_by: stringType(),
+    updated_by: stringType(),
+    created_at: dateType(),
+    updated_at: dateType()
   });
-  SysColumnSchema = exports_external.object({
-    sys_column_id: exports_external.string().uuid(),
-    sys_table_id: exports_external.string().uuid(),
-    column_name: exports_external.string().min(1).max(100),
-    name: exports_external.string().min(1).max(100),
-    description: exports_external.string().optional(),
-    sys_reference_id: exports_external.number(),
-    sys_val_rule_id: exports_external.string().uuid().optional(),
-    field_length: exports_external.number().optional(),
-    default_value: exports_external.string().optional(),
-    value_min: exports_external.string().optional(),
-    value_max: exports_external.string().optional(),
-    is_key: exports_external.boolean(),
-    is_parent: exports_external.boolean(),
-    is_mandatory: exports_external.boolean(),
-    is_updateable: exports_external.boolean(),
-    is_identifier: exports_external.boolean(),
-    is_selection_column: exports_external.boolean(),
-    is_translated: exports_external.boolean(),
-    is_encrypted: exports_external.boolean(),
-    is_allow_logging: exports_external.boolean(),
-    is_allow_copy: exports_external.boolean(),
-    seq_no: exports_external.number(),
-    callout: exports_external.string().optional(),
-    read_only_logic: exports_external.string().optional(),
-    mandatory_logic: exports_external.string().optional(),
-    format_pattern: exports_external.string().optional(),
-    entity_type: exports_external.string(),
-    is_active: exports_external.boolean(),
-    created_by: exports_external.string(),
-    updated_by: exports_external.string(),
-    created_at: exports_external.date(),
-    updated_at: exports_external.date()
+  SysColumnSchema = objectType({
+    sys_column_id: stringType().uuid(),
+    sys_table_id: stringType().uuid(),
+    column_name: stringType().min(1).max(100),
+    name: stringType().min(1).max(100),
+    description: stringType().optional(),
+    sys_reference_id: numberType(),
+    sys_val_rule_id: stringType().uuid().optional(),
+    field_length: numberType().optional(),
+    default_value: stringType().optional(),
+    value_min: stringType().optional(),
+    value_max: stringType().optional(),
+    is_key: booleanType(),
+    is_parent: booleanType(),
+    is_mandatory: booleanType(),
+    is_updateable: booleanType(),
+    is_identifier: booleanType(),
+    is_selection_column: booleanType(),
+    is_translated: booleanType(),
+    is_encrypted: booleanType(),
+    is_allow_logging: booleanType(),
+    is_allow_copy: booleanType(),
+    seq_no: numberType(),
+    callout: stringType().optional(),
+    read_only_logic: stringType().optional(),
+    mandatory_logic: stringType().optional(),
+    format_pattern: stringType().optional(),
+    entity_type: stringType(),
+    is_active: booleanType(),
+    created_by: stringType(),
+    updated_by: stringType(),
+    created_at: dateType(),
+    updated_at: dateType()
   });
-  SysFieldSchema = exports_external.object({
-    sys_field_id: exports_external.string().uuid(),
-    sys_tab_id: exports_external.string().uuid(),
-    sys_column_id: exports_external.string().uuid(),
-    sys_field_group_id: exports_external.string().uuid().optional(),
-    name: exports_external.string().min(1).max(100),
-    description: exports_external.string().optional(),
-    help: exports_external.string().optional(),
-    seq_no: exports_external.number(),
-    seq_no_grid: exports_external.number(),
-    display_length: exports_external.number().optional(),
-    x_position: exports_external.number().optional(),
-    y_position: exports_external.number().optional(),
-    column_span: exports_external.number().optional(),
-    num_lines: exports_external.number().optional(),
-    is_displayed: exports_external.boolean(),
-    is_displayed_grid: exports_external.boolean(),
-    is_read_only: exports_external.boolean(),
-    is_encrypted: exports_external.boolean(),
-    is_same_line: exports_external.boolean(),
-    is_heading: exports_external.boolean(),
-    is_field_only: exports_external.boolean(),
-    display_logic: exports_external.string().optional(),
-    read_only_logic: exports_external.string().optional(),
-    mandatory_logic: exports_external.string().optional(),
-    obscure_type: exports_external.string().optional(),
-    included_tab_id: exports_external.string().uuid().optional(),
-    default_value: exports_external.string().optional(),
-    sort_no: exports_external.number().optional(),
-    entity_type: exports_external.string(),
-    is_active: exports_external.boolean(),
-    created_by: exports_external.string(),
-    updated_by: exports_external.string(),
-    created_at: exports_external.date(),
-    updated_at: exports_external.date()
+  SysFieldSchema = objectType({
+    sys_field_id: stringType().uuid(),
+    sys_tab_id: stringType().uuid(),
+    sys_column_id: stringType().uuid(),
+    sys_field_group_id: stringType().uuid().optional(),
+    name: stringType().min(1).max(100),
+    description: stringType().optional(),
+    help: stringType().optional(),
+    seq_no: numberType(),
+    seq_no_grid: numberType(),
+    display_length: numberType().optional(),
+    x_position: numberType().optional(),
+    y_position: numberType().optional(),
+    column_span: numberType().optional(),
+    num_lines: numberType().optional(),
+    is_displayed: booleanType(),
+    is_displayed_grid: booleanType(),
+    is_read_only: booleanType(),
+    is_encrypted: booleanType(),
+    is_same_line: booleanType(),
+    is_heading: booleanType(),
+    is_field_only: booleanType(),
+    display_logic: stringType().optional(),
+    read_only_logic: stringType().optional(),
+    mandatory_logic: stringType().optional(),
+    obscure_type: stringType().optional(),
+    included_tab_id: stringType().uuid().optional(),
+    default_value: stringType().optional(),
+    sort_no: numberType().optional(),
+    entity_type: stringType(),
+    is_active: booleanType(),
+    created_by: stringType(),
+    updated_by: stringType(),
+    created_at: dateType(),
+    updated_at: dateType()
   });
-  SysWindowSchema = exports_external.object({
-    sys_window_id: exports_external.string().uuid(),
-    name: exports_external.string().min(1).max(100),
-    description: exports_external.string().optional(),
-    help: exports_external.string().optional(),
-    window_type: exports_external.enum(["M", "T", "Q"]),
-    is_sales_transaction: exports_external.boolean(),
-    is_default: exports_external.boolean(),
-    entity_type: exports_external.string(),
-    is_active: exports_external.boolean(),
-    created_by: exports_external.string(),
-    updated_by: exports_external.string(),
-    created_at: exports_external.date(),
-    updated_at: exports_external.date()
+  SysWindowSchema = objectType({
+    sys_window_id: stringType().uuid(),
+    name: stringType().min(1).max(100),
+    description: stringType().optional(),
+    help: stringType().optional(),
+    window_type: enumType(["M", "T", "Q"]),
+    is_sales_transaction: booleanType(),
+    is_default: booleanType(),
+    entity_type: stringType(),
+    is_active: booleanType(),
+    created_by: stringType(),
+    updated_by: stringType(),
+    created_at: dateType(),
+    updated_at: dateType()
   });
-  SysTabSchema = exports_external.object({
-    sys_tab_id: exports_external.string().uuid(),
-    sys_window_id: exports_external.string().uuid(),
-    sys_table_id: exports_external.string().uuid(),
-    name: exports_external.string().min(1).max(100),
-    description: exports_external.string().optional(),
-    help: exports_external.string().optional(),
-    tab_level: exports_external.number(),
-    seq_no: exports_external.number(),
-    is_single_row: exports_external.boolean(),
-    has_tree: exports_external.boolean(),
-    is_info_tab: exports_external.boolean(),
-    is_translation_tab: exports_external.boolean(),
-    is_read_only: exports_external.boolean(),
-    is_insert_record: exports_external.boolean(),
-    is_advanced_tab: exports_external.boolean(),
-    parent_column_id: exports_external.string().uuid().optional(),
-    link_column_id: exports_external.string().uuid().optional(),
-    order_by_clause: exports_external.string().optional(),
-    where_clause: exports_external.string().optional(),
-    display_logic: exports_external.string().optional(),
-    read_only_logic: exports_external.string().optional(),
-    commit_warning: exports_external.string().optional(),
-    entity_type: exports_external.string(),
-    is_active: exports_external.boolean(),
-    created_by: exports_external.string(),
-    updated_by: exports_external.string(),
-    created_at: exports_external.date(),
-    updated_at: exports_external.date()
+  SysTabSchema = objectType({
+    sys_tab_id: stringType().uuid(),
+    sys_window_id: stringType().uuid(),
+    sys_table_id: stringType().uuid(),
+    name: stringType().min(1).max(100),
+    description: stringType().optional(),
+    help: stringType().optional(),
+    tab_level: numberType(),
+    seq_no: numberType(),
+    is_single_row: booleanType(),
+    has_tree: booleanType(),
+    is_info_tab: booleanType(),
+    is_translation_tab: booleanType(),
+    is_read_only: booleanType(),
+    is_insert_record: booleanType(),
+    is_advanced_tab: booleanType(),
+    parent_column_id: stringType().uuid().optional(),
+    link_column_id: stringType().uuid().optional(),
+    order_by_clause: stringType().optional(),
+    where_clause: stringType().optional(),
+    display_logic: stringType().optional(),
+    read_only_logic: stringType().optional(),
+    commit_warning: stringType().optional(),
+    entity_type: stringType(),
+    is_active: booleanType(),
+    created_by: stringType(),
+    updated_by: stringType(),
+    created_at: dateType(),
+    updated_at: dateType()
   });
-  SysUserSchema = exports_external.object({
-    sys_user_id: exports_external.string().uuid(),
-    name: exports_external.string().min(1).max(100),
-    email: exports_external.string().email(),
-    password_hash: exports_external.string(),
-    description: exports_external.string().optional(),
-    is_system_user: exports_external.boolean(),
-    is_sales_rep: exports_external.boolean(),
-    login_date: exports_external.date().optional(),
-    login_failure_count: exports_external.number(),
-    is_locked: exports_external.boolean(),
-    is_account_verified: exports_external.boolean(),
-    notification_type: exports_external.string().optional(),
-    supervisor_id: exports_external.string().uuid().optional(),
-    default_sys_role_id: exports_external.string().uuid().optional(),
-    entity_type: exports_external.string(),
-    is_active: exports_external.boolean(),
-    created_by: exports_external.string(),
-    updated_by: exports_external.string(),
-    created_at: exports_external.date(),
-    updated_at: exports_external.date()
+  SysUserSchema = objectType({
+    sys_user_id: stringType().uuid(),
+    name: stringType().min(1).max(100),
+    email: stringType().email(),
+    password_hash: stringType(),
+    description: stringType().optional(),
+    is_system_user: booleanType(),
+    is_sales_rep: booleanType(),
+    login_date: dateType().optional(),
+    login_failure_count: numberType(),
+    is_locked: booleanType(),
+    is_account_verified: booleanType(),
+    notification_type: stringType().optional(),
+    supervisor_id: stringType().uuid().optional(),
+    default_sys_role_id: stringType().uuid().optional(),
+    entity_type: stringType(),
+    is_active: booleanType(),
+    created_by: stringType(),
+    updated_by: stringType(),
+    created_at: dateType(),
+    updated_at: dateType()
   });
-  SysRoleSchema = exports_external.object({
-    sys_role_id: exports_external.string().uuid(),
-    name: exports_external.string().min(1).max(100),
-    description: exports_external.string().optional(),
-    user_level: exports_external.string(),
-    is_master_role: exports_external.boolean(),
-    is_can_export: exports_external.boolean(),
-    is_can_report: exports_external.boolean(),
-    is_personal_lock: exports_external.boolean(),
-    is_personal_access: exports_external.boolean(),
-    max_query_records: exports_external.number(),
-    connection_profile: exports_external.string().optional(),
-    preference_type: exports_external.string().optional(),
-    is_show_accounting: exports_external.boolean(),
-    entity_type: exports_external.string(),
-    is_active: exports_external.boolean(),
-    created_by: exports_external.string(),
-    updated_by: exports_external.string(),
-    created_at: exports_external.date(),
-    updated_at: exports_external.date()
+  SysRoleSchema = objectType({
+    sys_role_id: stringType().uuid(),
+    name: stringType().min(1).max(100),
+    description: stringType().optional(),
+    user_level: stringType(),
+    is_master_role: booleanType(),
+    is_can_export: booleanType(),
+    is_can_report: booleanType(),
+    is_personal_lock: booleanType(),
+    is_personal_access: booleanType(),
+    max_query_records: numberType(),
+    connection_profile: stringType().optional(),
+    preference_type: stringType().optional(),
+    is_show_accounting: booleanType(),
+    entity_type: stringType(),
+    is_active: booleanType(),
+    created_by: stringType(),
+    updated_by: stringType(),
+    created_at: dateType(),
+    updated_at: dateType()
   });
-  SysReferenceSchema = exports_external.object({
-    sys_reference_id: exports_external.number(),
-    name: exports_external.string().min(1).max(100),
-    description: exports_external.string().optional(),
-    validation_type: exports_external.enum(["S", "L", "T", "R"]),
-    vformat: exports_external.string().optional(),
-    entity_type: exports_external.string(),
-    is_active: exports_external.boolean(),
-    created_by: exports_external.string(),
-    updated_by: exports_external.string(),
-    created_at: exports_external.date(),
-    updated_at: exports_external.date()
+  SysReferenceSchema = objectType({
+    sys_reference_id: numberType(),
+    name: stringType().min(1).max(100),
+    description: stringType().optional(),
+    validation_type: enumType(["S", "L", "T", "R"]),
+    vformat: stringType().optional(),
+    entity_type: stringType(),
+    is_active: booleanType(),
+    created_by: stringType(),
+    updated_by: stringType(),
+    created_at: dateType(),
+    updated_at: dateType()
   });
 });
 
@@ -5866,49 +5688,49 @@ var init_bus_entity_types = __esm(() => {
     includeFieldGroups: true,
     defaultAccessLevel: AccessLevel.ALL
   };
-  BusEntitySchema = exports_external.object({
-    name: exports_external.string(),
-    tableName: exports_external.string().regex(/^bus_/, "Table name must start with bus_"),
-    originalName: exports_external.string(),
-    displayName: exports_external.string(),
-    description: exports_external.string().optional(),
-    attributes: exports_external.array(exports_external.any()),
-    primaryKey: exports_external.string(),
-    timestamps: exports_external.boolean()
+  BusEntitySchema = objectType({
+    name: stringType(),
+    tableName: stringType().regex(/^bus_/, "Table name must start with bus_"),
+    originalName: stringType(),
+    displayName: stringType(),
+    description: stringType().optional(),
+    attributes: arrayType(anyType()),
+    primaryKey: stringType(),
+    timestamps: booleanType()
   });
-  DictionaryGenerationConfigSchema = exports_external.object({
-    defaultEntityType: exports_external.string(),
-    createdBy: exports_external.string(),
-    randomizeFieldOrder: exports_external.boolean(),
-    includeFieldGroups: exports_external.boolean(),
-    defaultAccessLevel: exports_external.enum(["S", "C", "O", "CO", "A"])
+  DictionaryGenerationConfigSchema = objectType({
+    defaultEntityType: stringType(),
+    createdBy: stringType(),
+    randomizeFieldOrder: booleanType(),
+    includeFieldGroups: booleanType(),
+    defaultAccessLevel: enumType(["S", "C", "O", "CO", "A"])
   });
 });
 // packages/core/src/types/entity.types.ts
 var EntityAttributeSchema, EntitySchema;
 var init_entity_types = __esm(() => {
   init_zod();
-  EntityAttributeSchema = exports_external.object({
-    name: exports_external.string(),
-    type: exports_external.enum(["string", "integer", "decimal", "boolean", "date", "datetime", "text", "json"]),
-    required: exports_external.boolean(),
-    description: exports_external.string().optional(),
-    semanticType: exports_external.enum(["email", "url", "phone", "password", "color"]).optional(),
-    unique: exports_external.boolean().optional(),
-    default: exports_external.any().optional(),
-    maxLength: exports_external.number().optional(),
-    minLength: exports_external.number().optional(),
-    pattern: exports_external.string().optional(),
-    references: exports_external.string().optional(),
-    narrowedBy: exports_external.array(exports_external.string()).optional()
+  EntityAttributeSchema = objectType({
+    name: stringType(),
+    type: enumType(["string", "integer", "decimal", "boolean", "date", "datetime", "text", "json"]),
+    required: booleanType(),
+    description: stringType().optional(),
+    semanticType: enumType(["email", "url", "phone", "password", "color"]).optional(),
+    unique: booleanType().optional(),
+    default: anyType().optional(),
+    maxLength: numberType().optional(),
+    minLength: numberType().optional(),
+    pattern: stringType().optional(),
+    references: stringType().optional(),
+    narrowedBy: arrayType(stringType()).optional()
   });
-  EntitySchema = exports_external.object({
-    name: exports_external.string(),
-    tableName: exports_external.string(),
-    description: exports_external.string().optional(),
-    attributes: exports_external.array(EntityAttributeSchema),
-    primaryKey: exports_external.string(),
-    timestamps: exports_external.boolean()
+  EntitySchema = objectType({
+    name: stringType(),
+    tableName: stringType(),
+    description: stringType().optional(),
+    attributes: arrayType(EntityAttributeSchema),
+    primaryKey: stringType(),
+    timestamps: booleanType()
   });
 });
 // packages/core/src/types/index.ts
@@ -6009,22 +5831,17 @@ var init_utils = __esm(() => {
 // language/browser/shims/child-process.ts
 var exports_child_process = {};
 __export(exports_child_process, {
-  spawnSync: () => spawnSync,
-  spawn: () => spawn,
   execSync: () => execSync,
-  exec: () => exec,
-  default: () => child_process_default
+  spawn: () => spawn
 });
 function refuse(name) {
   throw new Error(`child_process.${name} is not available in the browser build`);
 }
-var execSync = () => refuse("execSync"), spawn = () => refuse("spawn"), spawnSync = () => refuse("spawnSync"), exec = () => refuse("exec"), child_process_default;
-var init_child_process = __esm(() => {
-  child_process_default = { execSync, spawn, spawnSync, exec };
-});
+var execSync = () => refuse("execSync"), spawn = () => refuse("spawn");
+var init_child_process = () => {};
 
 // node_modules/.bun/handlebars@4.7.9/node_modules/handlebars/dist/cjs/handlebars/utils.js
-var require_utils = __commonJS((exports) => {
+var require_utils = __commonJS(function(exports) {
   exports.__esModule = true;
   exports.extend = extend;
   exports.indexOf = indexOf;
@@ -6048,10 +5865,10 @@ var require_utils = __commonJS((exports) => {
     return escape[chr];
   }
   function extend(obj) {
-    for (var i2 = 1;i2 < arguments.length; i2++) {
-      for (var key in arguments[i2]) {
-        if (Object.prototype.hasOwnProperty.call(arguments[i2], key)) {
-          obj[key] = arguments[i2][key];
+    for (var i = 1;i < arguments.length; i++) {
+      for (var key in arguments[i]) {
+        if (Object.prototype.hasOwnProperty.call(arguments[i], key)) {
+          obj[key] = arguments[i][key];
         }
       }
     }
@@ -6059,7 +5876,7 @@ var require_utils = __commonJS((exports) => {
   }
   var toString = Object.prototype.toString;
   exports.toString = toString;
-  var isFunction = function isFunction2(value) {
+  var isFunction = function isFunction(value) {
     return typeof value === "function";
   };
   if (isFunction(/x/)) {
@@ -6073,9 +5890,9 @@ var require_utils = __commonJS((exports) => {
   };
   exports.isArray = isArray;
   function indexOf(array, value) {
-    for (var i2 = 0, len2 = array.length;i2 < len2; i2++) {
-      if (array[i2] === value) {
-        return i2;
+    for (var i = 0, len = array.length;i < len; i++) {
+      if (array[i] === value) {
+        return i;
       }
     }
     return -1;
@@ -6120,7 +5937,7 @@ var require_utils = __commonJS((exports) => {
 });
 
 // node_modules/.bun/handlebars@4.7.9/node_modules/handlebars/dist/cjs/handlebars/exception.js
-var require_exception = __commonJS((exports, module) => {
+var require_exception = __commonJS(function(exports, module) {
   exports.__esModule = true;
   var errorProps = ["description", "fileName", "lineNumber", "endLineNumber", "message", "name", "number", "stack"];
   function Exception(message, node) {
@@ -6165,12 +5982,12 @@ var require_exception = __commonJS((exports, module) => {
 });
 
 // node_modules/.bun/handlebars@4.7.9/node_modules/handlebars/dist/cjs/handlebars/helpers/block-helper-missing.js
-var require_block_helper_missing = __commonJS((exports, module) => {
+var require_block_helper_missing = __commonJS(function(exports, module) {
   exports.__esModule = true;
   var _utils = require_utils();
   exports.default = function(instance) {
     instance.registerHelper("blockHelperMissing", function(context, options) {
-      var { inverse, fn } = options;
+      var inverse = options.inverse, fn = options.fn;
       if (context === true) {
         return fn(this);
       } else if (context === false || context == null) {
@@ -6198,7 +6015,7 @@ var require_block_helper_missing = __commonJS((exports, module) => {
 });
 
 // node_modules/.bun/handlebars@4.7.9/node_modules/handlebars/dist/cjs/handlebars/helpers/each.js
-var require_each = __commonJS((exports, module) => {
+var require_each = __commonJS(function(exports, module) {
   exports.__esModule = true;
   function _interopRequireDefault(obj) {
     return obj && obj.__esModule ? obj : { default: obj };
@@ -6211,7 +6028,7 @@ var require_each = __commonJS((exports, module) => {
       if (!options) {
         throw new _exception2["default"]("Must pass iterator to #each");
       }
-      var { fn, inverse } = options, i2 = 0, ret = "", data = undefined, contextPath = undefined;
+      var { fn, inverse } = options, i = 0, ret = "", data = undefined, contextPath = undefined;
       if (options.data && options.ids) {
         contextPath = _utils.appendContextPath(options.data.contextPath, options.ids[0]) + ".";
       }
@@ -6238,9 +6055,9 @@ var require_each = __commonJS((exports, module) => {
       }
       if (context && typeof context === "object") {
         if (_utils.isArray(context)) {
-          for (var j = context.length;i2 < j; i2++) {
-            if (i2 in context) {
-              execIteration(i2, i2, i2 === context.length - 1);
+          for (var j = context.length;i < j; i++) {
+            if (i in context) {
+              execIteration(i, i, i === context.length - 1);
             }
           }
         } else if (typeof Symbol === "function" && context[Symbol.iterator]) {
@@ -6250,26 +6067,26 @@ var require_each = __commonJS((exports, module) => {
             newContext.push(it.value);
           }
           context = newContext;
-          for (var j = context.length;i2 < j; i2++) {
-            execIteration(i2, i2, i2 === context.length - 1);
+          for (var j = context.length;i < j; i++) {
+            execIteration(i, i, i === context.length - 1);
           }
         } else {
           (function() {
             var priorKey = undefined;
             Object.keys(context).forEach(function(key) {
               if (priorKey !== undefined) {
-                execIteration(priorKey, i2 - 1);
+                execIteration(priorKey, i - 1);
               }
               priorKey = key;
-              i2++;
+              i++;
             });
             if (priorKey !== undefined) {
-              execIteration(priorKey, i2 - 1, true);
+              execIteration(priorKey, i - 1, true);
             }
           })();
         }
       }
-      if (i2 === 0) {
+      if (i === 0) {
         ret = inverse(this);
       }
       return ret;
@@ -6279,7 +6096,7 @@ var require_each = __commonJS((exports, module) => {
 });
 
 // node_modules/.bun/handlebars@4.7.9/node_modules/handlebars/dist/cjs/handlebars/helpers/helper-missing.js
-var require_helper_missing = __commonJS((exports, module) => {
+var require_helper_missing = __commonJS(function(exports, module) {
   exports.__esModule = true;
   function _interopRequireDefault(obj) {
     return obj && obj.__esModule ? obj : { default: obj };
@@ -6299,7 +6116,7 @@ var require_helper_missing = __commonJS((exports, module) => {
 });
 
 // node_modules/.bun/handlebars@4.7.9/node_modules/handlebars/dist/cjs/handlebars/helpers/if.js
-var require_if = __commonJS((exports, module) => {
+var require_if = __commonJS(function(exports, module) {
   exports.__esModule = true;
   function _interopRequireDefault(obj) {
     return obj && obj.__esModule ? obj : { default: obj };
@@ -6336,13 +6153,13 @@ var require_if = __commonJS((exports, module) => {
 });
 
 // node_modules/.bun/handlebars@4.7.9/node_modules/handlebars/dist/cjs/handlebars/helpers/log.js
-var require_log = __commonJS((exports, module) => {
+var require_log = __commonJS(function(exports, module) {
   exports.__esModule = true;
   exports.default = function(instance) {
     instance.registerHelper("log", function() {
       var args = [undefined], options = arguments[arguments.length - 1];
-      for (var i2 = 0;i2 < arguments.length - 1; i2++) {
-        args.push(arguments[i2]);
+      for (var i = 0;i < arguments.length - 1; i++) {
+        args.push(arguments[i]);
       }
       var level = 1;
       if (options.hash.level != null) {
@@ -6358,7 +6175,7 @@ var require_log = __commonJS((exports, module) => {
 });
 
 // node_modules/.bun/handlebars@4.7.9/node_modules/handlebars/dist/cjs/handlebars/helpers/lookup.js
-var require_lookup = __commonJS((exports, module) => {
+var require_lookup = __commonJS(function(exports, module) {
   exports.__esModule = true;
   exports.default = function(instance) {
     instance.registerHelper("lookup", function(obj, field, options) {
@@ -6372,7 +6189,7 @@ var require_lookup = __commonJS((exports, module) => {
 });
 
 // node_modules/.bun/handlebars@4.7.9/node_modules/handlebars/dist/cjs/handlebars/helpers/with.js
-var require_with = __commonJS((exports, module) => {
+var require_with = __commonJS(function(exports, module) {
   exports.__esModule = true;
   function _interopRequireDefault(obj) {
     return obj && obj.__esModule ? obj : { default: obj };
@@ -6408,7 +6225,7 @@ var require_with = __commonJS((exports, module) => {
 });
 
 // node_modules/.bun/handlebars@4.7.9/node_modules/handlebars/dist/cjs/handlebars/helpers.js
-var require_helpers = __commonJS((exports) => {
+var require_helpers = __commonJS(function(exports) {
   exports.__esModule = true;
   exports.registerDefaultHelpers = registerDefaultHelpers;
   exports.moveHelperToHooks = moveHelperToHooks;
@@ -6449,7 +6266,7 @@ var require_helpers = __commonJS((exports) => {
 });
 
 // node_modules/.bun/handlebars@4.7.9/node_modules/handlebars/dist/cjs/handlebars/decorators/inline.js
-var require_inline = __commonJS((exports, module) => {
+var require_inline = __commonJS(function(exports, module) {
   exports.__esModule = true;
   var _utils = require_utils();
   exports.default = function(instance) {
@@ -6457,12 +6274,12 @@ var require_inline = __commonJS((exports, module) => {
       var ret = fn;
       if (!props.partials) {
         props.partials = {};
-        ret = function(context, options2) {
+        ret = function(context, options) {
           var original = container.partials;
           container.partials = _utils.extend({}, original, props.partials);
-          var ret2 = fn(context, options2);
+          var ret = fn(context, options);
           container.partials = original;
-          return ret2;
+          return ret;
         };
       }
       props.partials[options.args[0]] = options.fn;
@@ -6473,7 +6290,7 @@ var require_inline = __commonJS((exports, module) => {
 });
 
 // node_modules/.bun/handlebars@4.7.9/node_modules/handlebars/dist/cjs/handlebars/decorators.js
-var require_decorators = __commonJS((exports) => {
+var require_decorators = __commonJS(function(exports) {
   exports.__esModule = true;
   exports.registerDefaultDecorators = registerDefaultDecorators;
   function _interopRequireDefault(obj) {
@@ -6487,7 +6304,7 @@ var require_decorators = __commonJS((exports) => {
 });
 
 // node_modules/.bun/handlebars@4.7.9/node_modules/handlebars/dist/cjs/handlebars/logger.js
-var require_logger = __commonJS((exports, module) => {
+var require_logger = __commonJS(function(exports, module) {
   exports.__esModule = true;
   var _utils = require_utils();
   var logger = {
@@ -6523,7 +6340,7 @@ var require_logger = __commonJS((exports, module) => {
 });
 
 // node_modules/.bun/handlebars@4.7.9/node_modules/handlebars/dist/cjs/handlebars/internal/proto-access.js
-var require_proto_access = __commonJS((exports) => {
+var require_proto_access = __commonJS(function(exports) {
   exports.__esModule = true;
   exports.createProtoAccessControl = createProtoAccessControl;
   exports.resultIsAllowed = resultIsAllowed;
@@ -6590,7 +6407,7 @@ var require_proto_access = __commonJS((exports) => {
 });
 
 // node_modules/.bun/handlebars@4.7.9/node_modules/handlebars/dist/cjs/handlebars/base.js
-var require_base = __commonJS((exports) => {
+var require_base = __commonJS(function(exports) {
   exports.__esModule = true;
   exports.HandlebarsEnvironment = HandlebarsEnvironment;
   function _interopRequireDefault(obj) {
@@ -6621,7 +6438,7 @@ var require_base = __commonJS((exports) => {
     8: ">= 4.3.0"
   };
   exports.REVISION_CHANGES = REVISION_CHANGES;
-  var objectType2 = "[object Object]";
+  var objectType = "[object Object]";
   function HandlebarsEnvironment(helpers, partials, decorators) {
     this.helpers = helpers || {};
     this.partials = partials || {};
@@ -6634,7 +6451,7 @@ var require_base = __commonJS((exports) => {
     logger: _logger2["default"],
     log: _logger2["default"].log,
     registerHelper: function registerHelper(name, fn) {
-      if (_utils.toString.call(name) === objectType2) {
+      if (_utils.toString.call(name) === objectType) {
         if (fn) {
           throw new _exception2["default"]("Arg not supported with multiple helpers");
         }
@@ -6647,7 +6464,7 @@ var require_base = __commonJS((exports) => {
       delete this.helpers[name];
     },
     registerPartial: function registerPartial(name, partial) {
-      if (_utils.toString.call(name) === objectType2) {
+      if (_utils.toString.call(name) === objectType) {
         _utils.extend(this.partials, name);
       } else {
         if (typeof partial === "undefined") {
@@ -6660,7 +6477,7 @@ var require_base = __commonJS((exports) => {
       delete this.partials[name];
     },
     registerDecorator: function registerDecorator(name, fn) {
-      if (_utils.toString.call(name) === objectType2) {
+      if (_utils.toString.call(name) === objectType) {
         if (fn) {
           throw new _exception2["default"]("Arg not supported with multiple decorators");
         }
@@ -6683,7 +6500,7 @@ var require_base = __commonJS((exports) => {
 });
 
 // node_modules/.bun/handlebars@4.7.9/node_modules/handlebars/dist/cjs/handlebars/safe-string.js
-var require_safe_string = __commonJS((exports, module) => {
+var require_safe_string = __commonJS(function(exports, module) {
   exports.__esModule = true;
   function SafeString(string) {
     this.string = string;
@@ -6696,14 +6513,14 @@ var require_safe_string = __commonJS((exports, module) => {
 });
 
 // node_modules/.bun/handlebars@4.7.9/node_modules/handlebars/dist/cjs/handlebars/internal/wrapHelper.js
-var require_wrapHelper = __commonJS((exports) => {
+var require_wrapHelper = __commonJS(function(exports) {
   exports.__esModule = true;
   exports.wrapHelper = wrapHelper;
   function wrapHelper(helper, transformOptionsFn) {
     if (typeof helper !== "function") {
       return helper;
     }
-    var wrapper = function wrapper2() {
+    var wrapper = function wrapper() {
       var options = arguments[arguments.length - 1];
       arguments[arguments.length - 1] = transformOptionsFn(options);
       return helper.apply(this, arguments);
@@ -6713,7 +6530,7 @@ var require_wrapHelper = __commonJS((exports) => {
 });
 
 // node_modules/.bun/handlebars@4.7.9/node_modules/handlebars/dist/cjs/handlebars/runtime.js
-var require_runtime = __commonJS((exports) => {
+var require_runtime = __commonJS(function(exports) {
   exports.__esModule = true;
   exports.checkRevision = checkRevision;
   exports.template = template;
@@ -6788,11 +6605,11 @@ var require_runtime = __commonJS((exports) => {
         if (options.indent) {
           var lines = result.split(`
 `);
-          for (var i2 = 0, l = lines.length;i2 < l; i2++) {
-            if (!lines[i2] && i2 + 1 === l) {
+          for (var i = 0, l = lines.length;i < l; i++) {
+            if (!lines[i] && i + 1 === l) {
               break;
             }
-            lines[i2] = options.indent + lines[i2];
+            lines[i] = options.indent + lines[i];
           }
           result = lines.join(`
 `);
@@ -6811,12 +6628,12 @@ var require_runtime = __commonJS((exports) => {
         }
         return container.lookupProperty(obj, name);
       },
-      lookupProperty: function lookupProperty(parent2, propertyName) {
-        var result = parent2[propertyName];
+      lookupProperty: function lookupProperty(parent, propertyName) {
+        var result = parent[propertyName];
         if (result == null) {
           return result;
         }
-        if (Object.prototype.hasOwnProperty.call(parent2, propertyName)) {
+        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
           return result;
         }
         if (_internalProtoAccess.resultIsAllowed(result, container.protoAccessControl, propertyName)) {
@@ -6824,10 +6641,10 @@ var require_runtime = __commonJS((exports) => {
         }
         return;
       },
-      lookup: function lookup2(depths, name) {
-        var len2 = depths.length;
-        for (var i2 = 0;i2 < len2; i2++) {
-          var result = depths[i2] && container.lookupProperty(depths[i2], name);
+      lookup: function lookup(depths, name) {
+        var len = depths.length;
+        for (var i = 0;i < len; i++) {
+          var result = depths[i] && container.lookupProperty(depths[i], name);
           if (result != null) {
             return result;
           }
@@ -6838,18 +6655,18 @@ var require_runtime = __commonJS((exports) => {
       },
       escapeExpression: Utils.escapeExpression,
       invokePartial: invokePartialWrapper,
-      fn: function fn(i2) {
-        var ret2 = templateSpec[i2];
-        ret2.decorator = templateSpec[i2 + "_d"];
-        return ret2;
+      fn: function fn(i) {
+        var ret = templateSpec[i];
+        ret.decorator = templateSpec[i + "_d"];
+        return ret;
       },
       programs: [],
-      program: function program(i2, data, declaredBlockParams, blockParams, depths) {
-        var programWrapper = this.programs[i2], fn = this.fn(i2);
+      program: function program(i, data, declaredBlockParams, blockParams, depths) {
+        var programWrapper = this.programs[i], fn = this.fn(i);
         if (data || depths || blockParams || declaredBlockParams) {
-          programWrapper = wrapProgram(this, i2, fn, data, declaredBlockParams, blockParams, depths);
+          programWrapper = wrapProgram(this, i, fn, data, declaredBlockParams, blockParams, depths);
         } else if (!programWrapper) {
-          programWrapper = this.programs[i2] = wrapProgram(this, i2, fn);
+          programWrapper = this.programs[i] = wrapProgram(this, i, fn);
         }
         return programWrapper;
       },
@@ -6885,8 +6702,8 @@ var require_runtime = __commonJS((exports) => {
           depths = [context];
         }
       }
-      function main(context2) {
-        return "" + templateSpec.main(container, context2, container.helpers, container.partials, data, blockParams, depths);
+      function main(context) {
+        return "" + templateSpec.main(container, context, container.helpers, container.partials, data, blockParams, depths);
       }
       main = executeDecorators(templateSpec.main, main, container, options.depths || [], data, blockParams);
       return main(context, options);
@@ -6917,18 +6734,18 @@ var require_runtime = __commonJS((exports) => {
         container.hooks = options.hooks;
       }
     };
-    ret._child = function(i2, data, blockParams, depths) {
+    ret._child = function(i, data, blockParams, depths) {
       if (templateSpec.useBlockParams && !blockParams) {
         throw new _exception2["default"]("must pass block params");
       }
       if (templateSpec.useDepths && !depths) {
         throw new _exception2["default"]("must pass parent depths");
       }
-      return wrapProgram(container, i2, templateSpec[i2], data, 0, blockParams, depths);
+      return wrapProgram(container, i, templateSpec[i], data, 0, blockParams, depths);
     };
     return ret;
   }
-  function wrapProgram(container, i2, fn, data, declaredBlockParams, blockParams, depths) {
+  function wrapProgram(container, i, fn, data, declaredBlockParams, blockParams, depths) {
     function prog(context) {
       var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
       var currentDepths = depths;
@@ -6938,7 +6755,7 @@ var require_runtime = __commonJS((exports) => {
       return fn(container, context, container.helpers, container.partials, options.data || data, blockParams && [options.blockParams].concat(blockParams), currentDepths);
     }
     prog = executeDecorators(fn, prog, container, depths, data, blockParams);
-    prog.program = i2;
+    prog.program = i;
     prog.depth = depths ? depths.length : 0;
     prog.blockParams = declaredBlockParams || 0;
     return prog;
@@ -6967,11 +6784,11 @@ var require_runtime = __commonJS((exports) => {
       (function() {
         options.data = _base.createFrame(options.data);
         var fn = options.fn;
-        partialBlock = options.data["partial-block"] = function partialBlockWrapper(context2) {
-          var options2 = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
-          options2.data = _base.createFrame(options2.data);
-          options2.data["partial-block"] = currentPartialBlock;
-          return fn(context2, options2);
+        partialBlock = options.data["partial-block"] = function partialBlockWrapper(context) {
+          var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+          options.data = _base.createFrame(options.data);
+          options.data["partial-block"] = currentPartialBlock;
+          return fn(context, options);
         };
         if (fn.partials) {
           options.partials = Utils.extend({}, options.partials, fn.partials);
@@ -7028,7 +6845,7 @@ var require_runtime = __commonJS((exports) => {
 });
 
 // node_modules/.bun/handlebars@4.7.9/node_modules/handlebars/dist/cjs/handlebars/no-conflict.js
-var require_no_conflict = __commonJS((exports, module) => {
+var require_no_conflict = __commonJS(function(exports, module) {
   exports.__esModule = true;
   exports.default = function(Handlebars) {
     (function() {
@@ -7052,7 +6869,7 @@ var require_no_conflict = __commonJS((exports, module) => {
 });
 
 // node_modules/.bun/handlebars@4.7.9/node_modules/handlebars/dist/cjs/handlebars.runtime.js
-var require_handlebars_runtime = __commonJS((exports, module) => {
+var require_handlebars_runtime = __commonJS(function(exports, module) {
   exports.__esModule = true;
   function _interopRequireDefault(obj) {
     return obj && obj.__esModule ? obj : { default: obj };
@@ -7106,7 +6923,7 @@ var require_handlebars_runtime = __commonJS((exports, module) => {
 });
 
 // node_modules/.bun/handlebars@4.7.9/node_modules/handlebars/dist/cjs/handlebars/compiler/ast.js
-var require_ast = __commonJS((exports, module) => {
+var require_ast = __commonJS(function(exports, module) {
   exports.__esModule = true;
   var AST = {
     helpers: {
@@ -7126,7 +6943,7 @@ var require_ast = __commonJS((exports, module) => {
 });
 
 // node_modules/.bun/handlebars@4.7.9/node_modules/handlebars/dist/cjs/handlebars/compiler/parser.js
-var require_parser = __commonJS((exports, module) => {
+var require_parser = __commonJS(function(exports, module) {
   exports.__esModule = true;
   var handlebars = function() {
     var parser = {
@@ -7385,7 +7202,7 @@ var require_parser = __commonJS((exports, module) => {
       parseError: function parseError(str, hash) {
         throw new Error(str);
       },
-      parse: function parse2(input) {
+      parse: function parse(input) {
         var self2 = this, stack = [0], vstack = [null], lstack = [], table = this.table, yytext = "", yylineno = 0, yyleng = 0, recovering = 0, TERROR = 2, EOF = 1;
         this.lexer.setInput(input);
         this.lexer.yy = this.yy;
@@ -7411,7 +7228,7 @@ var require_parser = __commonJS((exports, module) => {
           }
           return token;
         }
-        var symbol, preErrorSymbol, state, action, a, r, yyval = {}, p, len2, newState, expected;
+        var symbol, preErrorSymbol, state, action, a, r, yyval = {}, p, len, newState, expected;
         while (true) {
           state = stack[stack.length - 1];
           if (this.defaultActions[state]) {
@@ -7463,20 +7280,20 @@ Expecting ` + expected.join(", ") + ", got '" + (this.terminals_[symbol] || symb
               }
               break;
             case 2:
-              len2 = this.productions_[action[1]][1];
-              yyval.$ = vstack[vstack.length - len2];
-              yyval._$ = { first_line: lstack[lstack.length - (len2 || 1)].first_line, last_line: lstack[lstack.length - 1].last_line, first_column: lstack[lstack.length - (len2 || 1)].first_column, last_column: lstack[lstack.length - 1].last_column };
+              len = this.productions_[action[1]][1];
+              yyval.$ = vstack[vstack.length - len];
+              yyval._$ = { first_line: lstack[lstack.length - (len || 1)].first_line, last_line: lstack[lstack.length - 1].last_line, first_column: lstack[lstack.length - (len || 1)].first_column, last_column: lstack[lstack.length - 1].last_column };
               if (ranges) {
-                yyval._$.range = [lstack[lstack.length - (len2 || 1)].range[0], lstack[lstack.length - 1].range[1]];
+                yyval._$.range = [lstack[lstack.length - (len || 1)].range[0], lstack[lstack.length - 1].range[1]];
               }
               r = this.performAction.call(yyval, yytext, yyleng, yylineno, this.yy, action[1], vstack, lstack);
               if (typeof r !== "undefined") {
                 return r;
               }
-              if (len2) {
-                stack = stack.slice(0, -1 * len2 * 2);
-                vstack = vstack.slice(0, -1 * len2);
-                lstack = lstack.slice(0, -1 * len2);
+              if (len) {
+                stack = stack.slice(0, -1 * len * 2);
+                vstack = vstack.slice(0, -1 * len);
+                lstack = lstack.slice(0, -1 * len);
               }
               stack.push(this.productions_[action[1]][0]);
               vstack.push(yyval.$);
@@ -7492,7 +7309,7 @@ Expecting ` + expected.join(", ") + ", got '" + (this.terminals_[symbol] || symb
       }
     };
     var lexer = function() {
-      var lexer2 = {
+      var lexer = {
         EOF: 1,
         parseError: function parseError(str, hash) {
           if (this.yy.parser) {
@@ -7533,11 +7350,11 @@ Expecting ` + expected.join(", ") + ", got '" + (this.terminals_[symbol] || symb
           return ch;
         },
         unput: function unput(ch) {
-          var len2 = ch.length;
+          var len = ch.length;
           var lines = ch.split(/(?:\r\n?|\n)/g);
           this._input = ch + this._input;
-          this.yytext = this.yytext.substr(0, this.yytext.length - len2 - 1);
-          this.offset -= len2;
+          this.yytext = this.yytext.substr(0, this.yytext.length - len - 1);
+          this.offset -= len;
           var oldLines = this.match.split(/(?:\r\n?|\n)/g);
           this.match = this.match.substr(0, this.match.length - 1);
           this.matched = this.matched.substr(0, this.matched.length - 1);
@@ -7548,10 +7365,10 @@ Expecting ` + expected.join(", ") + ", got '" + (this.terminals_[symbol] || symb
             first_line: this.yylloc.first_line,
             last_line: this.yylineno + 1,
             first_column: this.yylloc.first_column,
-            last_column: lines ? (lines.length === oldLines.length ? this.yylloc.first_column : 0) + oldLines[oldLines.length - lines.length].length - lines[0].length : this.yylloc.first_column - len2
+            last_column: lines ? (lines.length === oldLines.length ? this.yylloc.first_column : 0) + oldLines[oldLines.length - lines.length].length - lines[0].length : this.yylloc.first_column - len
           };
           if (this.options.ranges) {
-            this.yylloc.range = [r[0], r[0] + this.yyleng - len2];
+            this.yylloc.range = [r[0], r[0] + this.yyleng - len];
           }
           return this;
         },
@@ -7591,11 +7408,11 @@ Expecting ` + expected.join(", ") + ", got '" + (this.terminals_[symbol] || symb
             this.match = "";
           }
           var rules = this._currentRules();
-          for (var i2 = 0;i2 < rules.length; i2++) {
-            tempMatch = this._input.match(this.rules[rules[i2]]);
+          for (var i = 0;i < rules.length; i++) {
+            tempMatch = this._input.match(this.rules[rules[i]]);
             if (tempMatch && (!match || tempMatch[0].length > match[0].length)) {
               match = tempMatch;
-              index = i2;
+              index = i;
               if (!this.options.flex)
                 break;
             }
@@ -7659,8 +7476,8 @@ Expecting ` + expected.join(", ") + ", got '" + (this.terminals_[symbol] || symb
           this.begin(condition);
         }
       };
-      lexer2.options = {};
-      lexer2.performAction = function anonymous(yy, yy_, $avoiding_name_collisions, YY_START) {
+      lexer.options = {};
+      lexer.performAction = function anonymous(yy, yy_, $avoiding_name_collisions, YY_START) {
         function strip(start, end) {
           return yy_.yytext = yy_.yytext.substring(start, yy_.yyleng - end + start);
         }
@@ -7833,9 +7650,9 @@ Expecting ` + expected.join(", ") + ", got '" + (this.terminals_[symbol] || symb
             break;
         }
       };
-      lexer2.rules = [/^(?:[^\x00]*?(?=(\{\{)))/, /^(?:[^\x00]+)/, /^(?:[^\x00]{2,}?(?=(\{\{|\\\{\{|\\\\\{\{|$)))/, /^(?:\{\{\{\{(?=[^\/]))/, /^(?:\{\{\{\{\/[^\s!"#%-,\.\/;->@\[-\^`\{-~]+(?=[=}\s\/.])\}\}\}\})/, /^(?:[^\x00]+?(?=(\{\{\{\{)))/, /^(?:[\s\S]*?--(~)?\}\})/, /^(?:\()/, /^(?:\))/, /^(?:\{\{\{\{)/, /^(?:\}\}\}\})/, /^(?:\{\{(~)?>)/, /^(?:\{\{(~)?#>)/, /^(?:\{\{(~)?#\*?)/, /^(?:\{\{(~)?\/)/, /^(?:\{\{(~)?\^\s*(~)?\}\})/, /^(?:\{\{(~)?\s*else\s*(~)?\}\})/, /^(?:\{\{(~)?\^)/, /^(?:\{\{(~)?\s*else\b)/, /^(?:\{\{(~)?\{)/, /^(?:\{\{(~)?&)/, /^(?:\{\{(~)?!--)/, /^(?:\{\{(~)?![\s\S]*?\}\})/, /^(?:\{\{(~)?\*?)/, /^(?:=)/, /^(?:\.\.)/, /^(?:\.(?=([=~}\s\/.)|])))/, /^(?:[\/.])/, /^(?:\s+)/, /^(?:\}(~)?\}\})/, /^(?:(~)?\}\})/, /^(?:"(\\["]|[^"])*")/, /^(?:'(\\[']|[^'])*')/, /^(?:@)/, /^(?:true(?=([~}\s)])))/, /^(?:false(?=([~}\s)])))/, /^(?:undefined(?=([~}\s)])))/, /^(?:null(?=([~}\s)])))/, /^(?:-?[0-9]+(?:\.[0-9]+)?(?=([~}\s)])))/, /^(?:as\s+\|)/, /^(?:\|)/, /^(?:([^\s!"#%-,\.\/;->@\[-\^`\{-~]+(?=([=~}\s\/.)|]))))/, /^(?:\[(\\\]|[^\]])*\])/, /^(?:.)/, /^(?:$)/];
-      lexer2.conditions = { mu: { rules: [7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44], inclusive: false }, emu: { rules: [2], inclusive: false }, com: { rules: [6], inclusive: false }, raw: { rules: [3, 4, 5], inclusive: false }, INITIAL: { rules: [0, 1, 44], inclusive: true } };
-      return lexer2;
+      lexer.rules = [/^(?:[^\x00]*?(?=(\{\{)))/, /^(?:[^\x00]+)/, /^(?:[^\x00]{2,}?(?=(\{\{|\\\{\{|\\\\\{\{|$)))/, /^(?:\{\{\{\{(?=[^\/]))/, /^(?:\{\{\{\{\/[^\s!"#%-,\.\/;->@\[-\^`\{-~]+(?=[=}\s\/.])\}\}\}\})/, /^(?:[^\x00]+?(?=(\{\{\{\{)))/, /^(?:[\s\S]*?--(~)?\}\})/, /^(?:\()/, /^(?:\))/, /^(?:\{\{\{\{)/, /^(?:\}\}\}\})/, /^(?:\{\{(~)?>)/, /^(?:\{\{(~)?#>)/, /^(?:\{\{(~)?#\*?)/, /^(?:\{\{(~)?\/)/, /^(?:\{\{(~)?\^\s*(~)?\}\})/, /^(?:\{\{(~)?\s*else\s*(~)?\}\})/, /^(?:\{\{(~)?\^)/, /^(?:\{\{(~)?\s*else\b)/, /^(?:\{\{(~)?\{)/, /^(?:\{\{(~)?&)/, /^(?:\{\{(~)?!--)/, /^(?:\{\{(~)?![\s\S]*?\}\})/, /^(?:\{\{(~)?\*?)/, /^(?:=)/, /^(?:\.\.)/, /^(?:\.(?=([=~}\s\/.)|])))/, /^(?:[\/.])/, /^(?:\s+)/, /^(?:\}(~)?\}\})/, /^(?:(~)?\}\})/, /^(?:"(\\["]|[^"])*")/, /^(?:'(\\[']|[^'])*')/, /^(?:@)/, /^(?:true(?=([~}\s)])))/, /^(?:false(?=([~}\s)])))/, /^(?:undefined(?=([~}\s)])))/, /^(?:null(?=([~}\s)])))/, /^(?:-?[0-9]+(?:\.[0-9]+)?(?=([~}\s)])))/, /^(?:as\s+\|)/, /^(?:\|)/, /^(?:([^\s!"#%-,\.\/;->@\[-\^`\{-~]+(?=([=~}\s\/.)|]))))/, /^(?:\[(\\\]|[^\]])*\])/, /^(?:.)/, /^(?:$)/];
+      lexer.conditions = { mu: { rules: [7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44], inclusive: false }, emu: { rules: [2], inclusive: false }, com: { rules: [6], inclusive: false }, raw: { rules: [3, 4, 5], inclusive: false }, INITIAL: { rules: [0, 1, 44], inclusive: true } };
+      return lexer;
     }();
     parser.lexer = lexer;
     function Parser() {
@@ -7850,7 +7667,7 @@ Expecting ` + expected.join(", ") + ", got '" + (this.terminals_[symbol] || symb
 });
 
 // node_modules/.bun/handlebars@4.7.9/node_modules/handlebars/dist/cjs/handlebars/compiler/visitor.js
-var require_visitor = __commonJS((exports, module) => {
+var require_visitor = __commonJS(function(exports, module) {
   exports.__esModule = true;
   function _interopRequireDefault(obj) {
     return obj && obj.__esModule ? obj : { default: obj };
@@ -7879,11 +7696,11 @@ var require_visitor = __commonJS((exports, module) => {
       }
     },
     acceptArray: function acceptArray(array) {
-      for (var i2 = 0, l = array.length;i2 < l; i2++) {
-        this.acceptKey(array, i2);
-        if (!array[i2]) {
-          array.splice(i2, 1);
-          i2--;
+      for (var i = 0, l = array.length;i < l; i++) {
+        this.acceptKey(array, i);
+        if (!array[i]) {
+          array.splice(i, 1);
+          i--;
           l--;
         }
       }
@@ -7955,7 +7772,7 @@ var require_visitor = __commonJS((exports, module) => {
 });
 
 // node_modules/.bun/handlebars@4.7.9/node_modules/handlebars/dist/cjs/handlebars/compiler/whitespace-control.js
-var require_whitespace_control = __commonJS((exports, module) => {
+var require_whitespace_control = __commonJS(function(exports, module) {
   exports.__esModule = true;
   function _interopRequireDefault(obj) {
     return obj && obj.__esModule ? obj : { default: obj };
@@ -7972,32 +7789,32 @@ var require_whitespace_control = __commonJS((exports, module) => {
     var isRoot = !this.isRootSeen;
     this.isRootSeen = true;
     var body = program.body;
-    for (var i2 = 0, l = body.length;i2 < l; i2++) {
-      var current = body[i2], strip = this.accept(current);
+    for (var i = 0, l = body.length;i < l; i++) {
+      var current = body[i], strip = this.accept(current);
       if (!strip) {
         continue;
       }
-      var _isPrevWhitespace = isPrevWhitespace(body, i2, isRoot), _isNextWhitespace = isNextWhitespace(body, i2, isRoot), openStandalone = strip.openStandalone && _isPrevWhitespace, closeStandalone = strip.closeStandalone && _isNextWhitespace, inlineStandalone = strip.inlineStandalone && _isPrevWhitespace && _isNextWhitespace;
+      var _isPrevWhitespace = isPrevWhitespace(body, i, isRoot), _isNextWhitespace = isNextWhitespace(body, i, isRoot), openStandalone = strip.openStandalone && _isPrevWhitespace, closeStandalone = strip.closeStandalone && _isNextWhitespace, inlineStandalone = strip.inlineStandalone && _isPrevWhitespace && _isNextWhitespace;
       if (strip.close) {
-        omitRight(body, i2, true);
+        omitRight(body, i, true);
       }
       if (strip.open) {
-        omitLeft(body, i2, true);
+        omitLeft(body, i, true);
       }
       if (doStandalone && inlineStandalone) {
-        omitRight(body, i2);
-        if (omitLeft(body, i2)) {
+        omitRight(body, i);
+        if (omitLeft(body, i)) {
           if (current.type === "PartialStatement") {
-            current.indent = /([ \t]+$)/.exec(body[i2 - 1].original)[1];
+            current.indent = /([ \t]+$)/.exec(body[i - 1].original)[1];
           }
         }
       }
       if (doStandalone && openStandalone) {
         omitRight((current.program || current.inverse).body);
-        omitLeft(body, i2);
+        omitLeft(body, i);
       }
       if (doStandalone && closeStandalone) {
-        omitRight(body, i2);
+        omitRight(body, i);
         omitLeft((current.inverse || current.program).body);
       }
     }
@@ -8053,11 +7870,11 @@ var require_whitespace_control = __commonJS((exports, module) => {
       close: strip.close
     };
   };
-  function isPrevWhitespace(body, i2, isRoot) {
-    if (i2 === undefined) {
-      i2 = body.length;
+  function isPrevWhitespace(body, i, isRoot) {
+    if (i === undefined) {
+      i = body.length;
     }
-    var prev = body[i2 - 1], sibling = body[i2 - 2];
+    var prev = body[i - 1], sibling = body[i - 2];
     if (!prev) {
       return isRoot;
     }
@@ -8065,11 +7882,11 @@ var require_whitespace_control = __commonJS((exports, module) => {
       return (sibling || !isRoot ? /\r?\n\s*?$/ : /(^|\r?\n)\s*?$/).test(prev.original);
     }
   }
-  function isNextWhitespace(body, i2, isRoot) {
-    if (i2 === undefined) {
-      i2 = -1;
+  function isNextWhitespace(body, i, isRoot) {
+    if (i === undefined) {
+      i = -1;
     }
-    var next = body[i2 + 1], sibling = body[i2 + 2];
+    var next = body[i + 1], sibling = body[i + 2];
     if (!next) {
       return isRoot;
     }
@@ -8077,8 +7894,8 @@ var require_whitespace_control = __commonJS((exports, module) => {
       return (sibling || !isRoot ? /^\s*?\r?\n/ : /^\s*?(\r?\n|$)/).test(next.original);
     }
   }
-  function omitRight(body, i2, multiple) {
-    var current = body[i2 == null ? 0 : i2 + 1];
+  function omitRight(body, i, multiple) {
+    var current = body[i == null ? 0 : i + 1];
     if (!current || current.type !== "ContentStatement" || !multiple && current.rightStripped) {
       return;
     }
@@ -8086,8 +7903,8 @@ var require_whitespace_control = __commonJS((exports, module) => {
     current.value = current.value.replace(multiple ? /^\s+/ : /^[ \t]*\r?\n?/, "");
     current.rightStripped = current.value !== original;
   }
-  function omitLeft(body, i2, multiple) {
-    var current = body[i2 == null ? body.length - 1 : i2 - 1];
+  function omitLeft(body, i, multiple) {
+    var current = body[i == null ? body.length - 1 : i - 1];
     if (!current || current.type !== "ContentStatement" || !multiple && current.leftStripped) {
       return;
     }
@@ -8101,7 +7918,7 @@ var require_whitespace_control = __commonJS((exports, module) => {
 });
 
 // node_modules/.bun/handlebars@4.7.9/node_modules/handlebars/dist/cjs/handlebars/compiler/helpers.js
-var require_helpers2 = __commonJS((exports) => {
+var require_helpers2 = __commonJS(function(exports) {
   exports.__esModule = true;
   exports.SourceLocation = SourceLocation;
   exports.id = id;
@@ -8155,9 +7972,9 @@ var require_helpers2 = __commonJS((exports) => {
   function preparePath(data, parts, loc) {
     loc = this.locInfo(loc);
     var original = data ? "@" : "", dig = [], depth = 0;
-    for (var i2 = 0, l = parts.length;i2 < l; i2++) {
-      var part = parts[i2].part, isLiteral = parts[i2].original !== part;
-      original += (parts[i2].separator || "") + part;
+    for (var i = 0, l = parts.length;i < l; i++) {
+      var part = parts[i].part, isLiteral = parts[i].original !== part;
+      original += (parts[i].separator || "") + part;
       if (!isLiteral && (part === ".." || part === "." || part === "this")) {
         if (dig.length > 0) {
           throw new _exception2["default"]("Invalid path: " + original, { loc });
@@ -8286,10 +8103,10 @@ var require_helpers2 = __commonJS((exports) => {
 });
 
 // node_modules/.bun/handlebars@4.7.9/node_modules/handlebars/dist/cjs/handlebars/compiler/base.js
-var require_base2 = __commonJS((exports) => {
+var require_base2 = __commonJS(function(exports) {
   exports.__esModule = true;
   exports.parseWithoutProcessing = parseWithoutProcessing;
-  exports.parse = parse2;
+  exports.parse = parse;
   function _interopRequireWildcard(obj) {
     if (obj && obj.__esModule) {
       return obj;
@@ -8332,7 +8149,7 @@ var require_base2 = __commonJS((exports) => {
     var ast = _parser2["default"].parse(input);
     return ast;
   }
-  function parse2(input, options) {
+  function parse(input, options) {
     var ast = parseWithoutProcessing(input, options);
     var strip = new _whitespaceControl2["default"](options);
     return strip.accept(ast);
@@ -8358,8 +8175,8 @@ var require_base2 = __commonJS((exports) => {
       if (!Array.isArray(node.parts)) {
         throw new _exception2["default"]("Invalid AST: PathExpression.parts must be an array");
       }
-      for (var i2 = 0;i2 < node.parts.length; i2++) {
-        if (typeof node.parts[i2] !== "string") {
+      for (var i = 0;i < node.parts.length; i++) {
+        if (typeof node.parts[i] !== "string") {
           throw new _exception2["default"]("Invalid AST: PathExpression.parts must only contain strings");
         }
       }
@@ -8385,7 +8202,7 @@ var require_base2 = __commonJS((exports) => {
 });
 
 // node_modules/.bun/handlebars@4.7.9/node_modules/handlebars/dist/cjs/handlebars/compiler/compiler.js
-var require_compiler = __commonJS((exports) => {
+var require_compiler = __commonJS(function(exports) {
   exports.__esModule = true;
   exports.Compiler = Compiler;
   exports.precompile = precompile;
@@ -8403,26 +8220,26 @@ var require_compiler = __commonJS((exports) => {
   Compiler.prototype = {
     compiler: Compiler,
     equals: function equals(other) {
-      var len2 = this.opcodes.length;
-      if (other.opcodes.length !== len2) {
+      var len = this.opcodes.length;
+      if (other.opcodes.length !== len) {
         return false;
       }
-      for (var i2 = 0;i2 < len2; i2++) {
-        var opcode = this.opcodes[i2], otherOpcode = other.opcodes[i2];
+      for (var i = 0;i < len; i++) {
+        var opcode = this.opcodes[i], otherOpcode = other.opcodes[i];
         if (opcode.opcode !== otherOpcode.opcode || !argEquals(opcode.args, otherOpcode.args)) {
           return false;
         }
       }
-      len2 = this.children.length;
-      for (var i2 = 0;i2 < len2; i2++) {
-        if (!this.children[i2].equals(other.children[i2])) {
+      len = this.children.length;
+      for (var i = 0;i < len; i++) {
+        if (!this.children[i].equals(other.children[i])) {
           return false;
         }
       }
       return true;
     },
     guid: 0,
-    compile: function compile2(program, options) {
+    compile: function compile(program, options) {
       this.sourceNode = [];
       this.opcodes = [];
       this.children = [];
@@ -8461,8 +8278,8 @@ var require_compiler = __commonJS((exports) => {
     Program: function Program(program) {
       this.options.blockParams.unshift(program.blockParams);
       var body = program.body, bodyLength = body.length;
-      for (var i2 = 0;i2 < bodyLength; i2++) {
-        this.accept(body[i2]);
+      for (var i = 0;i < bodyLength; i++) {
+        this.accept(body[i]);
       }
       this.options.blockParams.shift();
       this.isSimple = bodyLength === 1;
@@ -8617,13 +8434,13 @@ var require_compiler = __commonJS((exports) => {
       this.opcode("pushLiteral", "null");
     },
     Hash: function Hash(hash) {
-      var pairs = hash.pairs, i2 = 0, l = pairs.length;
+      var pairs = hash.pairs, i = 0, l = pairs.length;
       this.opcode("pushHash");
-      for (;i2 < l; i2++) {
-        this.pushParam(pairs[i2].value);
+      for (;i < l; i++) {
+        this.pushParam(pairs[i].value);
       }
-      while (i2--) {
-        this.opcode("assignToHash", pairs[i2].key);
+      while (i--) {
+        this.opcode("assignToHash", pairs[i].key);
       }
       this.opcode("popHash");
     },
@@ -8662,8 +8479,8 @@ var require_compiler = __commonJS((exports) => {
       }
     },
     pushParams: function pushParams(params) {
-      for (var i2 = 0, l = params.length;i2 < l; i2++) {
-        this.pushParam(params[i2]);
+      for (var i = 0, l = params.length;i < l; i++) {
+        this.pushParam(params[i]);
       }
     },
     pushParam: function pushParam(val) {
@@ -8713,7 +8530,7 @@ var require_compiler = __commonJS((exports) => {
       return params;
     },
     blockParamIndex: function blockParamIndex(name) {
-      for (var depth = 0, len2 = this.options.blockParams.length;depth < len2; depth++) {
+      for (var depth = 0, len = this.options.blockParams.length;depth < len; depth++) {
         var blockParams = this.options.blockParams[depth], param = blockParams && _utils.indexOf(blockParams, name);
         if (blockParams && param >= 0) {
           return [depth, param];
@@ -8765,11 +8582,11 @@ var require_compiler = __commonJS((exports) => {
       }
       return compiled._setup(setupOptions);
     };
-    ret._child = function(i2, data, blockParams, depths) {
+    ret._child = function(i, data, blockParams, depths) {
       if (!compiled) {
         compiled = compileInput();
       }
-      return compiled._child(i2, data, blockParams, depths);
+      return compiled._child(i, data, blockParams, depths);
     };
     return ret;
   }
@@ -8778,8 +8595,8 @@ var require_compiler = __commonJS((exports) => {
       return true;
     }
     if (_utils.isArray(a) && _utils.isArray(b) && a.length === b.length) {
-      for (var i2 = 0;i2 < a.length; i2++) {
-        if (!argEquals(a[i2], b[i2])) {
+      for (var i = 0;i < a.length; i++) {
+        if (!argEquals(a[i], b[i])) {
           return false;
         }
       }
@@ -8802,7 +8619,7 @@ var require_compiler = __commonJS((exports) => {
 });
 
 // node_modules/.bun/source-map@0.6.1/node_modules/source-map/lib/base64.js
-var require_base64 = __commonJS((exports) => {
+var require_base64 = __commonJS(function(exports) {
   var intToCharMap = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/".split("");
   exports.encode = function(number) {
     if (0 <= number && number < intToCharMap.length) {
@@ -8841,7 +8658,7 @@ var require_base64 = __commonJS((exports) => {
 });
 
 // node_modules/.bun/source-map@0.6.1/node_modules/source-map/lib/base64-vlq.js
-var require_base64_vlq = __commonJS((exports) => {
+var require_base64_vlq = __commonJS(function(exports) {
   var base64 = require_base64();
   var VLQ_BASE_SHIFT = 5;
   var VLQ_BASE = 1 << VLQ_BASE_SHIFT;
@@ -8893,7 +8710,7 @@ var require_base64_vlq = __commonJS((exports) => {
 });
 
 // node_modules/.bun/source-map@0.6.1/node_modules/source-map/lib/util.js
-var require_util = __commonJS((exports) => {
+var require_util = __commonJS(function(exports) {
   function getArg(aArgs, aName, aDefaultValue) {
     if (aName in aArgs) {
       return aArgs[aName];
@@ -8941,7 +8758,7 @@ var require_util = __commonJS((exports) => {
     return url;
   }
   exports.urlGenerate = urlGenerate;
-  function normalize3(aPath) {
+  function normalize(aPath) {
     var path = aPath;
     var url = urlParse(aPath);
     if (url) {
@@ -8950,27 +8767,27 @@ var require_util = __commonJS((exports) => {
       }
       path = url.path;
     }
-    var isAbsolute2 = exports.isAbsolute(path);
+    var isAbsolute = exports.isAbsolute(path);
     var parts = path.split(/\/+/);
-    for (var part, up = 0, i2 = parts.length - 1;i2 >= 0; i2--) {
-      part = parts[i2];
+    for (var part, up = 0, i = parts.length - 1;i >= 0; i--) {
+      part = parts[i];
       if (part === ".") {
-        parts.splice(i2, 1);
+        parts.splice(i, 1);
       } else if (part === "..") {
         up++;
       } else if (up > 0) {
         if (part === "") {
-          parts.splice(i2 + 1, up);
+          parts.splice(i + 1, up);
           up = 0;
         } else {
-          parts.splice(i2, 2);
+          parts.splice(i, 2);
           up--;
         }
       }
     }
     path = parts.join("/");
     if (path === "") {
-      path = isAbsolute2 ? "/" : ".";
+      path = isAbsolute ? "/" : ".";
     }
     if (url) {
       url.path = path;
@@ -8978,8 +8795,8 @@ var require_util = __commonJS((exports) => {
     }
     return path;
   }
-  exports.normalize = normalize3;
-  function join2(aRoot, aPath) {
+  exports.normalize = normalize;
+  function join(aRoot, aPath) {
     if (aRoot === "") {
       aRoot = ".";
     }
@@ -9004,18 +8821,18 @@ var require_util = __commonJS((exports) => {
       aRootUrl.host = aPath;
       return urlGenerate(aRootUrl);
     }
-    var joined = aPath.charAt(0) === "/" ? aPath : normalize3(aRoot.replace(/\/+$/, "") + "/" + aPath);
+    var joined = aPath.charAt(0) === "/" ? aPath : normalize(aRoot.replace(/\/+$/, "") + "/" + aPath);
     if (aRootUrl) {
       aRootUrl.path = joined;
       return urlGenerate(aRootUrl);
     }
     return joined;
   }
-  exports.join = join2;
+  exports.join = join;
   exports.isAbsolute = function(aPath) {
     return aPath.charAt(0) === "/" || urlRegexp.test(aPath);
   };
-  function relative2(aRoot, aPath) {
+  function relative(aRoot, aPath) {
     if (aRoot === "") {
       aRoot = ".";
     }
@@ -9034,7 +8851,7 @@ var require_util = __commonJS((exports) => {
     }
     return Array(level + 1).join("../") + aPath.substr(aRoot.length + 1);
   }
-  exports.relative = relative2;
+  exports.relative = relative;
   var supportsNullProto = function() {
     var obj = Object.create(null);
     return !("__proto__" in obj);
@@ -9067,8 +8884,8 @@ var require_util = __commonJS((exports) => {
     if (s.charCodeAt(length - 1) !== 95 || s.charCodeAt(length - 2) !== 95 || s.charCodeAt(length - 3) !== 111 || s.charCodeAt(length - 4) !== 116 || s.charCodeAt(length - 5) !== 111 || s.charCodeAt(length - 6) !== 114 || s.charCodeAt(length - 7) !== 112 || s.charCodeAt(length - 8) !== 95 || s.charCodeAt(length - 9) !== 95) {
       return false;
     }
-    for (var i2 = length - 10;i2 >= 0; i2--) {
-      if (s.charCodeAt(i2) !== 36) {
+    for (var i = length - 10;i >= 0; i--) {
+      if (s.charCodeAt(i) !== 36) {
         return false;
       }
     }
@@ -9184,16 +9001,16 @@ var require_util = __commonJS((exports) => {
           parsed.path = parsed.path.substring(0, index + 1);
         }
       }
-      sourceURL = join2(urlGenerate(parsed), sourceURL);
+      sourceURL = join(urlGenerate(parsed), sourceURL);
     }
-    return normalize3(sourceURL);
+    return normalize(sourceURL);
   }
   exports.computeSourceURL = computeSourceURL;
 });
 
 // node_modules/.bun/source-map@0.6.1/node_modules/source-map/lib/array-set.js
-var require_array_set = __commonJS((exports) => {
-  var util3 = require_util();
+var require_array_set = __commonJS(function(exports) {
+  var util = require_util();
   var has = Object.prototype.hasOwnProperty;
   var hasNativeMap = typeof Map !== "undefined";
   function ArraySet() {
@@ -9202,8 +9019,8 @@ var require_array_set = __commonJS((exports) => {
   }
   ArraySet.fromArray = function ArraySet_fromArray(aArray, aAllowDuplicates) {
     var set = new ArraySet;
-    for (var i2 = 0, len2 = aArray.length;i2 < len2; i2++) {
-      set.add(aArray[i2], aAllowDuplicates);
+    for (var i = 0, len = aArray.length;i < len; i++) {
+      set.add(aArray[i], aAllowDuplicates);
     }
     return set;
   };
@@ -9211,7 +9028,7 @@ var require_array_set = __commonJS((exports) => {
     return hasNativeMap ? this._set.size : Object.getOwnPropertyNames(this._set).length;
   };
   ArraySet.prototype.add = function ArraySet_add(aStr, aAllowDuplicates) {
-    var sStr = hasNativeMap ? aStr : util3.toSetString(aStr);
+    var sStr = hasNativeMap ? aStr : util.toSetString(aStr);
     var isDuplicate = hasNativeMap ? this.has(aStr) : has.call(this._set, sStr);
     var idx = this._array.length;
     if (!isDuplicate || aAllowDuplicates) {
@@ -9229,7 +9046,7 @@ var require_array_set = __commonJS((exports) => {
     if (hasNativeMap) {
       return this._set.has(aStr);
     } else {
-      var sStr = util3.toSetString(aStr);
+      var sStr = util.toSetString(aStr);
       return has.call(this._set, sStr);
     }
   };
@@ -9240,7 +9057,7 @@ var require_array_set = __commonJS((exports) => {
         return idx;
       }
     } else {
-      var sStr = util3.toSetString(aStr);
+      var sStr = util.toSetString(aStr);
       if (has.call(this._set, sStr)) {
         return this._set[sStr];
       }
@@ -9260,14 +9077,14 @@ var require_array_set = __commonJS((exports) => {
 });
 
 // node_modules/.bun/source-map@0.6.1/node_modules/source-map/lib/mapping-list.js
-var require_mapping_list = __commonJS((exports) => {
-  var util3 = require_util();
+var require_mapping_list = __commonJS(function(exports) {
+  var util = require_util();
   function generatedPositionAfter(mappingA, mappingB) {
     var lineA = mappingA.generatedLine;
     var lineB = mappingB.generatedLine;
     var columnA = mappingA.generatedColumn;
     var columnB = mappingB.generatedColumn;
-    return lineB > lineA || lineB == lineA && columnB >= columnA || util3.compareByGeneratedPositionsInflated(mappingA, mappingB) <= 0;
+    return lineB > lineA || lineB == lineA && columnB >= columnA || util.compareByGeneratedPositionsInflated(mappingA, mappingB) <= 0;
   }
   function MappingList() {
     this._array = [];
@@ -9288,7 +9105,7 @@ var require_mapping_list = __commonJS((exports) => {
   };
   MappingList.prototype.toArray = function MappingList_toArray() {
     if (!this._sorted) {
-      this._array.sort(util3.compareByGeneratedPositionsInflated);
+      this._array.sort(util.compareByGeneratedPositionsInflated);
       this._sorted = true;
     }
     return this._array;
@@ -9297,18 +9114,18 @@ var require_mapping_list = __commonJS((exports) => {
 });
 
 // node_modules/.bun/source-map@0.6.1/node_modules/source-map/lib/source-map-generator.js
-var require_source_map_generator = __commonJS((exports) => {
+var require_source_map_generator = __commonJS(function(exports) {
   var base64VLQ = require_base64_vlq();
-  var util3 = require_util();
+  var util = require_util();
   var ArraySet = require_array_set().ArraySet;
   var MappingList = require_mapping_list().MappingList;
   function SourceMapGenerator(aArgs) {
     if (!aArgs) {
       aArgs = {};
     }
-    this._file = util3.getArg(aArgs, "file", null);
-    this._sourceRoot = util3.getArg(aArgs, "sourceRoot", null);
-    this._skipValidation = util3.getArg(aArgs, "skipValidation", false);
+    this._file = util.getArg(aArgs, "file", null);
+    this._sourceRoot = util.getArg(aArgs, "sourceRoot", null);
+    this._skipValidation = util.getArg(aArgs, "skipValidation", false);
     this._sources = new ArraySet;
     this._names = new ArraySet;
     this._mappings = new MappingList;
@@ -9331,7 +9148,7 @@ var require_source_map_generator = __commonJS((exports) => {
       if (mapping.source != null) {
         newMapping.source = mapping.source;
         if (sourceRoot != null) {
-          newMapping.source = util3.relative(sourceRoot, newMapping.source);
+          newMapping.source = util.relative(sourceRoot, newMapping.source);
         }
         newMapping.original = {
           line: mapping.originalLine,
@@ -9346,7 +9163,7 @@ var require_source_map_generator = __commonJS((exports) => {
     aSourceMapConsumer.sources.forEach(function(sourceFile) {
       var sourceRelative = sourceFile;
       if (sourceRoot !== null) {
-        sourceRelative = util3.relative(sourceRoot, sourceFile);
+        sourceRelative = util.relative(sourceRoot, sourceFile);
       }
       if (!generator._sources.has(sourceRelative)) {
         generator._sources.add(sourceRelative);
@@ -9359,10 +9176,10 @@ var require_source_map_generator = __commonJS((exports) => {
     return generator;
   };
   SourceMapGenerator.prototype.addMapping = function SourceMapGenerator_addMapping(aArgs) {
-    var generated = util3.getArg(aArgs, "generated");
-    var original = util3.getArg(aArgs, "original", null);
-    var source = util3.getArg(aArgs, "source", null);
-    var name = util3.getArg(aArgs, "name", null);
+    var generated = util.getArg(aArgs, "generated");
+    var original = util.getArg(aArgs, "original", null);
+    var source = util.getArg(aArgs, "source", null);
+    var name = util.getArg(aArgs, "name", null);
     if (!this._skipValidation) {
       this._validateMapping(generated, original, source, name);
     }
@@ -9390,15 +9207,15 @@ var require_source_map_generator = __commonJS((exports) => {
   SourceMapGenerator.prototype.setSourceContent = function SourceMapGenerator_setSourceContent(aSourceFile, aSourceContent) {
     var source = aSourceFile;
     if (this._sourceRoot != null) {
-      source = util3.relative(this._sourceRoot, source);
+      source = util.relative(this._sourceRoot, source);
     }
     if (aSourceContent != null) {
       if (!this._sourcesContents) {
         this._sourcesContents = Object.create(null);
       }
-      this._sourcesContents[util3.toSetString(source)] = aSourceContent;
+      this._sourcesContents[util.toSetString(source)] = aSourceContent;
     } else if (this._sourcesContents) {
-      delete this._sourcesContents[util3.toSetString(source)];
+      delete this._sourcesContents[util.toSetString(source)];
       if (Object.keys(this._sourcesContents).length === 0) {
         this._sourcesContents = null;
       }
@@ -9414,7 +9231,7 @@ var require_source_map_generator = __commonJS((exports) => {
     }
     var sourceRoot = this._sourceRoot;
     if (sourceRoot != null) {
-      sourceFile = util3.relative(sourceRoot, sourceFile);
+      sourceFile = util.relative(sourceRoot, sourceFile);
     }
     var newSources = new ArraySet;
     var newNames = new ArraySet;
@@ -9427,10 +9244,10 @@ var require_source_map_generator = __commonJS((exports) => {
         if (original.source != null) {
           mapping.source = original.source;
           if (aSourceMapPath != null) {
-            mapping.source = util3.join(aSourceMapPath, mapping.source);
+            mapping.source = util.join(aSourceMapPath, mapping.source);
           }
           if (sourceRoot != null) {
-            mapping.source = util3.relative(sourceRoot, mapping.source);
+            mapping.source = util.relative(sourceRoot, mapping.source);
           }
           mapping.originalLine = original.line;
           mapping.originalColumn = original.column;
@@ -9450,16 +9267,16 @@ var require_source_map_generator = __commonJS((exports) => {
     }, this);
     this._sources = newSources;
     this._names = newNames;
-    aSourceMapConsumer.sources.forEach(function(sourceFile2) {
-      var content = aSourceMapConsumer.sourceContentFor(sourceFile2);
+    aSourceMapConsumer.sources.forEach(function(sourceFile) {
+      var content = aSourceMapConsumer.sourceContentFor(sourceFile);
       if (content != null) {
         if (aSourceMapPath != null) {
-          sourceFile2 = util3.join(aSourceMapPath, sourceFile2);
+          sourceFile = util.join(aSourceMapPath, sourceFile);
         }
         if (sourceRoot != null) {
-          sourceFile2 = util3.relative(sourceRoot, sourceFile2);
+          sourceFile = util.relative(sourceRoot, sourceFile);
         }
-        this.setSourceContent(sourceFile2, content);
+        this.setSourceContent(sourceFile, content);
       }
     }, this);
   };
@@ -9493,8 +9310,8 @@ var require_source_map_generator = __commonJS((exports) => {
     var nameIdx;
     var sourceIdx;
     var mappings = this._mappings.toArray();
-    for (var i2 = 0, len2 = mappings.length;i2 < len2; i2++) {
-      mapping = mappings[i2];
+    for (var i = 0, len = mappings.length;i < len; i++) {
+      mapping = mappings[i];
       next = "";
       if (mapping.generatedLine !== previousGeneratedLine) {
         previousGeneratedColumn = 0;
@@ -9503,8 +9320,8 @@ var require_source_map_generator = __commonJS((exports) => {
           previousGeneratedLine++;
         }
       } else {
-        if (i2 > 0) {
-          if (!util3.compareByGeneratedPositionsInflated(mapping, mappings[i2 - 1])) {
+        if (i > 0) {
+          if (!util.compareByGeneratedPositionsInflated(mapping, mappings[i - 1])) {
             continue;
           }
           next += ",";
@@ -9536,9 +9353,9 @@ var require_source_map_generator = __commonJS((exports) => {
         return null;
       }
       if (aSourceRoot != null) {
-        source = util3.relative(aSourceRoot, source);
+        source = util.relative(aSourceRoot, source);
       }
-      var key = util3.toSetString(source);
+      var key = util.toSetString(source);
       return Object.prototype.hasOwnProperty.call(this._sourcesContents, key) ? this._sourcesContents[key] : null;
     }, this);
   };
@@ -9567,7 +9384,7 @@ var require_source_map_generator = __commonJS((exports) => {
 });
 
 // node_modules/.bun/source-map@0.6.1/node_modules/source-map/lib/binary-search.js
-var require_binary_search = __commonJS((exports) => {
+var require_binary_search = __commonJS(function(exports) {
   exports.GREATEST_LOWER_BOUND = 1;
   exports.LEAST_UPPER_BOUND = 2;
   function recursiveSearch(aLow, aHigh, aNeedle, aHaystack, aCompare, aBias) {
@@ -9614,8 +9431,8 @@ var require_binary_search = __commonJS((exports) => {
 });
 
 // node_modules/.bun/source-map@0.6.1/node_modules/source-map/lib/quick-sort.js
-var require_quick_sort = __commonJS((exports) => {
-  function swap2(ary, x, y) {
+var require_quick_sort = __commonJS(function(exports) {
+  function swap(ary, x, y) {
     var temp = ary[x];
     ary[x] = ary[y];
     ary[y] = temp;
@@ -9626,17 +9443,17 @@ var require_quick_sort = __commonJS((exports) => {
   function doQuickSort(ary, comparator, p, r) {
     if (p < r) {
       var pivotIndex = randomIntInRange(p, r);
-      var i2 = p - 1;
-      swap2(ary, pivotIndex, r);
+      var i = p - 1;
+      swap(ary, pivotIndex, r);
       var pivot = ary[r];
       for (var j = p;j < r; j++) {
         if (comparator(ary[j], pivot) <= 0) {
-          i2 += 1;
-          swap2(ary, i2, j);
+          i += 1;
+          swap(ary, i, j);
         }
       }
-      swap2(ary, i2 + 1, j);
-      var q = i2 + 1;
+      swap(ary, i + 1, j);
+      var q = i + 1;
       doQuickSort(ary, comparator, p, q - 1);
       doQuickSort(ary, comparator, q + 1, r);
     }
@@ -9647,8 +9464,8 @@ var require_quick_sort = __commonJS((exports) => {
 });
 
 // node_modules/.bun/source-map@0.6.1/node_modules/source-map/lib/source-map-consumer.js
-var require_source_map_consumer = __commonJS((exports) => {
-  var util3 = require_util();
+var require_source_map_consumer = __commonJS(function(exports) {
+  var util = require_util();
   var binarySearch = require_binary_search();
   var ArraySet = require_array_set().ArraySet;
   var base64VLQ = require_base64_vlq();
@@ -9656,7 +9473,7 @@ var require_source_map_consumer = __commonJS((exports) => {
   function SourceMapConsumer(aSourceMap, aSourceMapURL) {
     var sourceMap = aSourceMap;
     if (typeof aSourceMap === "string") {
-      sourceMap = util3.parseSourceMapInput(aSourceMap);
+      sourceMap = util.parseSourceMapInput(aSourceMap);
     }
     return sourceMap.sections != null ? new IndexedSourceMapConsumer(sourceMap, aSourceMapURL) : new BasicSourceMapConsumer(sourceMap, aSourceMapURL);
   }
@@ -9714,7 +9531,7 @@ var require_source_map_consumer = __commonJS((exports) => {
     var sourceRoot = this.sourceRoot;
     mappings.map(function(mapping) {
       var source = mapping.source === null ? null : this._sources.at(mapping.source);
-      source = util3.computeSourceURL(sourceRoot, source, this._sourceMapURL);
+      source = util.computeSourceURL(sourceRoot, source, this._sourceMapURL);
       return {
         source,
         generatedLine: mapping.generatedLine,
@@ -9726,27 +9543,27 @@ var require_source_map_consumer = __commonJS((exports) => {
     }, this).forEach(aCallback, context);
   };
   SourceMapConsumer.prototype.allGeneratedPositionsFor = function SourceMapConsumer_allGeneratedPositionsFor(aArgs) {
-    var line = util3.getArg(aArgs, "line");
+    var line = util.getArg(aArgs, "line");
     var needle = {
-      source: util3.getArg(aArgs, "source"),
+      source: util.getArg(aArgs, "source"),
       originalLine: line,
-      originalColumn: util3.getArg(aArgs, "column", 0)
+      originalColumn: util.getArg(aArgs, "column", 0)
     };
     needle.source = this._findSourceIndex(needle.source);
     if (needle.source < 0) {
       return [];
     }
     var mappings = [];
-    var index = this._findMapping(needle, this._originalMappings, "originalLine", "originalColumn", util3.compareByOriginalPositions, binarySearch.LEAST_UPPER_BOUND);
+    var index = this._findMapping(needle, this._originalMappings, "originalLine", "originalColumn", util.compareByOriginalPositions, binarySearch.LEAST_UPPER_BOUND);
     if (index >= 0) {
       var mapping = this._originalMappings[index];
       if (aArgs.column === undefined) {
         var originalLine = mapping.originalLine;
         while (mapping && mapping.originalLine === originalLine) {
           mappings.push({
-            line: util3.getArg(mapping, "generatedLine", null),
-            column: util3.getArg(mapping, "generatedColumn", null),
-            lastColumn: util3.getArg(mapping, "lastGeneratedColumn", null)
+            line: util.getArg(mapping, "generatedLine", null),
+            column: util.getArg(mapping, "generatedColumn", null),
+            lastColumn: util.getArg(mapping, "lastGeneratedColumn", null)
           });
           mapping = this._originalMappings[++index];
         }
@@ -9754,9 +9571,9 @@ var require_source_map_consumer = __commonJS((exports) => {
         var originalColumn = mapping.originalColumn;
         while (mapping && mapping.originalLine === line && mapping.originalColumn == originalColumn) {
           mappings.push({
-            line: util3.getArg(mapping, "generatedLine", null),
-            column: util3.getArg(mapping, "generatedColumn", null),
-            lastColumn: util3.getArg(mapping, "lastGeneratedColumn", null)
+            line: util.getArg(mapping, "generatedLine", null),
+            column: util.getArg(mapping, "generatedColumn", null),
+            lastColumn: util.getArg(mapping, "lastGeneratedColumn", null)
           });
           mapping = this._originalMappings[++index];
         }
@@ -9768,28 +9585,28 @@ var require_source_map_consumer = __commonJS((exports) => {
   function BasicSourceMapConsumer(aSourceMap, aSourceMapURL) {
     var sourceMap = aSourceMap;
     if (typeof aSourceMap === "string") {
-      sourceMap = util3.parseSourceMapInput(aSourceMap);
+      sourceMap = util.parseSourceMapInput(aSourceMap);
     }
-    var version = util3.getArg(sourceMap, "version");
-    var sources = util3.getArg(sourceMap, "sources");
-    var names = util3.getArg(sourceMap, "names", []);
-    var sourceRoot = util3.getArg(sourceMap, "sourceRoot", null);
-    var sourcesContent = util3.getArg(sourceMap, "sourcesContent", null);
-    var mappings = util3.getArg(sourceMap, "mappings");
-    var file = util3.getArg(sourceMap, "file", null);
+    var version = util.getArg(sourceMap, "version");
+    var sources = util.getArg(sourceMap, "sources");
+    var names = util.getArg(sourceMap, "names", []);
+    var sourceRoot = util.getArg(sourceMap, "sourceRoot", null);
+    var sourcesContent = util.getArg(sourceMap, "sourcesContent", null);
+    var mappings = util.getArg(sourceMap, "mappings");
+    var file = util.getArg(sourceMap, "file", null);
     if (version != this._version) {
       throw new Error("Unsupported version: " + version);
     }
     if (sourceRoot) {
-      sourceRoot = util3.normalize(sourceRoot);
+      sourceRoot = util.normalize(sourceRoot);
     }
-    sources = sources.map(String).map(util3.normalize).map(function(source) {
-      return sourceRoot && util3.isAbsolute(sourceRoot) && util3.isAbsolute(source) ? util3.relative(sourceRoot, source) : source;
+    sources = sources.map(String).map(util.normalize).map(function(source) {
+      return sourceRoot && util.isAbsolute(sourceRoot) && util.isAbsolute(source) ? util.relative(sourceRoot, source) : source;
     });
     this._names = ArraySet.fromArray(names.map(String), true);
     this._sources = ArraySet.fromArray(sources, true);
     this._absoluteSources = this._sources.toArray().map(function(s) {
-      return util3.computeSourceURL(sourceRoot, s, aSourceMapURL);
+      return util.computeSourceURL(sourceRoot, s, aSourceMapURL);
     });
     this.sourceRoot = sourceRoot;
     this.sourcesContent = sourcesContent;
@@ -9802,15 +9619,15 @@ var require_source_map_consumer = __commonJS((exports) => {
   BasicSourceMapConsumer.prototype._findSourceIndex = function(aSource) {
     var relativeSource = aSource;
     if (this.sourceRoot != null) {
-      relativeSource = util3.relative(this.sourceRoot, relativeSource);
+      relativeSource = util.relative(this.sourceRoot, relativeSource);
     }
     if (this._sources.has(relativeSource)) {
       return this._sources.indexOf(relativeSource);
     }
-    var i2;
-    for (i2 = 0;i2 < this._absoluteSources.length; ++i2) {
-      if (this._absoluteSources[i2] == aSource) {
-        return i2;
+    var i;
+    for (i = 0;i < this._absoluteSources.length; ++i) {
+      if (this._absoluteSources[i] == aSource) {
+        return i;
       }
     }
     return -1;
@@ -9824,13 +9641,13 @@ var require_source_map_consumer = __commonJS((exports) => {
     smc.file = aSourceMap._file;
     smc._sourceMapURL = aSourceMapURL;
     smc._absoluteSources = smc._sources.toArray().map(function(s) {
-      return util3.computeSourceURL(smc.sourceRoot, s, aSourceMapURL);
+      return util.computeSourceURL(smc.sourceRoot, s, aSourceMapURL);
     });
     var generatedMappings = aSourceMap._mappings.toArray().slice();
     var destGeneratedMappings = smc.__generatedMappings = [];
     var destOriginalMappings = smc.__originalMappings = [];
-    for (var i2 = 0, length = generatedMappings.length;i2 < length; i2++) {
-      var srcMapping = generatedMappings[i2];
+    for (var i = 0, length = generatedMappings.length;i < length; i++) {
+      var srcMapping = generatedMappings[i];
       var destMapping = new Mapping;
       destMapping.generatedLine = srcMapping.generatedLine;
       destMapping.generatedColumn = srcMapping.generatedColumn;
@@ -9845,7 +9662,7 @@ var require_source_map_consumer = __commonJS((exports) => {
       }
       destGeneratedMappings.push(destMapping);
     }
-    quickSort(smc.__originalMappings, util3.compareByOriginalPositions);
+    quickSort(smc.__originalMappings, util.compareByOriginalPositions);
     return smc;
   };
   BasicSourceMapConsumer.prototype._version = 3;
@@ -9932,9 +9749,9 @@ var require_source_map_consumer = __commonJS((exports) => {
         }
       }
     }
-    quickSort(generatedMappings, util3.compareByGeneratedPositionsDeflated);
+    quickSort(generatedMappings, util.compareByGeneratedPositionsDeflated);
     this.__generatedMappings = generatedMappings;
-    quickSort(originalMappings, util3.compareByOriginalPositions);
+    quickSort(originalMappings, util.compareByOriginalPositions);
     this.__originalMappings = originalMappings;
   };
   BasicSourceMapConsumer.prototype._findMapping = function SourceMapConsumer_findMapping(aNeedle, aMappings, aLineName, aColumnName, aComparator, aBias) {
@@ -9961,26 +9778,26 @@ var require_source_map_consumer = __commonJS((exports) => {
   };
   BasicSourceMapConsumer.prototype.originalPositionFor = function SourceMapConsumer_originalPositionFor(aArgs) {
     var needle = {
-      generatedLine: util3.getArg(aArgs, "line"),
-      generatedColumn: util3.getArg(aArgs, "column")
+      generatedLine: util.getArg(aArgs, "line"),
+      generatedColumn: util.getArg(aArgs, "column")
     };
-    var index = this._findMapping(needle, this._generatedMappings, "generatedLine", "generatedColumn", util3.compareByGeneratedPositionsDeflated, util3.getArg(aArgs, "bias", SourceMapConsumer.GREATEST_LOWER_BOUND));
+    var index = this._findMapping(needle, this._generatedMappings, "generatedLine", "generatedColumn", util.compareByGeneratedPositionsDeflated, util.getArg(aArgs, "bias", SourceMapConsumer.GREATEST_LOWER_BOUND));
     if (index >= 0) {
       var mapping = this._generatedMappings[index];
       if (mapping.generatedLine === needle.generatedLine) {
-        var source = util3.getArg(mapping, "source", null);
+        var source = util.getArg(mapping, "source", null);
         if (source !== null) {
           source = this._sources.at(source);
-          source = util3.computeSourceURL(this.sourceRoot, source, this._sourceMapURL);
+          source = util.computeSourceURL(this.sourceRoot, source, this._sourceMapURL);
         }
-        var name = util3.getArg(mapping, "name", null);
+        var name = util.getArg(mapping, "name", null);
         if (name !== null) {
           name = this._names.at(name);
         }
         return {
           source,
-          line: util3.getArg(mapping, "originalLine", null),
-          column: util3.getArg(mapping, "originalColumn", null),
+          line: util.getArg(mapping, "originalLine", null),
+          column: util.getArg(mapping, "originalColumn", null),
           name
         };
       }
@@ -10010,10 +9827,10 @@ var require_source_map_consumer = __commonJS((exports) => {
     }
     var relativeSource = aSource;
     if (this.sourceRoot != null) {
-      relativeSource = util3.relative(this.sourceRoot, relativeSource);
+      relativeSource = util.relative(this.sourceRoot, relativeSource);
     }
     var url;
-    if (this.sourceRoot != null && (url = util3.urlParse(this.sourceRoot))) {
+    if (this.sourceRoot != null && (url = util.urlParse(this.sourceRoot))) {
       var fileUriAbsPath = relativeSource.replace(/^file:\/\//, "");
       if (url.scheme == "file" && this._sources.has(fileUriAbsPath)) {
         return this.sourcesContent[this._sources.indexOf(fileUriAbsPath)];
@@ -10029,7 +9846,7 @@ var require_source_map_consumer = __commonJS((exports) => {
     }
   };
   BasicSourceMapConsumer.prototype.generatedPositionFor = function SourceMapConsumer_generatedPositionFor(aArgs) {
-    var source = util3.getArg(aArgs, "source");
+    var source = util.getArg(aArgs, "source");
     source = this._findSourceIndex(source);
     if (source < 0) {
       return {
@@ -10040,17 +9857,17 @@ var require_source_map_consumer = __commonJS((exports) => {
     }
     var needle = {
       source,
-      originalLine: util3.getArg(aArgs, "line"),
-      originalColumn: util3.getArg(aArgs, "column")
+      originalLine: util.getArg(aArgs, "line"),
+      originalColumn: util.getArg(aArgs, "column")
     };
-    var index = this._findMapping(needle, this._originalMappings, "originalLine", "originalColumn", util3.compareByOriginalPositions, util3.getArg(aArgs, "bias", SourceMapConsumer.GREATEST_LOWER_BOUND));
+    var index = this._findMapping(needle, this._originalMappings, "originalLine", "originalColumn", util.compareByOriginalPositions, util.getArg(aArgs, "bias", SourceMapConsumer.GREATEST_LOWER_BOUND));
     if (index >= 0) {
       var mapping = this._originalMappings[index];
       if (mapping.source === needle.source) {
         return {
-          line: util3.getArg(mapping, "generatedLine", null),
-          column: util3.getArg(mapping, "generatedColumn", null),
-          lastColumn: util3.getArg(mapping, "lastGeneratedColumn", null)
+          line: util.getArg(mapping, "generatedLine", null),
+          column: util.getArg(mapping, "generatedColumn", null),
+          lastColumn: util.getArg(mapping, "lastGeneratedColumn", null)
         };
       }
     }
@@ -10064,10 +9881,10 @@ var require_source_map_consumer = __commonJS((exports) => {
   function IndexedSourceMapConsumer(aSourceMap, aSourceMapURL) {
     var sourceMap = aSourceMap;
     if (typeof aSourceMap === "string") {
-      sourceMap = util3.parseSourceMapInput(aSourceMap);
+      sourceMap = util.parseSourceMapInput(aSourceMap);
     }
-    var version = util3.getArg(sourceMap, "version");
-    var sections = util3.getArg(sourceMap, "sections");
+    var version = util.getArg(sourceMap, "version");
+    var sections = util.getArg(sourceMap, "sections");
     if (version != this._version) {
       throw new Error("Unsupported version: " + version);
     }
@@ -10081,9 +9898,9 @@ var require_source_map_consumer = __commonJS((exports) => {
       if (s.url) {
         throw new Error("Support for url field in sections not implemented.");
       }
-      var offset = util3.getArg(s, "offset");
-      var offsetLine = util3.getArg(offset, "line");
-      var offsetColumn = util3.getArg(offset, "column");
+      var offset = util.getArg(s, "offset");
+      var offsetLine = util.getArg(offset, "line");
+      var offsetColumn = util.getArg(offset, "column");
       if (offsetLine < lastOffset.line || offsetLine === lastOffset.line && offsetColumn < lastOffset.column) {
         throw new Error("Section offsets must be ordered and non-overlapping.");
       }
@@ -10093,7 +9910,7 @@ var require_source_map_consumer = __commonJS((exports) => {
           generatedLine: offsetLine + 1,
           generatedColumn: offsetColumn + 1
         },
-        consumer: new SourceMapConsumer(util3.getArg(s, "map"), aSourceMapURL)
+        consumer: new SourceMapConsumer(util.getArg(s, "map"), aSourceMapURL)
       };
     });
   }
@@ -10103,9 +9920,9 @@ var require_source_map_consumer = __commonJS((exports) => {
   Object.defineProperty(IndexedSourceMapConsumer.prototype, "sources", {
     get: function() {
       var sources = [];
-      for (var i2 = 0;i2 < this._sections.length; i2++) {
-        for (var j = 0;j < this._sections[i2].consumer.sources.length; j++) {
-          sources.push(this._sections[i2].consumer.sources[j]);
+      for (var i = 0;i < this._sections.length; i++) {
+        for (var j = 0;j < this._sections[i].consumer.sources.length; j++) {
+          sources.push(this._sections[i].consumer.sources[j]);
         }
       }
       return sources;
@@ -10113,15 +9930,15 @@ var require_source_map_consumer = __commonJS((exports) => {
   });
   IndexedSourceMapConsumer.prototype.originalPositionFor = function IndexedSourceMapConsumer_originalPositionFor(aArgs) {
     var needle = {
-      generatedLine: util3.getArg(aArgs, "line"),
-      generatedColumn: util3.getArg(aArgs, "column")
+      generatedLine: util.getArg(aArgs, "line"),
+      generatedColumn: util.getArg(aArgs, "column")
     };
-    var sectionIndex = binarySearch.search(needle, this._sections, function(needle2, section2) {
-      var cmp = needle2.generatedLine - section2.generatedOffset.generatedLine;
+    var sectionIndex = binarySearch.search(needle, this._sections, function(needle, section) {
+      var cmp = needle.generatedLine - section.generatedOffset.generatedLine;
       if (cmp) {
         return cmp;
       }
-      return needle2.generatedColumn - section2.generatedOffset.generatedColumn;
+      return needle.generatedColumn - section.generatedOffset.generatedColumn;
     });
     var section = this._sections[sectionIndex];
     if (!section) {
@@ -10144,8 +9961,8 @@ var require_source_map_consumer = __commonJS((exports) => {
     });
   };
   IndexedSourceMapConsumer.prototype.sourceContentFor = function IndexedSourceMapConsumer_sourceContentFor(aSource, nullOnMissing) {
-    for (var i2 = 0;i2 < this._sections.length; i2++) {
-      var section = this._sections[i2];
+    for (var i = 0;i < this._sections.length; i++) {
+      var section = this._sections[i];
       var content = section.consumer.sourceContentFor(aSource, true);
       if (content) {
         return content;
@@ -10158,9 +9975,9 @@ var require_source_map_consumer = __commonJS((exports) => {
     }
   };
   IndexedSourceMapConsumer.prototype.generatedPositionFor = function IndexedSourceMapConsumer_generatedPositionFor(aArgs) {
-    for (var i2 = 0;i2 < this._sections.length; i2++) {
-      var section = this._sections[i2];
-      if (section.consumer._findSourceIndex(util3.getArg(aArgs, "source")) === -1) {
+    for (var i = 0;i < this._sections.length; i++) {
+      var section = this._sections[i];
+      if (section.consumer._findSourceIndex(util.getArg(aArgs, "source")) === -1) {
         continue;
       }
       var generatedPosition = section.consumer.generatedPositionFor(aArgs);
@@ -10180,13 +9997,13 @@ var require_source_map_consumer = __commonJS((exports) => {
   IndexedSourceMapConsumer.prototype._parseMappings = function IndexedSourceMapConsumer_parseMappings(aStr, aSourceRoot) {
     this.__generatedMappings = [];
     this.__originalMappings = [];
-    for (var i2 = 0;i2 < this._sections.length; i2++) {
-      var section = this._sections[i2];
+    for (var i = 0;i < this._sections.length; i++) {
+      var section = this._sections[i];
       var sectionMappings = section.consumer._generatedMappings;
       for (var j = 0;j < sectionMappings.length; j++) {
         var mapping = sectionMappings[j];
         var source = section.consumer._sources.at(mapping.source);
-        source = util3.computeSourceURL(section.consumer.sourceRoot, source, this._sourceMapURL);
+        source = util.computeSourceURL(section.consumer.sourceRoot, source, this._sourceMapURL);
         this._sources.add(source);
         source = this._sources.indexOf(source);
         var name = null;
@@ -10209,16 +10026,16 @@ var require_source_map_consumer = __commonJS((exports) => {
         }
       }
     }
-    quickSort(this.__generatedMappings, util3.compareByGeneratedPositionsDeflated);
-    quickSort(this.__originalMappings, util3.compareByOriginalPositions);
+    quickSort(this.__generatedMappings, util.compareByGeneratedPositionsDeflated);
+    quickSort(this.__originalMappings, util.compareByOriginalPositions);
   };
   exports.IndexedSourceMapConsumer = IndexedSourceMapConsumer;
 });
 
 // node_modules/.bun/source-map@0.6.1/node_modules/source-map/lib/source-node.js
-var require_source_node = __commonJS((exports) => {
+var require_source_node = __commonJS(function(exports) {
   var SourceMapGenerator = require_source_map_generator().SourceMapGenerator;
-  var util3 = require_util();
+  var util = require_util();
   var REGEX_NEWLINE = /(\r?\n)/;
   var NEWLINE_CODE = 10;
   var isSourceNode = "$$$isSourceNode$$$";
@@ -10255,10 +10072,10 @@ var require_source_node = __commonJS((exports) => {
           lastGeneratedColumn = 0;
         } else {
           var nextLine = remainingLines[remainingLinesIndex] || "";
-          var code2 = nextLine.substr(0, mapping.generatedColumn - lastGeneratedColumn);
+          var code = nextLine.substr(0, mapping.generatedColumn - lastGeneratedColumn);
           remainingLines[remainingLinesIndex] = nextLine.substr(mapping.generatedColumn - lastGeneratedColumn);
           lastGeneratedColumn = mapping.generatedColumn;
-          addMappingWithCode(lastMapping, code2);
+          addMappingWithCode(lastMapping, code);
           lastMapping = mapping;
           return;
         }
@@ -10285,18 +10102,18 @@ var require_source_node = __commonJS((exports) => {
       var content = aSourceMapConsumer.sourceContentFor(sourceFile);
       if (content != null) {
         if (aRelativePath != null) {
-          sourceFile = util3.join(aRelativePath, sourceFile);
+          sourceFile = util.join(aRelativePath, sourceFile);
         }
         node.setSourceContent(sourceFile, content);
       }
     });
     return node;
-    function addMappingWithCode(mapping, code2) {
+    function addMappingWithCode(mapping, code) {
       if (mapping === null || mapping.source === undefined) {
-        node.add(code2);
+        node.add(code);
       } else {
-        var source = aRelativePath ? util3.join(aRelativePath, mapping.source) : mapping.source;
-        node.add(new SourceNode(mapping.originalLine, mapping.originalColumn, source, code2, mapping.name));
+        var source = aRelativePath ? util.join(aRelativePath, mapping.source) : mapping.source;
+        node.add(new SourceNode(mapping.originalLine, mapping.originalColumn, source, code, mapping.name));
       }
     }
   };
@@ -10316,8 +10133,8 @@ var require_source_node = __commonJS((exports) => {
   };
   SourceNode.prototype.prepend = function SourceNode_prepend(aChunk) {
     if (Array.isArray(aChunk)) {
-      for (var i2 = aChunk.length - 1;i2 >= 0; i2--) {
-        this.prepend(aChunk[i2]);
+      for (var i = aChunk.length - 1;i >= 0; i--) {
+        this.prepend(aChunk[i]);
       }
     } else if (aChunk[isSourceNode] || typeof aChunk === "string") {
       this.children.unshift(aChunk);
@@ -10328,8 +10145,8 @@ var require_source_node = __commonJS((exports) => {
   };
   SourceNode.prototype.walk = function SourceNode_walk(aFn) {
     var chunk;
-    for (var i2 = 0, len2 = this.children.length;i2 < len2; i2++) {
-      chunk = this.children[i2];
+    for (var i = 0, len = this.children.length;i < len; i++) {
+      chunk = this.children[i];
       if (chunk[isSourceNode]) {
         chunk.walk(aFn);
       } else {
@@ -10346,15 +10163,15 @@ var require_source_node = __commonJS((exports) => {
   };
   SourceNode.prototype.join = function SourceNode_join(aSep) {
     var newChildren;
-    var i2;
-    var len2 = this.children.length;
-    if (len2 > 0) {
+    var i;
+    var len = this.children.length;
+    if (len > 0) {
       newChildren = [];
-      for (i2 = 0;i2 < len2 - 1; i2++) {
-        newChildren.push(this.children[i2]);
+      for (i = 0;i < len - 1; i++) {
+        newChildren.push(this.children[i]);
         newChildren.push(aSep);
       }
-      newChildren.push(this.children[i2]);
+      newChildren.push(this.children[i]);
       this.children = newChildren;
     }
     return this;
@@ -10371,17 +10188,17 @@ var require_source_node = __commonJS((exports) => {
     return this;
   };
   SourceNode.prototype.setSourceContent = function SourceNode_setSourceContent(aSourceFile, aSourceContent) {
-    this.sourceContents[util3.toSetString(aSourceFile)] = aSourceContent;
+    this.sourceContents[util.toSetString(aSourceFile)] = aSourceContent;
   };
   SourceNode.prototype.walkSourceContents = function SourceNode_walkSourceContents(aFn) {
-    for (var i2 = 0, len2 = this.children.length;i2 < len2; i2++) {
-      if (this.children[i2][isSourceNode]) {
-        this.children[i2].walkSourceContents(aFn);
+    for (var i = 0, len = this.children.length;i < len; i++) {
+      if (this.children[i][isSourceNode]) {
+        this.children[i].walkSourceContents(aFn);
       }
     }
     var sources = Object.keys(this.sourceContents);
-    for (var i2 = 0, len2 = sources.length;i2 < len2; i2++) {
-      aFn(util3.fromSetString(sources[i2]), this.sourceContents[sources[i2]]);
+    for (var i = 0, len = sources.length;i < len; i++) {
+      aFn(util.fromSetString(sources[i]), this.sourceContents[sources[i]]);
     }
   };
   SourceNode.prototype.toString = function SourceNode_toString() {
@@ -10470,14 +10287,14 @@ var require_source_node = __commonJS((exports) => {
 });
 
 // node_modules/.bun/source-map@0.6.1/node_modules/source-map/source-map.js
-var require_source_map = __commonJS((exports) => {
+var require_source_map = __commonJS(function(exports) {
   exports.SourceMapGenerator = require_source_map_generator().SourceMapGenerator;
   exports.SourceMapConsumer = require_source_map_consumer().SourceMapConsumer;
   exports.SourceNode = require_source_node().SourceNode;
 });
 
 // node_modules/.bun/handlebars@4.7.9/node_modules/handlebars/dist/cjs/handlebars/compiler/code-gen.js
-var require_code_gen = __commonJS((exports, module) => {
+var require_code_gen = __commonJS(function(exports, module) {
   exports.__esModule = true;
   var _utils = require_utils();
   var SourceNode = undefined;
@@ -10519,8 +10336,8 @@ var require_code_gen = __commonJS((exports, module) => {
   function castChunk(chunk, codeGen, loc) {
     if (_utils.isArray(chunk)) {
       var ret = [];
-      for (var i2 = 0, len2 = chunk.length;i2 < len2; i2++) {
-        ret.push(codeGen.wrap(chunk[i2], loc));
+      for (var i = 0, len = chunk.length;i < len; i++) {
+        ret.push(codeGen.wrap(chunk[i], loc));
       }
       return ret;
     } else if (typeof chunk === "boolean" || typeof chunk === "number") {
@@ -10551,15 +10368,15 @@ var require_code_gen = __commonJS((exports, module) => {
       return source;
     },
     each: function each(iter) {
-      for (var i2 = 0, len2 = this.source.length;i2 < len2; i2++) {
-        iter(this.source[i2]);
+      for (var i = 0, len = this.source.length;i < len; i++) {
+        iter(this.source[i]);
       }
     },
     empty: function empty() {
       var loc = this.currentLocation || { start: {} };
       return new SourceNode(loc.start.line, loc.start.column, this.srcFile);
     },
-    wrap: function wrap2(chunk) {
+    wrap: function wrap(chunk) {
       var loc = arguments.length <= 1 || arguments[1] === undefined ? this.currentLocation || { start: {} } : arguments[1];
       if (chunk instanceof SourceNode) {
         return chunk;
@@ -10590,11 +10407,11 @@ var require_code_gen = __commonJS((exports, module) => {
     },
     generateList: function generateList(entries) {
       var ret = this.empty();
-      for (var i2 = 0, len2 = entries.length;i2 < len2; i2++) {
-        if (i2) {
+      for (var i = 0, len = entries.length;i < len; i++) {
+        if (i) {
           ret.add(",");
         }
-        ret.add(castChunk(entries[i2], this));
+        ret.add(castChunk(entries[i], this));
       }
       return ret;
     },
@@ -10610,7 +10427,7 @@ var require_code_gen = __commonJS((exports, module) => {
 });
 
 // node_modules/.bun/handlebars@4.7.9/node_modules/handlebars/dist/cjs/handlebars/compiler/javascript-compiler.js
-var require_javascript_compiler = __commonJS((exports, module) => {
+var require_javascript_compiler = __commonJS(function(exports, module) {
   exports.__esModule = true;
   function _interopRequireDefault(obj) {
     return obj && obj.__esModule ? obj : { default: obj };
@@ -10626,8 +10443,8 @@ var require_javascript_compiler = __commonJS((exports, module) => {
   }
   function JavaScriptCompiler() {}
   JavaScriptCompiler.prototype = {
-    nameLookup: function nameLookup(parent2, name) {
-      return this.internalNameLookup(parent2, name);
+    nameLookup: function nameLookup(parent, name) {
+      return this.internalNameLookup(parent, name);
     },
     depthedLookup: function depthedLookup(name) {
       return [this.aliasable("container.lookup"), "(depths, ", JSON.stringify(name), ")"];
@@ -10653,9 +10470,9 @@ var require_javascript_compiler = __commonJS((exports, module) => {
     initializeBuffer: function initializeBuffer() {
       return this.quotedString("");
     },
-    internalNameLookup: function internalNameLookup(parent2, name) {
+    internalNameLookup: function internalNameLookup(parent, name) {
       this.lookupPropertyFunctionIsUsed = true;
-      return ["lookupProperty(", parent2, ",", JSON.stringify(name), ")"];
+      return ["lookupProperty(", parent, ",", JSON.stringify(name), ")"];
     },
     lookupPropertyFunctionIsUsed: false,
     compile: function compile(environment, options, context, asObject) {
@@ -10683,9 +10500,9 @@ var require_javascript_compiler = __commonJS((exports, module) => {
       this.compileChildren(environment, options);
       this.useDepths = this.useDepths || environment.useDepths || environment.useDecorators || this.options.compat;
       this.useBlockParams = this.useBlockParams || environment.useBlockParams;
-      var opcodes = environment.opcodes, opcode = undefined, firstLoc = undefined, i2 = undefined, l = undefined;
-      for (i2 = 0, l = opcodes.length;i2 < l; i2++) {
-        opcode = opcodes[i2];
+      var opcodes = environment.opcodes, opcode = undefined, firstLoc = undefined, i = undefined, l = undefined;
+      for (i = 0, l = opcodes.length;i < l; i++) {
+        opcode = opcodes[i];
         this.source.currentLocation = opcode.loc;
         firstLoc = firstLoc || opcode.loc;
         this[opcode.opcode].apply(this, opcode.args);
@@ -10725,10 +10542,10 @@ var require_javascript_compiler = __commonJS((exports, module) => {
         var _context = this.context;
         var programs = _context.programs;
         var decorators = _context.decorators;
-        for (i2 = 0, l = programs.length;i2 < l; i2++) {
-          ret[i2] = programs[i2];
-          if (decorators[i2]) {
-            ret[i2 + "_d"] = decorators[i2];
+        for (i = 0, l = programs.length;i < l; i++) {
+          ret[i] = programs[i];
+          if (decorators[i]) {
+            ret[i + "_d"] = decorators[i];
             ret.useDecorators = true;
           }
         }
@@ -10909,13 +10726,13 @@ var require_javascript_compiler = __commonJS((exports, module) => {
       this.pushStackLiteral(this.contextName(this.lastContext));
     },
     lookupOnContext: function lookupOnContext(parts, falsy, strict, scoped) {
-      var i2 = 0;
+      var i = 0;
       if (!scoped && this.options.compat && !this.lastContext) {
-        this.push(this.depthedLookup(parts[i2++]));
+        this.push(this.depthedLookup(parts[i++]));
       } else {
         this.pushContext();
       }
-      this.resolvePath("context", parts, i2, falsy, strict);
+      this.resolvePath("context", parts, i, falsy, strict);
     },
     lookupBlockParam: function lookupBlockParam(blockParamId, parts) {
       this.useBlockParams = true;
@@ -10936,19 +10753,19 @@ var require_javascript_compiler = __commonJS((exports, module) => {
         this.push(strictLookup(this.options.strict && strict, this, parts, startPartIndex, type));
         return;
       }
-      var len2 = parts.length;
-      var _loop = function(i3) {
+      var len = parts.length;
+      var _loop = function(i) {
         _this2.replaceStack(function(current) {
-          var lookup2 = _this2.nameLookup(current, parts[i3], type);
+          var lookup = _this2.nameLookup(current, parts[i], type);
           if (!falsy) {
-            return [" != null ? ", lookup2, " : ", current];
+            return [" != null ? ", lookup, " : ", current];
           } else {
-            return [" && ", lookup2];
+            return [" && ", lookup];
           }
         });
       };
-      for (var i2 = startPartIndex;i2 < len2; i2++) {
-        _loop(i2);
+      for (var i = startPartIndex;i < len; i++) {
+        _loop(i);
       }
     },
     resolvePossibleLambda: function resolvePossibleLambda() {
@@ -11029,8 +10846,8 @@ var require_javascript_compiler = __commonJS((exports, module) => {
     itemsSeparatedBy: function itemsSeparatedBy(items, separator) {
       var result = [];
       result.push(items[0]);
-      for (var i2 = 1;i2 < items.length; i2++) {
-        result.push(separator, items[i2]);
+      for (var i = 1;i < items.length; i++) {
+        result.push(separator, items[i]);
       }
       return result;
     },
@@ -11044,12 +10861,12 @@ var require_javascript_compiler = __commonJS((exports, module) => {
       this.emptyHash();
       var helper = this.setupHelper(0, name, helperCall);
       var helperName = this.lastHelper = this.nameLookup("helpers", name, "helper");
-      var lookup2 = ["(", "(helper = ", helperName, " || ", nonHelper, ")"];
+      var lookup = ["(", "(helper = ", helperName, " || ", nonHelper, ")"];
       if (!this.options.strict) {
-        lookup2[0] = "(helper = ";
-        lookup2.push(" != null ? helper : ", this.aliasable("container.hooks.helperMissing"));
+        lookup[0] = "(helper = ";
+        lookup.push(" != null ? helper : ", this.aliasable("container.hooks.helperMissing"));
       }
-      this.push(["(", lookup2, helper.paramsInit ? ["),(", helper.paramsInit] : [], "),", "(typeof helper === ", this.aliasable('"function"'), " ? ", this.source.functionCall("helper", "call", helper.callParams), " : helper))"]);
+      this.push(["(", lookup, helper.paramsInit ? ["),(", helper.paramsInit] : [], "),", "(typeof helper === ", this.aliasable('"function"'), " ? ", this.source.functionCall("helper", "call", helper.callParams), " : helper))"]);
     },
     invokePartial: function invokePartial(isDynamic, name, indent) {
       var params = [], options = this.setupParams(name, 1, params);
@@ -11110,8 +10927,8 @@ var require_javascript_compiler = __commonJS((exports, module) => {
     compiler: JavaScriptCompiler,
     compileChildren: function compileChildren(environment, options) {
       var children = environment.children, child = undefined, compiler = undefined;
-      for (var i2 = 0, l = children.length;i2 < l; i2++) {
-        child = children[i2];
+      for (var i = 0, l = children.length;i < l; i++) {
+        child = children[i];
         compiler = new this.compiler;
         var existing = this.matchExistingProgram(child);
         if (existing == null) {
@@ -11134,8 +10951,8 @@ var require_javascript_compiler = __commonJS((exports, module) => {
       }
     },
     matchExistingProgram: function matchExistingProgram(child) {
-      for (var i2 = 0, len2 = this.context.environments.length;i2 < len2; i2++) {
-        var environment = this.context.environments[i2];
+      for (var i = 0, len = this.context.environments.length;i < len; i++) {
+        var environment = this.context.environments[i];
         if (environment && environment.equals(child)) {
           return environment;
         }
@@ -11214,8 +11031,8 @@ var require_javascript_compiler = __commonJS((exports, module) => {
     flushInline: function flushInline() {
       var inlineStack = this.inlineStack;
       this.inlineStack = [];
-      for (var i2 = 0, len2 = inlineStack.length;i2 < len2; i2++) {
-        var entry = inlineStack[i2];
+      for (var i = 0, len = inlineStack.length;i < len; i++) {
+        var entry = inlineStack[i];
         if (entry instanceof Literal) {
           this.compileStack.push(entry);
         } else {
@@ -11285,7 +11102,7 @@ var require_javascript_compiler = __commonJS((exports, module) => {
       };
     },
     setupParams: function setupParams(helper, paramSize, params) {
-      var options = {}, contexts = [], types2 = [], ids = [], objectArgs = !params, param = undefined;
+      var options = {}, contexts = [], types = [], ids = [], objectArgs = !params, param = undefined;
       if (objectArgs) {
         params = [];
       }
@@ -11303,16 +11120,16 @@ var require_javascript_compiler = __commonJS((exports, module) => {
         options.fn = program || "container.noop";
         options.inverse = inverse || "container.noop";
       }
-      var i2 = paramSize;
-      while (i2--) {
+      var i = paramSize;
+      while (i--) {
         param = this.popStack();
-        params[i2] = param;
+        params[i] = param;
         if (this.trackIds) {
-          ids[i2] = this.popStack();
+          ids[i] = this.popStack();
         }
         if (this.stringParams) {
-          types2[i2] = this.popStack();
-          contexts[i2] = this.popStack();
+          types[i] = this.popStack();
+          contexts[i] = this.popStack();
         }
       }
       if (objectArgs) {
@@ -11322,7 +11139,7 @@ var require_javascript_compiler = __commonJS((exports, module) => {
         options.ids = this.source.generateArray(ids);
       }
       if (this.stringParams) {
-        options.types = this.source.generateArray(types2);
+        options.types = this.source.generateArray(types);
         options.contexts = this.source.generateArray(contexts);
       }
       if (this.options.data) {
@@ -11352,23 +11169,23 @@ var require_javascript_compiler = __commonJS((exports, module) => {
   (function() {
     var reservedWords = ("break else new var" + " case finally return void" + " catch for switch while" + " continue function this with" + " default if throw" + " delete in try" + " do instanceof typeof" + " abstract enum int short" + " boolean export interface static" + " byte extends long super" + " char final native synchronized" + " class float package throws" + " const goto private transient" + " debugger implements protected volatile" + " double import public let yield await" + " null true false").split(" ");
     var compilerWords = JavaScriptCompiler.RESERVED_WORDS = {};
-    for (var i2 = 0, l = reservedWords.length;i2 < l; i2++) {
-      compilerWords[reservedWords[i2]] = true;
+    for (var i = 0, l = reservedWords.length;i < l; i++) {
+      compilerWords[reservedWords[i]] = true;
     }
   })();
   JavaScriptCompiler.isValidJavaScriptVariableName = function(name) {
     return !JavaScriptCompiler.RESERVED_WORDS[name] && /^[a-zA-Z_$][0-9a-zA-Z_$]*$/.test(name);
   };
   function strictLookup(requireTerminal, compiler, parts, startPartIndex, type) {
-    var stack = compiler.popStack(), len2 = parts.length;
+    var stack = compiler.popStack(), len = parts.length;
     if (requireTerminal) {
-      len2--;
+      len--;
     }
-    for (var i2 = startPartIndex;i2 < len2; i2++) {
-      stack = compiler.nameLookup(stack, parts[i2], type);
+    for (var i = startPartIndex;i < len; i++) {
+      stack = compiler.nameLookup(stack, parts[i], type);
     }
     if (requireTerminal) {
-      return [compiler.aliasable("container.strict"), "(", stack, ", ", compiler.quotedString(parts[len2]), ", ", JSON.stringify(compiler.source.currentLocation), " )"];
+      return [compiler.aliasable("container.strict"), "(", stack, ", ", compiler.quotedString(parts[len]), ", ", JSON.stringify(compiler.source.currentLocation), " )"];
     } else {
       return stack;
     }
@@ -11378,7 +11195,7 @@ var require_javascript_compiler = __commonJS((exports, module) => {
 });
 
 // node_modules/.bun/handlebars@4.7.9/node_modules/handlebars/dist/cjs/handlebars.js
-var require_handlebars = __commonJS((exports, module) => {
+var require_handlebars = __commonJS(function(exports, module) {
   exports.__esModule = true;
   function _interopRequireDefault(obj) {
     return obj && obj.__esModule ? obj : { default: obj };
@@ -11422,10 +11239,6 @@ var require_handlebars = __commonJS((exports, module) => {
 });
 
 // packages/generator/src/templates/loader.ts
-var exports_loader = {};
-__export(exports_loader, {
-  TemplateLoader: () => TemplateLoader
-});
 function resolveOsUser() {
   if (process.env.PGUSER)
     return process.env.PGUSER;
@@ -11645,12 +11458,12 @@ class TemplateLoader {
       };
       return mapping[referenceId] || "varchar(255)";
     });
-    import_handlebars.default.registerHelper("tanstackQueryKey", (entity2) => `['${entity2}', 'list']`);
-    import_handlebars.default.registerHelper("tanstackDetailKey", (entity2, id) => {
+    import_handlebars.default.registerHelper("tanstackQueryKey", (entity) => `['${entity}', 'list']`);
+    import_handlebars.default.registerHelper("tanstackDetailKey", (entity, id) => {
       const idVar = typeof id === "string" ? id : "id";
-      return `['${entity2}', 'detail', ${idVar}]`;
+      return `['${entity}', 'detail', ${idVar}]`;
     });
-    import_handlebars.default.registerHelper("tanstackMutationKey", (entity2, action) => `['${entity2}', '${action}']`);
+    import_handlebars.default.registerHelper("tanstackMutationKey", (entity, action) => `['${entity}', '${action}']`);
     import_handlebars.default.registerHelper("tanstackColumnType", (referenceId) => {
       const mapping = {
         [ReferenceType.STRING]: "text",
@@ -11681,10 +11494,10 @@ class TemplateLoader {
       };
       return mapping[referenceId] || "input";
     });
-    import_handlebars.default.registerHelper("nestControllerName", (entity2) => `${pascalCase(entity2)}Controller`);
-    import_handlebars.default.registerHelper("nestServiceName", (entity2) => `${pascalCase(entity2)}Service`);
-    import_handlebars.default.registerHelper("nestModuleName", (entity2) => `${pascalCase(entity2)}Module`);
-    import_handlebars.default.registerHelper("nestDtoName", (entity2, prefix = "") => `${prefix}${pascalCase(entity2)}Dto`);
+    import_handlebars.default.registerHelper("nestControllerName", (entity) => `${pascalCase(entity)}Controller`);
+    import_handlebars.default.registerHelper("nestServiceName", (entity) => `${pascalCase(entity)}Service`);
+    import_handlebars.default.registerHelper("nestModuleName", (entity) => `${pascalCase(entity)}Module`);
+    import_handlebars.default.registerHelper("nestDtoName", (entity, prefix = "") => `${prefix}${pascalCase(entity)}Dto`);
     import_handlebars.default.registerHelper("nestGuardName", (name) => `${pascalCase(name)}Guard`);
     import_handlebars.default.registerHelper("nestDecoratorName", (name) => `${pascalCase(name)}`);
     import_handlebars.default.registerHelper("shadcnInputType", (referenceId) => {
@@ -11742,6 +11555,7 @@ class TemplateLoader {
       const baseType = mapping[referenceId] || "String";
       return isMandatory === true ? baseType : `Option<${baseType}>`;
     });
+    import_handlebars.default.registerHelper("rustIdent", (name) => RUST_KEYWORDS.has(String(name)) ? `r#${String(name)}` : String(name));
     import_handlebars.default.registerHelper("seaOrmType", (referenceId, required, isForeignKey) => {
       const isTrue = (value) => value === true;
       const mapping = {
@@ -11773,8 +11587,8 @@ class TemplateLoader {
       return isTrue(required) ? base : `Option<${base}>`;
     });
     import_handlebars.default.registerHelper("sqlTypeRust", sqlTypeFor);
-    import_handlebars.default.registerHelper("rustModName", (entity2) => snakeCase(entity2));
-    import_handlebars.default.registerHelper("rustStructName", (entity2) => pascalCase(entity2));
+    import_handlebars.default.registerHelper("rustModName", (entity) => snakeCase(entity));
+    import_handlebars.default.registerHelper("rustStructName", (entity) => pascalCase(entity));
     import_handlebars.default.registerHelper("rustRouteParam", (name) => `{${name}}`);
     import_handlebars.default.registerHelper("serdeAttr", (columnName) => {
       const fieldName = snakeCase(columnName);
@@ -11846,8 +11660,8 @@ class TemplateLoader {
     import_handlebars.default.registerHelper("slice", (array, start, end) => array?.slice(start, end));
     import_handlebars.default.registerHelper("range", (start, end) => {
       const result = [];
-      for (let i2 = start;i2 <= end; i2++)
-        result.push(i2);
+      for (let i = start;i <= end; i++)
+        result.push(i);
       return result;
     });
     import_handlebars.default.registerHelper("indexPlusOne", (index) => index + 1);
@@ -11862,11 +11676,11 @@ class TemplateLoader {
       const dir = resolvePgSocketDir();
       return dir ? `?host=${encodeURIComponent(dir)}` : "";
     });
-    import_handlebars.default.registerHelper("formatDate", (date, format2) => {
+    import_handlebars.default.registerHelper("formatDate", (date, format) => {
       const d = new Date(date);
-      if (format2 === "iso")
+      if (format === "iso")
         return d.toISOString();
-      if (format2 === "date")
+      if (format === "date")
         return d.toISOString().split("T")[0];
       return d.toISOString();
     });
@@ -11975,12 +11789,12 @@ class TemplateLoader {
  */`;
       return doc;
     });
-    import_handlebars.default.registerHelper("relativeImport", (from2, to) => {
-      const fromParts = from2.split("/");
+    import_handlebars.default.registerHelper("relativeImport", (from, to) => {
+      const fromParts = from.split("/");
       const toParts = to.split("/");
       let commonLength = 0;
-      for (let i2 = 0;i2 < Math.min(fromParts.length, toParts.length); i2++) {
-        if (fromParts[i2] === toParts[i2]) {
+      for (let i = 0;i < Math.min(fromParts.length, toParts.length); i++) {
+        if (fromParts[i] === toParts[i]) {
           commonLength++;
         } else {
           break;
@@ -12091,7 +11905,7 @@ class TemplateLoader {
     });
     import_handlebars.default.registerHelper("seedValue", (fieldName, index) => {
       const n = (fieldName ?? "").toLowerCase();
-      const i2 = typeof index === "number" ? index : 0;
+      const i = typeof index === "number" ? index : 0;
       const FIRST_NAMES = [
         "James",
         "Mary",
@@ -12116,7 +11930,7 @@ class TemplateLoader {
         "Wilson",
         "Taylor"
       ];
-      const pick = (arr) => arr[i2 % arr.length];
+      const pick = (arr) => arr[i % arr.length];
       if (n === "first_name")
         return pick(FIRST_NAMES);
       if (n === "last_name")
@@ -12124,7 +11938,7 @@ class TemplateLoader {
       if (n === "name" || n.endsWith("_name"))
         return `${pick(FIRST_NAMES)} ${pick(LAST_NAMES)}`;
       if (n === "gender")
-        return i2 % 2 === 0 ? "Male" : "Female";
+        return i % 2 === 0 ? "Male" : "Female";
       if (n === "relationship" || n === "relationship_type")
         return pick(["Mother", "Father", "Guardian", "Grandmother", "Grandfather"]);
       if (n === "grade" || n === "letter_grade")
@@ -12136,32 +11950,32 @@ class TemplateLoader {
       if (n === "department")
         return pick(["Engineering", "Marketing", "Finance", "Operations", "HR"]);
       if (n === "address" || n === "street_address")
-        return `${(i2 + 1) * 100} ${pick(["Main St", "Oak Ave", "Elm Dr", "Park Blvd", "Cedar Ln"])}, ${pick(["New York", "Los Angeles", "Chicago", "Houston", "Phoenix"])}`;
+        return `${(i + 1) * 100} ${pick(["Main St", "Oak Ave", "Elm Dr", "Park Blvd", "Cedar Ln"])}, ${pick(["New York", "Los Angeles", "Chicago", "Houston", "Phoenix"])}`;
       if (n === "city")
         return pick(["New York", "Los Angeles", "Chicago", "Houston", "Phoenix"]);
       if (n === "phone" || n === "phone_number" || n === "mobile")
-        return `555-${String(1000 + i2 * 101).padStart(4, "0")}`;
+        return `555-${String(1000 + i * 101).padStart(4, "0")}`;
       if (n === "description" || n === "notes" || n === "bio")
-        return `Description ${i2 + 1}`;
+        return `Description ${i + 1}`;
       if (n === "title")
-        return `Title ${i2 + 1}`;
+        return `Title ${i + 1}`;
       if (n === "code" || n === "reference_code")
-        return `CODE-${String(i2 + 1).padStart(3, "0")}`;
+        return `CODE-${String(i + 1).padStart(3, "0")}`;
       if (n === "score" || n === "grade_value")
-        return String(70 + i2 * 5);
+        return String(70 + i * 5);
       if (n === "capacity" || n === "max_students")
-        return String(20 + i2 * 5);
+        return String(20 + i * 5);
       if (n === "room_number")
-        return `10${i2 + 1}`;
+        return `10${i + 1}`;
       if (n === "year" || n === "academic_year")
-        return String(2024 + i2);
+        return String(2024 + i);
       if (n === "section")
-        return String.fromCharCode(65 + i2);
-      return `Sample ${i2 + 1}`;
+        return String.fromCharCode(65 + i);
+      return `Sample ${i + 1}`;
     });
   }
 }
-var import_handlebars;
+var import_handlebars, RUST_KEYWORDS;
 var init_loader = __esm(() => {
   init_types2();
   init_utils();
@@ -12169,6 +11983,56 @@ var init_loader = __esm(() => {
   init_fs();
   init_path();
   import_handlebars = __toESM(require_handlebars(), 1);
+  RUST_KEYWORDS = new Set([
+    "as",
+    "async",
+    "await",
+    "break",
+    "const",
+    "continue",
+    "dyn",
+    "else",
+    "enum",
+    "extern",
+    "false",
+    "fn",
+    "for",
+    "if",
+    "impl",
+    "in",
+    "let",
+    "loop",
+    "match",
+    "mod",
+    "move",
+    "mut",
+    "pub",
+    "ref",
+    "return",
+    "static",
+    "struct",
+    "trait",
+    "true",
+    "try",
+    "type",
+    "unsafe",
+    "use",
+    "where",
+    "while",
+    "abstract",
+    "become",
+    "box",
+    "do",
+    "final",
+    "macro",
+    "override",
+    "priv",
+    "typeof",
+    "unsized",
+    "virtual",
+    "yield",
+    "gen"
+  ]);
 });
 
 // node:buffer
@@ -13503,8 +13367,8 @@ if (!scope.process) {
     on: () => {
       return;
     },
-    exit: (code2) => {
-      throw new Error(`process.exit(${code2 ?? 0}) called in the browser build`);
+    exit: (code) => {
+      throw new Error(`process.exit(${code ?? 0}) called in the browser build`);
     }
   };
 }
@@ -14327,8 +14191,8 @@ function resolveTemplateDir(subpath) {
   ];
   for (const possiblePath of possiblePaths) {
     try {
-      const stat3 = (init_fs(), __toCommonJS(exports_fs)).statSync(possiblePath);
-      if (stat3.isDirectory()) {
+      const stat = (init_fs(), __toCommonJS(exports_fs)).statSync(possiblePath);
+      if (stat.isDirectory()) {
         return possiblePath;
       }
     } catch {}
@@ -14403,12 +14267,12 @@ class TanStackStartFrontendGenerator extends BaseGenerator {
   }
   prepareContext(entities, relationships) {
     const declared = declaredEntityNames(entities);
-    const busEntities = entities.map((entity2) => entityToBusEntity(entity2, declared));
-    const mainEntities = busEntities.filter((e) => !e.tableName.includes("_") || e.tableName.match(/^bus_[a-z]+$/)).slice(0, 10).map((entity2) => ({
-      ...entity2,
-      title: entity2.displayName || entity2.name,
-      description: `Manage ${entity2.displayName || entity2.name}`,
-      icon: this.getIconForEntity(entity2.tableName)
+    const busEntities = entities.map((entity) => entityToBusEntity(entity, declared));
+    const mainEntities = busEntities.filter((e) => !e.tableName.includes("_") || e.tableName.match(/^bus_[a-z]+$/)).slice(0, 10).map((entity) => ({
+      ...entity,
+      title: entity.displayName || entity.name,
+      description: `Manage ${entity.displayName || entity.name}`,
+      icon: this.getIconForEntity(entity.tableName)
     }));
     return {
       testsWorkspace: this.options.testsWorkspace ?? false,
@@ -14732,6 +14596,14 @@ class TanStackStartFrontendGenerator extends BaseGenerator {
         dest: "src/components/admin/workflow-state-bar.tsx"
       },
       {
+        src: "src/components/admin/account-dialogs.tsx",
+        dest: "src/components/admin/account-dialogs.tsx"
+      },
+      {
+        src: "src/lib/accounts.ts",
+        dest: "src/lib/accounts.ts"
+      },
+      {
         src: "src/components/admin/use-report-designs.ts",
         dest: "src/components/admin/use-report-designs.ts"
       },
@@ -14851,13 +14723,13 @@ class TanStackStartFrontendGenerator extends BaseGenerator {
     const detailPageContent = await this.renderTemplate("src/routes/$entity/$id.tsx.hbs", entityContext);
     await writeFile2(join(outputDir, "src/routes", detailPageFilename), detailPageContent);
   }
-  async generateSingleEntity(entity2, relationships, outputDir, allEntities) {
+  async generateSingleEntity(entity, relationships, outputDir, allEntities) {
     const context = this.prepareContext(allEntities, relationships);
     const busEntities = context.entities;
-    const busEntity = busEntities.find((e) => e.originalName === entity2.name || e.name === entity2.name) ?? busEntities[0];
+    const busEntity = busEntities.find((e) => e.originalName === entity.name || e.name === entity.name) ?? busEntities[0];
     await this.generateSingleEntityRoutes(busEntity, context, outputDir);
-    const listFile = `${kebabCase(entity2.name)}.tsx`;
-    const detailFile = `${kebabCase(entity2.name)}.$id.tsx`;
+    const listFile = `${kebabCase(entity.name)}.tsx`;
+    const detailFile = `${kebabCase(entity.name)}.$id.tsx`;
     console.log(`  ✓ frontend/src/routes/${listFile}`);
     console.log(`  ✓ frontend/src/routes/${detailFile}`);
   }
@@ -15195,7 +15067,7 @@ import { AstryxProvider } from './astryx-provider';`);
     const lines = withImport.split(`
 `);
     const openIndex = lines.findIndex((line) => line === openTag);
-    const closeIndex = lines.findIndex((line, i2) => i2 > openIndex && line === closeTag);
+    const closeIndex = lines.findIndex((line, i) => i > openIndex && line === closeTag);
     if (openIndex === -1 || closeIndex === -1) {
       console.warn("  ⚠️  Provider tree shape not recognised — mount <AstryxProvider> manually");
       return;
@@ -15245,25 +15117,25 @@ function compileHookDeclarations(declarations, knownEntities = [], onWarn = () =
   const seen = new Set;
   const perEntity = new Map;
   for (const declaration of declarations) {
-    const { event: type, handler, entity: entity2 } = declaration;
+    const { event: type, handler, entity } = declaration;
     if (!HOOK_TYPE_SET.has(type)) {
-      onWarn(`Hook "${handler}" on ${entity2} uses unknown event "${type}" — skipped.`);
+      onWarn(`Hook "${handler}" on ${entity} uses unknown event "${type}" — skipped.`);
       continue;
     }
-    if (known.size && !known.has(entity2)) {
-      onWarn(`Hook "${handler}" targets unknown entity "${entity2}" — skipped.`);
+    if (known.size && !known.has(entity)) {
+      onWarn(`Hook "${handler}" targets unknown entity "${entity}" — skipped.`);
       continue;
     }
-    const key = `${entity2}:${type}:${handler}`;
+    const key = `${entity}:${type}:${handler}`;
     if (seen.has(key)) {
-      onWarn(`Hook "${handler}" is declared twice for ${entity2}.${type} — keeping the first.`);
+      onWarn(`Hook "${handler}" is declared twice for ${entity}.${type} — keeping the first.`);
       continue;
     }
     seen.add(key);
-    const order = perEntity.get(entity2) ?? 0;
-    perEntity.set(entity2, order + 1);
+    const order = perEntity.get(entity) ?? 0;
+    perEntity.set(entity, order + 1);
     hooks.push({
-      entity: entity2,
+      entity,
       type,
       handler,
       field: declaration.fields?.[0],
@@ -15272,29 +15144,29 @@ function compileHookDeclarations(declarations, knownEntities = [], onWarn = () =
   }
   const byName = new Map;
   const kept = [];
-  for (const hook2 of hooks) {
-    const nameKey = `${hook2.entity}:${hook2.handler}`;
+  for (const hook of hooks) {
+    const nameKey = `${hook.entity}:${hook.handler}`;
     const clash = byName.get(nameKey);
     if (clash) {
-      onWarn(`Hook "${hook2.handler}" on ${hook2.entity} is bound to both ${clash.type} and ` + `${hook2.type} — keeping ${clash.type}. Give each event its own handler name.`);
+      onWarn(`Hook "${hook.handler}" on ${hook.entity} is bound to both ${clash.type} and ` + `${hook.type} — keeping ${clash.type}. Give each event its own handler name.`);
       continue;
     }
-    byName.set(nameKey, hook2);
-    kept.push(hook2);
+    byName.set(nameKey, hook);
+    kept.push(hook);
   }
   return kept;
 }
 function hooksByEntity(hooks) {
   const grouped = new Map;
-  for (const hook2 of hooks) {
-    const list2 = grouped.get(hook2.entity);
-    if (list2)
-      list2.push(hook2);
+  for (const hook of hooks) {
+    const list = grouped.get(hook.entity);
+    if (list)
+      list.push(hook);
     else
-      grouped.set(hook2.entity, [hook2]);
+      grouped.set(hook.entity, [hook]);
   }
-  for (const list2 of grouped.values())
-    list2.sort((a, b) => a.order - b.order);
+  for (const list of grouped.values())
+    list.sort((a, b) => a.order - b.order);
   return grouped;
 }
 
@@ -15402,11 +15274,11 @@ function deriveAccess(compiled, options) {
     if (!declared.has(key))
       declared.set(key, role);
   };
-  for (const rule2 of compiled.operations)
-    for (const role of rule2.roles)
+  for (const rule of compiled.operations)
+    for (const role of rule.roles)
       remember(role);
-  for (const rule2 of compiled.transitions)
-    for (const role of rule2.roles)
+  for (const rule of compiled.transitions)
+    for (const role of rule.roles)
       remember(role);
   const roles = BUILT_IN.map((role) => ({ ...role }));
   const taken = new Set(roles.map((role) => role.name.toLowerCase()));
@@ -15440,21 +15312,21 @@ function deriveAccess(compiled, options) {
     isAdmin: false
   });
   const entityVisibility = {};
-  for (const rule2 of compiled.operations) {
-    if (rule2.operation !== "read")
+  for (const rule of compiled.operations) {
+    if (rule.operation !== "read")
       continue;
-    const existing = entityVisibility[rule2.entity] ?? [];
-    entityVisibility[rule2.entity] = [...new Set([...existing, ...rule2.roles])].sort();
+    const existing = entityVisibility[rule.entity] ?? [];
+    entityVisibility[rule.entity] = [...new Set([...existing, ...rule.roles])].sort();
   }
   const allEntities = options.entities && options.entities.length > 0 ? options.entities : Object.keys(entityVisibility);
-  const normalize3 = (value) => value.trim().toLowerCase().replace(/[\s-]+/g, "_");
+  const normalize = (value) => value.trim().toLowerCase().replace(/[\s-]+/g, "_");
   const entityCounts = {};
   for (const role of roles) {
-    entityCounts[role.name] = role.isAdmin ? allEntities.length : allEntities.filter((entity2) => {
-      const allowed = entityVisibility[entity2];
+    entityCounts[role.name] = role.isAdmin ? allEntities.length : allEntities.filter((entity) => {
+      const allowed = entityVisibility[entity];
       if (!allowed || allowed.length === 0)
         return true;
-      return allowed.some((name) => normalize3(name) === normalize3(role.declaredAs));
+      return allowed.some((name) => normalize(name) === normalize(role.declaredAs));
     }).length;
   }
   return {
@@ -15491,7 +15363,7 @@ class CliExecutor {
     }
   }
   static async executeAsync(command, args, options = {}) {
-    return new Promise((resolve2, reject) => {
+    return new Promise((resolve, reject) => {
       const cwd = options.cwd || process.cwd();
       const env = { ...process.env, ...options.env };
       console.log(`  \uD83D\uDD27 Running: ${command} ${args.join(" ")}`);
@@ -15515,16 +15387,16 @@ class CliExecutor {
         child.kill();
         reject(new Error(`Command timeout after ${timeout}ms: ${command} ${args.join(" ")}`));
       }, timeout);
-      child.on("close", (code2) => {
+      child.on("close", (code) => {
         clearTimeout(timer);
-        if (code2 === 0) {
-          resolve2(stdout);
+        if (code === 0) {
+          resolve(stdout);
         } else {
-          console.error(`  ❌ Command failed with code ${code2}: ${command} ${args.join(" ")}`);
+          console.error(`  ❌ Command failed with code ${code}: ${command} ${args.join(" ")}`);
           if (stderr)
             console.error(`  Error output:
 ${stderr}`);
-          reject(new Error(`Command failed with code ${code2}: ${command}`));
+          reject(new Error(`Command failed with code ${code}: ${command}`));
         }
       });
       child.on("error", (error) => {
@@ -15611,10 +15483,10 @@ function candidateFiles() {
     let dir = start;
     for (let depth = 0;depth < 12; depth++) {
       candidates.push(path_default.join(dir, "language", "appwithai-language.json"));
-      const parent2 = path_default.dirname(dir);
-      if (parent2 === dir)
+      const parent = path_default.dirname(dir);
+      if (parent === dir)
         break;
-      dir = parent2;
+      dir = parent;
     }
   }
   return candidates;
@@ -15636,11 +15508,11 @@ function loadDefinition() {
   return cachedDefinition;
 }
 function getStepNodeTypes() {
-  const types2 = loadDefinition().workflowConstructs?.stepNodes?.types;
-  if (!Array.isArray(types2)) {
+  const types = loadDefinition().workflowConstructs?.stepNodes?.types;
+  if (!Array.isArray(types)) {
     throw new LanguageDefinitionError("the language definition has no workflowConstructs.stepNodes.types list");
   }
-  return types2.map((spec) => ({
+  return types.map((spec) => ({
     name: spec.name,
     purpose: spec.purpose ?? "",
     shipped: spec.shipped !== false,
@@ -15664,11 +15536,11 @@ function getDefaultType() {
     throw new LanguageDefinitionError("the language definition has no types.default");
   return fallback;
 }
-function getCardinalityKind(from2, to) {
+function getCardinalityKind(from, to) {
   const map = loadDefinition().cardinalities?.map;
   if (!map?.length)
     throw new LanguageDefinitionError("the language definition has no cardinalities.map");
-  return map.find((entry) => entry.from === from2 && entry.to === to)?.kind ?? null;
+  return map.find((entry) => entry.from === from && entry.to === to)?.kind ?? null;
 }
 
 // packages/generator/src/workflows/sagas.ts
@@ -15744,8 +15616,8 @@ function compileSagaDeclarations(declarations) {
   const workflows = [];
   const diagnostics = [];
   for (const declaration of declarations) {
-    const { name, entity: entity2 } = declaration;
-    if (!entity2) {
+    const { name, entity } = declaration;
+    if (!entity) {
       diagnostics.push({ workflow: name, message: "saga declares no entity" });
     }
     const steps = [...acceptSagaSteps(name, declaration.steps, diagnostics).values()];
@@ -15757,7 +15629,7 @@ function compileSagaDeclarations(declarations) {
     }
     workflows.push({
       name,
-      entity: entity2,
+      entity,
       operation: sagaOperation(declaration.operation),
       trigger: sagaTrigger(declaration.trigger),
       description: declaration.description,
@@ -15800,10 +15672,10 @@ function buildDiagram(processId, sequence, flowIds) {
       </bpmndi:BPMNShape>`).join(`
 `);
   const edges = flowIds.map((flowId, index) => {
-    const from2 = bounds[index];
+    const from = bounds[index];
     const to = bounds[index + 1];
     return `      <bpmndi:BPMNEdge id="${flowId}_di" bpmnElement="${flowId}">
-        <di:waypoint x="${from2.x + from2.width}" y="${rowY}"/>
+        <di:waypoint x="${from.x + from.width}" y="${rowY}"/>
         <di:waypoint x="${to.x}" y="${rowY}"/>
       </bpmndi:BPMNEdge>`;
   }).join(`
@@ -15835,7 +15707,7 @@ ${properties}
   }).join(`
 `);
   const flowIds = sequence.slice(0, -1).map((_from, index) => `${processId}_flow_${index}`);
-  const flows = sequence.slice(0, -1).map((from2, index) => `    <bpmn:sequenceFlow id="${flowIds[index]}" sourceRef="${from2}" targetRef="${sequence[index + 1]}"/>`).join(`
+  const flows = sequence.slice(0, -1).map((from, index) => `    <bpmn:sequenceFlow id="${flowIds[index]}" sourceRef="${from}" targetRef="${sequence[index + 1]}"/>`).join(`
 `);
   return `<?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
@@ -15899,8 +15771,8 @@ ${statements.join(`
 function sha1(message) {
   const length = message.length;
   const words = new Uint32Array(((length + 8 >> 6) + 1) * 16);
-  for (let i2 = 0;i2 < length; i2++) {
-    words[i2 >> 2] = (words[i2 >> 2] ?? 0) | message[i2] << 24 - i2 % 4 * 8;
+  for (let i = 0;i < length; i++) {
+    words[i >> 2] = (words[i >> 2] ?? 0) | message[i] << 24 - i % 4 * 8;
   }
   words[length >> 2] = (words[length >> 2] ?? 0) | 128 << 24 - length % 4 * 8;
   words[words.length - 1] = length * 8;
@@ -15939,11 +15811,11 @@ function sha1(message) {
     h4 = h4 + e >>> 0;
   }
   const out = new Uint8Array(20);
-  [h0, h1, h2, h3, h4].forEach((h, i2) => {
-    out[i2 * 4] = h >>> 24;
-    out[i2 * 4 + 1] = h >>> 16 & 255;
-    out[i2 * 4 + 2] = h >>> 8 & 255;
-    out[i2 * 4 + 3] = h & 255;
+  [h0, h1, h2, h3, h4].forEach((h, i) => {
+    out[i * 4] = h >>> 24;
+    out[i * 4 + 1] = h >>> 16 & 255;
+    out[i * 4 + 2] = h >>> 8 & 255;
+    out[i * 4 + 3] = h & 255;
   });
   return out;
 }
@@ -16002,36 +15874,36 @@ function isAuditColumn(col) {
 function resolveModel(entities) {
   const byStem = new Map(entities.map((e) => [e.stem, e]));
   const resolved = new Map;
-  for (const entity2 of entities) {
-    for (const col of entity2.columns) {
+  for (const entity of entities) {
+    for (const col of entity.columns) {
       if (!col.columnName.endsWith("_id"))
         continue;
       const stem = col.columnName.slice(0, -"_id".length);
       const target = byStem.get(stem);
       if (!target)
         continue;
-      if (target.tableName === entity2.tableName) {
+      if (target.tableName === entity.tableName) {
         col.isBusinessKey = true;
       } else if (col.isForeignKey) {
         col.fkTarget = target.label;
       }
     }
   }
-  for (const entity2 of entities) {
-    const children = entities.filter((other) => other.tableName !== entity2.tableName && other.columns.some((c) => c.fkTarget === entity2.label)).map((other) => other.label);
-    resolved.set(entity2.tableName, { entity: entity2, children });
+  for (const entity of entities) {
+    const children = entities.filter((other) => other.tableName !== entity.tableName && other.columns.some((c) => c.fkTarget === entity.label)).map((other) => other.label);
+    resolved.set(entity.tableName, { entity, children });
   }
   return resolved;
 }
-function windowHelpText(entity2, children) {
-  const label = entity2.label;
+function windowHelpText(entity, children) {
+  const label = entity.label;
   const parents = [
-    ...new Set(entity2.columns.filter((c) => c.fkTarget).map((c) => c.fkTarget))
+    ...new Set(entity.columns.filter((c) => c.fkTarget).map((c) => c.fkTarget))
   ];
-  const uniques = entity2.columns.filter((c) => c.isUnique).map((c) => c.displayName);
-  const required = entity2.columns.filter((c) => c.isMandatory && !isAuditColumn(c)).map((c) => c.displayName);
+  const uniques = entity.columns.filter((c) => c.isUnique).map((c) => c.displayName);
+  const required = entity.columns.filter((c) => c.isMandatory && !isAuditColumn(c)).map((c) => c.displayName);
   const paragraphs = [];
-  paragraphs.push(`Create, find and maintain ${label} records. The list shows every ${label} you have access to — ` + `select a row to open it, or use New to add one. Each row is a single ${label}, described by ` + `${entity2.columns.length} field${entity2.columns.length === 1 ? "" : "s"}.`);
+  paragraphs.push(`Create, find and maintain ${label} records. The list shows every ${label} you have access to — ` + `select a row to open it, or use New to add one. Each row is a single ${label}, described by ` + `${entity.columns.length} field${entity.columns.length === 1 ? "" : "s"}.`);
   const identity = [];
   if (uniques.length > 0) {
     identity.push(`${join2(uniques)} ${uniques.length === 1 ? "is unique" : "are unique"}: no two ${label} records ` + `may share the same value, and a save that would duplicate one is rejected.`);
@@ -16055,10 +15927,10 @@ function windowHelpText(entity2, children) {
 
 `);
 }
-function tabHelpText(entity2) {
-  const label = entity2.label;
-  const required = entity2.columns.filter((c) => c.isMandatory && !isAuditColumn(c));
-  const lookups = entity2.columns.filter((c) => c.fkTarget);
+function tabHelpText(entity) {
+  const label = entity.label;
+  const required = entity.columns.filter((c) => c.isMandatory && !isAuditColumn(c));
+  const lookups = entity.columns.filter((c) => c.fkTarget);
   const sentences = [];
   sentences.push(`Shows one ${label} at a time. Fields are grouped: General carries the identifying fields and Details ` + `carries the rest.`);
   if (required.length > 0) {
@@ -16070,45 +15942,45 @@ function tabHelpText(entity2) {
   sentences.push(`Any field showing a ? beside its label has help of its own; click it for the rules that apply there.`);
   return sentences.join(" ");
 }
-function fieldTypeSentence(entity2, col) {
+function fieldTypeSentence(entity, col) {
   const noun = col.displayName.toLowerCase();
   switch (col.type) {
     case "date":
-      return `The ${noun} of this ${entity2.label}, as a calendar date.`;
+      return `The ${noun} of this ${entity.label}, as a calendar date.`;
     case "datetime":
-      return `The ${noun} of this ${entity2.label}, as a date and time.`;
+      return `The ${noun} of this ${entity.label}, as a date and time.`;
     case "integer":
-      return `The ${noun} of this ${entity2.label}, as a whole number.`;
+      return `The ${noun} of this ${entity.label}, as a whole number.`;
     case "decimal":
-      return `The ${noun} of this ${entity2.label}, as a decimal amount.`;
+      return `The ${noun} of this ${entity.label}, as a decimal amount.`;
     case "boolean":
-      return `Whether this ${entity2.label} is marked as ${noun}.`;
+      return `Whether this ${entity.label} is marked as ${noun}.`;
     case "text":
-      return `Free-form ${noun} for this ${entity2.label}. The box grows as you type.`;
+      return `Free-form ${noun} for this ${entity.label}. The box grows as you type.`;
     case "json":
-      return `The ${noun} of this ${entity2.label}, held as structured JSON.`;
+      return `The ${noun} of this ${entity.label}, held as structured JSON.`;
     default:
-      return `The ${noun} of this ${entity2.label}.`;
+      return `The ${noun} of this ${entity.label}.`;
   }
 }
-function fieldHelpText(entity2, col) {
+function fieldHelpText(entity, col) {
   const parts = [];
   if (col.authorHelp) {
     parts.push(col.authorHelp);
   } else if (col.fkTarget) {
-    parts.push(`Links this ${entity2.label} to ${article(col.fkTarget)} ${col.fkTarget} record. Pick the ` + `${col.fkTarget} from the lookup — the identifier is stored for you.`);
+    parts.push(`Links this ${entity.label} to ${article(col.fkTarget)} ${col.fkTarget} record. Pick the ` + `${col.fkTarget} from the lookup — the identifier is stored for you.`);
   } else if (col.isBusinessKey) {
-    parts.push(`The ${entity2.label} reference used outside this system. It identifies the ${entity2.label} on ` + `documents and in exports, and stays with the record for its whole life.`);
+    parts.push(`The ${entity.label} reference used outside this system. It identifies the ${entity.label} on ` + `documents and in exports, and stays with the record for its whole life.`);
   } else if (isAuditColumn(col)) {
     parts.push(`Maintained by the system as part of the audit trail. It is set automatically, not entered here.`);
   } else {
-    parts.push(fieldTypeSentence(entity2, col));
+    parts.push(fieldTypeSentence(entity, col));
   }
   if (col.isMandatory && !isAuditColumn(col)) {
     parts.push(`Required — the record cannot be saved while this is empty.`);
   }
   if (col.isUnique) {
-    parts.push(`Must be unique: a save is rejected if another ${entity2.label} already uses this value.`);
+    parts.push(`Must be unique: a save is rejected if another ${entity.label} already uses this value.`);
   }
   if (col.maxLength) {
     parts.push(`Up to ${col.maxLength} characters.`);
@@ -16116,11 +15988,11 @@ function fieldHelpText(entity2, col) {
   return parts.join(" ");
 }
 function buildDictionaryHelp(entities) {
-  const helpEntities = entities.map((entity2) => ({
-    label: entity2.displayName,
-    tableName: entity2.tableName,
-    stem: snakeCase(entity2.name),
-    columns: entity2.attributes.map((attr) => {
+  const helpEntities = entities.map((entity) => ({
+    label: entity.displayName,
+    tableName: entity.tableName,
+    stem: snakeCase(entity.name),
+    columns: entity.attributes.map((attr) => {
       const systemManaged = ["created_at", "updated_at", "deleted_at"].includes(attr.columnName);
       const column = {
         columnName: attr.columnName,
@@ -16140,14 +16012,14 @@ function buildDictionaryHelp(entities) {
   }));
   const resolved = resolveModel(helpEntities);
   const help = {};
-  for (const [tableName, { entity: entity2, children }] of resolved) {
+  for (const [tableName, { entity, children }] of resolved) {
     const fields = {};
-    for (const col of entity2.columns) {
-      fields[col.columnName] = fieldHelpText(entity2, col);
+    for (const col of entity.columns) {
+      fields[col.columnName] = fieldHelpText(entity, col);
     }
     help[tableName] = {
-      window: windowHelpText(entity2, children),
-      tab: tabHelpText(entity2),
+      window: windowHelpText(entity, children),
+      tab: tabHelpText(entity),
       fields
     };
   }
@@ -16185,7 +16057,7 @@ class RawSql {
 function raw(sql) {
   return new RawSql(sql);
 }
-function narrowingRules(entity2, attribute, entities) {
+function narrowingRules(entity, attribute, entities) {
   const tables = new Set(entities.map((candidate) => candidate.tableName));
   const byTable = new Map(entities.map((candidate) => [candidate.tableName, candidate]));
   const target = foreignKeyTargetTable(attribute.columnName, tables, attribute.referencesTable);
@@ -16194,7 +16066,7 @@ function narrowingRules(entity2, attribute, entities) {
     return [];
   const rules = [];
   for (const by of attribute.narrowedBy ?? []) {
-    const controlling = entity2.attributes.find((candidate) => candidate.columnName === by);
+    const controlling = entity.attributes.find((candidate) => candidate.columnName === by);
     if (!controlling)
       continue;
     const controlled = foreignKeyTargetTable(by, tables, controlling.referencesTable);
@@ -16207,23 +16079,23 @@ function narrowingRules(entity2, attribute, entities) {
   return rules;
 }
 function dataEntitiesInOrder(withData, tables) {
-  const byTable = new Map(withData.map((entity2) => [entity2.tableName, entity2]));
-  const dependsOn = (entity2) => entity2.attributes.flatMap((attribute) => {
+  const byTable = new Map(withData.map((entity) => [entity.tableName, entity]));
+  const dependsOn = (entity) => entity.attributes.flatMap((attribute) => {
     const target = foreignKeyTargetTable(attribute.columnName, tables, attribute.referencesTable);
-    return target && target !== entity2.tableName && byTable.has(target) ? [target] : [];
+    return target && target !== entity.tableName && byTable.has(target) ? [target] : [];
   });
   const ordered = [];
   const done = new Set;
-  const visit = (entity2, stack) => {
-    if (done.has(entity2.tableName) || stack.includes(entity2.tableName))
+  const visit = (entity, stack) => {
+    if (done.has(entity.tableName) || stack.includes(entity.tableName))
       return;
-    for (const target of dependsOn(entity2))
-      visit(byTable.get(target), [...stack, entity2.tableName]);
-    done.add(entity2.tableName);
-    ordered.push(entity2);
+    for (const target of dependsOn(entity))
+      visit(byTable.get(target), [...stack, entity.tableName]);
+    done.add(entity.tableName);
+    ordered.push(entity);
   };
-  for (const entity2 of withData)
-    visit(entity2, []);
+  for (const entity of withData)
+    visit(entity, []);
   return ordered;
 }
 function enumValueLabel(value) {
@@ -16297,8 +16169,8 @@ var FIELD_GROUPS = [
 function roleRef(name) {
   return raw(`(SELECT sys_role_id FROM sys_role WHERE name = ${lit(name)})`);
 }
-function fieldPlacement(entity2, attr, index) {
-  const isKey = attr.name === entity2.primaryKey;
+function fieldPlacement(entity, attr, index) {
+  const isKey = attr.name === entity.primaryKey;
   return {
     seqNo: (index + 1) * 10,
     isDisplayed: !isKey,
@@ -16307,17 +16179,17 @@ function fieldPlacement(entity2, attr, index) {
   };
 }
 function screenLayout(entities) {
-  const byName = new Map(entities.map((entity2) => [entity2.name, entity2]));
+  const byName = new Map(entities.map((entity) => [entity.name, entity]));
   const layouts = new Map;
-  for (const entity2 of entities) {
-    const parent2 = entity2.parentEntity ? byName.get(entity2.parentEntity) : undefined;
-    layouts.set(entity2.tableName, {
-      window: (parent2 ?? entity2).displayName,
-      tab: entity2.displayName,
-      fields: entity2.attributes.map((attr, index) => ({
+  for (const entity of entities) {
+    const parent = entity.parentEntity ? byName.get(entity.parentEntity) : undefined;
+    layouts.set(entity.tableName, {
+      window: (parent ?? entity).displayName,
+      tab: entity.displayName,
+      fields: entity.attributes.map((attr, index) => ({
         column: attr.columnName,
         label: attr.displayName,
-        ...fieldPlacement(entity2, attr, index)
+        ...fieldPlacement(entity, attr, index)
       })).sort((a, b) => a.seqNo - b.seqNo)
     });
   }
@@ -16454,16 +16326,16 @@ function buildDictionarySeedSql(options) {
   }
   const generalGroup = id("field_group", "General");
   const detailsGroup = id("field_group", "Details");
-  const entityByName = new Map(entities.map((entity2) => [entity2.name, entity2]));
-  const ancestorsOf = (entity2) => {
+  const entityByName = new Map(entities.map((entity) => [entity.name, entity]));
+  const ancestorsOf = (entity) => {
     const chain = [];
-    let current = entity2;
+    let current = entity;
     while (current.parentEntity) {
-      const parent2 = entityByName.get(current.parentEntity);
-      if (!parent2 || parent2 === entity2 || chain.includes(parent2))
+      const parent = entityByName.get(current.parentEntity);
+      if (!parent || parent === entity || chain.includes(parent))
         break;
-      chain.push(parent2);
-      current = parent2;
+      chain.push(parent);
+      current = parent;
     }
     return chain;
   };
@@ -16474,22 +16346,22 @@ function buildDictionarySeedSql(options) {
     childSeqByWindow.set(window2, seq);
     return seq;
   };
-  for (const entity2 of ordered) {
-    section(`${entity2.displayName} (${entity2.tableName})`);
-    const tableId = id("table", entity2.tableName);
-    const tabId = id("tab", entity2.tableName);
-    const ancestors = ancestorsOf(entity2);
+  for (const entity of ordered) {
+    section(`${entity.displayName} (${entity.tableName})`);
+    const tableId = id("table", entity.tableName);
+    const tabId = id("tab", entity.tableName);
+    const ancestors = ancestorsOf(entity);
     const parentTable = ancestors.length ? ancestors[ancestors.length - 1].tableName : undefined;
     const isChild = !!parentTable;
-    const windowId = id("window", parentTable ?? entity2.tableName);
-    const entityHelp = help[entity2.tableName];
+    const windowId = id("window", parentTable ?? entity.tableName);
+    const entityHelp = help[entity.tableName];
     if (!isChild) {
       out.push(insert("sys_window", {
         sys_window_id: windowId,
-        name: entity2.displayName,
-        description: `Maintain ${entity2.displayName} records`,
+        name: entity.displayName,
+        description: `Maintain ${entity.displayName} records`,
         help: entityHelp?.window ?? null,
-        ...entity2.icon ? { icon: entity2.icon } : {},
+        ...entity.icon ? { icon: entity.icon } : {},
         window_type: "M",
         is_sales_transaction: false,
         is_default: true,
@@ -16503,11 +16375,11 @@ function buildDictionarySeedSql(options) {
     }
     out.push(insert("sys_table", {
       sys_table_id: tableId,
-      table_name: entity2.tableName,
-      name: entity2.displayName,
-      description: entity2.description || `Manage ${entity2.displayName} records`,
-      ...entity2.icon ? { icon: entity2.icon } : {},
-      ...entity2.concurrency === "last-write-wins" ? { concurrency_mode: "last-write-wins" } : {},
+      table_name: entity.tableName,
+      name: entity.displayName,
+      description: entity.description || `Manage ${entity.displayName} records`,
+      ...entity.icon ? { icon: entity.icon } : {},
+      ...entity.concurrency === "last-write-wins" ? { concurrency_mode: "last-write-wins" } : {},
       access_level: "A",
       is_view: false,
       is_document: false,
@@ -16525,7 +16397,7 @@ function buildDictionarySeedSql(options) {
       sys_tab_id: tabId,
       sys_window_id: windowId,
       sys_table_id: tableId,
-      name: entity2.displayName,
+      name: entity.displayName,
       help: entityHelp?.tab ?? null,
       tab_level: ancestors.length,
       seq_no: isChild ? nextChildSeq(windowId) : 10,
@@ -16543,11 +16415,11 @@ function buildDictionarySeedSql(options) {
       created_at: NOW,
       updated_at: NOW
     }));
-    entity2.attributes.forEach((attr, index) => {
-      const isKey = attr.name === entity2.primaryKey;
+    entity.attributes.forEach((attr, index) => {
+      const isKey = attr.name === entity.primaryKey;
       const isSystemTimestamp = SYSTEM_TIMESTAMPS.includes(attr.columnName);
       out.push(insert("sys_column", {
-        sys_column_id: id("column", entity2.tableName, attr.columnName),
+        sys_column_id: id("column", entity.tableName, attr.columnName),
         sys_table_id: tableId,
         column_name: attr.columnName,
         name: attr.displayName,
@@ -16556,7 +16428,7 @@ function buildDictionarySeedSql(options) {
         field_length: attr.maxLength ?? null,
         default_value: attr.default === undefined ? null : String(attr.default),
         is_key: isKey,
-        is_parent: attr.columnName === entity2.parentLinkColumn,
+        is_parent: attr.columnName === entity.parentLinkColumn,
         is_mandatory: isSystemTimestamp ? false : attr.required === true,
         is_updateable: !isKey && !isSystemTimestamp,
         is_identifier: attr.isIdentifier,
@@ -16574,28 +16446,28 @@ function buildDictionarySeedSql(options) {
         updated_at: NOW
       }));
     });
-    for (const attr of entity2.attributes) {
+    for (const attr of entity.attributes) {
       if (!attr.referencesTable)
         continue;
-      out.push(`UPDATE sys_column SET ref_table_name = ${lit(attr.referencesTable)} ` + `WHERE sys_column_id = ${lit(id("column", entity2.tableName, attr.columnName))};`);
+      out.push(`UPDATE sys_column SET ref_table_name = ${lit(attr.referencesTable)} ` + `WHERE sys_column_id = ${lit(id("column", entity.tableName, attr.columnName))};`);
     }
-    for (const attr of entity2.attributes) {
+    for (const attr of entity.attributes) {
       if (!attr.narrowedBy?.length)
         continue;
-      const rules = narrowingRules(entity2, attr, entities);
+      const rules = narrowingRules(entity, attr, entities);
       if (!rules.length)
         continue;
-      out.push(`UPDATE sys_column SET narrowed_by = ${lit(JSON.stringify(rules))} ` + `WHERE sys_column_id = ${lit(id("column", entity2.tableName, attr.columnName))};`);
+      out.push(`UPDATE sys_column SET narrowed_by = ${lit(JSON.stringify(rules))} ` + `WHERE sys_column_id = ${lit(id("column", entity.tableName, attr.columnName))};`);
     }
-    if (isChild && entity2.parentLinkColumn) {
-      out.push(`UPDATE sys_tab SET link_column_id = ${lit(id("column", entity2.tableName, entity2.parentLinkColumn))} WHERE sys_tab_id = ${lit(tabId)};`);
+    if (isChild && entity.parentLinkColumn) {
+      out.push(`UPDATE sys_tab SET link_column_id = ${lit(id("column", entity.tableName, entity.parentLinkColumn))} WHERE sys_tab_id = ${lit(tabId)};`);
     }
-    entity2.attributes.forEach((attr, index) => {
-      const placement = fieldPlacement(entity2, attr, index);
+    entity.attributes.forEach((attr, index) => {
+      const placement = fieldPlacement(entity, attr, index);
       out.push(insert("sys_field", {
-        sys_field_id: id("field", entity2.tableName, attr.columnName),
+        sys_field_id: id("field", entity.tableName, attr.columnName),
         sys_tab_id: tabId,
-        sys_column_id: id("column", entity2.tableName, attr.columnName),
+        sys_column_id: id("column", entity.tableName, attr.columnName),
         sys_field_group_id: index < 3 ? generalGroup : detailsGroup,
         name: attr.displayName,
         help: entityHelp?.fields[attr.columnName] ?? null,
@@ -16617,7 +16489,7 @@ function buildDictionarySeedSql(options) {
       }));
     });
     out.push(insert("sys_access", {
-      sys_access_id: id("access", "Administrator", entity2.tableName),
+      sys_access_id: id("access", "Administrator", entity.tableName),
       sys_role_id: roleRef("Administrator"),
       sys_table_id: tableId,
       sys_window_id: windowId,
@@ -16632,7 +16504,7 @@ function buildDictionarySeedSql(options) {
       updated_at: NOW
     }));
     out.push(insert("sys_access", {
-      sys_access_id: id("access", "User", entity2.tableName),
+      sys_access_id: id("access", "User", entity.tableName),
       sys_role_id: roleRef("User"),
       sys_table_id: tableId,
       sys_window_id: windowId,
@@ -16647,15 +16519,15 @@ function buildDictionarySeedSql(options) {
       updated_at: NOW
     }));
   }
-  const dataTables = new Set(entities.map((entity2) => entity2.tableName));
-  const withData = entities.filter((entity2) => entity2.data);
+  const dataTables = new Set(entities.map((entity) => entity.tableName));
+  const withData = entities.filter((entity) => entity.data);
   if (withData.length)
     section("Reference data (shared by every application of the common specification)");
-  for (const entity2 of dataEntitiesInOrder(withData, dataTables)) {
-    const data = entity2.data;
+  for (const entity of dataEntitiesInOrder(withData, dataTables)) {
+    const data = entity.data;
     const keyOf = (table, value) => uuidv5(`${projectName}:data:${table}:${value}`);
     const foreignKeys = new Map;
-    for (const attribute of entity2.attributes) {
+    for (const attribute of entity.attributes) {
       const target = foreignKeyTargetTable(attribute.columnName, dataTables, attribute.referencesTable);
       if (target)
         foreignKeys.set(attribute.columnName, target);
@@ -16664,24 +16536,24 @@ function buildDictionarySeedSql(options) {
       const own = row[data.key];
       if (own === undefined || own === null)
         continue;
-      const values = { [entity2.primaryKey ?? "id"]: keyOf(entity2.tableName, own) };
+      const values = { [entity.primaryKey ?? "id"]: keyOf(entity.tableName, own) };
       for (const [column, value] of Object.entries(row)) {
         const target = foreignKeys.get(column);
         values[column] = target && value !== null ? keyOf(target, value) : value;
       }
-      out.push(insert(entity2.tableName, values));
+      out.push(insert(entity.tableName, values));
     }
   }
   const tableEnums = (options.modelEnums ?? []).filter((declared) => declared.table);
   if (tableEnums.length)
     section("Enumeration tables (the values of every enumeration)");
   for (const modelEnum of tableEnums) {
-    const entity2 = entities.find((candidate) => candidate.name === modelEnum.name);
-    if (!entity2)
+    const entity = entities.find((candidate) => candidate.name === modelEnum.name);
+    if (!entity)
       continue;
-    const columnId = (name) => id("column", entity2.tableName, name);
+    const columnId = (name) => id("column", entity.tableName, name);
     modelEnum.values.forEach((value, position) => {
-      out.push(insert(entity2.tableName, {
+      out.push(insert(entity.tableName, {
         id: id("enum_value", modelEnum.name, value),
         code: value,
         name: modelEnum.labels?.[value] ?? enumValueLabel(value),
@@ -16693,7 +16565,7 @@ function buildDictionarySeedSql(options) {
     out.push(insert("sys_ref_table", {
       sys_ref_table_id: id("ref_table", String(modelEnum.referenceId)),
       sys_reference_id: modelEnum.referenceId,
-      sys_table_id: id("table", entity2.tableName),
+      sys_table_id: id("table", entity.tableName),
       key_column_id: columnId("code"),
       display_column_id: columnId("name"),
       is_value_displayed: false,
@@ -16791,17 +16663,6 @@ var LANGUAGE_DEFINITION_PATH = (() => {
     return path_default.join(env?.cwd?.() ?? "/", "language", "appwithai-language.json");
   }
 })();
-var cached = null;
-function loadLanguageDefinition(force = false) {
-  if (cached && !force)
-    return cached;
-  const raw2 = readFileSync(LANGUAGE_DEFINITION_PATH, "utf-8");
-  cached = JSON.parse(raw2);
-  return cached;
-}
-function stepNodeTypes() {
-  return loadLanguageDefinition().workflowConstructs.stepNodes.types;
-}
 
 // language/yaml/checker.ts
 var LIFECYCLE_COLUMN_NAMES = new Set(["status", "state", "stage"]);
@@ -16825,20 +16686,6 @@ var PERSON_ROLE_COLUMN_NAMES2 = new Set([
   "remediation_owner_id",
   "user_id"
 ]);
-function isPersonRoleColumn(columnName) {
-  return columnName.endsWith("_by") || columnName.endsWith("_by_id") || PERSON_ROLE_COLUMN_NAMES2.has(columnName);
-}
-function isForeignKeyColumnName2(columnName) {
-  return columnName.endsWith("_id") || columnName.endsWith("_by") || isPersonRoleColumn(columnName);
-}
-function escapeRe(literal) {
-  return literal.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
-function snakeCase2(name) {
-  return name.replace(/([a-z0-9])([A-Z])/g, "$1_$2").replace(/([A-Z]+)([A-Z][a-z])/g, "$1_$2").toLowerCase();
-}
-var IDENTIFIER = /^[A-Za-z][A-Za-z0-9_]*$/;
-var SNAKE_CASE = /^[a-z][a-z0-9_]*$/;
 var CRUD_ACTIONS = new Set([
   "create",
   "insert",
@@ -16858,1190 +16705,6 @@ var CRUD_ACTIONS = new Set([
   "all",
   "any"
 ]);
-function columnsOf(entity2) {
-  const columns = entity2.attributes.map((attribute, index) => ({
-    index,
-    name: attribute.name,
-    type: attribute.type,
-    pk: attribute.pk === true,
-    fk: attribute.fk === true,
-    optional: attribute.optional === true,
-    ...attribute.enum !== undefined ? { enum: attribute.enum } : {},
-    ...attribute.help !== undefined ? { help: attribute.help } : {},
-    ...attribute.references !== undefined ? { references: attribute.references } : {}
-  }));
-  const hasKey = columns.some((column) => column.name === "id" || column.name.endsWith("_id"));
-  if (!hasKey) {
-    columns.unshift({
-      index: -1,
-      name: "id",
-      type: "string",
-      pk: true,
-      fk: false,
-      optional: false
-    });
-  }
-  return columns;
-}
-
-class ModelChecker {
-  document;
-  issues = [];
-  definition = loadLanguageDefinition();
-  hookEvents;
-  entities;
-  entityIndex = new Map;
-  columns = new Map;
-  constructor(document) {
-    this.document = document;
-    this.hookEvents = new Set(this.definition.hooks.types.map((hook2) => hook2.type));
-    this.entities = document.entities;
-    this.entities.forEach((entity2, index) => {
-      if (!this.entityIndex.has(entity2.name))
-        this.entityIndex.set(entity2.name, index);
-      if (!this.columns.has(entity2.name))
-        this.columns.set(entity2.name, columnsOf(entity2));
-    });
-  }
-  add(severity, code2, message, path, options) {
-    this.issues.push({
-      severity,
-      code: code2,
-      message,
-      path,
-      ...options?.hint ? { hint: options.hint } : {}
-    });
-  }
-  error(code2, message, path, options) {
-    this.add("error", code2, message, path, options);
-  }
-  warn(code2, message, path, options) {
-    this.add("warning", code2, message, path, options);
-  }
-  info(code2, message, path, options) {
-    this.add("info", code2, message, path, options);
-  }
-  declares(entity2) {
-    return this.entityIndex.has(entity2);
-  }
-  entityPath(name) {
-    const index = this.entityIndex.get(name);
-    return index === undefined ? [] : ["entities", index];
-  }
-  columnPath(entity2, column) {
-    const at = this.entityPath(entity2);
-    return column.index < 0 ? at : [...at, "attributes", column.index];
-  }
-  fkTarget(column) {
-    if (isPersonRoleColumn(column))
-      return this.personEntity();
-    const base = column.slice(0, -3);
-    return base.replace(/(^|_)([a-z])/g, (_match, _separator, letter) => letter.toUpperCase());
-  }
-  personEntity() {
-    for (const candidate of ["User", "Staff", "Employee"]) {
-      if (this.declares(candidate))
-        return candidate;
-    }
-    return "User";
-  }
-  linkColumnTo(entity2, parent2) {
-    const snake = snakeCase2(parent2);
-    const columns = this.columns.get(entity2) ?? [];
-    return columns.find((column) => column.fk && (column.name === `${snake}_id` || column.name.startsWith(`${snake}_`))) ?? columns.find((column) => column.fk && column.references === parent2);
-  }
-  run() {
-    this.checkDocument();
-    this.checkEntities();
-    this.checkRelationships();
-    this.checkEnums();
-    this.checkEnumBindings();
-    this.checkIndexes();
-    this.checkConcurrency();
-    this.checkParents();
-    this.checkLineItems();
-    this.checkHelpText();
-    this.checkHooks();
-    this.checkRbac();
-    this.checkTriggers();
-    this.checkReports();
-    this.checkRuleActions();
-    this.checkRules();
-    this.checkStateMachines();
-    this.checkSagas();
-    this.checkHookFlows();
-    this.checkCrossReferences();
-    return this.issues;
-  }
-  checkDocument() {
-    if (this.document.name === undefined) {
-      this.warn("EML001", "The model has no name.", [], {
-        hint: "Add  name: <YourModelName>  at the top of the document."
-      });
-    }
-    const workflows = (this.document.stateMachines?.length ?? 0) + (this.document.sagas?.length ?? 0) + (this.document.hookFlows?.length ?? 0);
-    if (this.entities.length === 0 && !(this.document.rules?.length ?? 0) && workflows === 0) {
-      this.error("EML004", "Empty model: no entities, rules or workflows.", ["entities"], {
-        hint: "Declare at least one entity under  entities:."
-      });
-    }
-  }
-  checkEntities() {
-    const seen = new Map;
-    this.entities.forEach((entity2, index) => {
-      const path = ["entities", index];
-      const first = seen.get(entity2.name);
-      if (first !== undefined) {
-        this.error("EML101", `Duplicate entity "${entity2.name}".`, path, {
-          hint: `First declared at entities[${first}]. Merge the two into one entity.`
-        });
-        return;
-      }
-      seen.set(entity2.name, index);
-      if (entity2.attributes.length === 0) {
-        this.warn("EML102", `Entity "${entity2.name}" has no attributes.`, path, {
-          hint: "The generator adds an  id  key; declare the columns the entity holds."
-        });
-      }
-      this.checkColumns(entity2);
-    });
-  }
-  checkColumns(entity2) {
-    const columns = this.columns.get(entity2.name) ?? [];
-    const seen = new Map;
-    let keys = 0;
-    for (const column of columns) {
-      const path = this.columnPath(entity2.name, column);
-      if (!SNAKE_CASE.test(column.name) && column.name !== column.name.toUpperCase()) {
-        this.info("EML111", `Attribute "${entity2.name}.${column.name}" is not snake_case.`, path, {
-          hint: "snake_case is the convention for column names (first_name, order_id)."
-        });
-      }
-      const previous = seen.get(column.name);
-      if (previous !== undefined) {
-        this.warn("EML112", `Duplicate attribute "${entity2.name}.${column.name}".`, path, {
-          hint: `First declared at attributes[${previous}]. Remove the duplicate.`
-        });
-      } else {
-        seen.set(column.name, column.index);
-      }
-      if (column.pk) {
-        keys++;
-        if (keys > 1) {
-          this.error("EML113", `Entity "${entity2.name}" declares more than one primary key (found "${column.name}").`, path, {
-            hint: column.index < 0 ? "The generator adds an  id  key to an entity with no  id  or  *_id  column. Name the key  id, or remove  pk  from the other column." : "An entity has exactly one primary key. Remove  pk  from the extra column."
-          });
-        }
-      }
-      if (column.references !== undefined && !this.declares(column.references)) {
-        this.error("EML118", `Column "${entity2.name}.${column.name}" references "${column.references}", which the model does not declare.`, [...path, "references"], { hint: `Declare "${column.references}", or remove  references  from the column.` });
-      }
-      if (column.fk && column.references === undefined && !column.name.endsWith("_id")) {
-        const byRole = column.name.endsWith("_by");
-        this.warn("EML114", `Foreign key "${entity2.name}.${column.name}" does not end with "_id".`, path, {
-          hint: byRole ? `Rename it "${column.name}_id" — a _by column names a person by role, so it resolves to the user entity.` : `Rename it "${column.name}_id" so the generator can derive the table it references.`
-        });
-      }
-      if (!column.fk && !column.pk && isForeignKeyColumnName2(column.name)) {
-        const target = this.fkTarget(column.name);
-        if (this.declares(target)) {
-          this.warn("EML119", `Column "${entity2.name}.${column.name}" looks like a reference to "${target}" but is not marked fk.`, path, {
-            hint: `Add  fk: true. Without it the column is recorded as String and the form shows the raw id instead of a "${target}" lookup.`
-          });
-        }
-      }
-      if (MANAGED_COLUMN_NAMES.has(column.name.toLowerCase()) && !column.pk) {
-        this.warn("EML103", `Column "${entity2.name}.${column.name}" is added by the generator.`, path, {
-          hint: `Every table carries ${[...MANAGED_COLUMN_NAMES].join(", ")} already. Remove it: the generator's own definition is used.`
-        });
-      }
-      const base = column.type.replace(/\([\d,]+\)$/, "").toLowerCase();
-      if (base !== "string" && !(base in this.definition.types.map)) {
-        this.warn("EML115", `Unknown type "${column.type}" on "${entity2.name}.${column.name}"; it is generated as a string.`, path, {
-          hint: `Valid types: ${this.definition.types.canonical.join(", ")}, plus the aliases in appwithai-language.json.`
-        });
-      }
-      if (column.pk && column.optional) {
-        this.error("EML116", `Primary key "${entity2.name}.${column.name}" is marked optional.`, path, {
-          hint: "Remove  optional: true  — a primary key is always required."
-        });
-      }
-    }
-    if (keys === 0 && columns.length > 0) {
-      this.warn("EML117", `Entity "${entity2.name}" has no primary key.`, this.entityPath(entity2.name), {
-        hint: "Add  { name: id, type: uuid, pk: true }  as the first attribute, or mark an existing one  pk: true."
-      });
-    }
-  }
-  checkRelationships() {
-    const seen = new Map;
-    (this.document.relationships ?? []).forEach((relationship, index) => {
-      const path = ["relationships", index];
-      const { from: from2, to } = relationship;
-      if (!this.declares(from2)) {
-        this.error("EML120", `Relationship references undeclared entity "${from2}".`, [...path, "from"], {
-          hint: `Declare "${from2}" under  entities:, or correct the name.`
-        });
-      }
-      if (!this.declares(to)) {
-        this.error("EML121", `Relationship references undeclared entity "${to}".`, [...path, "to"], {
-          hint: `Declare "${to}" under  entities:, or correct the name.`
-        });
-      }
-      if (from2 === to) {
-        this.info("EML123", `Self-referential relationship on "${from2}".`, path, {
-          hint: "Valid for a hierarchy; make sure the entity carries the parent reference, e.g.  parent_category_id."
-        });
-      }
-      const key = `${from2}|${relationship.fromCardinality}|${relationship.toCardinality}|${to}`;
-      const first = seen.get(key);
-      if (first !== undefined) {
-        this.warn("EML124", `Duplicate relationship between "${from2}" and "${to}".`, path, {
-          hint: `Declared already at relationships[${first}]. Remove the duplicate.`
-        });
-      } else {
-        seen.set(key, index);
-      }
-      const kind = this.definition.cardinalities.map.find((entry) => entry.from === relationship.fromCardinality && entry.to === relationship.toCardinality)?.kind;
-      if ((kind === "oneToMany" || kind === "manyToOne") && this.declares(from2) && this.declares(to)) {
-        const many = kind === "manyToOne" ? from2 : to;
-        const one = kind === "manyToOne" ? to : from2;
-        const columns = this.columns.get(many) ?? [];
-        const expected = `${snakeCase2(one).replace(/^bus_/, "")}_id`;
-        if (columns.length > 0 && !columns.some((column) => column.fk || column.name === expected)) {
-          this.info("EML125", `No foreign key in "${many}" for its relationship to "${one}".`, path, {
-            hint: `Add  { name: ${expected}, type: uuid, fk: true }  to "${many}".`
-          });
-        }
-      }
-    });
-  }
-  checkEnums() {
-    const seen = new Map;
-    (this.document.enums ?? []).forEach((declared, index) => {
-      const path = ["enums", index];
-      const first = seen.get(declared.name);
-      if (first !== undefined) {
-        this.warn("EML131", `Duplicate enum "${declared.name}".`, path, {
-          hint: `First declared at enums[${first}]; only that one is used. Merge the values into it.`
-        });
-      } else {
-        seen.set(declared.name, index);
-      }
-      const values = new Set;
-      declared.values.forEach((value, position) => {
-        if (values.has(value)) {
-          this.warn("EML133", `Duplicate value "${value}" in enum "${declared.name}".`, [...path, "values", position], {
-            hint: "Remove the duplicate value."
-          });
-        }
-        values.add(value);
-        if (!/^[A-Za-z0-9_-]+$/.test(value)) {
-          this.warn("EML134", `Enum "${declared.name}" value "${value}" contains characters other than letters, digits, "_" and "-".`, [...path, "values", position], {
-            hint: "A value is stored and compared as written; keep it to a slug for safe serialisation."
-          });
-        }
-      });
-    });
-  }
-  checkEnumBindings() {
-    const enums = new Set((this.document.enums ?? []).map((declared) => declared.name));
-    const machines = new Set((this.document.stateMachines ?? []).map((machine) => machine.entity));
-    for (const entity2 of this.entities) {
-      entity2.attributes.forEach((attribute, index) => {
-        const path = [...this.entityPath(entity2.name), "attributes", index];
-        if (attribute.enum !== undefined && !enums.has(attribute.enum)) {
-          this.error("EML144", `Column "${entity2.name}.${attribute.name}" names undeclared enum "${attribute.enum}".`, [...path, "enum"], { hint: `Declare it under  enums:  as  { name: ${attribute.enum}, values: [...] }.` });
-        }
-        for (const key of ["min", "max"]) {
-          const bound = attribute[key];
-          if (bound !== undefined && Number.isNaN(Number(String(bound).trim()))) {
-            this.warn("EML145", `Column "${entity2.name}.${attribute.name}" has a non-numeric ${key}: "${bound}".`, [...path, key], { hint: `${key} is a number, e.g.  ${key}: 0.` });
-          }
-        }
-        if (LIFECYCLE_COLUMN_NAMES.has(attribute.name) && (attribute.name === "status" || machines.has(entity2.name)) && attribute.enum === undefined) {
-          this.warn("EML146", `Column "${entity2.name}.${attribute.name}" names no enum.`, path, {
-            hint: `Declare  { name: ${entity2.name}Status, values: [...] }  under  enums:  and set  enum: ${entity2.name}Status  on the column. Without it the dictionary records free text, and the form accepts values the state machine cannot act on.`
-          });
-        }
-      });
-    }
-  }
-  checkIndexes() {
-    for (const entity2 of this.entities) {
-      const names = new Set((this.columns.get(entity2.name) ?? []).map((column) => column.name));
-      (entity2.indexes ?? []).forEach((index, position) => {
-        const path = [...this.entityPath(entity2.name), "indexes", position];
-        index.columns.forEach((column, at) => {
-          if (!names.has(column)) {
-            this.error("EML155", `Index on "${entity2.name}" names undeclared column "${column}".`, [...path, "columns", at], { hint: `Add "${column}" to "${entity2.name}", or correct the name.` });
-          }
-        });
-      });
-    }
-  }
-  checkConcurrency() {
-    const finals = new Map;
-    for (const machine of this.document.stateMachines ?? []) {
-      if (machine.final?.length)
-        finals.set(machine.entity, machine.final);
-    }
-    this.entities.forEach((entity2, index) => {
-      if (entity2.concurrency !== "last-write-wins")
-        return;
-      const closed = finals.get(entity2.name);
-      if (!closed)
-        return;
-      this.info("EML158", `"${entity2.name}" is last-write-wins, but a record in ${closed.join(" or ")} stays closed.`, ["entities", index, "concurrency"], {
-        hint: "A final state of the entity's state machine is a completed transaction and refuses every update, whatever the entity's concurrency. Remove the state from `final` if records in it are meant to stay editable."
-      });
-    });
-  }
-  checkParents() {
-    this.entities.forEach((entity2, index) => {
-      const parent2 = entity2.parent;
-      if (parent2 === undefined)
-        return;
-      const path = ["entities", index, "parent"];
-      if (!this.declares(parent2)) {
-        this.error("EML147", `"${entity2.name}" names parent "${parent2}", which is not declared.`, path, {
-          hint: `Declare "${parent2}", or name the entity that owns ${entity2.name}.`
-        });
-      } else if (parent2 === entity2.name) {
-        this.error("EML147", `"${entity2.name}" cannot be its own parent.`, path, {
-          hint: "A line item belongs to a different entity. Remove  parent  if it has no owner."
-        });
-      } else if (!this.linkColumnTo(entity2.name, parent2)) {
-        this.error("EML148", `"${entity2.name}" names parent "${parent2}" but has no foreign key to it.`, path, {
-          hint: `Add  { name: ${snakeCase2(parent2)}_id, type: uuid, fk: true }  to ${entity2.name}. The tab links its rows to the open ${parent2} on that column.`
-        });
-      }
-    });
-  }
-  checkLineItems() {
-    const parents = new Map;
-    for (const entity2 of this.entities) {
-      if (entity2.parent !== undefined)
-        parents.set(entity2.name, entity2.parent);
-    }
-    const reported = new Set;
-    (this.document.categories ?? []).forEach((category, index) => {
-      (category.entities ?? []).forEach((name, position) => {
-        const parent2 = parents.get(name);
-        if (parent2 === undefined || !this.declares(name) || reported.has(name))
-          return;
-        reported.add(name);
-        this.warn("EML150", `"${name}" is a line item of "${parent2}" but is listed in category "${category.name}".`, ["categories", index, "entities", position], {
-          hint: `A category lists what the dashboard shows, and a line item has no card — it is reached by opening a ${parent2}. Remove "${name}" from the list.`
-        });
-      });
-    });
-    const LINE_ITEM_NOUNS = /(Line|LineItem|Item|Detail|Entry|Row)s?$/;
-    const names = [...this.entityIndex.keys()];
-    for (const entity2 of this.entities) {
-      if (parents.has(entity2.name))
-        continue;
-      let candidate;
-      for (const other of names) {
-        if (other === entity2.name || other.length < 3)
-          continue;
-        if (!entity2.name.startsWith(other) || entity2.name.length <= other.length)
-          continue;
-        if (!this.linkColumnTo(entity2.name, other))
-          continue;
-        if (!candidate || other.length > candidate.length)
-          candidate = other;
-      }
-      if (!candidate && LINE_ITEM_NOUNS.test(entity2.name)) {
-        for (const column of this.columns.get(entity2.name) ?? []) {
-          if (!column.fk || column.pk)
-            continue;
-          if (!isForeignKeyColumnName2(column.name) || isPersonRoleColumn(column.name))
-            continue;
-          const target = this.fkTarget(column.name);
-          const match = names.find((name) => name !== entity2.name && (name === target || name.endsWith(target)));
-          if (match && this.linkColumnTo(entity2.name, match)) {
-            candidate = match;
-            break;
-          }
-        }
-      }
-      if (!candidate)
-        continue;
-      const link = this.linkColumnTo(entity2.name, candidate);
-      this.info("EML149", `"${entity2.name}" looks like a line item of "${candidate}" but declares no parent.`, this.entityPath(entity2.name), {
-        hint: `If a list of every ${entity2.name} away from its ${candidate} is not a screen anyone opens, ` + `set  parent: ${candidate}  — the dictionary then drops its dashboard card and gives it a tab ` + `inside the ${candidate} window, linked on ${link?.name}. If it is a thing in its own right, leave it.`
-      });
-    }
-  }
-  restatedHelp(entity2, column, text) {
-    const body = text.trim().replace(/\.+$/, "").trim().toLowerCase();
-    const own = (column ?? entity2).replace(/[_.]+/g, " ").trim().toLowerCase();
-    const of = entity2.toLowerCase();
-    if (/^unique identifier( for \w+)?$/.test(body))
-      return "restates the key";
-    if (new RegExp(`^(the )?${escapeRe(own)}( for ${escapeRe(of)})?$`).test(body)) {
-      return "is the name again, in prose";
-    }
-    if (new RegExp(`^${escapeRe(of)} is an? [\\w -]*(record|entity|table|object)\\b`).test(body)) {
-      return "is a template sentence, not a description";
-    }
-    return;
-  }
-  checkHelpText() {
-    for (const entity2 of this.entities) {
-      if (this.entityIndex.get(entity2.name) !== this.entities.indexOf(entity2))
-        continue;
-      const path = this.entityPath(entity2.name);
-      if (entity2.help === undefined) {
-        this.warn("EML152", `Entity "${entity2.name}" has no help.`, path, {
-          hint: "Add  help:  — what this record is for in the business, when one is created, and what distinguishes it from the entities it sounds like. It becomes sys_table.description and opens the entity's section of the manual."
-        });
-      } else {
-        const why = this.restatedHelp(entity2.name, undefined, entity2.help);
-        if (why) {
-          this.warn("EML151", `The help for "${entity2.name}" ${why}.`, [...path, "help"], {
-            hint: `"${entity2.help.trim().slice(0, 60)}" tells a reader nothing the name did not. Say what the business does with these records.`
-          });
-        }
-      }
-      const undocumented = (this.columns.get(entity2.name) ?? []).filter((column) => !MANAGED_COLUMN_NAMES.has(column.name.toLowerCase())).filter((column) => !column.pk).filter((column) => column.help === undefined).map((column) => column.name);
-      if (undocumented.length > 0) {
-        const shown = undocumented.slice(0, 6).join(", ");
-        const rest = undocumented.length > 6 ? `, and ${undocumented.length - 6} more` : "";
-        this.warn("EML153", `${entity2.name} has ${undocumented.length} column${undocumented.length === 1 ? "" : "s"} with no help.`, path, {
-          hint: `Add  help:  to ${shown}${rest}. Each becomes sys_column.description — the hint under the control and the column's row in the manual.`
-        });
-      }
-      entity2.attributes.forEach((attribute, index) => {
-        if (attribute.help === undefined)
-          return;
-        const why = this.restatedHelp(entity2.name, attribute.name, attribute.help);
-        if (why) {
-          this.warn("EML151", `The help for "${entity2.name}.${attribute.name}" ${why}.`, [...path, "attributes", index, "help"], {
-            hint: `"${attribute.help.trim().slice(0, 60)}" repeats the column name. Say why the value matters, what is expected in it, and what happens downstream.`
-          });
-        }
-      });
-    }
-  }
-  checkHooks() {
-    const seen = new Map;
-    (this.document.hooks ?? []).forEach((hook2, index) => {
-      const path = ["hooks", index];
-      if (!this.declares(hook2.entity)) {
-        this.warn("EML202", `Hook "${hook2.handler}" is bound to undeclared entity "${hook2.entity}".`, [...path, "entity"], {
-          hint: `Declare "${hook2.entity}", or correct the name.`
-        });
-      } else {
-        const names = new Set((this.columns.get(hook2.entity) ?? []).map((column) => column.name));
-        (hook2.fields ?? []).forEach((field, position) => {
-          if (!names.has(field)) {
-            this.warn("EML203", `Hook "${hook2.handler}" names undeclared column "${hook2.entity}.${field}".`, [...path, "fields", position], { hint: `Add "${field}" to "${hook2.entity}", or correct the name.` });
-          }
-        });
-      }
-      const key = `${hook2.entity}|${hook2.event}|${hook2.handler}`;
-      const first = seen.get(key);
-      if (first !== undefined) {
-        this.warn("EML204", `Duplicate hook: ${hook2.event} ${hook2.handler} on ${hook2.entity}.`, path, {
-          hint: `Declared already at hooks[${first}]. Remove the duplicate.`
-        });
-      } else {
-        seen.set(key, index);
-      }
-    });
-  }
-  checkRbac() {
-    (this.document.rbac ?? []).forEach((rule2, index) => {
-      const path = ["rbac", index];
-      if (!this.declares(rule2.entity)) {
-        this.error("EML213", `Access rule names undeclared entity "${rule2.entity}".`, [...path, "entity"], {
-          hint: `Declare "${rule2.entity}", or correct the name.`
-        });
-        return;
-      }
-      const action = rule2.action.toLowerCase();
-      if (CRUD_ACTIONS.has(action))
-        return;
-      const triggers = this.transitionTriggers(rule2.entity);
-      if (triggers.has(action))
-        return;
-      this.error("EML214", `Access rule on ${rule2.entity} names "${rule2.action}", which is neither a CRUD operation nor a transition of ${rule2.entity}.`, [...path, "action"], {
-        hint: triggers.size ? `Use create, read, update, delete or * — or a transition of ${rule2.entity}: ${[...triggers].join(", ")}.` : `Use create, read, update, delete or * — ${rule2.entity} has no state machine to take a transition from.`
-      });
-    });
-  }
-  transitionTriggers(entity2) {
-    const triggers = new Set;
-    for (const machine of this.document.stateMachines ?? []) {
-      if (machine.entity !== entity2)
-        continue;
-      for (const transition of machine.transitions) {
-        if (transition.trigger) {
-          triggers.add(transition.trigger.trim().toLowerCase().replace(/[\s-]+/g, "_"));
-        }
-      }
-    }
-    return triggers;
-  }
-  checkTriggers() {
-    (this.document.triggers ?? []).forEach((trigger, index) => {
-      const path = ["triggers", index];
-      if (trigger.source.startsWith("cron:")) {
-        const expression = trigger.source.slice(5).trim();
-        const fields = expression.split(/\s+/).length;
-        if (fields < 5 || fields > 6) {
-          this.warn("EML231", `Trigger cron expression "${expression}" has ${fields} field(s); expected 5 or 6.`, [...path, "source"], { hint: "minute hour day-of-month month day-of-week, e.g.  cron:0 9 * * *." });
-        }
-      }
-      if (!this.declares(trigger.entity)) {
-        this.warn("EML232", `Trigger names undeclared entity "${trigger.entity}".`, [...path, "entity"], {
-          hint: `Declare "${trigger.entity}", or correct the name.`
-        });
-      }
-    });
-  }
-  checkReports() {
-    const seen = new Set;
-    (this.document.reports ?? []).forEach((report, index) => {
-      const path = ["reports", index];
-      if (seen.has(report.name)) {
-        this.error("EML292", `Report "${report.name}" is declared more than once.`, [...path, "name"], {
-          hint: "Report names are keys, and the later one replaces the earlier. Give it its own name."
-        });
-      }
-      seen.add(report.name);
-      if (!isSingleReadStatement(report.sql)) {
-        this.error("EML293", `Report "${report.name}" is not a single SELECT or WITH statement.`, [...path, "sql"], {
-          hint: "A report reads. The application refuses to run anything else, so a write belongs in a rule or a hook."
-        });
-      }
-      if (report.entity !== undefined && !this.declares(report.entity)) {
-        this.warn("EML295", `Report "${report.name}" names entity "${report.entity}", which the model does not declare.`, [...path, "entity"], {
-          hint: "entity groups the report with its entity. Correct the name, or drop it if the report spans several."
-        });
-      }
-    });
-  }
-  checkRuleActions() {
-    const contracts = new Map((this.definition.ruleNodes.actions?.types ?? []).map((action) => [action.name, action]));
-    const workflows = new Set(this.workflowNames());
-    const triggered = new Set;
-    (this.document.rules ?? []).forEach((rule2, ruleIndex) => {
-      (rule2.actions ?? []).forEach((action, index) => {
-        const path = ["rules", ruleIndex, "actions", index];
-        const props = action.props ?? {};
-        if (props.workflow?.trim())
-          triggered.add(props.workflow.trim());
-        const contract = contracts.get(action.type);
-        if (!contract) {
-          this.error("EML281", `Action "${action.name}" has unknown type "${action.type}".`, [...path, "type"], {
-            hint: `Valid action types: ${[...contracts.keys()].join(", ")}.`
-          });
-          return;
-        }
-        const has = (key) => ((key === "when" ? action.when : props[key]) ?? "").trim().length > 0;
-        if (!has("when")) {
-          this.warn("EML282", `Action "${action.name}" has no "when" — it fires on every write.`, path, {
-            hint: 'Add a condition, e.g.  when: severity == "critical". Write  when: "true"  to mean always on purpose.'
-          });
-        }
-        const missing = contract.required.filter((key) => !has(key));
-        if (missing.length > 0) {
-          this.error("EML283", `Action "${action.name}" (${action.type}) is missing: ${missing.join(", ")}.`, path, {
-            hint: `${action.type} requires ${contract.required.join(", ")}.`
-          });
-        }
-        const workflow = props.workflow?.trim();
-        if (action.type === "trigger-workflow" && workflow && !workflows.has(workflow)) {
-          this.warn("EML284", `Action "${action.name}" triggers workflow "${workflow}", which the model does not declare.`, [...path, "props", "workflow"], { hint: `Declare a saga named ${workflow} with  trigger: rule, or correct the name.` });
-        }
-        const condition = action.when?.trim();
-        if (condition) {
-          const camel = [
-            ...new Set((condition.match(/\b[a-z][A-Za-z0-9]*\b/g) ?? []).filter((identifier) => /[a-z][A-Z]/.test(identifier)))
-          ];
-          if (camel.length > 0) {
-            this.error("EML287", `Action "${action.name}" tests ${camel.map((name) => `"${name}"`).join(", ")}, which no column is named.`, [...path, "when"], {
-              hint: `Every column is snake_case: write ${camel.map(snakeCase2).join(", ")}. A camelCase name is undefined when the rule runs.`
-            });
-          }
-        }
-        const known = new Set(["when", ...contract.required, ...contract.optional ?? []]);
-        for (const key of Object.keys(props)) {
-          if (!known.has(key)) {
-            this.warn("EML285", `Action "${action.name}" has unknown property "${key}".`, [...path, "props", key], {
-              hint: `${action.type} understands: ${[...known].sort().join(", ")}.`
-            });
-          }
-        }
-      });
-    });
-    (this.document.sagas ?? []).forEach((saga, index) => {
-      if (saga.trigger !== "rule" || triggered.has(saga.name))
-        return;
-      this.warn("EML286", `Saga "${saga.name}" is rule-triggered but no rule action names it.`, ["sagas", index, "trigger"], {
-        hint: `Add an action  { type: trigger-workflow, when: <condition>, props: { workflow: ${saga.name} } }  to a rule, or set  trigger: automatic.`
-      });
-    });
-  }
-  checkRules() {
-    const seen = new Set;
-    (this.document.rules ?? []).forEach((rule2, index) => {
-      const path = ["rules", index];
-      if (seen.has(rule2.name)) {
-        this.warn("EML504", `Duplicate rule name "${rule2.name}".`, [...path, "name"], {
-          hint: "Give each rule its own name."
-        });
-      }
-      seen.add(rule2.name);
-      if (!this.hookEvents.has(rule2.event)) {
-        this.error("EML252", `Rule "${rule2.name}" runs on unknown event "${rule2.event}".`, [...path, "event"], {
-          hint: `Valid events: ${[...this.hookEvents].join(", ")}.`
-        });
-      }
-      if (!this.declares(rule2.entity)) {
-        this.warn("EML307", `Rule "${rule2.name}" is bound to undeclared entity "${rule2.entity}".`, [...path, "entity"], {
-          hint: `Declare "${rule2.entity}", or correct the name.`
-        });
-      }
-      this.checkRuleGraph(rule2, path);
-    });
-  }
-  checkRuleGraph(rule2, path) {
-    const ids = new Map;
-    rule2.nodes.forEach((node, index) => {
-      if (ids.has(node.id)) {
-        this.error("EML308", `Rule "${rule2.name}" declares node "${node.id}" twice.`, [...path, "nodes", index, "id"], {
-          hint: "Node ids are how edges refer to nodes. Give the second one its own id."
-        });
-      } else {
-        ids.set(node.id, index);
-      }
-    });
-    rule2.edges.forEach((edge, index) => {
-      for (const end of ["from", "to"]) {
-        if (!ids.has(edge[end])) {
-          this.error("EML309", `Rule "${rule2.name}" has an edge ${end} "${edge[end]}", which is not one of its nodes.`, [...path, "edges", index, end], { hint: `Declare a node with  id: ${edge[end]}, or correct the edge.` });
-        }
-      }
-    });
-    const roles = ruleNodeRoles(rule2);
-    const inputs = rule2.nodes.filter((node) => roles.get(node.id) === "inputNode");
-    const outputs = rule2.nodes.filter((node) => roles.get(node.id) === "outputNode");
-    if (rule2.nodes.length === 0) {
-      this.warn("EML306", `Rule "${rule2.name}" has no nodes.`, [...path, "nodes"], {
-        hint: "Draw the decision: a start node, the decisions and actions, and an end node."
-      });
-    }
-    if (inputs.length === 0) {
-      this.error("EML300", `Rule "${rule2.name}" has no start node.`, [...path, "nodes"], {
-        hint: "Add a node with  type: start  — the record the rule receives."
-      });
-    } else if (inputs.length > 1) {
-      this.warn("EML301", `Rule "${rule2.name}" has ${inputs.length} start nodes; expected 1.`, [...path, "nodes"], {
-        hint: "A rule has exactly one start. Merge the extra ones."
-      });
-    }
-    if (outputs.length === 0) {
-      this.error("EML302", `Rule "${rule2.name}" has no end node.`, [...path, "nodes"], {
-        hint: "Add a node with  type: end  — the rule's outcome."
-      });
-    }
-    const outgoing = new Map;
-    for (const edge of rule2.edges)
-      outgoing.set(edge.from, (outgoing.get(edge.from) ?? 0) + 1);
-    rule2.nodes.forEach((node, index) => {
-      if (node.type !== "decision")
-        return;
-      const count = outgoing.get(node.id) ?? 0;
-      if (count < 2) {
-        this.warn("EML303", `Rule "${rule2.name}": decision "${node.id}" (${node.label}) has ${count} outgoing edge(s).`, [...path, "nodes", index], { hint: "A decision branches: give it at least two outgoing edges, e.g. Yes and No." });
-      }
-    });
-    rule2.edges.forEach((edge, index) => {
-      const source = rule2.nodes.find((node) => node.id === edge.from);
-      if (source?.type === "decision" && edge.label === undefined) {
-        this.warn("EML304", `Rule "${rule2.name}": an edge out of decision "${source.id}" has no label.`, [...path, "edges", index], {
-          hint: "Label the branch with the condition it takes, e.g.  label: Yes."
-        });
-      }
-    });
-    if (rule2.nodes.length > 0 && rule2.edges.length > 0) {
-      const start = inputs[0];
-      const reached = new Set;
-      if (start) {
-        const queue = [start.id];
-        while (queue.length > 0) {
-          const id = queue.shift();
-          if (reached.has(id))
-            continue;
-          reached.add(id);
-          for (const edge of rule2.edges)
-            if (edge.from === id && !reached.has(edge.to))
-              queue.push(edge.to);
-        }
-      }
-      rule2.nodes.forEach((node, index) => {
-        if (!reached.has(node.id) && roles.get(node.id) !== "inputNode") {
-          this.warn("EML305", `Rule "${rule2.name}": node "${node.id}" (${node.label}) cannot be reached from the start.`, [...path, "nodes", index], { hint: "Connect it to the start or to a reachable node, or remove it." });
-        }
-      });
-    }
-  }
-  checkStateMachines() {
-    (this.document.stateMachines ?? []).forEach((machine, index) => {
-      const path = ["stateMachines", index];
-      if (!this.declares(machine.entity)) {
-        this.warn("EML400", `State machine "${machine.name}" is bound to undeclared entity "${machine.entity}".`, [...path, "entity"], {
-          hint: `Declare "${machine.entity}", or correct the name.`
-        });
-      }
-      this.checkStateMachine(machine, path);
-    });
-  }
-  checkStateMachine(machine, path) {
-    const declared = new Set(machine.states);
-    machine.transitions.forEach((transition, index) => {
-      for (const end of ["from", "to"]) {
-        if (!declared.has(transition[end])) {
-          this.error("EML429", `State machine "${machine.name}" has a transition ${end} "${transition[end]}", which is not one of its states.`, [...path, "transitions", index, end], { hint: `Add "${transition[end]}" to  states:, or correct the transition.` });
-        }
-      }
-    });
-    for (const [key, states2] of [
-      ["initial", machine.initial !== undefined ? [machine.initial] : []],
-      ["final", machine.final ?? []]
-    ]) {
-      states2.forEach((state, position) => {
-        if (!declared.has(state)) {
-          this.error("EML429", `State machine "${machine.name}" names ${key} state "${state}", which is not one of its states.`, key === "initial" ? [...path, "initial"] : [...path, "final", position], { hint: `Add "${state}" to  states:, or correct the name.` });
-        }
-      });
-    }
-    if (machine.transitions.length === 0) {
-      this.warn("EML420", `State machine "${machine.name}" has no transitions.`, [...path, "transitions"], {
-        hint: "Declare the moves between states:  { from: draft, to: submitted, trigger: submit }."
-      });
-      return;
-    }
-    if (machine.initial === undefined) {
-      this.error("EML421", `State machine "${machine.name}" has no initial state.`, path, {
-        hint: "Add  initial: <state>  — the state a new record is stamped with."
-      });
-    }
-    if (!machine.final?.length) {
-      this.warn("EML422", `State machine "${machine.name}" has no final state.`, path, {
-        hint: "Add  final: [<state>, ...]  to mark where a record's lifecycle ends."
-      });
-    }
-    const reachable = new Set;
-    const queue = machine.initial !== undefined ? [machine.initial] : [];
-    while (queue.length > 0) {
-      const state = queue.shift();
-      if (reachable.has(state))
-        continue;
-      reachable.add(state);
-      for (const transition of machine.transitions) {
-        if (transition.from === state && !reachable.has(transition.to))
-          queue.push(transition.to);
-      }
-    }
-    const finishing = new Set(machine.final ?? []);
-    let changed = true;
-    while (changed) {
-      changed = false;
-      for (const transition of machine.transitions) {
-        if (finishing.has(transition.to) && !finishing.has(transition.from)) {
-          finishing.add(transition.from);
-          changed = true;
-        }
-      }
-    }
-    machine.states.forEach((state, index) => {
-      if (machine.initial !== undefined && !reachable.has(state)) {
-        this.warn("EML423", `State machine "${machine.name}": state "${state}" cannot be reached from "${machine.initial}".`, [...path, "states", index], {
-          hint: `Add a transition into "${state}" from a reachable state, or remove it.`
-        });
-      }
-      if (machine.final?.length && !finishing.has(state)) {
-        this.warn("EML424", `State machine "${machine.name}": state "${state}" has no path to a final state.`, [...path, "states", index], {
-          hint: `Add a transition out of "${state}" towards a final state, or mark it final.`
-        });
-      }
-    });
-    machine.transitions.forEach((transition, index) => {
-      if (transition.trigger && !IDENTIFIER.test(transition.trigger.replace(/[- ]/g, "_"))) {
-        this.warn("EML425", `State machine "${machine.name}": trigger "${transition.trigger}" is not an identifier.`, [...path, "transitions", index, "trigger"], { hint: "Use a snake_case or camelCase name (submit, mark_paid, close_won)." });
-      }
-    });
-    let candidate;
-    (this.document.enums ?? []).forEach((declared2, index) => {
-      const values2 = new Set(declared2.values);
-      const overlap = machine.states.filter((state) => values2.has(state)).length;
-      if (overlap > 0 && (!candidate || overlap > candidate.overlap)) {
-        candidate = { name: declared2.name, values: declared2.values, index, overlap };
-      }
-    });
-    if (!candidate) {
-      this.warn("EML428", `State machine "${machine.name}" has no matching enum; its states are not a declared vocabulary.`, [...path, "states"], {
-        hint: `Declare  { name: ${machine.entity}Status, values: [${machine.states.join(", ")}] }  and set  enum: ${machine.entity}Status  on ${machine.entity}.status.`
-      });
-      return;
-    }
-    const values = new Set(candidate.values);
-    const states = new Set(machine.states);
-    const missing = machine.states.filter((state) => !values.has(state));
-    const extra = candidate.values.filter((value) => !states.has(value));
-    if (missing.length > 0) {
-      this.warn("EML426", `State machine "${machine.name}": states [${missing.join(", ")}] are not values of enum "${candidate.name}".`, [...path, "states"], { hint: `Add them to enum ${candidate.name}.` });
-    }
-    if (extra.length > 0) {
-      this.info("EML427", `Enum "${candidate.name}" has values [${extra.join(", ")}] that are not states of "${machine.name}".`, ["enums", candidate.index, "values"], {
-        hint: "They may be states to come, or values nothing can reach. Remove them if not needed."
-      });
-    }
-  }
-  checkSagas() {
-    const stepTypes = new Map(stepNodeTypes().map((step) => [step.name, step]));
-    const spellings = this.entitySpellings();
-    const rules = new Set((this.document.rules ?? []).map((rule2) => rule2.name));
-    (this.document.sagas ?? []).forEach((saga, index) => {
-      const path = ["sagas", index];
-      if (!this.declares(saga.entity)) {
-        this.warn("EML400", `Saga "${saga.name}" is bound to undeclared entity "${saga.entity}".`, [...path, "entity"], {
-          hint: `Declare "${saga.entity}", or correct the name.`
-        });
-      }
-      if (saga.steps.length === 0) {
-        this.warn("EML430", `Saga "${saga.name}" has no steps.`, [...path, "steps"], {
-          hint: "Declare the steps it runs, in order, e.g.  { id: escalate, type: UpdateEntity, properties: { ... } }."
-        });
-      }
-      this.checkSagaSteps(saga, path, stepTypes, spellings, rules);
-    });
-  }
-  checkSagaSteps(saga, path, stepTypes, spellings, rules) {
-    const published = new Set;
-    const trigger = this.entities.find((entity2) => entity2.name.toLowerCase() === saga.entity.toLowerCase());
-    for (const column of trigger ? this.columns.get(trigger.name) ?? [] : [])
-      published.add(column.name);
-    const ids = new Set;
-    saga.steps.forEach((step, index) => {
-      const at = [...path, "steps", index];
-      const props = step.properties ?? {};
-      if (ids.has(step.id)) {
-        this.error("EML270", `Saga "${saga.name}" declares step "${step.id}" twice.`, [...at, "id"], {
-          hint: "Step ids name the step in the run log. Give the second one its own id."
-        });
-      }
-      ids.add(step.id);
-      const contract = stepTypes.get(step.type);
-      if (!contract) {
-        this.error("EML261", `Step "${step.id}" has unknown type "${step.type}".`, [...at, "type"], {
-          hint: `Valid step types: ${[...stepTypes.keys()].join(", ")}.`
-        });
-        return;
-      }
-      const has = (key) => (props[key] ?? "").trim().length > 0;
-      const missing = [];
-      for (const key of contract.required ?? [])
-        if (!has(key))
-          missing.push(key);
-      for (const group of contract.oneOf ?? []) {
-        if (!group.some((key) => has(key)))
-          missing.push(`one of ${group.join(" / ")}`);
-      }
-      if (step.type === "Formula" && has("operation")) {
-        for (const key of contract.perOperation?.[props.operation.trim()]?.required ?? []) {
-          if (!has(key))
-            missing.push(key);
-        }
-      }
-      if (missing.length > 0) {
-        this.error("EML262", `Step "${step.id}" (${step.type}) is missing: ${missing.join(", ")}.`, at, {
-          hint: `${step.type} requires ${(contract.required ?? []).join(", ") || "no fixed properties"}.`
-        });
-      }
-      const known = new Set([
-        ...contract.required ?? [],
-        ...contract.optional ?? [],
-        ...(contract.oneOf ?? []).flat(),
-        ...step.type === "Formula" ? ["source", "operand", "value"] : [],
-        "in"
-      ]);
-      for (const key of Object.keys(props)) {
-        if (!known.has(key)) {
-          this.warn("EML268", `Step "${step.id}" (${step.type}) has unknown property "${key}".`, [...at, "properties", key], {
-            hint: `${step.type} understands: ${[...known].sort().join(", ")}.`
-          });
-        }
-      }
-      const entity2 = props.entity?.trim();
-      if (entity2 && !spellings.has(entity2.toLowerCase())) {
-        this.warn("EML266", `Step "${step.id}" targets entity "${entity2}", which the model does not declare.`, [...at, "properties", "entity"], {
-          hint: "Use the entity's name, or its bus_ table name."
-        });
-      }
-      if (step.type === "CreateEntity" && has("fields")) {
-        const parsed = parseJsonObject(props.fields);
-        if (!parsed) {
-          this.error("EML267", `Step "${step.id}" (CreateEntity) has an invalid "fields" map.`, [...at, "properties", "fields"], {
-            hint: `fields is a JSON object of column to value, e.g.  '{"status":"open"}'.`
-          });
-        } else if (Object.keys(parsed).length === 0) {
-          this.error("EML267", `Step "${step.id}" (CreateEntity) sets no fields.`, [...at, "properties", "fields"], {
-            hint: `Give at least one column, e.g.  '{"status":"open"}'.`
-          });
-        }
-      }
-      if (step.type === "Decision" && has("decisionTable")) {
-        const table = parseJsonObject(props.decisionTable);
-        const tablePath = [...at, "properties", "decisionTable"];
-        if (!table) {
-          this.error("EML271", `Step "${step.id}" (Decision) has an invalid "decisionTable".`, tablePath, {
-            hint: 'decisionTable is a JSON object: {"hitPolicy":"first","inputs":[…],"outputs":[…],"rules":[…]}.'
-          });
-        } else if (!Array.isArray(table.rules) || table.rules.length === 0) {
-          this.error("EML271", `Step "${step.id}" (Decision) has a table with no rows.`, tablePath, {
-            hint: "A table with no rows matches nothing and publishes nothing. Add a row, or drop the step."
-          });
-        } else if (Array.isArray(table.outputs)) {
-          const columns = table.outputs.map((output) => output?.id).filter((id) => Boolean(id));
-          const incomplete = table.rules.filter((row) => columns.some((column) => row?.[column] === undefined));
-          if (incomplete.length > 0) {
-            this.error("EML272", `Step "${step.id}" (Decision) has ${incomplete.length} row(s) that do not set every output column.`, tablePath, {
-              hint: `Give every row a value for each of ${columns.join(", ")} — "''" for one it leaves blank. The engine discards an incomplete row silently.`
-            });
-          }
-        }
-      }
-      if (step.type === "Decision" && has("rule") && !rules.has(props.rule.trim())) {
-        this.warn("EML273", `Step "${step.id}" (Decision) names rule "${props.rule.trim()}", which the model does not declare.`, [...at, "properties", "rule"], {
-          hint: "Declare the rule, or author the table inline with decisionTable."
-        });
-      }
-      if ((step.type === "UpdateEntity" || step.type === "DeleteEntity") && entity2 && !has("targetSource") && (props.targetField ?? "id").trim() === "id") {
-        this.error("EML265", `Step "${step.id}" (${step.type}) targets "${entity2}" without saying which row.`, at, {
-          hint: "Set targetSource to a variable holding the row id, or targetField to a foreign key column. The executor refuses rather than guess."
-        });
-      }
-      const reference = props.targetSource?.trim();
-      if (reference && !published.has(reference)) {
-        this.warn("EML264", `Step "${step.id}" reads "${reference}", which no earlier step publishes.`, [...at, "properties", "targetSource"], {
-          hint: `Publish it with  as: ${reference}  on a CreateEntity step or  target: ${reference}  on a Formula step — unless it is a column of the triggering record.`
-        });
-      }
-      for (const name of stepPublishes(step.type, props, entity2))
-        published.add(name);
-    });
-  }
-  entitySpellings() {
-    const spellings = new Set;
-    for (const entity2 of this.entities) {
-      const snake = entity2.name.replace(/([a-z0-9])([A-Z])/g, "$1_$2").replace(/-/g, "_").toLowerCase();
-      const bare = snake.replace(/^bus_/, "");
-      spellings.add(entity2.name.toLowerCase());
-      spellings.add(snake);
-      spellings.add(bare);
-      spellings.add(`bus_${bare}`);
-    }
-    return spellings;
-  }
-  checkHookFlows() {
-    const declared = new Set((this.document.hooks ?? []).map((hook2) => `${hook2.entity}|${hook2.event}|${hook2.handler}`));
-    const hooked = new Set((this.document.hooks ?? []).map((hook2) => hook2.entity));
-    (this.document.hookFlows ?? []).forEach((flow, index) => {
-      const path = ["hookFlows", index];
-      if (!this.declares(flow.entity)) {
-        this.warn("EML400", `Hook flow "${flow.name}" is bound to undeclared entity "${flow.entity}".`, [...path, "entity"], { hint: `Declare "${flow.entity}", or correct the name.` });
-      }
-      if (!hooked.has(flow.entity)) {
-        this.warn("EML410", `Hook flow "${flow.name}" draws ${flow.entity}, which declares no hooks.`, path, {
-          hint: `Declare the hooks it draws under  hooks:, e.g.  { entity: ${flow.entity}, event: beforeCreate, handler: ... }.`
-        });
-      }
-      const ids = new Set;
-      flow.nodes.forEach((node, position) => {
-        const at = [...path, "nodes", position];
-        if (ids.has(node.id)) {
-          this.error("EML412", `Hook flow "${flow.name}" declares node "${node.id}" twice.`, [...at, "id"], { hint: "Node ids are how edges refer to nodes. Give the second one its own id." });
-        }
-        ids.add(node.id);
-        if (node.event !== undefined && node.handler !== undefined && !declared.has(`${flow.entity}|${node.event}|${node.handler}`)) {
-          this.warn("EML411", `Hook flow "${flow.name}" draws ${node.event} ${node.handler}, which ${flow.entity} does not declare.`, at, {
-            hint: `Declare  { entity: ${flow.entity}, event: ${node.event}, handler: ${node.handler} }  under  hooks:, or correct the step.`
-          });
-        }
-      });
-      flow.edges.forEach((edge, position) => {
-        for (const end of ["from", "to"]) {
-          if (!ids.has(edge[end])) {
-            this.error("EML413", `Hook flow "${flow.name}" has an edge ${end} "${edge[end]}", which is not one of its nodes.`, [...path, "edges", position, end], { hint: `Declare a node with  id: ${edge[end]}, or correct the edge.` });
-          }
-        }
-      });
-    });
-  }
-  workflowNames() {
-    return [
-      ...(this.document.stateMachines ?? []).map((machine) => machine.name),
-      ...(this.document.hookFlows ?? []).map((flow) => flow.name),
-      ...(this.document.sagas ?? []).map((saga) => saga.name)
-    ];
-  }
-  checkCrossReferences() {
-    (this.document.stateMachines ?? []).forEach((machine, index) => {
-      if (!this.declares(machine.entity))
-        return;
-      const names = new Set((this.columns.get(machine.entity) ?? []).map((column) => column.name));
-      if (![...LIFECYCLE_COLUMN_NAMES].some((name) => names.has(name))) {
-        this.warn("EML500", `State machine "${machine.name}" is bound to "${machine.entity}", which has no status, state or stage column.`, ["stateMachines", index, "entity"], {
-          hint: `Add  { name: status, type: string, enum: ${machine.entity}Status }  to "${machine.entity}".`
-        });
-      }
-    });
-    const relationships = this.document.relationships ?? [];
-    for (const entity2 of this.entities) {
-      if (this.entityIndex.get(entity2.name) !== this.entities.indexOf(entity2))
-        continue;
-      const columns = this.columns.get(entity2.name) ?? [];
-      const claimed = new Set(columns.filter((column) => column.fk && column.name.endsWith("_id")).map((column) => this.fkTarget(column.name)).filter((name) => this.declares(name)));
-      const spare = relationships.filter((relationship) => relationship.to === entity2.name && relationship.from !== entity2.name).map((relationship) => relationship.from).filter((name) => this.declares(name) && !claimed.has(name));
-      for (const column of columns) {
-        if (!column.fk || !column.name.endsWith("_id"))
-          continue;
-        const target = this.fkTarget(column.name);
-        const related = relationships.some((relationship) => (relationship.from === entity2.name || relationship.to === entity2.name) && (relationship.from === target || relationship.to === target));
-        const resolvedByRelationship = !this.declares(target) && spare.length > 0;
-        if (resolvedByRelationship)
-          spare.shift();
-        if (!related && !resolvedByRelationship) {
-          this.info("EML502", `Foreign key "${entity2.name}.${column.name}" has no relationship to "${target}".`, this.columnPath(entity2.name, column), {
-            hint: `Add  { from: ${target}, fromCardinality: exactly-one, to: ${entity2.name}, toCardinality: zero-or-more }  under  relationships:.`
-          });
-        }
-      }
-    }
-    if (this.entities.length > 1) {
-      const connected = new Set;
-      for (const relationship of relationships) {
-        connected.add(relationship.from);
-        connected.add(relationship.to);
-      }
-      for (const entity2 of this.entities) {
-        if (!connected.has(entity2.name)) {
-          this.info("EML503", `Entity "${entity2.name}" has no relationships.`, this.entityPath(entity2.name), {
-            hint: "Valid, but an isolated entity often means a relationship was left out."
-          });
-        }
-      }
-    }
-    const seen = new Set;
-    const named = [
-      ...(this.document.stateMachines ?? []).map((machine, index) => [
-        machine.name,
-        ["stateMachines", index, "name"]
-      ]),
-      ...(this.document.hookFlows ?? []).map((flow, index) => [
-        flow.name,
-        ["hookFlows", index, "name"]
-      ]),
-      ...(this.document.sagas ?? []).map((saga, index) => [
-        saga.name,
-        ["sagas", index, "name"]
-      ])
-    ];
-    for (const [name, path] of named) {
-      if (seen.has(name)) {
-        this.warn("EML505", `Duplicate workflow name "${name}".`, path, {
-          hint: "State machines, sagas and hook flows share one namespace. Give each its own name."
-        });
-      }
-      seen.add(name);
-    }
-  }
-}
-var JDM_ROLE = {
-  start: "inputNode",
-  end: "outputNode",
-  decision: "switchNode",
-  expression: "expressionNode",
-  function: "functionNode"
-};
-function ruleNodeRoles(rule2) {
-  return new Map(rule2.nodes.map((node) => [node.id, JDM_ROLE[node.type]]));
-}
-function parseJsonObject(text) {
-  try {
-    const value = JSON.parse(text);
-    return value && typeof value === "object" && !Array.isArray(value) ? value : undefined;
-  } catch {
-    return;
-  }
-}
-function stepPublishes(type, props, entity2) {
-  if (type === "CreateEntity") {
-    const explicit = props.as?.trim();
-    if (explicit)
-      return [explicit];
-    return entity2 ? [`${entity2.replace(/^bus_/, "")}Id`] : [];
-  }
-  if (type === "Formula") {
-    const target = props.target?.trim();
-    return target ? [target] : [];
-  }
-  if (type === "Decision") {
-    const declared = (props.publish ?? "").split(",").map((name) => name.trim()).filter(Boolean);
-    if (declared.length > 0)
-      return declared;
-    const table = props.decisionTable ? parseJsonObject(props.decisionTable) : undefined;
-    return (table?.outputs ?? []).map((output) => output?.field?.trim()).filter((field) => Boolean(field));
-  }
-  return [];
-}
-function isSingleReadStatement(sql) {
-  let quote = null;
-  let lineComment = false;
-  let blockComment = false;
-  let separatorAt = -1;
-  for (let index = 0;index < sql.length; index++) {
-    const character = sql[index];
-    const next = sql[index + 1];
-    if (lineComment) {
-      if (character === `
-`)
-        lineComment = false;
-      continue;
-    }
-    if (blockComment) {
-      if (character === "*" && next === "/") {
-        blockComment = false;
-        index++;
-      }
-      continue;
-    }
-    if (quote) {
-      if (character === quote)
-        quote = null;
-      continue;
-    }
-    if (character === "'" || character === '"')
-      quote = character;
-    else if (character === "-" && next === "-")
-      lineComment = true;
-    else if (character === "/" && next === "*")
-      blockComment = true;
-    else if (character === ";") {
-      separatorAt = index;
-      break;
-    }
-  }
-  if (separatorAt >= 0 && sql.slice(separatorAt + 1).trim().length > 0)
-    return false;
-  return /^\s*(select|with)\b/i.test(sql);
-}
 
 // packages/generator/src/generators/tanstack-astryx-loco/transitions-seed.ts
 var NOW2 = raw("NOW()");
@@ -18125,7 +16788,7 @@ function buildTransitionsSeedSql(options) {
 var NOW3 = raw("NOW()");
 var BUILT_IN_ROLE_NAMES = new Set(["administrator", "user"]);
 function buildAccessSeedSql(options) {
-  const { projectName, rbac: rbac2 } = options;
+  const { projectName, rbac } = options;
   const createdBy = options.createdBy ?? "system";
   const id = (kind, ...parts) => uuidv5(`${projectName}:${kind}:${parts.join(":")}`);
   const out = [];
@@ -18142,7 +16805,7 @@ function buildAccessSeedSql(options) {
   out.push("--");
   out.push("-- Every statement is `ON CONFLICT DO NOTHING` over a deterministic primary");
   out.push("-- key, so running this file twice is a no-op.");
-  if (rbac2.operations.length === 0 && rbac2.transitions.length === 0) {
+  if (rbac.operations.length === 0 && rbac.transitions.length === 0) {
     out.push("--");
     out.push("-- This model declares no access rules, so every operation stays open to any");
     out.push("-- authenticated caller. The file is still emitted: `seed_access.rs`");
@@ -18151,7 +16814,7 @@ function buildAccessSeedSql(options) {
     return out.join(`
 `);
   }
-  const derived = deriveAccess(rbac2, {
+  const derived = deriveAccess(rbac, {
     projectId: projectName.toLowerCase().replace(/[^a-z0-9]+/g, "-")
   });
   const declaredRoles = derived.roles.filter((role) => !BUILT_IN_ROLE_NAMES.has(role.name.toLowerCase()));
@@ -18182,8 +16845,8 @@ function buildAccessSeedSql(options) {
   const entities = options.entities ?? [];
   if (declaredRoles.length > 0 && entities.length > 0) {
     section("What the model's roles may open (sys_access)");
-    const tableNameByEntity = new Map(entities.map((entity2) => [entity2.name, entity2.tableName]));
-    const ownerByName = new Map(entities.map((entity2) => [entity2.name, entity2.windowOwner]));
+    const tableNameByEntity = new Map(entities.map((entity) => [entity.name, entity.tableName]));
+    const ownerByName = new Map(entities.map((entity) => [entity.name, entity.windowOwner]));
     const windowRoot = (name) => {
       const seen = new Set;
       let current = name;
@@ -18196,12 +16859,12 @@ function buildAccessSeedSql(options) {
       }
     };
     for (const role of declaredRoles) {
-      for (const entity2 of entities) {
-        const windowTable = tableNameByEntity.get(windowRoot(entity2.name)) ?? entity2.tableName;
+      for (const entity of entities) {
+        const windowTable = tableNameByEntity.get(windowRoot(entity.name)) ?? entity.tableName;
         out.push(insert("sys_access", {
-          sys_access_id: id("access", role.name, entity2.tableName),
+          sys_access_id: id("access", role.name, entity.tableName),
           sys_role_id: raw(`(SELECT sys_role_id FROM sys_role WHERE name = ${lit(role.name)})`),
-          sys_table_id: id("table", entity2.tableName),
+          sys_table_id: id("table", entity.tableName),
           sys_window_id: id("window", windowTable),
           access_type_table: "W",
           is_read_only: false,
@@ -18216,14 +16879,14 @@ function buildAccessSeedSql(options) {
       }
     }
   }
-  if (rbac2.operations.length > 0) {
+  if (rbac.operations.length > 0) {
     section("Per-operation access (sys_operation_access)");
-    for (const rule2 of rbac2.operations) {
-      for (const role of rule2.roles) {
+    for (const rule of rbac.operations) {
+      for (const role of rule.roles) {
         out.push(insert("sys_operation_access", {
-          sys_operation_access_id: id("operation_access", rule2.tableName, rule2.operation, role),
-          table_name: rule2.tableName,
-          operation: rule2.operation,
+          sys_operation_access_id: id("operation_access", rule.tableName, rule.operation, role),
+          table_name: rule.tableName,
+          operation: rule.operation,
           role_name: role,
           is_model_managed: true,
           is_active: true,
@@ -18233,16 +16896,16 @@ function buildAccessSeedSql(options) {
       }
     }
   }
-  if (rbac2.transitions.length > 0) {
+  if (rbac.transitions.length > 0) {
     section("Per-transition access (sys_transition_access)");
-    for (const rule2 of rbac2.transitions) {
-      for (const edge of rule2.edges) {
-        for (const role of rule2.roles) {
+    for (const rule of rbac.transitions) {
+      for (const edge of rule.edges) {
+        for (const role of rule.roles) {
           out.push(insert("sys_transition_access", {
-            sys_transition_access_id: id("transition_access", rule2.tableName, rule2.transition, edge.from, edge.to, role),
-            table_name: rule2.tableName,
-            transition: rule2.transition,
-            status_field: statusFieldFor(rule2.tableName, options.columnsByTable ?? new Map),
+            sys_transition_access_id: id("transition_access", rule.tableName, rule.transition, edge.from, edge.to, role),
+            table_name: rule.tableName,
+            transition: rule.transition,
+            status_field: statusFieldFor(rule.tableName, options.columnsByTable ?? new Map),
             from_state: edge.from,
             to_state: edge.to,
             role_name: role,
@@ -18275,10 +16938,10 @@ var MANAGED = new Set([
 function buildBusinessSeedSql(options) {
   const { projectName } = options;
   const enumerationTables = new Set((options.modelEnums ?? []).filter((declared) => declared.table).map((declared) => declared.name));
-  const entities = options.entities.filter((entity2) => !enumerationTables.has(entity2.name) && !entity2.data);
-  const dataKeys = new Map(options.entities.flatMap((entity2) => entity2.data ? [[entity2.tableName, entity2.data.rows.map((row) => row[entity2.data?.key])]] : []));
+  const entities = options.entities.filter((entity) => !enumerationTables.has(entity.name) && !entity.data);
+  const dataKeys = new Map(options.entities.flatMap((entity) => entity.data ? [[entity.tableName, entity.data.rows.map((row) => row[entity.data?.key])]] : []));
   const rows = options.rowsPerEntity ?? DEFAULT_ROWS;
-  const tables = new Set(options.entities.map((entity2) => entity2.tableName));
+  const tables = new Set(options.entities.map((entity) => entity.tableName));
   const out = [];
   out.push(`-- Demonstration records for ${projectName}.`);
   out.push("--");
@@ -18311,23 +16974,23 @@ function buildBusinessSeedSql(options) {
     }
     return uuidv5(`${projectName}:business:${tableName}:${index}`);
   };
-  for (const entity2 of ordered) {
+  for (const entity of ordered) {
     out.push("");
-    out.push(`-- ${entity2.displayName} (${entity2.tableName})`);
-    const deferredHere = deferred.get(entity2.tableName) ?? new Set;
+    out.push(`-- ${entity.displayName} (${entity.tableName})`);
+    const deferredHere = deferred.get(entity.tableName) ?? new Set;
     for (let index = 0;index < rows; index++) {
       const values = {
-        [entity2.primaryKey ?? "id"]: rowId(entity2.tableName, index)
+        [entity.primaryKey ?? "id"]: rowId(entity.tableName, index)
       };
-      const machine = initialStates.get(entity2.tableName);
-      for (const attribute of entity2.attributes) {
+      const machine = initialStates.get(entity.tableName);
+      for (const attribute of entity.attributes) {
         const column = attribute.columnName;
-        if (column === (entity2.primaryKey ?? "id") || MANAGED.has(column))
+        if (column === (entity.primaryKey ?? "id") || MANAGED.has(column))
           continue;
         if (deferredHere.has(column))
           continue;
         values[column] = valueFor(attribute, {
-          entity: entity2,
+          entity,
           index,
           rows,
           tables,
@@ -18342,7 +17005,7 @@ function buildBusinessSeedSql(options) {
       values.doc_status = "final";
       values.created_at = NOW4;
       values.updated_at = NOW4;
-      out.push(insert(entity2.tableName, values));
+      out.push(insert(entity.tableName, values));
     }
   }
   const updates = deferredUpdates(ordered, deferred, tables, rows, rowId);
@@ -18432,9 +17095,9 @@ function isReferenceColumn(column) {
   return column.endsWith("_id") || column.endsWith("_by");
 }
 function statusStates(workflows, entities) {
-  const columnsByTable = new Map(entities.map((entity2) => [
-    entity2.tableName,
-    new Set(entity2.attributes.map((attribute) => attribute.columnName))
+  const columnsByTable = new Map(entities.map((entity) => [
+    entity.tableName,
+    new Set(entity.attributes.map((attribute) => attribute.columnName))
   ]));
   const states = new Map;
   for (const workflow of workflows) {
@@ -18446,32 +17109,32 @@ function statusStates(workflows, entities) {
   return states;
 }
 function orderByDependency(entities, relationships) {
-  const byTable = new Map(entities.map((entity2) => [entity2.tableName, entity2]));
+  const byTable = new Map(entities.map((entity) => [entity.tableName, entity]));
   const deferred = new Map;
   const dependsOn = new Map;
   for (const relationship of relationships) {
     if (relationship.cardinality !== "oneToMany")
       continue;
-    const parent2 = `bus_${snake(relationship.sourceEntity)}`;
+    const parent = `bus_${snake(relationship.sourceEntity)}`;
     const child = `bus_${snake(relationship.targetEntity)}`;
-    if (!byTable.has(parent2) || !byTable.has(child) || parent2 === child)
+    if (!byTable.has(parent) || !byTable.has(child) || parent === child)
       continue;
     const edges = dependsOn.get(child) ?? new Map;
-    edges.set(parent2, `${snake(relationship.sourceEntity)}_id`);
+    edges.set(parent, `${snake(relationship.sourceEntity)}_id`);
     dependsOn.set(child, edges);
   }
-  const tables = new Set(entities.map((entity2) => entity2.tableName));
-  for (const entity2 of entities) {
-    for (const attribute of entity2.attributes) {
-      if (!attribute.isForeignKey || attribute.columnName === entity2.primaryKey)
+  const tables = new Set(entities.map((entity) => entity.tableName));
+  for (const entity of entities) {
+    for (const attribute of entity.attributes) {
+      if (!attribute.isForeignKey || attribute.columnName === entity.primaryKey)
         continue;
       const target = foreignKeyTargetTable(attribute.columnName, tables, attribute.referencesTable);
-      if (!target || target === entity2.tableName)
+      if (!target || target === entity.tableName)
         continue;
-      const edges = dependsOn.get(entity2.tableName) ?? new Map;
+      const edges = dependsOn.get(entity.tableName) ?? new Map;
       if (!edges.has(target))
         edges.set(target, attribute.columnName);
-      dependsOn.set(entity2.tableName, edges);
+      dependsOn.set(entity.tableName, edges);
     }
   }
   const ordered = [];
@@ -18481,11 +17144,11 @@ function orderByDependency(entities, relationships) {
   const requiredReach = (start) => {
     const reach = new Set([start]);
     const walk = (tableName) => {
-      for (const [parent2, column] of dependsOn.get(tableName) ?? []) {
-        if (!requiredColumn(tableName, column) || reach.has(parent2))
+      for (const [parent, column] of dependsOn.get(tableName) ?? []) {
+        if (!requiredColumn(tableName, column) || reach.has(parent))
           continue;
-        reach.add(parent2);
-        walk(parent2);
+        reach.add(parent);
+        walk(parent);
       }
     };
     walk(start);
@@ -18505,40 +17168,40 @@ function orderByDependency(entities, relationships) {
     if (onStack.has(tableName))
       return;
     onStack.add(tableName);
-    for (const [parent2, column] of dependsOn.get(tableName) ?? []) {
-      if (onStack.has(parent2)) {
+    for (const [parent, column] of dependsOn.get(tableName) ?? []) {
+      if (onStack.has(parent)) {
         defer(tableName, column);
         continue;
       }
-      if (!requiredColumn(tableName, column) && !done.has(parent2) && [...requiredReach(parent2)].some((table) => onStack.has(table))) {
+      if (!requiredColumn(tableName, column) && !done.has(parent) && [...requiredReach(parent)].some((table) => onStack.has(table))) {
         defer(tableName, column);
         continue;
       }
-      visit(parent2);
+      visit(parent);
     }
     onStack.delete(tableName);
     done.add(tableName);
-    const entity2 = byTable.get(tableName);
-    if (entity2)
-      ordered.push(entity2);
+    const entity = byTable.get(tableName);
+    if (entity)
+      ordered.push(entity);
   };
-  for (const entity2 of entities)
-    visit(entity2.tableName);
+  for (const entity of entities)
+    visit(entity.tableName);
   return { ordered, deferred };
 }
 function deferredUpdates(ordered, deferred, tables, rows, rowId) {
   const out = [];
-  for (const entity2 of ordered) {
-    const columns = deferred.get(entity2.tableName);
+  for (const entity of ordered) {
+    const columns = deferred.get(entity.tableName);
     if (!columns)
       continue;
     for (const column of columns) {
-      const explicit = entity2.attributes.find((attribute) => attribute.columnName === column)?.referencesTable;
+      const explicit = entity.attributes.find((attribute) => attribute.columnName === column)?.referencesTable;
       const target = foreignKeyTargetTable(column, tables, explicit);
       if (!target)
         continue;
       for (let index = 0;index < rows; index++) {
-        out.push(`UPDATE ${entity2.tableName} SET ${column} = '${rowId(target, index % rows)}'` + ` WHERE id = '${rowId(entity2.tableName, index)}' AND ${column} IS NULL;`);
+        out.push(`UPDATE ${entity.tableName} SET ${column} = '${rowId(target, index % rows)}'` + ` WHERE id = '${rowId(entity.tableName, index)}' AND ${column} IS NULL;`);
       }
     }
   }
@@ -18674,24 +17337,24 @@ var HOOK_DISPATCH_ORDER = [
 function dispatchName(type) {
   return type.replace(/[A-Z]/g, (c) => `_${c.toLowerCase()}`);
 }
-function handlerModule(entity2) {
-  return snakeCase(entity2);
+function handlerModule(entity) {
+  return snakeCase(entity);
 }
-function renderHandler(entity2, hook2) {
-  const contract = HOOK_RUST_CONTRACTS[hook2.type];
-  const scope2 = hook2.field ? `
-/// Scoped by the model to \`${hook2.field}\`.` : "";
-  return `/// \`${hook2.type}\` on ${entity2} — declared by the model.
+function renderHandler(entity, hook) {
+  const contract = HOOK_RUST_CONTRACTS[hook.type];
+  const scope = hook.field ? `
+/// Scoped by the model to \`${hook.field}\`.` : "";
+  return `/// \`${hook.type}\` on ${entity} — declared by the model.
 ` + `///
-` + `/// ${contract.summary}${scope2}
-` + `pub async fn ${snakeCase(hook2.handler)}(${contract.params}) -> AppResult<${contract.returns}> {
+` + `/// ${contract.summary}${scope}
+` + `pub async fn ${snakeCase(hook.handler)}(${contract.params}) -> AppResult<${contract.returns}> {
 ` + `${contract.body}
 ` + `}
 `;
 }
-function buildHookHandlerModule(entity2, hooks) {
+function buildHookHandlerModule(entity, hooks) {
   const ordered = [...hooks].sort((a, b) => a.order - b.order);
-  const header = `//! Lifecycle handlers for ${entity2}.
+  const header = `//! Lifecycle handlers for ${entity}.
 ` + `//!
 ` + `//! Declared by the model's \`hooks\` and wired up in
 ` + `//! \`crate::hooks\`. **The bodies are yours.** This file is written
@@ -18710,18 +17373,18 @@ function buildHookHandlerModule(entity2, hooks) {
 ` + `use uuid::Uuid;
 
 `;
-  return header + ordered.map((hook2) => renderHandler(entity2, hook2)).join(`
+  return header + ordered.map((hook) => renderHandler(entity, hook)).join(`
 `);
 }
-function appendMissingHandlers(entity2, hooks, existing) {
-  const missing = [...hooks].sort((a, b) => a.order - b.order).filter((hook2) => !new RegExp(`\\bfn\\s+${snakeCase(hook2.handler)}\\s*\\(`).test(existing));
+function appendMissingHandlers(entity, hooks, existing) {
+  const missing = [...hooks].sort((a, b) => a.order - b.order).filter((hook) => !new RegExp(`\\bfn\\s+${snakeCase(hook.handler)}\\s*\\(`).test(existing));
   if (missing.length === 0)
     return null;
   return `${existing.trimEnd()}
 
 ` + `// --- Added by a later generation run ---
 
-` + missing.map((hook2) => renderHandler(entity2, hook2)).join(`
+` + missing.map((hook) => renderHandler(entity, hook)).join(`
 `);
 }
 function buildHookHandlersMod(entities) {
@@ -18734,7 +17397,7 @@ function buildHookHandlersMod(entities) {
     return `${header}// No hooks are declared in this model.
 `;
   }
-  return header + [...entities].sort().map((entity2) => `pub mod ${handlerModule(entity2)};
+  return header + [...entities].sort().map((entity) => `pub mod ${handlerModule(entity)};
 `).join("");
 }
 function buildHookRegistry(hooks) {
@@ -18778,15 +17441,15 @@ function buildHookRegistry(hooks) {
   for (const type of HOOK_DISPATCH_ORDER) {
     const contract = HOOK_RUST_CONTRACTS[type];
     const fn = dispatchName(type);
-    const declaring = entities.map((entity2) => {
-      const forEvent = (grouped.get(entity2) ?? []).filter((hook2) => hook2.type === type).sort((a, b) => a.order - b.order);
-      return forEvent.length === 0 ? null : { entity: entity2, forEvent };
+    const declaring = entities.map((entity) => {
+      const forEvent = (grouped.get(entity) ?? []).filter((hook) => hook.type === type).sort((a, b) => a.order - b.order);
+      return forEvent.length === 0 ? null : { entity, forEvent };
     }).filter((e) => e !== null);
-    const handlerPath = (entity2, hook2) => `handlers::${handlerModule(entity2)}::${snakeCase(hook2.handler)}`;
-    const callsFor = (entity2, forEvent, indent) => forEvent.map((hook2) => `${indent}${handlerPath(entity2, hook2)}(${contract.call}).await?;
+    const handlerPath = (entity, hook) => `handlers::${handlerModule(entity)}::${snakeCase(hook.handler)}`;
+    const callsFor = (entity, forEvent, indent) => forEvent.map((hook) => `${indent}${handlerPath(entity, hook)}(${contract.call}).await?;
 `).join("");
-    const verdictFor = (entity2, forEvent) => {
-      const calls = forEvent.map((hook2) => `${handlerPath(entity2, hook2)}(${contract.call}).await`);
+    const verdictFor = (entity, forEvent) => {
+      const calls = forEvent.map((hook) => `${handlerPath(entity, hook)}(${contract.call}).await`);
       return calls.length === 1 ? calls[0] : `Ok(${calls.map((c) => `${c}?`).join(" && ")})`;
     };
     const ok = contract.returns === "bool" ? "Ok(true)" : "Ok(())";
@@ -18809,15 +17472,15 @@ function buildHookRegistry(hooks) {
 `;
     } else if (contract.returns === "bool") {
       out += `    match key(entity).as_str() {
-` + declaring.map(({ entity: entity2, forEvent }) => `        "${key(entity2)}" => ${verdictFor(entity2, forEvent)},
+` + declaring.map(({ entity, forEvent }) => `        "${key(entity)}" => ${verdictFor(entity, forEvent)},
 `).join("") + `        _ => ${ok},
 ` + `    }
 ` + `}
 `;
     } else {
       out += `    match key(entity).as_str() {
-` + declaring.map(({ entity: entity2, forEvent }) => `        "${key(entity2)}" => {
-${callsFor(entity2, forEvent, "            ")}        }
+` + declaring.map(({ entity, forEvent }) => `        "${key(entity)}" => {
+${callsFor(entity, forEvent, "            ")}        }
 `).join("") + `        _ => {}
 ` + `    }
 ` + `    ${ok}
@@ -18827,8 +17490,8 @@ ${callsFor(entity2, forEvent, "            ")}        }
   }
   return out;
 }
-function key(entity2) {
-  const trimmed = entity2.startsWith("bus_") ? entity2.slice(4) : entity2;
+function key(entity) {
+  const trimmed = entity.startsWith("bus_") ? entity.slice(4) : entity;
   return trimmed.replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
 }
 
@@ -18916,15 +17579,15 @@ function buildRulesSeedSql(options) {
     return out.join(`
 `);
   }
-  for (const rule2 of rules) {
+  for (const rule of rules) {
     out.push("");
-    out.push(`-- ${rule2.name} — ${rule2.entity}.${rule2.event} (priority ${rule2.priority})`);
+    out.push(`-- ${rule.name} — ${rule.entity}.${rule.event} (priority ${rule.priority})`);
     const statement = insert("sys_rule_definitions", {
-      id: uuidv5(`${projectName}:rule:${rule2.tableName}:${rule2.operation}:${rule2.name}`),
-      entity_name: rule2.tableName,
-      rule_name: rule2.name,
-      operation: rule2.operation,
-      jdm_content: rule2.jdmContent,
+      id: uuidv5(`${projectName}:rule:${rule.tableName}:${rule.operation}:${rule.name}`),
+      entity_name: rule.tableName,
+      rule_name: rule.name,
+      operation: rule.operation,
+      jdm_content: rule.jdmContent,
       version: 1,
       is_active: true,
       created_by: createdBy,
@@ -19017,10 +17680,10 @@ function buildSystemSeedSql(options) {
   return out.join(`
 `);
 }
-function valueFor2(key2, options) {
-  if (key2 === "app_name")
+function valueFor2(key, options) {
+  if (key === "app_name")
     return options.projectName;
-  if (key2 === "app_description")
+  if (key === "app_description")
     return options.projectDescription;
   return "";
 }
@@ -19072,6 +17735,20 @@ pub mod http_log;
 pub mod logging;
 pub mod rate_limit;
 `;
+function sortCargoLock(text) {
+  const marker = `
+[[package]]
+`;
+  const [head = "", ...blocks] = text.split(marker);
+  const nameOf = (block) => /^name = "([^"]*)"/.exec(block)?.[1] ?? "";
+  const sorted = blocks.map((block, index) => ({ block, index, name: nameOf(block) })).sort((a, b) => a.name < b.name ? -1 : a.name > b.name ? 1 : a.index - b.index);
+  const bodies = sorted.map(({ block }) => block.replace(/\n+$/, ""));
+  const ending = text.endsWith(`
+`) ? `
+` : "";
+  return `${head}${bodies.map((body) => `${marker}${body}`).join(`
+`)}${ending}`;
+}
 var RENDERED_FILES = [
   { tpl: "Cargo.toml.hbs", out: "Cargo.toml" },
   { tpl: "Cargo.lock.hbs", out: "Cargo.lock" },
@@ -19167,6 +17844,7 @@ var RENDERED_FILES = [
   { tpl: "src/controllers/me.rs.hbs", out: "src/controllers/me.rs" },
   { tpl: "src/controllers/jobs.rs.hbs", out: "src/controllers/jobs.rs" },
   { tpl: "src/controllers/records.rs.hbs", out: "src/controllers/records.rs" },
+  { tpl: "src/controllers/accounts.rs.hbs", out: "src/controllers/accounts.rs" },
   { tpl: "src/controllers/report.rs.hbs", out: "src/controllers/report.rs" },
   { tpl: "src/controllers/rules.rs.hbs", out: "src/controllers/rules.rs" },
   { tpl: "src/controllers/ai.rs.hbs", out: "src/controllers/ai.rs" },
@@ -19192,6 +17870,7 @@ var RENDERED_FILES = [
   { tpl: "tests/requests/ai.rs.hbs", out: "tests/requests/ai.rs" },
   { tpl: "tests/requests/jobs.rs.hbs", out: "tests/requests/jobs.rs" },
   { tpl: "tests/requests/records.rs.hbs", out: "tests/requests/records.rs" },
+  { tpl: "tests/requests/accounts.rs.hbs", out: "tests/requests/accounts.rs" },
   { tpl: "tests/requests/rbac.rs.hbs", out: "tests/requests/rbac.rs" },
   { tpl: "tests/requests/workflow.rs.hbs", out: "tests/requests/workflow.rs" },
   { tpl: "tests/requests/rules_workflow.rs.hbs", out: "tests/requests/rules_workflow.rs" },
@@ -19272,7 +17951,7 @@ class LocoBackendGenerator extends BaseGenerator {
     }
     for (const { tpl, out } of RENDERED_FILES) {
       const content = await this.renderTemplate(tpl, context);
-      await writeFile2(join(outputDir, out), content);
+      await writeFile2(join(outputDir, out), out === "Cargo.lock" ? sortCargoLock(content) : content);
     }
     await this.writeLoggingModule(outputDir);
     await this.copyMigrationSql(outputDir);
@@ -19361,8 +18040,8 @@ class LocoBackendGenerator extends BaseGenerator {
   }
   async writeDictionarySeed(entities, relationships, outputDir) {
     const declared = declaredEntityNames(entities);
-    const busEntities = entities.map((entity2) => entityToBusEntity(entity2, declared));
-    const tableByName = new Map(busEntities.map((entity2) => [entity2.name.toLowerCase(), entity2.tableName]));
+    const busEntities = entities.map((entity) => entityToBusEntity(entity, declared));
+    const tableByName = new Map(busEntities.map((entity) => [entity.name.toLowerCase(), entity.tableName]));
     const categories = (this.options.categories ?? []).map((category) => ({
       name: category.name,
       code: category.code,
@@ -19423,7 +18102,7 @@ class LocoBackendGenerator extends BaseGenerator {
   }
   async writeReportsSeed(outputDir, busEntities) {
     const reports = this.options.compiledReports ?? [];
-    const tableForEntity = new Map(busEntities.map((entity2) => [entity2.name, entity2.tableName]));
+    const tableForEntity = new Map(busEntities.map((entity) => [entity.name, entity.tableName]));
     const sql = buildReportsSeedSql({
       projectName: this.options.projectName,
       reports,
@@ -19441,9 +18120,9 @@ class LocoBackendGenerator extends BaseGenerator {
     console.log(rules.length === 0 ? "  ✓ Wrote seed/rules.sql (no rules declared)" : `  ✓ Wrote seed/rules.sql (${rules.length} rule(s))`);
   }
   columnsByTable(entities) {
-    return new Map(entities.map((entity2) => entityToBusEntity(entity2, declaredEntityNames(entities))).map((entity2) => [
-      entity2.tableName,
-      entity2.attributes.map((attribute) => attribute.columnName ?? attribute.name)
+    return new Map(entities.map((entity) => entityToBusEntity(entity, declaredEntityNames(entities))).map((entity) => [
+      entity.tableName,
+      entity.attributes.map((attribute) => attribute.columnName ?? attribute.name)
     ]));
   }
   async writeTransitionsSeed(outputDir, entities) {
@@ -19459,26 +18138,26 @@ class LocoBackendGenerator extends BaseGenerator {
     console.log(edges === 0 ? "  ✓ Wrote seed/transitions.sql (no state machines declared)" : `  ✓ Wrote seed/transitions.sql (${workflows.length} machine(s), ${edges} edge(s))`);
   }
   async writeAccessSeed(outputDir, entities) {
-    const rbac2 = this.options.compiledRbac ?? { operations: [], transitions: [] };
+    const rbac = this.options.compiledRbac ?? { operations: [], transitions: [] };
     const sql = buildAccessSeedSql({
       projectName: this.options.projectName,
-      rbac: rbac2,
+      rbac,
       columnsByTable: this.columnsByTable(entities),
-      entities: entities.map((entity2) => entityToBusEntity(entity2, declaredEntityNames(entities))).map((entity2) => ({
-        name: entity2.name,
-        tableName: entity2.tableName,
-        windowOwner: entity2.windowOwner
+      entities: entities.map((entity) => entityToBusEntity(entity, declaredEntityNames(entities))).map((entity) => ({
+        name: entity.name,
+        tableName: entity.tableName,
+        windowOwner: entity.windowOwner
       }))
     });
     await mkdir2(join(outputDir, "seed"), { recursive: true });
     await writeFile2(join(outputDir, "seed/access.sql"), sql);
-    const rules = rbac2.operations.reduce((total, rule2) => total + rule2.roles.length, 0);
-    const edges = rbac2.transitions.reduce((total, rule2) => total + rule2.edges.length * rule2.roles.length, 0);
+    const rules = rbac.operations.reduce((total, rule) => total + rule.roles.length, 0);
+    const edges = rbac.transitions.reduce((total, rule) => total + rule.edges.length * rule.roles.length, 0);
     console.log(rules + edges === 0 ? "  ✓ Wrote seed/access.sql (no access rules declared)" : `  ✓ Wrote seed/access.sql (${rules} operation rule(s), ${edges} transition rule(s))`);
   }
   async writeWorkflowSeed(outputDir, entities) {
     const workflows = structuredClone(this.options.sagas ?? []);
-    const tableByName = new Map(entities.map((entity2) => entityToBusEntity(entity2, declaredEntityNames(entities))).map((entity2) => [entity2.name.toLowerCase(), entity2.tableName]));
+    const tableByName = new Map(entities.map((entity) => entityToBusEntity(entity, declaredEntityNames(entities))).map((entity) => [entity.name.toLowerCase(), entity.tableName]));
     for (const workflow of workflows) {
       const table = tableByName.get(workflow.entity.toLowerCase());
       if (table) {
@@ -19500,7 +18179,7 @@ class LocoBackendGenerator extends BaseGenerator {
     console.log(workflows.length === 0 ? "  ✓ Wrote seed/workflows.sql (no sagas declared)" : `  ✓ Wrote seed/workflows.sql (${workflows.length} saga(s), ${steps} steps)`);
   }
   async pruneScaffold(outputDir) {
-    const remove2 = [
+    const remove = [
       "migration/src/m20220101_000001_users.rs",
       "src/mailers",
       "src/dtos",
@@ -19510,7 +18189,7 @@ class LocoBackendGenerator extends BaseGenerator {
       "tests"
     ];
     let removed = 0;
-    for (const entry of remove2) {
+    for (const entry of remove) {
       try {
         await rm2(join(outputDir, entry), { recursive: true, force: true });
         removed += 1;
@@ -19525,18 +18204,18 @@ class LocoBackendGenerator extends BaseGenerator {
     const hooksDir = join(outputDir, "src/hooks");
     const handlersDir = join(hooksDir, "handlers");
     await mkdir2(handlersDir, { recursive: true });
-    for (const entity2 of entities) {
-      const forEntity = grouped.get(entity2) ?? [];
-      const file = join(handlersDir, `${handlerModule(entity2)}.rs`);
+    for (const entity of entities) {
+      const forEntity = grouped.get(entity) ?? [];
+      const file = join(handlersDir, `${handlerModule(entity)}.rs`);
       let existing = null;
       try {
         existing = await readFile2(file, "utf-8");
       } catch {}
       if (existing === null) {
-        await writeFile2(file, buildHookHandlerModule(entity2, forEntity));
+        await writeFile2(file, buildHookHandlerModule(entity, forEntity));
         continue;
       }
-      const appended = appendMissingHandlers(entity2, forEntity, existing);
+      const appended = appendMissingHandlers(entity, forEntity, existing);
       if (appended !== null)
         await writeFile2(file, appended);
     }
@@ -19546,27 +18225,27 @@ class LocoBackendGenerator extends BaseGenerator {
   }
   async writePerEntityTests(outputDir, entities, context) {
     const declared = declaredEntityNames(entities);
-    const busEntities = entities.map((entity2) => entityToBusEntity(entity2, declared));
-    for (const entity2 of busEntities) {
-      const slug2 = entity2.tableName.replace(/^bus_/, "").replace(/[^a-z0-9]+/gi, "_");
-      const entityContext = { ...context, entity: entity2 };
+    const busEntities = entities.map((entity) => entityToBusEntity(entity, declared));
+    for (const entity of busEntities) {
+      const slug = entity.tableName.replace(/^bus_/, "").replace(/[^a-z0-9]+/gi, "_");
+      const entityContext = { ...context, entity };
       const crud = await this.renderTemplate("tests/requests/crud_entity.rs.hbs", entityContext);
-      await writeFile2(join(outputDir, "tests/requests", `crud_${slug2}.rs`), crud);
+      await writeFile2(join(outputDir, "tests/requests", `crud_${slug}.rs`), crud);
       const rules = await this.renderTemplate("tests/requests/rules_entity.rs.hbs", entityContext);
-      await writeFile2(join(outputDir, "tests/requests", `rules_${slug2}.rs`), rules);
+      await writeFile2(join(outputDir, "tests/requests", `rules_${slug}.rs`), rules);
     }
     const fixedSuites = RENDERED_FILES.filter(({ out }) => out.startsWith("tests/requests/") && out !== "tests/requests/mod.rs").length;
     console.log(`  ✓ tests/ — ${busEntities.length * 2 + fixedSuites} request suites`);
   }
   async writeBusEntities(outputDir, entities, context) {
     const declared = declaredEntityNames(entities);
-    const busEntities = entities.map((entity2) => entityToBusEntity(entity2, declared));
-    for (const entity2 of busEntities) {
+    const busEntities = entities.map((entity) => entityToBusEntity(entity, declared));
+    for (const entity of busEntities) {
       const rendered = await this.renderTemplate("src/models/_entities/bus_entity.rs.hbs", {
         ...context,
-        entity: entity2
+        entity
       });
-      await writeFile2(join(outputDir, "src/models/_entities", `${entity2.tableName}.rs`), rendered);
+      await writeFile2(join(outputDir, "src/models/_entities", `${entity.tableName}.rs`), rendered);
     }
     console.log(`  ✓ src/models/_entities/ — ${busEntities.length} bus entity(ies)`);
   }
@@ -19582,8 +18261,8 @@ class LocoBackendGenerator extends BaseGenerator {
   }
   prepareContext(entities, relationships) {
     const declared = declaredEntityNames(entities);
-    const busEntities = entities.map((entity2) => entityToBusEntity(entity2, declared));
-    const dictionaryEntries = entities.map((entity2) => generateEntityDictionary(entity2));
+    const busEntities = entities.map((entity) => entityToBusEntity(entity, declared));
+    const dictionaryEntries = entities.map((entity) => generateEntityDictionary(entity));
     const sysTables = dictionaryEntries.map((entry) => entry.dictionaryPlaceholders.table);
     const projectSnake = this.options.projectName.toLowerCase().replace(/[^a-z0-9]+/g, "_");
     const projectKebab = this.options.projectName.toLowerCase().replace(/[^a-z0-9]+/g, "-");
@@ -19619,13 +18298,13 @@ class LocoBackendGenerator extends BaseGenerator {
       reports: (this.options.compiledReports ?? []).map((report) => ({
         name: report.name
       })),
-      compiledRules: (this.options.compiledRules ?? []).map((rule2) => ({
-        name: rule2.name,
-        entity: rule2.entity,
-        tableName: rule2.tableName,
-        event: rule2.event,
-        operation: rule2.operation,
-        priority: rule2.priority
+      compiledRules: (this.options.compiledRules ?? []).map((rule) => ({
+        name: rule.name,
+        entity: rule.entity,
+        tableName: rule.tableName,
+        event: rule.event,
+        operation: rule.operation,
+        priority: rule.priority
       })),
       compiledWorkflows: (this.options.compiledWorkflows ?? []).map((workflow) => ({
         name: workflow.name,
@@ -19639,7 +18318,7 @@ class LocoBackendGenerator extends BaseGenerator {
       })),
       access: deriveAccess(this.options.compiledRbac ?? { operations: [], transitions: [] }, {
         projectId: projectKebab,
-        entities: busEntities.map((entity2) => entity2.name)
+        entities: busEntities.map((entity) => entity.name)
       }),
       now: new Date().toISOString()
     };
@@ -19717,7 +18396,7 @@ class BunE2ETestGenerator extends BaseGenerator {
     await promises.mkdir(path_default.join(testsDir, "harness"), { recursive: true });
     await promises.mkdir(path_default.join(testsDir, "suites"), { recursive: true });
     const declared = declaredEntityNames(entities);
-    const busEntities = entities.map((entity2) => entityToBusEntity(entity2, declared));
+    const busEntities = entities.map((entity) => entityToBusEntity(entity, declared));
     const context = this.buildContext(busEntities, relationships);
     await this.writeRootFiles(testsDir, context);
     await this.writeHarness(testsDir, context);
@@ -19754,13 +18433,13 @@ class BunE2ETestGenerator extends BaseGenerator {
     }
     if (byEntity.size === 0)
       return [];
-    const columnsByTable = new Map(entities.map((entity2) => [
-      entity2.tableName,
-      (entity2.attributes ?? []).map((attribute) => attribute.columnName ?? attribute.name)
+    const columnsByTable = new Map(entities.map((entity) => [
+      entity.tableName,
+      (entity.attributes ?? []).map((attribute) => attribute.columnName ?? attribute.name)
     ]));
     const machines = [];
-    for (const entity2 of entities) {
-      const workflow = byEntity.get(entity2.originalName ?? entity2.name) ?? byEntity.get(entity2.name);
+    for (const entity of entities) {
+      const workflow = byEntity.get(entity.originalName ?? entity.name) ?? byEntity.get(entity.name);
       if (!workflow)
         continue;
       const edges = workflow.transitions.filter((transition) => transition.from !== "[*]" && transition.to !== "[*]").map((transition) => ({
@@ -19771,9 +18450,9 @@ class BunE2ETestGenerator extends BaseGenerator {
       if (edges.length === 0)
         continue;
       machines.push({
-        entity: entity2.name,
-        tableName: entity2.tableName,
-        statusField: statusFieldFor(entity2.tableName, columnsByTable),
+        entity: entity.name,
+        tableName: entity.tableName,
+        statusField: statusFieldFor(entity.tableName, columnsByTable),
         initial: workflow.initial ?? "",
         terminal: workflow.terminal ?? [],
         edges
@@ -19803,13 +18482,13 @@ class BunE2ETestGenerator extends BaseGenerator {
     }
   }
   async writePerEntitySuites(testsDir, entities, context) {
-    for (const entity2 of entities) {
-      const slug2 = entity2.tableName.replace(/^bus_/, "").replace(/[^a-z0-9]+/gi, "-");
-      const entityContext = { ...context, entity: entity2 };
+    for (const entity of entities) {
+      const slug = entity.tableName.replace(/^bus_/, "").replace(/[^a-z0-9]+/gi, "-");
+      const entityContext = { ...context, entity };
       const crud = await this.renderTemplate("suites/crud-entity.test.ts.hbs", entityContext);
-      await promises.writeFile(path_default.join(testsDir, "suites", `03-crud.${slug2}.test.ts`), crud);
+      await promises.writeFile(path_default.join(testsDir, "suites", `03-crud.${slug}.test.ts`), crud);
       const rules = await this.renderTemplate("suites/rules-entity.test.ts.hbs", entityContext);
-      await promises.writeFile(path_default.join(testsDir, "suites", `05-rules.${slug2}.test.ts`), rules);
+      await promises.writeFile(path_default.join(testsDir, "suites", `05-rules.${slug}.test.ts`), rules);
     }
   }
 }
@@ -20072,8 +18751,8 @@ Thumbs.db
     const projectSnake = this.options.projectName.toLowerCase().replace(/[^a-z0-9]+/g, "_");
     const projectId = this.options.projectName.toLowerCase().replace(/[^a-z0-9]+/g, "-");
     const target = this.options.database ?? "postgres";
-    const { TemplateLoader: TemplateLoader2 } = await Promise.resolve().then(() => (init_loader(), exports_loader));
-    const loader = new TemplateLoader2(templateDir);
+    await Promise.resolve().then(() => init_loader());
+    const loader = new TemplateLoader(templateDir);
     const render = await loader.load("tanstack-astryx-loco/docker-compose.yml.hbs");
     const chat = !this.options.skipFrontend;
     const context = {
@@ -20261,8 +18940,8 @@ MIT
   }
   async directoryExists(dir) {
     try {
-      const stat3 = await stat2(dir);
-      return stat3.isDirectory();
+      const stat = await stat2(dir);
+      return stat.isDirectory();
     } catch {
       return false;
     }
@@ -20405,13 +19084,13 @@ MIT
         console.log("  ✅ Frontend type-check passed");
         return;
       }
-      const errors2 = output.split(`
+      const errors = output.split(`
 `).filter((line) => line.includes("error TS"));
-      console.warn(`  ⚠️  Frontend type-check found ${errors2.length} error(s):`);
-      for (const line of errors2.slice(0, 20))
+      console.warn(`  ⚠️  Frontend type-check found ${errors.length} error(s):`);
+      for (const line of errors.slice(0, 20))
         console.warn(`     ${line}`);
-      if (errors2.length > 20)
-        console.warn(`     … and ${errors2.length - 20} more`);
+      if (errors.length > 20)
+        console.warn(`     … and ${errors.length - 20} more`);
     };
     if (isLocoStack(this.options.stackOption)) {
       if (!this.options.skipBackend) {
@@ -20483,8 +19162,8 @@ init_types2();
 function referenceIdFor(attribute, isPrimaryKey) {
   return attributeReferenceId(attribute, isPrimaryKey ? attribute.name : undefined);
 }
-function tableNameFor(entity2) {
-  return entityToBusEntity(entity2).tableName;
+function tableNameFor(entity) {
+  return entityToBusEntity(entity).tableName;
 }
 function escapeHtml(value) {
   return String(value ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
@@ -20527,11 +19206,11 @@ function referenceTarget(column, declared) {
   return declared.get(stem.replace(/_/g, "")) ?? title(stem).replace(/\s+/g, "");
 }
 function declaredNames(model) {
-  return new Map(model.entities.map((entity2) => [entity2.name.toLowerCase().replace(/_/g, ""), entity2.name]));
+  return new Map(model.entities.map((entity) => [entity.name.toLowerCase().replace(/_/g, ""), entity.name]));
 }
-function fieldRows(entity2, declared) {
-  const primaryKey = entity2.primaryKey || "id";
-  return entity2.attributes.map((attribute) => {
+function fieldRows(entity, declared) {
+  const primaryKey = entity.primaryKey || "id";
+  return entity.attributes.map((attribute) => {
     const isPrimary = attribute.name === primaryKey;
     const referenceId = referenceIdFor(attribute, isPrimary);
     const control = controlFor(attribute, referenceId);
@@ -20578,19 +19257,19 @@ function relationshipPhrase(relationship, entityName) {
       return `has one ${link}`;
   }
 }
-function relationshipsFor(model, entity2) {
-  const related = model.relationships.filter((relationship) => relationship.sourceEntity === entity2.name || relationship.targetEntity === entity2.name);
+function relationshipsFor(model, entity) {
+  const related = model.relationships.filter((relationship) => relationship.sourceEntity === entity.name || relationship.targetEntity === entity.name);
   if (related.length === 0)
     return "";
-  const items = related.map((relationship) => `<li>Each <b>${escapeHtml(title(entity2.name))}</b> ${relationshipPhrase(relationship, entity2.name)}.</li>`).join(`
+  const items = related.map((relationship) => `<li>Each <b>${escapeHtml(title(entity.name))}</b> ${relationshipPhrase(relationship, entity.name)}.</li>`).join(`
           `);
   return `      <h4>Related records</h4>
       <ul class="plain">
           ${items}
       </ul>`;
 }
-function screensFor(dictionary2, entity2) {
-  const layout = dictionary2.get(entity2.name);
+function screensFor(dictionary, entity) {
+  const layout = dictionary.get(entity.name);
   if (!layout)
     return "";
   const rows = layout.fields.map((field) => `          <tr>
@@ -20613,14 +19292,14 @@ ${rows}
 }
 function manualDictionary(model) {
   const declared = declaredEntityNames(model.entities);
-  const busEntities = model.entities.map((entity2) => entityToBusEntity(entity2, declared));
+  const busEntities = model.entities.map((entity) => entityToBusEntity(entity, declared));
   const layouts = screenLayout(busEntities);
   const byEntity = new Map;
-  for (const entity2 of busEntities) {
-    const layout = layouts.get(entity2.tableName);
+  for (const entity of busEntities) {
+    const layout = layouts.get(entity.tableName);
     if (!layout)
       continue;
-    byEntity.set(entity2.name, {
+    byEntity.set(entity.name, {
       window: layout.window,
       tab: layout.tab,
       fields: layout.fields.map((field) => ({
@@ -20635,15 +19314,16 @@ function manualDictionary(model) {
   }
   return byEntity;
 }
-function workflowFor(model, entity2) {
-  const workflows = model.workflows.filter((workflow) => workflow.entity === entity2.name);
+function workflowFor(model, entity) {
+  const workflows = model.workflows.filter((workflow) => workflow.entity === entity.name);
   if (workflows.length === 0)
     return "";
   return workflows.map((workflow) => {
     const rows = workflow.transitions.map((transition) => `          <tr><td><code>${escapeHtml(transition.from)}</code></td><td><code>${escapeHtml(transition.to)}</code></td><td>${transition.trigger ? `<code>${escapeHtml(transition.trigger)}</code>` : "&mdash;"}</td></tr>`).join(`
 `);
     return `      <h4>Lifecycle &mdash; ${escapeHtml(workflow.name)}</h4>
-      <p>A record starts at <code>${escapeHtml(workflow.initial ?? "—")}</code>${workflow.terminal.length ? ` and finishes at ${workflow.terminal.map((state) => `<code>${escapeHtml(state)}</code>`).join(" or ")}` : ""}. These are the moves it may make, and no others:</p>
+      <p>A record starts at <code>${escapeHtml(workflow.initial ?? "—")}</code>${workflow.terminal.length ? ` and finishes at ${workflow.terminal.map((state) => `<code>${escapeHtml(state)}</code>`).join(" or ")}` : ""}. These are the moves it may make, and no others:</p>${workflow.terminal.length ? `
+      <p>A record that reaches ${workflow.terminal.length === 1 ? "that final state" : "a final state"} is a completed transaction: the application refuses every change to it and every deletion of it, for every role, an administrator included.</p>` : ""}
       <table>
         <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
         <tbody>
@@ -20653,44 +19333,47 @@ ${rows}
   }).join(`
 `);
 }
-function rulesFor(model, entity2) {
-  const rules = model.rules.filter((rule2) => rule2.entity === entity2.name);
-  const hooks = model.hooks.filter((hook2) => hook2.entity === entity2.name);
-  const sagas2 = model.sagas.filter((saga) => saga.entity === entity2.name);
-  if (rules.length === 0 && hooks.length === 0 && sagas2.length === 0)
+function concurrencyPhrase(entity) {
+  return entity.concurrency === "last-write-wins" ? "When two people change the same record, the later save replaces the earlier one: this record is <em>last-write-wins</em>." : "When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.";
+}
+function rulesFor(model, entity) {
+  const rules = model.rules.filter((rule) => rule.entity === entity.name);
+  const hooks = model.hooks.filter((hook) => hook.entity === entity.name);
+  const sagas = model.sagas.filter((saga) => saga.entity === entity.name);
+  if (rules.length === 0 && hooks.length === 0 && sagas.length === 0)
     return "";
   const parts = ["      <h4>What happens when it is written</h4>"];
   if (rules.length > 0) {
     parts.push(`      <table>
         <thead><tr><th>Rule</th><th>Runs on</th><th>Order</th></tr></thead>
         <tbody>
-${rules.map((rule2) => `          <tr><td><code>${escapeHtml(rule2.name)}</code></td><td>${escapeHtml(rule2.event)} (${escapeHtml(rule2.operation)})</td><td>${rule2.priority}</td></tr>`).join(`
+${rules.map((rule) => `          <tr><td><code>${escapeHtml(rule.name)}</code></td><td>${escapeHtml(rule.event)} (${escapeHtml(rule.operation)})</td><td>${rule.priority}</td></tr>`).join(`
 `)}
         </tbody>
       </table>`);
   }
   if (hooks.length > 0) {
-    parts.push(`      <p><b>Handlers:</b> ${hooks.map((hook2) => `<code>${escapeHtml(hook2.type)}</code>${hook2.field ? ` on <code>${escapeHtml(hook2.field)}</code>` : ""}`).join(", ")}</p>`);
+    parts.push(`      <p><b>Handlers:</b> ${hooks.map((hook) => `<code>${escapeHtml(hook.type)}</code>${hook.field ? ` on <code>${escapeHtml(hook.field)}</code>` : ""}`).join(", ")}</p>`);
   }
-  if (sagas2.length > 0) {
-    parts.push(`      <p><b>Processes:</b> ${sagas2.map((saga) => `<a href="#process-${slug2(saga.name)}">${escapeHtml(saga.name)}</a>`).join(", ")}</p>`);
+  if (sagas.length > 0) {
+    parts.push(`      <p><b>Processes:</b> ${sagas.map((saga) => `<a href="#process-${slug2(saga.name)}">${escapeHtml(saga.name)}</a>`).join(", ")}</p>`);
   }
   return parts.join(`
 `);
 }
-function accessFor(model, entity2, visibility) {
-  const readers = visibility[entity2.name];
-  const rules = model.rbac.operations.filter((rule2) => rule2.entity === entity2.name);
+function accessFor(model, entity, visibility) {
+  const readers = visibility[entity.name];
+  const rules = model.rbac.operations.filter((rule) => rule.entity === entity.name);
   if (!readers && rules.length === 0)
     return "";
   const parts = ["      <h4>Who may use it</h4>"];
   parts.push(readers && readers.length > 0 ? `      <p>Visible to ${readers.map((role) => `<b>${escapeHtml(title(role))}</b>`).join(", ")}, and to the Administrator. Nobody else sees it at all &mdash; it is absent from their menu rather than refused when opened.</p>` : "      <p>Visible to every signed-in user; the model places no restriction on reading it.</p>");
-  const writes = rules.filter((rule2) => rule2.operation !== "read");
+  const writes = rules.filter((rule) => rule.operation !== "read");
   if (writes.length > 0) {
     parts.push(`      <table>
         <thead><tr><th>Action</th><th>Permitted to</th></tr></thead>
         <tbody>
-${writes.map((rule2) => `          <tr><td>${escapeHtml(title(rule2.operation))}</td><td>${rule2.roles.map((role) => escapeHtml(title(role))).join(", ")}</td></tr>`).join(`
+${writes.map((rule) => `          <tr><td>${escapeHtml(title(rule.operation))}</td><td>${rule.roles.map((role) => escapeHtml(title(role))).join(", ")}</td></tr>`).join(`
 `)}
         </tbody>
       </table>`);
@@ -20700,10 +19383,10 @@ ${writes.map((rule2) => `          <tr><td>${escapeHtml(title(rule2.operation))}
 }
 function renderManual(model, options) {
   const generatedAt = options.generatedAt ?? new Date().toISOString();
-  const access3 = deriveAccess(model.rbac, {
+  const access = deriveAccess(model.rbac, {
     projectId: slug2(options.name) || "app",
     adminEmail: options.adminEmail,
-    entities: model.entities.map((entity2) => entity2.name)
+    entities: model.entities.map((entity) => entity.name)
   });
   const categoryOf = new Map;
   for (const category of model.categories) {
@@ -20714,7 +19397,7 @@ function renderManual(model, options) {
   const declared = declaredNames(model);
   const cliDescription = options.description?.trim();
   const overview = model.description?.trim() || (cliDescription && cliDescription !== GENERATION_DEFAULTS.projectDescription ? cliDescription : "");
-  const dictionary2 = manualDictionary(model);
+  const dictionary = manualDictionary(model);
   const contents = `
       <nav class="toc" aria-label="Contents">
         <h2>Contents</h2>
@@ -20723,7 +19406,7 @@ function renderManual(model, options) {
           <li><a href="#signing-in">Signing in, and what each role sees</a></li>
           <li><a href="#entities">The records it keeps</a>
             <ul>
-${entities.map((entity2) => `              <li><a href="#entity-${slug2(entity2.name)}">${escapeHtml(title(entity2.name))}</a></li>`).join(`
+${entities.map((entity) => `              <li><a href="#entity-${slug2(entity.name)}">${escapeHtml(title(entity.name))}</a></li>`).join(`
 `)}
             </ul>
           </li>
@@ -20732,27 +19415,28 @@ ${model.rules.length ? `          <li><a href="#rules">The decisions it makes</a
 ` : ""}          <li><a href="#how-it-was-built">How this application was built</a></li>
         </ol>
       </nav>`;
-  const entitySections = entities.map((entity2) => {
-    const category = categoryOf.get(entity2.name);
-    return `    <section id="entity-${slug2(entity2.name)}" class="entity">
-      <h3>${escapeHtml(title(entity2.name))}${category ? ` <span class="group">${escapeHtml(category)}</span>` : ""}</h3>
-      <p class="lede">${entity2.description ? escapeHtml(entity2.description) : '<span class="missing">The model gives this entity no description. Add a <code>help</code> to entity <code>' + escapeHtml(entity2.name) + "</code> in the model.</span>"}</p>
-      <p class="meta">Stored as <code>${escapeHtml(tableNameFor(entity2))}</code>, keyed by <code>${escapeHtml(entity2.primaryKey || "id")}</code>.</p>
+  const entitySections = entities.map((entity) => {
+    const category = categoryOf.get(entity.name);
+    return `    <section id="entity-${slug2(entity.name)}" class="entity">
+      <h3>${escapeHtml(title(entity.name))}${category ? ` <span class="group">${escapeHtml(category)}</span>` : ""}</h3>
+      <p class="lede">${entity.description ? escapeHtml(entity.description) : '<span class="missing">The model gives this entity no description. Add a <code>help</code> to entity <code>' + escapeHtml(entity.name) + "</code> in the model.</span>"}</p>
+      <p class="meta">Stored as <code>${escapeHtml(tableNameFor(entity))}</code>, keyed by <code>${escapeHtml(entity.primaryKey || "id")}</code>.</p>
+      <p class="meta">${concurrencyPhrase(entity)}</p>
 
       <h4>Its fields</h4>
-${entity2.attributes.some((attribute) => attribute.description) ? "" : `      <p class="missing">No field here carries help text. Add a <code>help</code> to a column of <code>${escapeHtml(entity2.name)}</code> in the model and it appears in this column and in the application itself.</p>
+${entity.attributes.some((attribute) => attribute.description) ? "" : `      <p class="missing">No field here carries help text. Add a <code>help</code> to a column of <code>${escapeHtml(entity.name)}</code> in the model and it appears in this column and in the application itself.</p>
 `}      <table>
         <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
         <tbody>
-${fieldRows(entity2, declared)}
+${fieldRows(entity, declared)}
         </tbody>
       </table>
 ${[
-      screensFor(dictionary2, entity2),
-      relationshipsFor(model, entity2),
-      workflowFor(model, entity2),
-      rulesFor(model, entity2),
-      accessFor(model, entity2, access3.entityVisibility)
+      screensFor(dictionary, entity),
+      relationshipsFor(model, entity),
+      workflowFor(model, entity),
+      rulesFor(model, entity),
+      accessFor(model, entity, access.entityVisibility)
     ].filter(Boolean).join(`
 `)}
       <p class="back"><a href="#top">Back to contents</a></p>
@@ -20766,7 +19450,7 @@ ${[
     <table>
       <thead><tr><th>Rule</th><th>Applies to</th><th>Runs on</th></tr></thead>
       <tbody>
-${model.rules.map((rule2) => `        <tr><td><code>${escapeHtml(rule2.name)}</code></td><td><a href="#entity-${slug2(rule2.entity)}">${escapeHtml(title(rule2.entity))}</a></td><td>${escapeHtml(rule2.event)}</td></tr>`).join(`
+${model.rules.map((rule) => `        <tr><td><code>${escapeHtml(rule.name)}</code></td><td><a href="#entity-${slug2(rule.entity)}">${escapeHtml(title(rule.entity))}</a></td><td>${escapeHtml(rule.event)}</td></tr>`).join(`
 `)}
       </tbody>
     </table>
@@ -20786,7 +19470,7 @@ ${saga.steps.map((step) => `        <li>${escapeHtml(step.label)} <span class="t
 `)}
     <p class="back"><a href="#top">Back to contents</a></p>
   </section>` : "";
-  const accountRows = access3.users.map((user) => `        <tr><td>${escapeHtml(user.roleName)}</td><td><code>${escapeHtml(user.email)}</code></td><td>${user.isAdmin ? `all ${model.entities.length}` : `${access3.entityCounts[user.roleName] ?? 0} of ${model.entities.length}`}</td></tr>`).join(`
+  const accountRows = access.users.map((user) => `        <tr><td>${escapeHtml(user.roleName)}</td><td><code>${escapeHtml(user.email)}</code></td><td>${user.isAdmin ? `all ${model.entities.length}` : `${access.entityCounts[user.roleName] ?? 0} of ${model.entities.length}`}</td></tr>`).join(`
 `);
   return `<!doctype html>
 <html lang="en">
@@ -20993,24 +19677,24 @@ function visit(node, visitor) {
 visit.BREAK = BREAK;
 visit.SKIP = SKIP;
 visit.REMOVE = REMOVE;
-function visit_(key2, node, visitor, path) {
-  const ctrl = callVisitor(key2, node, visitor, path);
+function visit_(key, node, visitor, path) {
+  const ctrl = callVisitor(key, node, visitor, path);
   if (isNode(ctrl) || isPair(ctrl)) {
-    replaceNode(key2, path, ctrl);
-    return visit_(key2, ctrl, visitor, path);
+    replaceNode(key, path, ctrl);
+    return visit_(key, ctrl, visitor, path);
   }
   if (typeof ctrl !== "symbol") {
     if (isCollection(node)) {
       path = Object.freeze(path.concat(node));
-      for (let i2 = 0;i2 < node.items.length; ++i2) {
-        const ci = visit_(i2, node.items[i2], visitor, path);
+      for (let i = 0;i < node.items.length; ++i) {
+        const ci = visit_(i, node.items[i], visitor, path);
         if (typeof ci === "number")
-          i2 = ci - 1;
+          i = ci - 1;
         else if (ci === BREAK)
           return BREAK;
         else if (ci === REMOVE) {
-          node.items.splice(i2, 1);
-          i2 -= 1;
+          node.items.splice(i, 1);
+          i -= 1;
         }
       }
     } else if (isPair(node)) {
@@ -21041,24 +19725,24 @@ async function visitAsync(node, visitor) {
 visitAsync.BREAK = BREAK;
 visitAsync.SKIP = SKIP;
 visitAsync.REMOVE = REMOVE;
-async function visitAsync_(key2, node, visitor, path) {
-  const ctrl = await callVisitor(key2, node, visitor, path);
+async function visitAsync_(key, node, visitor, path) {
+  const ctrl = await callVisitor(key, node, visitor, path);
   if (isNode(ctrl) || isPair(ctrl)) {
-    replaceNode(key2, path, ctrl);
-    return visitAsync_(key2, ctrl, visitor, path);
+    replaceNode(key, path, ctrl);
+    return visitAsync_(key, ctrl, visitor, path);
   }
   if (typeof ctrl !== "symbol") {
     if (isCollection(node)) {
       path = Object.freeze(path.concat(node));
-      for (let i2 = 0;i2 < node.items.length; ++i2) {
-        const ci = await visitAsync_(i2, node.items[i2], visitor, path);
+      for (let i = 0;i < node.items.length; ++i) {
+        const ci = await visitAsync_(i, node.items[i], visitor, path);
         if (typeof ci === "number")
-          i2 = ci - 1;
+          i = ci - 1;
         else if (ci === BREAK)
           return BREAK;
         else if (ci === REMOVE) {
-          node.items.splice(i2, 1);
-          i2 -= 1;
+          node.items.splice(i, 1);
+          i -= 1;
         }
       }
     } else if (isPair(node)) {
@@ -21095,34 +19779,34 @@ function initVisitor(visitor) {
   }
   return visitor;
 }
-function callVisitor(key2, node, visitor, path) {
+function callVisitor(key, node, visitor, path) {
   if (typeof visitor === "function")
-    return visitor(key2, node, path);
+    return visitor(key, node, path);
   if (isMap(node))
-    return visitor.Map?.(key2, node, path);
+    return visitor.Map?.(key, node, path);
   if (isSeq(node))
-    return visitor.Seq?.(key2, node, path);
+    return visitor.Seq?.(key, node, path);
   if (isPair(node))
-    return visitor.Pair?.(key2, node, path);
+    return visitor.Pair?.(key, node, path);
   if (isScalar(node))
-    return visitor.Scalar?.(key2, node, path);
+    return visitor.Scalar?.(key, node, path);
   if (isAlias(node))
-    return visitor.Alias?.(key2, node, path);
+    return visitor.Alias?.(key, node, path);
   return;
 }
-function replaceNode(key2, path, node) {
-  const parent2 = path[path.length - 1];
-  if (isCollection(parent2)) {
-    parent2.items[key2] = node;
-  } else if (isPair(parent2)) {
-    if (key2 === "key")
-      parent2.key = node;
+function replaceNode(key, path, node) {
+  const parent = path[path.length - 1];
+  if (isCollection(parent)) {
+    parent.items[key] = node;
+  } else if (isPair(parent)) {
+    if (key === "key")
+      parent.key = node;
     else
-      parent2.value = node;
-  } else if (isDocument(parent2)) {
-    parent2.contents = node;
+      parent.value = node;
+  } else if (isDocument(parent)) {
+    parent.contents = node;
   } else {
-    const pt = isAlias(parent2) ? "alias" : "scalar";
+    const pt = isAlias(parent) ? "alias" : "scalar";
     throw new Error(`Cannot replace node with ${pt} parent`);
   }
 }
@@ -21197,8 +19881,8 @@ class Directives {
           this.yaml.version = version;
           return true;
         } else {
-          const isValid2 = /^\d+\.\d+$/.test(version);
-          onError(6, `Unsupported YAML version ${version}`, isValid2);
+          const isValid = /^\d+\.\d+$/.test(version);
+          onError(6, `Unsupported YAML version ${version}`, isValid);
           return false;
         }
       }
@@ -21283,9 +19967,9 @@ function anchorIsValid(anchor) {
   }
   return true;
 }
-function anchorNames(root2) {
+function anchorNames(root) {
   const anchors = new Set;
-  visit(root2, {
+  visit(root, {
     Value(_key, node) {
       if (node.anchor)
         anchors.add(node.anchor);
@@ -21294,8 +19978,8 @@ function anchorNames(root2) {
   return anchors;
 }
 function findNewAnchor(prefix, exclude) {
-  for (let i2 = 1;; ++i2) {
-    const name = `${prefix}${i2}`;
+  for (let i = 1;; ++i) {
+    const name = `${prefix}${i}`;
     if (!exclude.has(name))
       return name;
   }
@@ -21329,16 +20013,16 @@ function createNodeAnchors(doc, prefix) {
 }
 
 // node_modules/.bun/yaml@2.9.1/node_modules/yaml/browser/dist/doc/applyReviver.js
-function applyReviver(reviver, obj, key2, val) {
+function applyReviver(reviver, obj, key, val) {
   if (val && typeof val === "object") {
     if (Array.isArray(val)) {
-      for (let i2 = 0, len2 = val.length;i2 < len2; ++i2) {
-        const v0 = val[i2];
-        const v1 = applyReviver(reviver, val, String(i2), v0);
+      for (let i = 0, len = val.length;i < len; ++i) {
+        const v0 = val[i];
+        const v1 = applyReviver(reviver, val, String(i), v0);
         if (v1 === undefined)
-          delete val[i2];
+          delete val[i];
         else if (v1 !== v0)
-          val[i2] = v1;
+          val[i] = v1;
       }
     } else if (val instanceof Map) {
       for (const k of Array.from(val.keys())) {
@@ -21369,20 +20053,20 @@ function applyReviver(reviver, obj, key2, val) {
       }
     }
   }
-  return reviver.call(obj, key2, val);
+  return reviver.call(obj, key, val);
 }
 
 // node_modules/.bun/yaml@2.9.1/node_modules/yaml/browser/dist/nodes/toJS.js
 function toJS(value, arg, ctx) {
   if (Array.isArray(value))
-    return value.map((v, i2) => toJS(v, String(i2), ctx));
+    return value.map((v, i) => toJS(v, String(i), ctx));
   if (value && typeof value.toJSON === "function") {
     if (!ctx || !hasAnchor(value))
       return value.toJSON(arg, ctx);
     const data = { aliasCount: 0, count: 1, res: undefined };
     ctx.anchors.set(value, data);
-    ctx.onCreate = (res2) => {
-      data.res = res2;
+    ctx.onCreate = (res) => {
+      data.res = res;
       delete ctx.onCreate;
     };
     const res = value.toJSON(arg, ctx);
@@ -21419,8 +20103,8 @@ class NodeBase {
     };
     const res = toJS(this, "", ctx);
     if (typeof onAnchor === "function")
-      for (const { count, res: res2 } of ctx.anchors.values())
-        onAnchor(res2, count);
+      for (const { count, res } of ctx.anchors.values())
+        onAnchor(res, count);
     return typeof reviver === "function" ? applyReviver(reviver, { "": res }, "", res) : res;
   }
 }
@@ -21461,7 +20145,7 @@ class Alias extends NodeBase {
         found = node;
     }
     if (found && ctx) {
-      const { anchors, doc: doc2, maxAliasCount } = ctx;
+      const { anchors, doc, maxAliasCount } = ctx;
       let data = anchors.get(found);
       if (!data) {
         toJS(found, null, ctx);
@@ -21474,7 +20158,7 @@ class Alias extends NodeBase {
       if (maxAliasCount >= 0) {
         data.count += 1;
         if (data.aliasCount === 0)
-          data.aliasCount = getAliasCount(doc2, found, anchors);
+          data.aliasCount = getAliasCount(doc, found, anchors);
         if (data.count * data.aliasCount > maxAliasCount) {
           const msg = "Excessive alias count indicates a resource exhaustion attack";
           throw new ReferenceError(msg);
@@ -21594,10 +20278,10 @@ function createNode(value, tagName, ctx) {
       value = value.toJSON();
     }
     if (!value || typeof value !== "object") {
-      const node2 = new Scalar(value);
+      const node = new Scalar(value);
       if (ref)
-        ref.node = node2;
-      return node2;
+        ref.node = node;
+      return node;
     }
     tagObj = value instanceof Map ? schema[MAP] : (Symbol.iterator in Object(value)) ? schema[SEQ] : schema[MAP];
   }
@@ -21618,8 +20302,8 @@ function createNode(value, tagName, ctx) {
 // node_modules/.bun/yaml@2.9.1/node_modules/yaml/browser/dist/nodes/Collection.js
 function collectionFromPath(schema, path, value) {
   let v = value;
-  for (let i2 = path.length - 1;i2 >= 0; --i2) {
-    const k = path[i2];
+  for (let i = path.length - 1;i >= 0; --i) {
+    const k = path[i];
     if (typeof k === "number" && Number.isInteger(k) && k >= 0) {
       const a = [];
       a[k] = v;
@@ -21663,29 +20347,29 @@ class Collection extends NodeBase {
     if (isEmptyPath(path))
       this.add(value);
     else {
-      const [key2, ...rest] = path;
-      const node = this.get(key2, true);
+      const [key, ...rest] = path;
+      const node = this.get(key, true);
       if (isCollection(node))
         node.addIn(rest, value);
       else if (node === undefined && this.schema)
-        this.set(key2, collectionFromPath(this.schema, rest, value));
+        this.set(key, collectionFromPath(this.schema, rest, value));
       else
-        throw new Error(`Expected YAML collection at ${key2}. Remaining path: ${rest}`);
+        throw new Error(`Expected YAML collection at ${key}. Remaining path: ${rest}`);
     }
   }
   deleteIn(path) {
-    const [key2, ...rest] = path;
+    const [key, ...rest] = path;
     if (rest.length === 0)
-      return this.delete(key2);
-    const node = this.get(key2, true);
+      return this.delete(key);
+    const node = this.get(key, true);
     if (isCollection(node))
       return node.deleteIn(rest);
     else
-      throw new Error(`Expected YAML collection at ${key2}. Remaining path: ${rest}`);
+      throw new Error(`Expected YAML collection at ${key}. Remaining path: ${rest}`);
   }
   getIn(path, keepScalar) {
-    const [key2, ...rest] = path;
-    const node = this.get(key2, true);
+    const [key, ...rest] = path;
+    const node = this.get(key, true);
     if (rest.length === 0)
       return !keepScalar && isScalar(node) ? node.value : node;
     else
@@ -21700,24 +20384,24 @@ class Collection extends NodeBase {
     });
   }
   hasIn(path) {
-    const [key2, ...rest] = path;
+    const [key, ...rest] = path;
     if (rest.length === 0)
-      return this.has(key2);
-    const node = this.get(key2, true);
+      return this.has(key);
+    const node = this.get(key, true);
     return isCollection(node) ? node.hasIn(rest) : false;
   }
   setIn(path, value) {
-    const [key2, ...rest] = path;
+    const [key, ...rest] = path;
     if (rest.length === 0) {
-      this.set(key2, value);
+      this.set(key, value);
     } else {
-      const node = this.get(key2, true);
+      const node = this.get(key, true);
       if (isCollection(node))
         node.setIn(rest, value);
       else if (node === undefined && this.schema)
-        this.set(key2, collectionFromPath(this.schema, rest, value));
+        this.set(key, collectionFromPath(this.schema, rest, value));
       else
-        throw new Error(`Expected YAML collection at ${key2}. Remaining path: ${rest}`);
+        throw new Error(`Expected YAML collection at ${key}. Remaining path: ${rest}`);
     }
   }
 }
@@ -21758,47 +20442,47 @@ function foldFlowLines(text, indent, mode = "flow", { indentAtStart, lineWidth =
   let split = undefined;
   let prev = undefined;
   let overflow = false;
-  let i2 = -1;
+  let i = -1;
   let escStart = -1;
   let escEnd = -1;
   if (mode === FOLD_BLOCK) {
-    i2 = consumeMoreIndentedLines(text, i2, indent.length);
-    if (i2 !== -1)
-      end = i2 + endStep;
+    i = consumeMoreIndentedLines(text, i, indent.length);
+    if (i !== -1)
+      end = i + endStep;
   }
-  for (let ch;ch = text[i2 += 1]; ) {
+  for (let ch;ch = text[i += 1]; ) {
     if (mode === FOLD_QUOTED && ch === "\\") {
-      escStart = i2;
-      switch (text[i2 + 1]) {
+      escStart = i;
+      switch (text[i + 1]) {
         case "x":
-          i2 += 3;
+          i += 3;
           break;
         case "u":
-          i2 += 5;
+          i += 5;
           break;
         case "U":
-          i2 += 9;
+          i += 9;
           break;
         default:
-          i2 += 1;
+          i += 1;
       }
-      escEnd = i2;
+      escEnd = i;
     }
     if (ch === `
 `) {
       if (mode === FOLD_BLOCK)
-        i2 = consumeMoreIndentedLines(text, i2, indent.length);
-      end = i2 + indent.length + endStep;
+        i = consumeMoreIndentedLines(text, i, indent.length);
+      end = i + indent.length + endStep;
       split = undefined;
     } else {
       if (ch === " " && prev && prev !== " " && prev !== `
 ` && prev !== "\t") {
-        const next = text[i2 + 1];
+        const next = text[i + 1];
         if (next && next !== " " && next !== `
 ` && next !== "\t")
-          split = i2;
+          split = i;
       }
-      if (i2 >= end) {
+      if (i >= end) {
         if (split) {
           folds.push(split);
           end = split + endStep;
@@ -21806,10 +20490,10 @@ function foldFlowLines(text, indent, mode = "flow", { indentAtStart, lineWidth =
         } else if (mode === FOLD_QUOTED) {
           while (prev === " " || prev === "\t") {
             prev = ch;
-            ch = text[i2 += 1];
+            ch = text[i += 1];
             overflow = true;
           }
-          const j = i2 > escEnd + 1 ? i2 - 2 : escStart - 1;
+          const j = i > escEnd + 1 ? i - 2 : escStart - 1;
           if (escapedFolds[j])
             return text;
           folds.push(j);
@@ -21830,35 +20514,35 @@ function foldFlowLines(text, indent, mode = "flow", { indentAtStart, lineWidth =
   if (onFold)
     onFold();
   let res = text.slice(0, folds[0]);
-  for (let i3 = 0;i3 < folds.length; ++i3) {
-    const fold = folds[i3];
-    const end2 = folds[i3 + 1] || text.length;
+  for (let i = 0;i < folds.length; ++i) {
+    const fold = folds[i];
+    const end = folds[i + 1] || text.length;
     if (fold === 0)
       res = `
-${indent}${text.slice(0, end2)}`;
+${indent}${text.slice(0, end)}`;
     else {
       if (mode === FOLD_QUOTED && escapedFolds[fold])
         res += `${text[fold]}\\`;
       res += `
-${indent}${text.slice(fold + 1, end2)}`;
+${indent}${text.slice(fold + 1, end)}`;
     }
   }
   return res;
 }
-function consumeMoreIndentedLines(text, i2, indent) {
-  let end = i2;
-  let start = i2 + 1;
+function consumeMoreIndentedLines(text, i, indent) {
+  let end = i;
+  let start = i + 1;
   let ch = text[start];
   while (ch === " " || ch === "\t") {
-    if (i2 < start + indent) {
-      ch = text[++i2];
+    if (i < start + indent) {
+      ch = text[++i];
     } else {
       do {
-        ch = text[++i2];
+        ch = text[++i];
       } while (ch && ch !== `
 `);
-      end = i2;
-      start = i2 + 1;
+      end = i;
+      start = i + 1;
       ch = text[start];
     }
   }
@@ -21879,12 +20563,12 @@ function lineLengthOverLimit(str, lineWidth, indentLength) {
   const strLen = str.length;
   if (strLen <= limit)
     return false;
-  for (let i2 = 0, start = 0;i2 < strLen; ++i2) {
-    if (str[i2] === `
+  for (let i = 0, start = 0;i < strLen; ++i) {
+    if (str[i] === `
 `) {
-      if (i2 - start > limit)
+      if (i - start > limit)
         return true;
-      start = i2 + 1;
+      start = i + 1;
       if (strLen - start <= limit)
         return false;
     }
@@ -21900,20 +20584,20 @@ function doubleQuotedString(value, ctx) {
   const indent = ctx.indent || (containsDocumentMarker(value) ? "  " : "");
   let str = "";
   let start = 0;
-  for (let i2 = 0, ch = json[i2];ch; ch = json[++i2]) {
-    if (ch === " " && json[i2 + 1] === "\\" && json[i2 + 2] === "n") {
-      str += json.slice(start, i2) + "\\ ";
-      i2 += 1;
-      start = i2;
+  for (let i = 0, ch = json[i];ch; ch = json[++i]) {
+    if (ch === " " && json[i + 1] === "\\" && json[i + 2] === "n") {
+      str += json.slice(start, i) + "\\ ";
+      i += 1;
+      start = i;
       ch = "\\";
     }
     if (ch === "\\")
-      switch (json[i2 + 1]) {
+      switch (json[i + 1]) {
         case "u":
           {
-            str += json.slice(start, i2);
-            const code2 = json.substr(i2 + 2, 4);
-            switch (code2) {
+            str += json.slice(start, i);
+            const code = json.substr(i + 2, 4);
+            switch (code) {
               case "0000":
                 str += "\\0";
                 break;
@@ -21939,36 +20623,36 @@ function doubleQuotedString(value, ctx) {
                 str += "\\P";
                 break;
               default:
-                if (code2.substr(0, 2) === "00")
-                  str += "\\x" + code2.substr(2);
+                if (code.substr(0, 2) === "00")
+                  str += "\\x" + code.substr(2);
                 else
-                  str += json.substr(i2, 6);
+                  str += json.substr(i, 6);
             }
-            i2 += 5;
-            start = i2 + 1;
+            i += 5;
+            start = i + 1;
           }
           break;
         case "n":
-          if (implicitKey || json[i2 + 2] === '"' || json.length < minMultiLineLength) {
-            i2 += 1;
+          if (implicitKey || json[i + 2] === '"' || json.length < minMultiLineLength) {
+            i += 1;
           } else {
-            str += json.slice(start, i2) + `
+            str += json.slice(start, i) + `
 
 `;
-            while (json[i2 + 2] === "\\" && json[i2 + 3] === "n" && json[i2 + 4] !== '"') {
+            while (json[i + 2] === "\\" && json[i + 3] === "n" && json[i + 4] !== '"') {
               str += `
 `;
-              i2 += 2;
+              i += 2;
             }
             str += indent;
-            if (json[i2 + 2] === " ")
+            if (json[i + 2] === " ")
               str += "\\";
-            i2 += 1;
-            start = i2 + 1;
+            i += 1;
+            start = i + 1;
           }
           break;
         default:
-          i2 += 1;
+          i += 1;
       }
   }
   str = start ? str + json.slice(start) : json;
@@ -22272,19 +20956,19 @@ ${ctx.indent}${str}`;
 }
 
 // node_modules/.bun/yaml@2.9.1/node_modules/yaml/browser/dist/stringify/stringifyPair.js
-function stringifyPair({ key: key2, value }, ctx, onComment, onChompKeep) {
+function stringifyPair({ key, value }, ctx, onComment, onChompKeep) {
   const { allNullValues, doc, indent, indentStep, options: { commentString, indentSeq, simpleKeys } } = ctx;
-  let keyComment = isNode(key2) && key2.comment || null;
+  let keyComment = isNode(key) && key.comment || null;
   if (simpleKeys) {
     if (keyComment) {
       throw new Error("With simple keys, key nodes cannot have comments");
     }
-    if (isCollection(key2) || !isNode(key2) && typeof key2 === "object") {
+    if (isCollection(key) || !isNode(key) && typeof key === "object") {
       const msg = "With simple keys, collection cannot be used as a key value";
       throw new Error(msg);
     }
   }
-  let explicitKey = !simpleKeys && (!key2 || keyComment && value == null && !ctx.inFlow || isCollection(key2) || (isScalar(key2) ? key2.type === Scalar.BLOCK_FOLDED || key2.type === Scalar.BLOCK_LITERAL : typeof key2 === "object"));
+  let explicitKey = !simpleKeys && (!key || keyComment && value == null && !ctx.inFlow || isCollection(key) || (isScalar(key) ? key.type === Scalar.BLOCK_FOLDED || key.type === Scalar.BLOCK_LITERAL : typeof key === "object"));
   ctx = Object.assign({}, ctx, {
     allNullValues: false,
     implicitKey: !explicitKey && (simpleKeys || !allNullValues),
@@ -22292,7 +20976,7 @@ function stringifyPair({ key: key2, value }, ctx, onComment, onChompKeep) {
   });
   let keyCommentDone = false;
   let chompKeep = false;
-  let str = stringify(key2, ctx, () => keyCommentDone = true, () => chompKeep = true);
+  let str = stringify(key, ctx, () => keyCommentDone = true, () => chompKeep = true);
   if (!explicitKey && !ctx.inFlow && str.length > 1024) {
     if (simpleKeys)
       throw new Error("With simple keys, single line scalar must not span more than 1024 characters");
@@ -22419,7 +21103,7 @@ var merge = {
   }),
   stringify: () => MERGE_KEY
 };
-var isMergeKey = (ctx, key2) => (merge.identify(key2) || isScalar(key2) && (!key2.type || key2.type === Scalar.PLAIN) && merge.identify(key2.value)) && ctx?.doc.schema.tags.some((tag) => tag.tag === merge.tag && tag.default);
+var isMergeKey = (ctx, key) => (merge.identify(key) || isScalar(key) && (!key.type || key.type === Scalar.PLAIN) && merge.identify(key.value)) && ctx?.doc.schema.tags.some((tag) => tag.tag === merge.tag && tag.default);
 function addMergeToJSMap(ctx, map, value) {
   const source = resolveAliasValue(ctx, value);
   if (isSeq(source))
@@ -22436,15 +21120,15 @@ function mergeValue(ctx, map, value) {
   if (!isMap(source))
     throw new Error("Merge sources must be maps or map aliases");
   const srcMap = source.toJSON(null, ctx, Map);
-  for (const [key2, value2] of srcMap) {
+  for (const [key, value] of srcMap) {
     if (map instanceof Map) {
-      if (!map.has(key2))
-        map.set(key2, value2);
+      if (!map.has(key))
+        map.set(key, value);
     } else if (map instanceof Set) {
-      map.add(key2);
-    } else if (!Object.prototype.hasOwnProperty.call(map, key2)) {
-      Object.defineProperty(map, key2, {
-        value: value2,
+      map.add(key);
+    } else if (!Object.prototype.hasOwnProperty.call(map, key)) {
+      Object.defineProperty(map, key, {
+        value,
         writable: true,
         enumerable: true,
         configurable: true
@@ -22458,19 +21142,19 @@ function resolveAliasValue(ctx, value) {
 }
 
 // node_modules/.bun/yaml@2.9.1/node_modules/yaml/browser/dist/nodes/addPairToJSMap.js
-function addPairToJSMap(ctx, map, { key: key2, value }) {
-  if (isNode(key2) && key2.addToJSMap)
-    key2.addToJSMap(ctx, map, value);
-  else if (isMergeKey(ctx, key2))
+function addPairToJSMap(ctx, map, { key, value }) {
+  if (isNode(key) && key.addToJSMap)
+    key.addToJSMap(ctx, map, value);
+  else if (isMergeKey(ctx, key))
     addMergeToJSMap(ctx, map, value);
   else {
-    const jsKey = toJS(key2, "", ctx);
+    const jsKey = toJS(key, "", ctx);
     if (map instanceof Map) {
       map.set(jsKey, toJS(value, jsKey, ctx));
     } else if (map instanceof Set) {
       map.add(jsKey);
     } else {
-      const stringKey = stringifyKey(key2, jsKey, ctx);
+      const stringKey = stringifyKey(key, jsKey, ctx);
       const jsValue = toJS(value, stringKey, ctx);
       if (stringKey in map)
         Object.defineProperty(map, stringKey, {
@@ -22485,19 +21169,19 @@ function addPairToJSMap(ctx, map, { key: key2, value }) {
   }
   return map;
 }
-function stringifyKey(key2, jsKey, ctx) {
+function stringifyKey(key, jsKey, ctx) {
   if (jsKey === null)
     return "";
   if (typeof jsKey !== "object")
     return String(jsKey);
-  if (isNode(key2) && ctx?.doc) {
+  if (isNode(key) && ctx?.doc) {
     const strCtx = createStringifyContext(ctx.doc, {});
     strCtx.anchors = new Set;
     for (const node of ctx.anchors.keys())
       strCtx.anchors.add(node.anchor);
     strCtx.inFlow = true;
     strCtx.inStringifyKey = true;
-    const strKey = key2.toString(strCtx);
+    const strKey = key.toString(strCtx);
     if (!ctx.mapKeyWarned) {
       let jsonStr = JSON.stringify(strKey);
       if (jsonStr.length > 40)
@@ -22511,25 +21195,25 @@ function stringifyKey(key2, jsKey, ctx) {
 }
 
 // node_modules/.bun/yaml@2.9.1/node_modules/yaml/browser/dist/nodes/Pair.js
-function createPair(key2, value, ctx) {
-  const k = createNode(key2, undefined, ctx);
+function createPair(key, value, ctx) {
+  const k = createNode(key, undefined, ctx);
   const v = createNode(value, undefined, ctx);
   return new Pair(k, v);
 }
 
 class Pair {
-  constructor(key2, value = null) {
+  constructor(key, value = null) {
     Object.defineProperty(this, NODE_TYPE, { value: PAIR });
-    this.key = key2;
+    this.key = key;
     this.value = value;
   }
   clone(schema) {
-    let { key: key2, value } = this;
-    if (isNode(key2))
-      key2 = key2.clone(schema);
+    let { key, value } = this;
+    if (isNode(key))
+      key = key.clone(schema);
     if (isNode(value))
       value = value.clone(schema);
-    return new Pair(key2, value);
+    return new Pair(key, value);
   }
   toJSON(_, ctx) {
     const pair = ctx?.mapAsMap ? new Map : {};
@@ -22543,23 +21227,23 @@ class Pair {
 // node_modules/.bun/yaml@2.9.1/node_modules/yaml/browser/dist/stringify/stringifyCollection.js
 function stringifyCollection(collection, ctx, options) {
   const flow = ctx.inFlow ?? collection.flow;
-  const stringify2 = flow ? stringifyFlowCollection : stringifyBlockCollection;
-  return stringify2(collection, ctx, options);
+  const stringify = flow ? stringifyFlowCollection : stringifyBlockCollection;
+  return stringify(collection, ctx, options);
 }
 function stringifyBlockCollection({ comment, items }, ctx, { blockItemPrefix, flowChars, itemIndent, onChompKeep, onComment }) {
   const { indent, options: { commentString } } = ctx;
   const itemCtx = Object.assign({}, ctx, { indent: itemIndent, type: null });
   let chompKeep = false;
   const lines = [];
-  for (let i2 = 0;i2 < items.length; ++i2) {
-    const item = items[i2];
-    let comment2 = null;
+  for (let i = 0;i < items.length; ++i) {
+    const item = items[i];
+    let comment = null;
     if (isNode(item)) {
       if (!chompKeep && item.spaceBefore)
         lines.push("");
       addCommentBefore(ctx, lines, item.commentBefore, chompKeep);
       if (item.comment)
-        comment2 = item.comment;
+        comment = item.comment;
     } else if (isPair(item)) {
       const ik = isNode(item.key) ? item.key : null;
       if (ik) {
@@ -22569,20 +21253,20 @@ function stringifyBlockCollection({ comment, items }, ctx, { blockItemPrefix, fl
       }
     }
     chompKeep = false;
-    let str2 = stringify(item, itemCtx, () => comment2 = null, () => chompKeep = true);
-    if (comment2)
-      str2 += lineComment(str2, itemIndent, commentString(comment2));
-    if (chompKeep && comment2)
+    let str = stringify(item, itemCtx, () => comment = null, () => chompKeep = true);
+    if (comment)
+      str += lineComment(str, itemIndent, commentString(comment));
+    if (chompKeep && comment)
       chompKeep = false;
-    lines.push(blockItemPrefix + str2);
+    lines.push(blockItemPrefix + str);
   }
   let str;
   if (lines.length === 0) {
     str = flowChars.start + flowChars.end;
   } else {
     str = lines[0];
-    for (let i2 = 1;i2 < lines.length; ++i2) {
-      const line = lines[i2];
+    for (let i = 1;i < lines.length; ++i) {
+      const line = lines[i];
       str += line ? `
 ${indent}${line}` : `
 `;
@@ -22608,8 +21292,8 @@ function stringifyFlowCollection({ items }, ctx, { flowChars, itemIndent }) {
   let reqNewline = false;
   let linesAtValue = 0;
   const lines = [];
-  for (let i2 = 0;i2 < items.length; ++i2) {
-    const item = items[i2];
+  for (let i = 0;i < items.length; ++i) {
+    const item = items[i];
     let comment = null;
     if (isNode(item)) {
       if (item.spaceBefore)
@@ -22641,7 +21325,7 @@ function stringifyFlowCollection({ items }, ctx, { flowChars, itemIndent }) {
     let str = stringify(item, itemCtx, () => comment = null);
     reqNewline || (reqNewline = lines.length > linesAtValue || str.includes(`
 `));
-    if (i2 < items.length - 1) {
+    if (i < items.length - 1) {
       str += ",";
     } else if (ctx.options.trailingComma) {
       if (ctx.options.lineWidth > 0) {
@@ -22661,8 +21345,8 @@ function stringifyFlowCollection({ items }, ctx, { flowChars, itemIndent }) {
     return start + end;
   } else {
     if (!reqNewline) {
-      const len2 = lines.reduce((sum, line) => sum + line.length + 2, 2);
-      reqNewline = ctx.options.lineWidth > 0 && len2 > ctx.options.lineWidth;
+      const len = lines.reduce((sum, line) => sum + line.length + 2, 2);
+      reqNewline = ctx.options.lineWidth > 0 && len > ctx.options.lineWidth;
     }
     if (reqNewline) {
       let str = start;
@@ -22687,11 +21371,11 @@ function addCommentBefore({ indent, options: { commentString } }, lines, comment
 }
 
 // node_modules/.bun/yaml@2.9.1/node_modules/yaml/browser/dist/nodes/YAMLMap.js
-function findPair(items, key2) {
-  const k = isScalar(key2) ? key2.value : key2;
+function findPair(items, key) {
+  const k = isScalar(key) ? key.value : key;
   for (const it of items) {
     if (isPair(it)) {
-      if (it.key === key2 || it.key === k)
+      if (it.key === key || it.key === k)
         return it;
       if (isScalar(it.key) && it.key.value === k)
         return it;
@@ -22711,20 +21395,20 @@ class YAMLMap extends Collection {
   static from(schema, obj, ctx) {
     const { keepUndefined, replacer } = ctx;
     const map = new this(schema);
-    const add = (key2, value) => {
+    const add = (key, value) => {
       if (typeof replacer === "function")
-        value = replacer.call(obj, key2, value);
-      else if (Array.isArray(replacer) && !replacer.includes(key2))
+        value = replacer.call(obj, key, value);
+      else if (Array.isArray(replacer) && !replacer.includes(key))
         return;
       if (value !== undefined || keepUndefined)
-        map.items.push(createPair(key2, value, ctx));
+        map.items.push(createPair(key, value, ctx));
     };
     if (obj instanceof Map) {
-      for (const [key2, value] of obj)
-        add(key2, value);
+      for (const [key, value] of obj)
+        add(key, value);
     } else if (obj && typeof obj === "object") {
-      for (const key2 of Object.keys(obj))
-        add(key2, obj[key2]);
+      for (const key of Object.keys(obj))
+        add(key, obj[key]);
     }
     if (typeof schema.sortMapEntries === "function") {
       map.items.sort(schema.sortMapEntries);
@@ -22749,32 +21433,32 @@ class YAMLMap extends Collection {
       else
         prev.value = _pair.value;
     } else if (sortEntries) {
-      const i2 = this.items.findIndex((item) => sortEntries(_pair, item) < 0);
-      if (i2 === -1)
+      const i = this.items.findIndex((item) => sortEntries(_pair, item) < 0);
+      if (i === -1)
         this.items.push(_pair);
       else
-        this.items.splice(i2, 0, _pair);
+        this.items.splice(i, 0, _pair);
     } else {
       this.items.push(_pair);
     }
   }
-  delete(key2) {
-    const it = findPair(this.items, key2);
+  delete(key) {
+    const it = findPair(this.items, key);
     if (!it)
       return false;
     const del = this.items.splice(this.items.indexOf(it), 1);
     return del.length > 0;
   }
-  get(key2, keepScalar) {
-    const it = findPair(this.items, key2);
+  get(key, keepScalar) {
+    const it = findPair(this.items, key);
     const node = it?.value;
     return (!keepScalar && isScalar(node) ? node.value : node) ?? undefined;
   }
-  has(key2) {
-    return !!findPair(this.items, key2);
+  has(key) {
+    return !!findPair(this.items, key);
   }
-  set(key2, value) {
-    this.add(new Pair(key2, value), true);
+  set(key, value) {
+    this.add(new Pair(key, value), true);
   }
   toJSON(_, ctx, Type) {
     const map = Type ? new Type : ctx?.mapAsMap ? new Map : {};
@@ -22809,10 +21493,10 @@ var map = {
   default: true,
   nodeClass: YAMLMap,
   tag: "tag:yaml.org,2002:map",
-  resolve(map2, onError) {
-    if (!isMap(map2))
+  resolve(map, onError) {
+    if (!isMap(map))
       onError("Expected a mapping for this tag");
-    return map2;
+    return map;
   },
   createNode: (schema, obj, ctx) => YAMLMap.from(schema, obj, ctx)
 };
@@ -22829,28 +21513,28 @@ class YAMLSeq extends Collection {
   add(value) {
     this.items.push(value);
   }
-  delete(key2) {
-    const idx = asItemIndex(key2);
+  delete(key) {
+    const idx = asItemIndex(key);
     if (typeof idx !== "number")
       return false;
     const del = this.items.splice(idx, 1);
     return del.length > 0;
   }
-  get(key2, keepScalar) {
-    const idx = asItemIndex(key2);
+  get(key, keepScalar) {
+    const idx = asItemIndex(key);
     if (typeof idx !== "number")
       return;
     const it = this.items[idx];
     return !keepScalar && isScalar(it) ? it.value : it;
   }
-  has(key2) {
-    const idx = asItemIndex(key2);
+  has(key) {
+    const idx = asItemIndex(key);
     return typeof idx === "number" && idx < this.items.length;
   }
-  set(key2, value) {
-    const idx = asItemIndex(key2);
+  set(key, value) {
+    const idx = asItemIndex(key);
     if (typeof idx !== "number")
-      throw new Error(`Expected a valid index, not ${key2}.`);
+      throw new Error(`Expected a valid index, not ${key}.`);
     const prev = this.items[idx];
     if (isScalar(prev) && isScalarValue(value))
       prev.value = value;
@@ -22861,9 +21545,9 @@ class YAMLSeq extends Collection {
     const seq = [];
     if (ctx?.onCreate)
       ctx.onCreate(seq);
-    let i2 = 0;
+    let i = 0;
     for (const item of this.items)
-      seq.push(toJS(item, String(i2++), ctx));
+      seq.push(toJS(item, String(i++), ctx));
     return seq;
   }
   toString(ctx, onComment, onChompKeep) {
@@ -22881,11 +21565,11 @@ class YAMLSeq extends Collection {
     const { replacer } = ctx;
     const seq = new this(schema);
     if (obj && Symbol.iterator in Object(obj)) {
-      let i2 = 0;
+      let i = 0;
       for (let it of obj) {
         if (typeof replacer === "function") {
-          const key2 = obj instanceof Set ? it : String(i2++);
-          it = replacer.call(obj, key2, it);
+          const key = obj instanceof Set ? it : String(i++);
+          it = replacer.call(obj, key, it);
         }
         seq.items.push(createNode(it, undefined, ctx));
       }
@@ -22893,8 +21577,8 @@ class YAMLSeq extends Collection {
     return seq;
   }
 }
-function asItemIndex(key2) {
-  let idx = isScalar(key2) ? key2.value : key2;
+function asItemIndex(key) {
+  let idx = isScalar(key) ? key.value : key;
   if (idx && typeof idx === "string")
     idx = Number(idx);
   return typeof idx === "number" && Number.isInteger(idx) && idx >= 0 ? idx : null;
@@ -22906,10 +21590,10 @@ var seq = {
   default: true,
   nodeClass: YAMLSeq,
   tag: "tag:yaml.org,2002:seq",
-  resolve(seq2, onError) {
-    if (!isSeq(seq2))
+  resolve(seq, onError) {
+    if (!isSeq(seq))
       onError("Expected a sequence for this tag");
-    return seq2;
+    return seq;
   },
   createNode: (schema, obj, ctx) => YAMLSeq.from(schema, obj, ctx)
 };
@@ -22955,20 +21639,20 @@ var boolTag = {
 };
 
 // node_modules/.bun/yaml@2.9.1/node_modules/yaml/browser/dist/stringify/stringifyNumber.js
-function stringifyNumber({ format: format2, minFractionDigits, tag, value }) {
+function stringifyNumber({ format, minFractionDigits, tag, value }) {
   if (typeof value === "bigint")
     return String(value);
   const num = typeof value === "number" ? value : Number(value);
   if (!isFinite(num))
     return isNaN(num) ? ".nan" : num < 0 ? "-.inf" : ".inf";
   let n = Object.is(value, -0) ? "-0" : JSON.stringify(value);
-  if (!format2 && minFractionDigits && (!tag || tag === "tag:yaml.org,2002:float") && /^-?\d/.test(n) && !n.includes("e")) {
-    let i2 = n.indexOf(".");
-    if (i2 < 0) {
-      i2 = n.length;
+  if (!format && minFractionDigits && (!tag || tag === "tag:yaml.org,2002:float") && /^-?\d/.test(n) && !n.includes("e")) {
+    let i = n.indexOf(".");
+    if (i < 0) {
+      i = n.length;
       n += ".";
     }
-    let d = minFractionDigits - (n.length - i2 - 1);
+    let d = minFractionDigits - (n.length - i - 1);
     while (d-- > 0)
       n += "0";
   }
@@ -23129,8 +21813,8 @@ var binary = {
     if (typeof atob === "function") {
       const str = atob(src.replace(/[\n\r]/g, ""));
       const buffer = new Uint8Array(str.length);
-      for (let i2 = 0;i2 < str.length; ++i2)
-        buffer[i2] = str.charCodeAt(i2);
+      for (let i = 0;i < str.length; ++i)
+        buffer[i] = str.charCodeAt(i);
       return buffer;
     } else {
       onError("This environment does not support reading binary tags; either Buffer or atob is required");
@@ -23144,8 +21828,8 @@ var binary = {
     let str;
     if (typeof btoa === "function") {
       let s = "";
-      for (let i2 = 0;i2 < buf.length; ++i2)
-        s += String.fromCharCode(buf[i2]);
+      for (let i = 0;i < buf.length; ++i)
+        s += String.fromCharCode(buf[i]);
       str = btoa(s);
     } else {
       throw new Error("This environment does not support writing binary tags; either Buffer or btoa is required");
@@ -23155,8 +21839,8 @@ var binary = {
       const lineWidth = Math.max(ctx.options.lineWidth - ctx.indent.length, ctx.options.minContentWidth);
       const n = Math.ceil(str.length / lineWidth);
       const lines = new Array(n);
-      for (let i2 = 0, o = 0;i2 < n; ++i2, o += lineWidth) {
-        lines[i2] = str.substr(o, lineWidth);
+      for (let i = 0, o = 0;i < n; ++i, o += lineWidth) {
+        lines[i] = str.substr(o, lineWidth);
       }
       str = lines.join(type === Scalar.BLOCK_LITERAL ? `
 ` : " ");
@@ -23166,10 +21850,10 @@ var binary = {
 };
 
 // node_modules/.bun/yaml@2.9.1/node_modules/yaml/browser/dist/schema/yaml-1.1/pairs.js
-function resolvePairs(seq2, onError) {
-  if (isSeq(seq2)) {
-    for (let i2 = 0;i2 < seq2.items.length; ++i2) {
-      let item = seq2.items[i2];
+function resolvePairs(seq, onError) {
+  if (isSeq(seq)) {
+    for (let i = 0;i < seq.items.length; ++i) {
+      let item = seq.items[i];
       if (isPair(item))
         continue;
       else if (isMap(item)) {
@@ -23186,40 +21870,40 @@ ${cn.comment}` : item.comment;
         }
         item = pair;
       }
-      seq2.items[i2] = isPair(item) ? item : new Pair(item);
+      seq.items[i] = isPair(item) ? item : new Pair(item);
     }
   } else
     onError("Expected a sequence for this tag");
-  return seq2;
+  return seq;
 }
-function createPairs(schema3, iterable, ctx) {
+function createPairs(schema, iterable, ctx) {
   const { replacer } = ctx;
-  const pairs = new YAMLSeq(schema3);
+  const pairs = new YAMLSeq(schema);
   pairs.tag = "tag:yaml.org,2002:pairs";
-  let i2 = 0;
+  let i = 0;
   if (iterable && Symbol.iterator in Object(iterable))
     for (let it of iterable) {
       if (typeof replacer === "function")
-        it = replacer.call(iterable, String(i2++), it);
-      let key2, value;
+        it = replacer.call(iterable, String(i++), it);
+      let key, value;
       if (Array.isArray(it)) {
         if (it.length === 2) {
-          key2 = it[0];
+          key = it[0];
           value = it[1];
         } else
           throw new TypeError(`Expected [key, value] tuple: ${it}`);
       } else if (it && it instanceof Object) {
         const keys = Object.keys(it);
         if (keys.length === 1) {
-          key2 = keys[0];
-          value = it[key2];
+          key = keys[0];
+          value = it[key];
         } else {
           throw new TypeError(`Expected tuple with one key, not ${keys.length} keys`);
         }
       } else {
-        key2 = it;
+        key = it;
       }
-      pairs.items.push(createPair(key2, value, ctx));
+      pairs.items.push(createPair(key, value, ctx));
     }
   return pairs;
 }
@@ -23245,27 +21929,27 @@ class YAMLOMap extends YAMLSeq {
   toJSON(_, ctx) {
     if (!ctx)
       return super.toJSON(_);
-    const map2 = new Map;
+    const map = new Map;
     if (ctx?.onCreate)
-      ctx.onCreate(map2);
+      ctx.onCreate(map);
     for (const pair of this.items) {
-      let key2, value;
+      let key, value;
       if (isPair(pair)) {
-        key2 = toJS(pair.key, "", ctx);
-        value = toJS(pair.value, key2, ctx);
+        key = toJS(pair.key, "", ctx);
+        value = toJS(pair.value, key, ctx);
       } else {
-        key2 = toJS(pair, "", ctx);
+        key = toJS(pair, "", ctx);
       }
-      if (map2.has(key2))
+      if (map.has(key))
         throw new Error("Ordered maps must not include duplicate keys");
-      map2.set(key2, value);
+      map.set(key, value);
     }
-    return map2;
+    return map;
   }
-  static from(schema3, iterable, ctx) {
-    const pairs2 = createPairs(schema3, iterable, ctx);
+  static from(schema, iterable, ctx) {
+    const pairs = createPairs(schema, iterable, ctx);
     const omap = new this;
-    omap.items = pairs2.items;
+    omap.items = pairs.items;
     return omap;
   }
 }
@@ -23276,21 +21960,21 @@ var omap = {
   nodeClass: YAMLOMap,
   default: false,
   tag: "tag:yaml.org,2002:omap",
-  resolve(seq2, onError) {
-    const pairs2 = resolvePairs(seq2, onError);
+  resolve(seq, onError) {
+    const pairs = resolvePairs(seq, onError);
     const seenKeys = [];
-    for (const { key: key2 } of pairs2.items) {
-      if (isScalar(key2)) {
-        if (seenKeys.includes(key2.value)) {
-          onError(`Ordered maps must not include duplicate keys: ${key2.value}`);
+    for (const { key } of pairs.items) {
+      if (isScalar(key)) {
+        if (seenKeys.includes(key.value)) {
+          onError(`Ordered maps must not include duplicate keys: ${key.value}`);
         } else {
-          seenKeys.push(key2.value);
+          seenKeys.push(key.value);
         }
       }
     }
-    return Object.assign(new YAMLOMap, pairs2);
+    return Object.assign(new YAMLOMap, pairs);
   },
-  createNode: (schema3, iterable, ctx) => YAMLOMap.from(schema3, iterable, ctx)
+  createNode: (schema, iterable, ctx) => YAMLOMap.from(schema, iterable, ctx)
 };
 
 // node_modules/.bun/yaml@2.9.1/node_modules/yaml/browser/dist/schema/yaml-1.1/bool.js
@@ -23375,8 +22059,8 @@ function intResolve2(str, offset, radix, { intAsBigInt }) {
         str = `0x${str}`;
         break;
     }
-    const n2 = BigInt(str);
-    return sign === "-" ? BigInt(-1) * n2 : n2;
+    const n = BigInt(str);
+    return sign === "-" ? BigInt(-1) * n : n;
   }
   const n = parseInt(str, radix);
   return sign === "-" ? -1 * n : n;
@@ -23427,34 +22111,34 @@ var intHex2 = {
 
 // node_modules/.bun/yaml@2.9.1/node_modules/yaml/browser/dist/schema/yaml-1.1/set.js
 class YAMLSet extends YAMLMap {
-  constructor(schema3) {
-    super(schema3);
+  constructor(schema) {
+    super(schema);
     this.tag = YAMLSet.tag;
   }
-  add(key2) {
+  add(key) {
     let pair;
-    if (isPair(key2))
-      pair = key2;
-    else if (key2 && typeof key2 === "object" && "key" in key2 && "value" in key2 && key2.value === null)
-      pair = new Pair(key2.key, null);
+    if (isPair(key))
+      pair = key;
+    else if (key && typeof key === "object" && "key" in key && "value" in key && key.value === null)
+      pair = new Pair(key.key, null);
     else
-      pair = new Pair(key2, null);
+      pair = new Pair(key, null);
     const prev = findPair(this.items, pair.key);
     if (!prev)
       this.items.push(pair);
   }
-  get(key2, keepPair) {
-    const pair = findPair(this.items, key2);
+  get(key, keepPair) {
+    const pair = findPair(this.items, key);
     return !keepPair && isPair(pair) ? isScalar(pair.key) ? pair.key.value : pair.key : pair;
   }
-  set(key2, value) {
+  set(key, value) {
     if (typeof value !== "boolean")
       throw new Error(`Expected boolean value for set(key, value) in a YAML set, not ${typeof value}`);
-    const prev = findPair(this.items, key2);
+    const prev = findPair(this.items, key);
     if (prev && !value) {
       this.items.splice(this.items.indexOf(prev), 1);
     } else if (!prev && value) {
-      this.items.push(new Pair(key2));
+      this.items.push(new Pair(key));
     }
   }
   toJSON(_, ctx) {
@@ -23468,9 +22152,9 @@ class YAMLSet extends YAMLMap {
     else
       throw new Error("Set items must all have null values");
   }
-  static from(schema3, iterable, ctx) {
+  static from(schema, iterable, ctx) {
     const { replacer } = ctx;
-    const set = new this(schema3);
+    const set = new this(schema);
     if (iterable && Symbol.iterator in Object(iterable))
       for (let value of iterable) {
         if (typeof replacer === "function")
@@ -23487,16 +22171,16 @@ var set = {
   nodeClass: YAMLSet,
   default: false,
   tag: "tag:yaml.org,2002:set",
-  createNode: (schema3, iterable, ctx) => YAMLSet.from(schema3, iterable, ctx),
-  resolve(map2, onError) {
-    if (isMap(map2)) {
-      if (map2.hasAllNullValues(true))
-        return Object.assign(new YAMLSet, map2);
+  createNode: (schema, iterable, ctx) => YAMLSet.from(schema, iterable, ctx),
+  resolve(map, onError) {
+    if (isMap(map)) {
+      if (map.hasAllNullValues(true))
+        return Object.assign(new YAMLSet, map);
       else
         onError("Set items must all have null values");
     } else
       onError("Expected a mapping for this tag");
-    return map2;
+    return map;
   }
 };
 
@@ -23505,7 +22189,7 @@ function parseSexagesimal(str, asBigInt) {
   const sign = str[0];
   const parts = sign === "-" || sign === "+" ? str.substring(1) : str;
   const num = (n) => asBigInt ? BigInt(n) : Number(n);
-  const res = parts.replace(/_/g, "").split(":").reduce((res2, p) => res2 * num(60) + num(p), num(0));
+  const res = parts.replace(/_/g, "").split(":").reduce((res, p) => res * num(60) + num(p), num(0));
   return sign === "-" ? num(-1) * res : res;
 }
 function stringifySexagesimal(node) {
@@ -23647,7 +22331,7 @@ function getTags(customTags, schemaName, addMergeTag) {
     if (Array.isArray(customTags))
       tags = [];
     else {
-      const keys = Array.from(schemas.keys()).filter((key2) => key2 !== "yaml11").map((key2) => JSON.stringify(key2)).join(", ");
+      const keys = Array.from(schemas.keys()).filter((key) => key !== "yaml11").map((key) => JSON.stringify(key)).join(", ");
       throw new Error(`Unknown schema "${schemaName}"; use one of ${keys} or define customTags array`);
     }
   }
@@ -23659,16 +22343,16 @@ function getTags(customTags, schemaName, addMergeTag) {
   }
   if (addMergeTag)
     tags = tags.concat(merge);
-  return tags.reduce((tags2, tag) => {
+  return tags.reduce((tags, tag) => {
     const tagObj = typeof tag === "string" ? tagsByName[tag] : tag;
     if (!tagObj) {
       const tagName = JSON.stringify(tag);
-      const keys = Object.keys(tagsByName).map((key2) => JSON.stringify(key2)).join(", ");
+      const keys = Object.keys(tagsByName).map((key) => JSON.stringify(key)).join(", ");
       throw new Error(`Unknown custom tag ${tagName}; use one of ${keys}`);
     }
-    if (!tags2.includes(tagObj))
-      tags2.push(tagObj);
-    return tags2;
+    if (!tags.includes(tagObj))
+      tags.push(tagObj);
+    return tags;
   }, []);
 }
 
@@ -23676,11 +22360,11 @@ function getTags(customTags, schemaName, addMergeTag) {
 var sortMapEntriesByKey = (a, b) => a.key < b.key ? -1 : a.key > b.key ? 1 : 0;
 
 class Schema {
-  constructor({ compat, customTags, merge: merge2, resolveKnownTags, schema: schema4, sortMapEntries, toStringDefaults }) {
+  constructor({ compat, customTags, merge, resolveKnownTags, schema, sortMapEntries, toStringDefaults }) {
     this.compat = Array.isArray(compat) ? getTags(compat, "compat") : compat ? getTags(null, compat) : null;
-    this.name = typeof schema4 === "string" && schema4 || "core";
+    this.name = typeof schema === "string" && schema || "core";
     this.knownTags = resolveKnownTags ? coreKnownTags : {};
-    this.tags = getTags(customTags, this.name, merge2);
+    this.tags = getTags(customTags, this.name, merge);
     this.toStringOptions = toStringDefaults ?? null;
     Object.defineProperty(this, MAP, { value: map });
     Object.defineProperty(this, SCALAR, { value: string });
@@ -23868,13 +22552,13 @@ class Document {
     setAnchors();
     return node;
   }
-  createPair(key2, value, options = {}) {
-    const k = this.createNode(key2, null, options);
+  createPair(key, value, options = {}) {
+    const k = this.createNode(key, null, options);
     const v = this.createNode(value, null, options);
     return new Pair(k, v);
   }
-  delete(key2) {
-    return assertCollection(this.contents) ? this.contents.delete(key2) : false;
+  delete(key) {
+    return assertCollection(this.contents) ? this.contents.delete(key) : false;
   }
   deleteIn(path) {
     if (isEmptyPath(path)) {
@@ -23885,27 +22569,27 @@ class Document {
     }
     return assertCollection(this.contents) ? this.contents.deleteIn(path) : false;
   }
-  get(key2, keepScalar) {
-    return isCollection(this.contents) ? this.contents.get(key2, keepScalar) : undefined;
+  get(key, keepScalar) {
+    return isCollection(this.contents) ? this.contents.get(key, keepScalar) : undefined;
   }
   getIn(path, keepScalar) {
     if (isEmptyPath(path))
       return !keepScalar && isScalar(this.contents) ? this.contents.value : this.contents;
     return isCollection(this.contents) ? this.contents.getIn(path, keepScalar) : undefined;
   }
-  has(key2) {
-    return isCollection(this.contents) ? this.contents.has(key2) : false;
+  has(key) {
+    return isCollection(this.contents) ? this.contents.has(key) : false;
   }
   hasIn(path) {
     if (isEmptyPath(path))
       return this.contents !== undefined;
     return isCollection(this.contents) ? this.contents.hasIn(path) : false;
   }
-  set(key2, value) {
+  set(key, value) {
     if (this.contents == null) {
-      this.contents = collectionFromPath(this.schema, [key2], value);
+      this.contents = collectionFromPath(this.schema, [key], value);
     } else if (assertCollection(this.contents)) {
-      this.contents.set(key2, value);
+      this.contents.set(key, value);
     }
   }
   setIn(path, value) {
@@ -23965,8 +22649,8 @@ class Document {
     };
     const res = toJS(this.contents, jsonArg ?? "", ctx);
     if (typeof onAnchor === "function")
-      for (const { count, res: res2 } of ctx.anchors.values())
-        onAnchor(res2, count);
+      for (const { count, res } of ctx.anchors.values())
+        onAnchor(res, count);
     return typeof reviver === "function" ? applyReviver(reviver, { "": res }, "", res) : res;
   }
   toJSON(jsonArg, onAnchor) {
@@ -24011,9 +22695,9 @@ visit2.itemAtPath = (cst, path) => {
   return item;
 };
 visit2.parentCollection = (cst, path) => {
-  const parent2 = visit2.itemAtPath(cst, path.slice(0, -1));
+  const parent = visit2.itemAtPath(cst, path.slice(0, -1));
   const field = path[path.length - 1][0];
-  const coll = parent2?.[field];
+  const coll = parent?.[field];
   if (coll && "items" in coll)
     return coll;
   throw new Error("Parent collection not found");
@@ -24025,15 +22709,15 @@ function _visit(path, item, visitor) {
   for (const field of ["key", "value"]) {
     const token = item[field];
     if (token && "items" in token) {
-      for (let i2 = 0;i2 < token.items.length; ++i2) {
-        const ci = _visit(Object.freeze(path.concat([[field, i2]])), token.items[i2], visitor);
+      for (let i = 0;i < token.items.length; ++i) {
+        const ci = _visit(Object.freeze(path.concat([[field, i]])), token.items[i], visitor);
         if (typeof ci === "number")
-          i2 = ci - 1;
+          i = ci - 1;
         else if (ci === BREAK2)
           return BREAK2;
         else if (ci === REMOVE2) {
-          token.items.splice(i2, 1);
-          i2 -= 1;
+          token.items.splice(i, 1);
+          i -= 1;
         }
       }
       if (typeof ctrl === "function" && field === "key")
@@ -24056,13 +22740,13 @@ function compileCategoryDeclarations(declarations) {
   const byCode = new Map;
   let order = 0;
   for (const declaration of declarations) {
-    const code2 = declaration.code || slugifyCategory(declaration.name);
-    if (!code2)
+    const code = declaration.code || slugifyCategory(declaration.name);
+    if (!code)
       continue;
-    const existing = byCode.get(code2);
+    const existing = byCode.get(code);
     const category = {
       name: declaration.name,
-      code: code2,
+      code,
       description: declaration.description || existing?.description,
       icon: declaration.icon || existing?.icon,
       color: declaration.color || existing?.color,
@@ -24072,7 +22756,7 @@ function compileCategoryDeclarations(declarations) {
     };
     if (!existing)
       order += 1;
-    byCode.set(code2, category);
+    byCode.set(code, category);
   }
   const categories = [...byCode.values()];
   const defaults = categories.filter((category) => category.isDefault);
@@ -24193,8 +22877,8 @@ function relationshipFromDeclaration(declaration) {
   if (!cardinality) {
     throw new Error(`Relationship ${declaration.source} → ${declaration.target} pairs ${declaration.sourceEnd} with ${declaration.targetEnd}, which the language does not define`);
   }
-  const label2 = declaration.label?.trim();
-  const name = label2 ? normalizeRelationshipName(label2) : `${declaration.source.toLowerCase()}_${declaration.target.toLowerCase()}`;
+  const label = declaration.label?.trim();
+  const name = label ? normalizeRelationshipName(label) : `${declaration.source.toLowerCase()}_${declaration.target.toLowerCase()}`;
   return {
     name,
     sourceEntity: declaration.source,
@@ -24215,40 +22899,40 @@ function compileErdRecords(records) {
     }
   }
   const entityHelpText = new Map;
-  for (const { entity: entity2, help } of records.entityHelp)
-    entityHelpText.set(entity2, help);
+  for (const { entity, help } of records.entityHelp)
+    entityHelpText.set(entity, help);
   const entityIcons = new Map;
-  for (const { entity: entity2, icon } of records.entityIcons)
-    entityIcons.set(entity2, icon);
+  for (const { entity, icon } of records.entityIcons)
+    entityIcons.set(entity, icon);
   const entityParents = new Map;
-  for (const { entity: entity2, parent: parent2 } of records.entityParents)
-    entityParents.set(entity2, parent2);
+  for (const { entity, parent } of records.entityParents)
+    entityParents.set(entity, parent);
   attachIndexes(entities, records.indexes);
   attachHelp(entities, records.fieldHelp, entityHelpText);
   for (const [name, icon] of entityIcons) {
-    const entity2 = entities.find((candidate) => candidate.name === name);
-    if (entity2)
-      entity2.icon = icon;
+    const entity = entities.find((candidate) => candidate.name === name);
+    if (entity)
+      entity.icon = icon;
   }
   for (const { entity: name, mode } of records.entityConcurrency) {
-    const entity2 = entities.find((candidate) => candidate.name === name);
-    if (entity2)
-      entity2.concurrency = mode;
+    const entity = entities.find((candidate) => candidate.name === name);
+    if (entity)
+      entity.concurrency = mode;
   }
   attachParents(entities, entityParents);
-  for (const { entity: name, key: key2, rows } of records.entityData) {
-    const entity2 = entities.find((candidate) => candidate.name === name);
-    if (entity2)
-      entity2.data = { key: key2, rows };
+  for (const { entity: name, key, rows } of records.entityData) {
+    const entity = entities.find((candidate) => candidate.name === name);
+    if (entity)
+      entity.data = { key, rows };
   }
   const enums = attachEnums(entities, declaredEnums, records.enumBindings, enumDetails);
   return { entities, relationships, enums };
 }
 function attachHelp(entities, fieldHelp, entityHelp) {
   for (const [name, help] of entityHelp) {
-    const entity2 = entities.find((candidate) => candidate.name === name);
-    if (entity2)
-      entity2.description = help;
+    const entity = entities.find((candidate) => candidate.name === name);
+    if (entity)
+      entity.description = help;
   }
   for (const { entity: name, column, help } of fieldHelp) {
     const attribute = entities.find((candidate) => candidate.name === name)?.attributes.find((candidate) => candidate.name === column);
@@ -24259,27 +22943,27 @@ function attachHelp(entities, fieldHelp, entityHelp) {
 function attachParents(entities, parents) {
   for (const [childName, parentName] of parents) {
     const child = entities.find((candidate) => candidate.name === childName);
-    const parent2 = entities.find((candidate) => candidate.name === parentName);
-    if (!child || !parent2)
+    const parent = entities.find((candidate) => candidate.name === parentName);
+    if (!child || !parent)
       continue;
-    const snake2 = snakeCase(parent2.name);
-    const link = child.attributes.find((a) => a.isForeignKey && a.name === `${snake2}_id`) ?? child.attributes.find((a) => a.isForeignKey && a.name.startsWith(`${snake2}_`)) ?? child.attributes.find((a) => a.isForeignKey && a.references === parent2.name);
+    const snake = snakeCase(parent.name);
+    const link = child.attributes.find((a) => a.isForeignKey && a.name === `${snake}_id`) ?? child.attributes.find((a) => a.isForeignKey && a.name.startsWith(`${snake}_`)) ?? child.attributes.find((a) => a.isForeignKey && a.references === parent.name);
     if (!link)
       continue;
-    child.parentEntity = parent2.name;
+    child.parentEntity = parent.name;
     child.parentLinkColumn = link.name;
   }
 }
 function attachIndexes(entities, declared) {
   for (const { entity: entityName, columns, unique } of declared) {
-    const entity2 = entities.find((candidate) => candidate.name === entityName);
-    if (!entity2)
+    const entity = entities.find((candidate) => candidate.name === entityName);
+    if (!entity)
       continue;
-    const known = new Set(entity2.attributes.map((attribute) => attribute.name));
+    const known = new Set(entity.attributes.map((attribute) => attribute.name));
     if (!columns.every((column) => known.has(column)))
       continue;
-    entity2.indexes = entity2.indexes ?? [];
-    entity2.indexes.push({ columns: [...columns], unique });
+    entity.indexes = entity.indexes ?? [];
+    entity.indexes.push({ columns: [...columns], unique });
   }
 }
 function attachEnums(entities, declared, bindings, details) {
@@ -24287,8 +22971,8 @@ function attachEnums(entities, declared, bindings, details) {
   for (const binding of bindings) {
     if (!declared.has(binding.enumName))
       continue;
-    const entity2 = entities.find((candidate) => candidate.name === binding.entity);
-    const attribute = entity2?.attributes.find((candidate) => candidate.name === binding.column);
+    const entity = entities.find((candidate) => candidate.name === binding.entity);
+    const attribute = entity?.attributes.find((candidate) => candidate.name === binding.column);
     if (attribute)
       used.add(binding.enumName);
   }
@@ -24302,8 +22986,8 @@ function attachEnums(entities, declared, bindings, details) {
     const referenceId = referenceIds.get(binding.enumName);
     if (!values || !referenceId)
       continue;
-    const entity2 = entities.find((candidate) => candidate.name === binding.entity);
-    const attribute = entity2?.attributes.find((candidate) => candidate.name === binding.column);
+    const entity = entities.find((candidate) => candidate.name === binding.entity);
+    const attribute = entity?.attributes.find((candidate) => candidate.name === binding.column);
     if (!attribute)
       continue;
     attribute.enumRef = binding.enumName;
@@ -24378,18 +23062,18 @@ var OPERATION_ALIASES2 = {
   remove: "delete",
   destroy: "delete"
 };
-function busTableName(entity2) {
-  const snake2 = entity2.replace(/([a-z0-9])([A-Z])/g, "$1_$2").replace(/([A-Z]+)([A-Z][a-z])/g, "$1_$2").toLowerCase().replace(/^_/, "");
-  return snake2.startsWith("bus_") || snake2.startsWith("sys_") ? snake2 : `bus_${snake2}`;
+function busTableName(entity) {
+  const snake = entity.replace(/([a-z0-9])([A-Z])/g, "$1_$2").replace(/([A-Z]+)([A-Z][a-z])/g, "$1_$2").toLowerCase().replace(/^_/, "");
+  return snake.startsWith("bus_") || snake.startsWith("sys_") ? snake : `bus_${snake}`;
 }
 function compileRbacDeclarations(declarations, knownEntities = [], stateMachines = [], onWarn = () => {}) {
   const known = new Set(knownEntities);
   const operations = new Map;
   const transitions = new Map;
-  const edgesFor = (entity2, event) => {
+  const edgesFor = (entity, event) => {
     const found = [];
     for (const machine of stateMachines) {
-      if (machine.entity !== entity2)
+      if (machine.entity !== entity)
         continue;
       for (const edge of machine.transitions) {
         if (!edge.trigger)
@@ -24402,55 +23086,55 @@ function compileRbacDeclarations(declarations, knownEntities = [], stateMachines
     return found;
   };
   for (const declaration of declarations) {
-    const { entity: entity2, target: rawTarget } = declaration;
-    if (known.size && !known.has(entity2)) {
-      onWarn(`access rule on unknown entity "${entity2}" — skipped.`);
+    const { entity, target: rawTarget } = declaration;
+    if (known.size && !known.has(entity)) {
+      onWarn(`access rule on unknown entity "${entity}" — skipped.`);
       continue;
     }
     const roles = declaration.roles.filter(Boolean);
     if (roles.length === 0) {
-      onWarn(`access rule on ${entity2}.${rawTarget} names no role — skipped.`);
+      onWarn(`access rule on ${entity}.${rawTarget} names no role — skipped.`);
       continue;
     }
     const resolved = OPERATION_ALIASES2[rawTarget.toLowerCase()];
     if (resolved) {
       const ops = resolved === "*" ? [...RBAC_OPERATIONS] : [resolved];
       for (const operation of ops) {
-        const key3 = `${entity2}:${operation}`;
-        const existing2 = operations.get(key3);
-        if (existing2) {
+        const key = `${entity}:${operation}`;
+        const existing = operations.get(key);
+        if (existing) {
           for (const role of roles)
-            existing2.roles.add(role);
+            existing.roles.add(role);
         } else {
-          operations.set(key3, { entity: entity2, operation, roles: new Set(roles) });
+          operations.set(key, { entity, operation, roles: new Set(roles) });
         }
       }
       continue;
     }
-    const edges = edgesFor(entity2, rawTarget);
+    const edges = edgesFor(entity, rawTarget);
     if (edges.length === 0) {
-      onWarn(`access rule on ${entity2}.${rawTarget} names neither a CRUD operation ` + `(${RBAC_OPERATIONS.join(", ")}, *) nor a transition in ${entity2}'s state machine — skipped.`);
+      onWarn(`access rule on ${entity}.${rawTarget} names neither a CRUD operation ` + `(${RBAC_OPERATIONS.join(", ")}, *) nor a transition in ${entity}'s state machine — skipped.`);
       continue;
     }
-    const key2 = `${entity2}:${rawTarget.toLowerCase()}`;
-    const existing = transitions.get(key2);
+    const key = `${entity}:${rawTarget.toLowerCase()}`;
+    const existing = transitions.get(key);
     if (existing) {
       for (const role of roles)
         existing.roles.add(role);
     } else {
-      transitions.set(key2, { entity: entity2, transition: rawTarget, edges, roles: new Set(roles) });
+      transitions.set(key, { entity, transition: rawTarget, edges, roles: new Set(roles) });
     }
   }
   return {
-    operations: [...operations.values()].map(({ entity: entity2, operation, roles }) => ({
-      entity: entity2,
-      tableName: busTableName(entity2),
+    operations: [...operations.values()].map(({ entity, operation, roles }) => ({
+      entity,
+      tableName: busTableName(entity),
       operation,
       roles: [...roles].sort()
     })).sort((a, b) => a.tableName.localeCompare(b.tableName) || a.operation.localeCompare(b.operation)),
-    transitions: [...transitions.values()].map(({ entity: entity2, transition, edges, roles }) => ({
-      entity: entity2,
-      tableName: busTableName(entity2),
+    transitions: [...transitions.values()].map(({ entity, transition, edges, roles }) => ({
+      entity,
+      tableName: busTableName(entity),
       transition,
       edges,
       roles: [...roles].sort()
@@ -24465,12 +23149,12 @@ var READ_ONLY = /^\s*(?:with|select)\b/i;
 function hasStatementBreak(sql) {
   const body = sql.replace(/;\s*$/, "");
   let quote = null;
-  for (let i2 = 0;i2 < body.length; i2++) {
-    const ch = body[i2];
+  for (let i = 0;i < body.length; i++) {
+    const ch = body[i];
     if (quote) {
       if (ch === quote) {
-        if (body[i2 + 1] === quote)
-          i2 += 1;
+        if (body[i + 1] === quote)
+          i += 1;
         else
           quote = null;
       }
@@ -24510,28 +23194,28 @@ function validateReportDeclaration(declaration) {
     sql
   };
 }
-function compileReportDeclarations(declarations, entityNames, warn2 = () => {}) {
-  const accumulator = reportAccumulator(entityNames, warn2);
+function compileReportDeclarations(declarations, entityNames, warn = () => {}) {
+  const accumulator = reportAccumulator(entityNames, warn);
   for (const declaration of declarations)
     accumulator.add(declaration, `report ${declaration.name}`);
   return accumulator.reports();
 }
-function reportAccumulator(entityNames, warn2) {
+function reportAccumulator(entityNames, warn) {
   const known = new Set(entityNames);
   const byName = new Map;
   return {
     add(declaration, context) {
       const parsed = validateReportDeclaration(declaration);
       if ("error" in parsed) {
-        warn2(`${context} ${parsed.error} — skipped`);
+        warn(`${context} ${parsed.error} — skipped`);
         return;
       }
       if (byName.has(parsed.name)) {
-        warn2(`report "${parsed.name}" is declared more than once — keeping the first`);
+        warn(`report "${parsed.name}" is declared more than once — keeping the first`);
         return;
       }
       if (parsed.entity && !known.has(parsed.entity)) {
-        warn2(`report "${parsed.name}" names entity "${parsed.entity}", which the model does not declare — ungrouped`);
+        warn(`report "${parsed.name}" names entity "${parsed.entity}", which the model does not declare — ungrouped`);
         parsed.entity = undefined;
       }
       byName.set(parsed.name, parsed);
@@ -24577,9 +23261,9 @@ function eventToOperation(event) {
     return "DELETE";
   return "ALL";
 }
-function toTableName(entity2) {
-  const snake2 = entity2.replace(/([a-z0-9])([A-Z])/g, "$1_$2").replace(/([A-Z]+)([A-Z][a-z])/g, "$1_$2").toLowerCase();
-  return snake2.startsWith("bus_") || snake2.startsWith("sys_") ? snake2 : `bus_${snake2}`;
+function toTableName(entity) {
+  const snake = entity.replace(/([a-z0-9])([A-Z])/g, "$1_$2").replace(/([A-Z]+)([A-Z][a-z])/g, "$1_$2").toLowerCase();
+  return snake.startsWith("bus_") || snake.startsWith("sys_") ? snake : `bus_${snake}`;
 }
 function withDefaultCondition(action) {
   return { name: action.name, type: action.type, when: action.when ?? "true", props: action.props };
@@ -24593,16 +23277,16 @@ function isBareLiteral(value) {
 function isQuoted(value) {
   return value.length >= 2 && (value.startsWith("'") || value.startsWith('"')) && value.endsWith(value[0]);
 }
-function zenCell(raw2) {
-  const value = (raw2 ?? "").trim();
+function zenCell(raw) {
+  const value = (raw ?? "").trim();
   if (value === "")
     return "";
   if (isQuoted(value) || isBareLiteral(value))
     return value;
   return zenLiteral(value);
 }
-function zenInputCell(raw2) {
-  const value = (raw2 ?? "").trim();
+function zenInputCell(raw) {
+  const value = (raw ?? "").trim();
   if (value === "")
     return "";
   const match = value.match(/^(>=|<=|!=|=|>|<)\s*(.*)$/);
@@ -24757,9 +23441,9 @@ function compileRuleDeclarations(declarations, onWarn = () => {}) {
 }
 
 // packages/generator/src/workflows/state-machine.ts
-function toTableName2(entity2) {
-  const snake2 = entity2.replace(/([a-z0-9])([A-Z])/g, "$1_$2").replace(/([A-Z]+)([A-Z][a-z])/g, "$1_$2").toLowerCase();
-  return snake2.startsWith("bus_") || snake2.startsWith("sys_") ? snake2 : `bus_${snake2}`;
+function toTableName2(entity) {
+  const snake = entity.replace(/([a-z0-9])([A-Z])/g, "$1_$2").replace(/([A-Z]+)([A-Z][a-z])/g, "$1_$2").toLowerCase();
+  return snake.startsWith("bus_") || snake.startsWith("sys_") ? snake : `bus_${snake}`;
 }
 function compileStateMachineDeclarations(declarations, knownEntities = [], onWarn = () => {}) {
   const known = new Set(knownEntities);
@@ -24781,7 +23465,7 @@ function compileStateMachineDeclarations(declarations, knownEntities = [], onWar
       entity: declaration.entity,
       tableName: toTableName2(declaration.entity),
       states: declaration.states.map((name) => ({ name })),
-      transitions: declaration.transitions.map(({ from: from2, to, trigger }) => ({ from: from2, to, trigger })),
+      transitions: declaration.transitions.map(({ from, to, trigger }) => ({ from, to, trigger })),
       initial: declaration.initial,
       terminal: [...declaration.final]
     });
@@ -24791,27 +23475,27 @@ function compileStateMachineDeclarations(declarations, knownEntities = [], onWar
 
 // packages/generator/src/model/compile.ts
 function compileModelRecords(records, options = {}) {
-  const warn2 = options.warn ?? (() => {});
+  const warn = options.warn ?? (() => {});
   const { entities, relationships, enums } = compileErdRecords(records.erd);
-  const entityNames = entities.map((entity2) => entity2.name);
+  const entityNames = entities.map((entity) => entity.name);
   const categories = resolveCategoryDeclarations(records.categories, entityNames);
-  const { workflows: sagas2, diagnostics: sagaDiagnostics } = compileSagaDeclarations(records.sagas);
+  const { workflows: sagas, diagnostics: sagaDiagnostics } = compileSagaDeclarations(records.sagas);
   for (const diagnostic of sagaDiagnostics) {
     const where = diagnostic.nodeId ? `${diagnostic.workflow}.${diagnostic.nodeId}` : diagnostic.workflow;
-    warn2(`saga ${where}: ${diagnostic.message}`);
+    warn(`saga ${where}: ${diagnostic.message}`);
   }
-  const workflows = compileStateMachineDeclarations(records.stateMachines, entityNames, warn2);
-  const rbac2 = compileRbacDeclarations(records.rbac, entityNames, workflows, warn2);
-  const rules = compileRuleDeclarations(records.rules, warn2);
-  const hooks = compileHookDeclarations(records.hooks, entityNames, warn2);
-  const reports = compileReportDeclarations(records.reports, entityNames, warn2);
+  const workflows = compileStateMachineDeclarations(records.stateMachines, entityNames, warn);
+  const rbac = compileRbacDeclarations(records.rbac, entityNames, workflows, warn);
+  const rules = compileRuleDeclarations(records.rules, warn);
+  const hooks = compileHookDeclarations(records.hooks, entityNames, warn);
+  const reports = compileReportDeclarations(records.reports, entityNames, warn);
   return {
     entities,
     relationships,
     categories,
     enums,
-    sagas: sagas2,
-    rbac: rbac2,
+    sagas,
+    rbac,
     rules,
     hooks,
     reports,
@@ -24821,14 +23505,14 @@ function compileModelRecords(records, options = {}) {
 }
 
 // packages/generator/src/model-yaml/canonical.ts
-function present(key2, value) {
-  return value === undefined ? {} : { [key2]: value };
+function present(key, value) {
+  return value === undefined ? {} : { [key]: value };
 }
-function nonEmpty(key2, list2) {
-  return list2?.length ? { [key2]: list2 } : {};
+function nonEmpty(key, list) {
+  return list?.length ? { [key]: list } : {};
 }
-function titleOf(title2, name) {
-  return title2 !== undefined && title2 !== name ? { title: title2 } : {};
+function titleOf(title, name) {
+  return title !== undefined && title !== name ? { title } : {};
 }
 function attributeOf(attribute) {
   return {
@@ -24850,20 +23534,20 @@ function attributeOf(attribute) {
     ...present("comment", attribute.comment)
   };
 }
-function entityOf(entity2) {
+function entityOf(entity) {
   return {
-    name: entity2.name,
-    ...present("help", entity2.help),
-    ...present("icon", entity2.icon),
-    ...present("parent", entity2.parent),
-    ...present("concurrency", entity2.concurrency),
-    ...present("label", entity2.label),
-    ...present("prefix", entity2.prefix),
-    ...present("softDelete", entity2.softDelete),
-    ...present("audited", entity2.audited),
-    ...present("data", entity2.data),
-    attributes: entity2.attributes.map(attributeOf),
-    ...nonEmpty("indexes", entity2.indexes?.map((index) => ({
+    name: entity.name,
+    ...present("help", entity.help),
+    ...present("icon", entity.icon),
+    ...present("parent", entity.parent),
+    ...present("concurrency", entity.concurrency),
+    ...present("label", entity.label),
+    ...present("prefix", entity.prefix),
+    ...present("softDelete", entity.softDelete),
+    ...present("audited", entity.audited),
+    ...present("data", entity.data),
+    attributes: entity.attributes.map(attributeOf),
+    ...nonEmpty("indexes", entity.indexes?.map((index) => ({
       columns: [...index.columns],
       ...index.unique ? { unique: true } : {}
     })))
@@ -24908,23 +23592,23 @@ function reportOf(report) {
 function edgesOf(edges) {
   return edges.map((edge) => ({ from: edge.from, to: edge.to, ...present("label", edge.label) }));
 }
-function ruleOf(rule2) {
+function ruleOf(rule) {
   return {
-    name: rule2.name,
-    ...titleOf(rule2.title, rule2.name),
-    entity: rule2.entity,
-    event: rule2.event,
-    ...present("priority", rule2.priority),
-    ...rule2.direction !== undefined && rule2.direction !== "down" ? { direction: rule2.direction } : {},
-    nodes: rule2.nodes.map((node) => ({ id: node.id, label: node.label, type: node.type })),
-    edges: edgesOf(rule2.edges),
-    ...nonEmpty("actions", rule2.actions?.map((action) => ({
+    name: rule.name,
+    ...titleOf(rule.title, rule.name),
+    entity: rule.entity,
+    event: rule.event,
+    ...present("priority", rule.priority),
+    ...rule.direction !== undefined && rule.direction !== "down" ? { direction: rule.direction } : {},
+    nodes: rule.nodes.map((node) => ({ id: node.id, label: node.label, type: node.type })),
+    edges: edgesOf(rule.edges),
+    ...nonEmpty("actions", rule.actions?.map((action) => ({
       name: action.name,
       type: action.type,
       ...present("when", action.when),
       ...action.props && Object.keys(action.props).length ? { props: { ...action.props } } : {}
     }))),
-    ...present("decisionTable", rule2.decisionTable)
+    ...present("decisionTable", rule.decisionTable)
   };
 }
 function stateMachineOf(machine) {
@@ -24991,17 +23675,17 @@ function canonicalDocument(document) {
       toCardinality: relationship.toCardinality,
       ...present("label", relationship.label)
     }))),
-    ...nonEmpty("hooks", document.hooks?.map((hook2) => ({
-      entity: hook2.entity,
-      event: hook2.event,
-      handler: hook2.handler,
-      ...nonEmpty("fields", hook2.fields && [...hook2.fields])
+    ...nonEmpty("hooks", document.hooks?.map((hook) => ({
+      entity: hook.entity,
+      event: hook.event,
+      handler: hook.handler,
+      ...nonEmpty("fields", hook.fields && [...hook.fields])
     }))),
     ...nonEmpty("hookFlows", document.hookFlows?.map(hookFlowOf)),
-    ...nonEmpty("rbac", document.rbac?.map((rule2) => ({
-      entity: rule2.entity,
-      action: rule2.action,
-      roles: [...rule2.roles]
+    ...nonEmpty("rbac", document.rbac?.map((rule) => ({
+      entity: rule.entity,
+      action: rule.action,
+      roles: [...rule.roles]
     }))),
     ...nonEmpty("triggers", document.triggers?.map((trigger) => ({
       entity: trigger.entity,
@@ -25056,10 +23740,10 @@ function erdOf(document) {
     entityOptions: [],
     fieldOptions: []
   };
-  for (const entity2 of document.entities) {
+  for (const entity of document.entities) {
     erd.entities.push({
-      name: entity2.name,
-      attributes: entity2.attributes.map((attribute) => ({
+      name: entity.name,
+      attributes: entity.attributes.map((attribute) => ({
         type: attribute.type,
         name: attribute.name,
         modifiers: modifiersOf(attribute),
@@ -25067,50 +23751,50 @@ function erdOf(document) {
         ...attribute.narrowedBy !== undefined ? { narrowedBy: attribute.narrowedBy } : {}
       }))
     });
-    if (entity2.help !== undefined)
-      erd.entityHelp.push({ entity: entity2.name, help: entity2.help });
-    if (entity2.icon !== undefined)
-      erd.entityIcons.push({ entity: entity2.name, icon: entity2.icon });
-    if (entity2.concurrency !== undefined) {
-      erd.entityConcurrency.push({ entity: entity2.name, mode: entity2.concurrency });
+    if (entity.help !== undefined)
+      erd.entityHelp.push({ entity: entity.name, help: entity.help });
+    if (entity.icon !== undefined)
+      erd.entityIcons.push({ entity: entity.name, icon: entity.icon });
+    if (entity.concurrency !== undefined) {
+      erd.entityConcurrency.push({ entity: entity.name, mode: entity.concurrency });
     }
-    if (entity2.data !== undefined)
-      erd.entityData.push({ entity: entity2.name, ...entity2.data });
-    if (entity2.parent !== undefined) {
-      erd.entityParents.push({ entity: entity2.name, parent: entity2.parent });
+    if (entity.data !== undefined)
+      erd.entityData.push({ entity: entity.name, ...entity.data });
+    if (entity.parent !== undefined) {
+      erd.entityParents.push({ entity: entity.name, parent: entity.parent });
     }
-    for (const key2 of ENTITY_OPTION_KEYS) {
-      const value = entity2[key2];
+    for (const key of ENTITY_OPTION_KEYS) {
+      const value = entity[key];
       if (value !== undefined) {
-        erd.entityOptions.push({ entity: entity2.name, key: key2, value: String(value) });
+        erd.entityOptions.push({ entity: entity.name, key, value: String(value) });
       }
     }
-    for (const attribute of entity2.attributes) {
+    for (const attribute of entity.attributes) {
       if (attribute.enum !== undefined) {
         erd.enumBindings.push({
-          entity: entity2.name,
+          entity: entity.name,
           column: attribute.name,
           enumName: attribute.enum
         });
       }
-      for (const key2 of FIELD_OPTION_KEYS) {
-        const value = attribute[key2];
+      for (const key of FIELD_OPTION_KEYS) {
+        const value = attribute[key];
         if (value !== undefined) {
           erd.fieldOptions.push({
-            entity: entity2.name,
+            entity: entity.name,
             column: attribute.name,
-            key: key2,
+            key,
             value: String(value)
           });
         }
       }
       if (attribute.help !== undefined) {
-        erd.fieldHelp.push({ entity: entity2.name, column: attribute.name, help: attribute.help });
+        erd.fieldHelp.push({ entity: entity.name, column: attribute.name, help: attribute.help });
       }
     }
-    for (const index of entity2.indexes ?? []) {
+    for (const index of entity.indexes ?? []) {
       erd.indexes.push({
-        entity: entity2.name,
+        entity: entity.name,
         columns: [...index.columns],
         unique: index.unique === true
       });
@@ -25137,27 +23821,27 @@ function categoryOf2(category) {
     entities: [...category.entities ?? []]
   };
 }
-function ruleOf2(rule2) {
+function ruleOf2(rule) {
   return {
-    name: rule2.name,
-    ...rule2.title !== undefined ? { title: rule2.title } : {},
-    entity: rule2.entity,
-    event: rule2.event,
-    ...rule2.priority !== undefined ? { priority: rule2.priority } : {},
-    ...rule2.direction !== undefined ? { direction: rule2.direction } : {},
-    nodes: rule2.nodes.map((node) => ({ id: node.id, label: node.label, type: node.type })),
-    edges: rule2.edges.map((edge) => ({
+    name: rule.name,
+    ...rule.title !== undefined ? { title: rule.title } : {},
+    entity: rule.entity,
+    event: rule.event,
+    ...rule.priority !== undefined ? { priority: rule.priority } : {},
+    ...rule.direction !== undefined ? { direction: rule.direction } : {},
+    nodes: rule.nodes.map((node) => ({ id: node.id, label: node.label, type: node.type })),
+    edges: rule.edges.map((edge) => ({
       source: edge.from,
       target: edge.to,
       ...edge.label !== undefined ? { label: edge.label } : {}
     })),
-    actions: (rule2.actions ?? []).map((action) => ({
+    actions: (rule.actions ?? []).map((action) => ({
       name: action.name,
       type: action.type,
       ...action.when !== undefined ? { when: action.when } : {},
       props: { ...action.props ?? {} }
     })),
-    ...rule2.decisionTable !== undefined ? { decisionTable: rule2.decisionTable } : {}
+    ...rule.decisionTable !== undefined ? { decisionTable: rule.decisionTable } : {}
   };
 }
 function stateMachineOf2(machine) {
@@ -25208,21 +23892,21 @@ function documentToRecords(document) {
     ...document.description !== undefined ? { description: document.description } : {},
     erd: erdOf(document),
     categories: (document.categories ?? []).map(categoryOf2),
-    rbac: (document.rbac ?? []).map((rule2) => ({
-      roles: [...rule2.roles],
-      entity: rule2.entity,
-      target: rule2.action
+    rbac: (document.rbac ?? []).map((rule) => ({
+      roles: [...rule.roles],
+      entity: rule.entity,
+      target: rule.action
     })),
     triggers: (document.triggers ?? []).map((trigger) => ({
       source: trigger.source,
       handler: trigger.handler,
       entity: trigger.entity
     })),
-    hooks: (document.hooks ?? []).map((hook2) => ({
-      event: hook2.event,
-      handler: hook2.handler,
-      entity: hook2.entity,
-      ...hook2.fields?.length ? { fields: [...hook2.fields] } : {}
+    hooks: (document.hooks ?? []).map((hook) => ({
+      event: hook.event,
+      handler: hook.handler,
+      entity: hook.entity,
+      ...hook.fields?.length ? { fields: [...hook.fields] } : {}
     })),
     reports: (document.reports ?? []).map((report) => ({ ...report })),
     rules: (document.rules ?? []).map(ruleOf2),
@@ -25243,8 +23927,8 @@ var AUTO_FIXABLE_CODES = new Set([
   "EML422"
 ]);
 // packages/generator/src/model-yaml/index.ts
-function serializeModelDocument(document3) {
-  const yaml = new Document(canonicalDocument(document3));
+function serializeModelDocument(document) {
+  const yaml = new Document(canonicalDocument(document));
   visit(yaml, {
     Seq(_key, node) {
       if (node.items.length && node.items.every((item) => isScalar(item)))
@@ -25258,8 +23942,8 @@ function serializeModelDocument(document3) {
     flowCollectionPadding: false
   });
 }
-function compileModelDocument(document3, options = {}) {
-  return compileModelRecords(documentToRecords(document3), options);
+function compileModelDocument(document, options = {}) {
+  return compileModelRecords(documentToRecords(document), options);
 }
 
 // packages/generator/src/pipeline/cedm-bundle.ts
@@ -25276,10 +23960,10 @@ function walkUp(start) {
     if (existsSync(path_default.join(directory, MARKER)) && existsSync(path_default.join(directory, "domain"))) {
       return directory;
     }
-    const parent2 = path_default.dirname(directory);
-    if (parent2 === directory)
+    const parent = path_default.dirname(directory);
+    if (parent === directory)
       return;
-    directory = parent2;
+    directory = parent;
   }
 }
 function locateCedmRoot(near) {
@@ -25304,15 +23988,15 @@ var entityCache = new Map;
 
 // packages/generator/src/pipeline/cedm-bundle.ts
 var COMMON_CEDM_DIRECTORIES = ["specification", "schema", "domains"];
-async function copyYamlDirectory(from2, to) {
-  if (!existsSync(from2))
+async function copyYamlDirectory(from, to) {
+  if (!existsSync(from))
     return [];
   const copied = [];
   await mkdir2(to, { recursive: true });
-  for (const entry of (await readdir2(from2)).sort()) {
+  for (const entry of (await readdir2(from)).sort()) {
     if (!/\.ya?ml$/.test(entry))
       continue;
-    await copyFile2(join(from2, entry), join(to, entry));
+    await copyFile2(join(from, entry), join(to, entry));
     copied.push(entry);
   }
   return copied;
@@ -25331,8 +24015,8 @@ Nothing in the application reads these files at run time. The model itself is
 in \`../model/\`.
 `;
 async function writeCedmBundle(outputDir, source) {
-  const root2 = source?.root ?? locateCedmRoot();
-  if (!root2)
+  const root = source?.root ?? locateCedmRoot();
+  if (!root)
     return [];
   const target = join(outputDir, "cedm");
   const written = [];
@@ -25340,15 +24024,15 @@ async function writeCedmBundle(outputDir, source) {
     await rm2(target, { recursive: true, force: true });
     const sections = [];
     for (const directory of COMMON_CEDM_DIRECTORIES) {
-      const files2 = await copyYamlDirectory(join(root2, directory), join(target, directory));
-      written.push(...files2.map((file) => join(directory, file)));
+      const files = await copyYamlDirectory(join(root, directory), join(target, directory));
+      written.push(...files.map((file) => join(directory, file)));
     }
     sections.push("- `specification/` — vocabulary, lifecycle, business-rule, authorization, reporting and generation semantics, and the application profile", "- `schema/` — the shape of a CEDM entity", "- `domains/` — the domain and capability catalogs");
     if (source?.libraryFiles.length) {
       await mkdir2(join(target, "entities"), { recursive: true });
       for (const file of [...source.libraryFiles].sort()) {
         const name = basename(file);
-        await copyFile2(join(root2, file), join(target, "entities", name));
+        await copyFile2(join(root, file), join(target, "entities", name));
         written.push(join("entities", name));
       }
       sections.push("- `entities/` — the library entity definitions this application imports");
@@ -25377,10 +24061,10 @@ init_types2();
 
 // packages/generator/src/naming/tables.ts
 init_types2();
-function tableNameFor2(entity2) {
-  if (entity2.tableName?.startsWith("sys_"))
-    return entity2.tableName;
-  return entityToBusEntity(entity2).tableName;
+function tableNameFor2(entity) {
+  if (entity.tableName?.startsWith("sys_"))
+    return entity.tableName;
+  return entityToBusEntity(entity).tableName;
 }
 
 // packages/generator/src/chat/domain-skill.ts
@@ -25404,8 +24088,8 @@ var SYSTEM_COLUMNS = new Set([
   "deleted_by"
 ]);
 function referenceNamer(model) {
-  const byTable = new Map(model.entities.map((entity2) => [tableNameFor2(entity2), entity2.name]));
-  const byName = new Map(model.entities.map((entity2) => [entity2.name, tableNameFor2(entity2)]));
+  const byTable = new Map(model.entities.map((entity) => [tableNameFor2(entity), entity.name]));
+  const byName = new Map(model.entities.map((entity) => [entity.name, tableNameFor2(entity)]));
   const tables = new Set(byTable.keys());
   return (attribute) => {
     const explicit = attribute.references ? byName.get(attribute.references) : undefined;
@@ -25413,8 +24097,8 @@ function referenceNamer(model) {
     return table ? byTable.get(table) ?? null : null;
   };
 }
-function fieldLines(entity2, enums, target) {
-  return entity2.attributes.filter((attribute) => !SYSTEM_COLUMNS.has(attribute.name) && attribute.name !== entity2.primaryKey).map((attribute) => {
+function fieldLines(entity, enums, target) {
+  return entity.attributes.filter((attribute) => !SYSTEM_COLUMNS.has(attribute.name) && attribute.name !== entity.primaryKey).map((attribute) => {
     const parts = [`  - **${title2(attribute.name.replace(/_id$/, ""))}**`];
     const notes = [];
     if (attribute.required)
@@ -25424,9 +24108,9 @@ function fieldLines(entity2, enums, target) {
       if (points)
         notes.push(`a ${title2(points)}`);
     }
-    const list2 = attribute.enumRef ? enums.get(attribute.enumRef) : undefined;
-    if (list2)
-      notes.push(`one of the ${title2(list2.name)} values`);
+    const list = attribute.enumRef ? enums.get(attribute.enumRef) : undefined;
+    if (list)
+      notes.push(`one of the ${title2(list.name)} values`);
     if (notes.length)
       parts.push(` (${notes.join(", ")})`);
     const help = prose(attribute.description, 240);
@@ -25439,12 +24123,12 @@ function enumSection(enums) {
   if (enums.length === 0)
     return [];
   const lines = ["## Value lists", ""];
-  for (const list2 of [...enums].sort((a, b) => a.name.localeCompare(b.name))) {
-    lines.push(`### ${title2(list2.name)}`, "");
-    for (const value of list2.values) {
-      const label2 = list2.labels?.[value] ?? title2(value);
-      const meaning = prose(list2.descriptions?.[value], 240);
-      lines.push(`- **${label2}**${meaning ? ` — ${meaning}` : ""}`);
+  for (const list of [...enums].sort((a, b) => a.name.localeCompare(b.name))) {
+    lines.push(`### ${title2(list.name)}`, "");
+    for (const value of list.values) {
+      const label = list.labels?.[value] ?? title2(value);
+      const meaning = prose(list.descriptions?.[value], 240);
+      lines.push(`- **${label}**${meaning ? ` — ${meaning}` : ""}`);
     }
     lines.push("");
   }
@@ -25453,22 +24137,22 @@ function enumSection(enums) {
 function renderDomainSkill(model, options) {
   const name = domainSkillName(options.projectName);
   const application = title2(options.projectName);
-  const access3 = deriveAccess(model.rbac, {
+  const access = deriveAccess(model.rbac, {
     projectId: options.projectName,
-    entities: model.entities.map((entity2) => entity2.name)
+    entities: model.entities.map((entity) => entity.name)
   });
-  const enums = new Map(model.enums.map((list2) => [list2.name, list2]));
+  const enums = new Map(model.enums.map((list) => [list.name, list]));
   const target = referenceNamer(model);
   const children = new Map;
-  for (const entity2 of model.entities) {
-    if (!entity2.parentEntity)
+  for (const entity of model.entities) {
+    if (!entity.parentEntity)
       continue;
-    const list2 = children.get(entity2.parentEntity) ?? [];
-    list2.push(entity2);
-    children.set(entity2.parentEntity, list2);
+    const list = children.get(entity.parentEntity) ?? [];
+    list.push(entity);
+    children.set(entity.parentEntity, list);
   }
-  const declared = new Set(model.entities.map((entity2) => entity2.name));
-  const windows = model.entities.filter((entity2) => !entity2.parentEntity || !declared.has(entity2.parentEntity));
+  const declared = new Set(model.entities.map((entity) => entity.name));
+  const windows = model.entities.filter((entity) => !entity.parentEntity || !declared.has(entity.parentEntity));
   const lines = [
     "---",
     `name: ${name}`,
@@ -25484,28 +24168,31 @@ function renderDomainSkill(model, options) {
     lines.push(overview, "");
   lines.push("Everything below is the application's own description of itself, taken from the model it was generated from. Use these names when you talk to the person, and pass the record type's name as `entity` to the tools.", "");
   lines.push("## Records", "");
-  for (const entity2 of [...windows].sort((a, b) => a.name.localeCompare(b.name))) {
-    lines.push(`### ${title2(entity2.name)}`, "");
-    const help = prose(entity2.description, 600);
+  for (const entity of [...windows].sort((a, b) => a.name.localeCompare(b.name))) {
+    lines.push(`### ${title2(entity.name)}`, "");
+    const help = prose(entity.description, 600);
     if (help)
       lines.push(help, "");
-    const readers = access3.entityVisibility[entity2.name];
+    const readers = access.entityVisibility[entity.name];
     lines.push(readers && readers.length > 0 ? `Readable by: ${readers.map(title2).join(", ")}, and the Administrator. Anyone else does not see it at all.` : "Readable by every signed-in person.", "");
-    const writes = model.rbac.operations.filter((rule2) => rule2.entity === entity2.name && rule2.operation !== "read");
-    for (const rule2 of writes) {
-      lines.push(`- ${title2(rule2.operation)} only by: ${rule2.roles.map(title2).join(", ")}`);
+    const writes = model.rbac.operations.filter((rule) => rule.entity === entity.name && rule.operation !== "read");
+    for (const rule of writes) {
+      lines.push(`- ${title2(rule.operation)} only by: ${rule.roles.map(title2).join(", ")}`);
     }
     if (writes.length)
       lines.push("");
-    lines.push("Fields:", ...fieldLines(entity2, enums, target), "");
-    for (const child of children.get(entity2.name) ?? []) {
-      lines.push(`Line items — **${title2(child.name)}**: kept inside each ${title2(entity2.name)} and reached by opening it, never on their own.${child.description ? ` ${prose(child.description, 300)}` : ""}`, "");
+    if (entity.concurrency === "last-write-wins") {
+      lines.push("When two people save the same record, the later save replaces the earlier one: this record type is last-write-wins, so no conflict is reported.", "");
+    }
+    lines.push("Fields:", ...fieldLines(entity, enums, target), "");
+    for (const child of children.get(entity.name) ?? []) {
+      lines.push(`Line items — **${title2(child.name)}**: kept inside each ${title2(entity.name)} and reached by opening it, never on their own.${child.description ? ` ${prose(child.description, 300)}` : ""}`, "");
     }
   }
   lines.push(...enumSection(model.enums));
   if (model.workflows.length > 0) {
     lines.push("## Lifecycles", "");
-    lines.push("A record with a lifecycle moves only along the moves listed — the application refuses any other, for every role. A **final** state is a completed transaction: the application refuses every change to such a record, including an administrator's. Say so when a record is final.", "");
+    lines.push("A record with a lifecycle moves only along the moves listed — the application refuses any other, for every role. A **final** state is a completed transaction: the application refuses every change to such a record and every deletion of it, including an administrator's. Say so when a record is final.", "");
     for (const workflow of model.workflows) {
       lines.push(`### ${title2(workflow.entity)} — ${title2(workflow.name)}`, "");
       if (workflow.initial)
@@ -25515,17 +24202,17 @@ function renderDomainSkill(model, options) {
       }
       lines.push("", "Moves:");
       for (const move of workflow.transitions) {
-        const roles2 = model.rbac.transitions.filter((rule2) => rule2.entity === workflow.entity && rule2.edges.some((edge) => edge.from === move.from && edge.to === move.to)).flatMap((rule2) => rule2.roles);
-        lines.push(`- ${title2(move.from)} → ${title2(move.to)}${move.trigger ? ` (${title2(move.trigger)})` : ""}${roles2.length ? ` — only ${[...new Set(roles2)].map(title2).join(", ")}` : ""}`);
+        const roles = model.rbac.transitions.filter((rule) => rule.entity === workflow.entity && rule.edges.some((edge) => edge.from === move.from && edge.to === move.to)).flatMap((rule) => rule.roles);
+        lines.push(`- ${title2(move.from)} → ${title2(move.to)}${move.trigger ? ` (${title2(move.trigger)})` : ""}${roles.length ? ` — only ${[...new Set(roles)].map(title2).join(", ")}` : ""}`);
       }
       lines.push("");
     }
   }
-  const roles = access3.roles.filter((role) => !role.isAdmin);
+  const roles = access.roles.filter((role) => !role.isAdmin);
   if (roles.length > 0) {
     lines.push("## Roles", "");
     for (const role of roles) {
-      const count = access3.entityCounts[role.name];
+      const count = access.entityCounts[role.name];
       lines.push(`- **${role.name}**${count !== undefined ? ` — reads ${count} of ${model.entities.length} record types` : ""}`);
     }
     lines.push("- **Administrator** — reads and changes everything the lifecycles allow", "", "A refusal means the person's role does not allow it. Say which role does, from this list, and suggest their administrator.", "");
@@ -25562,25 +24249,25 @@ function locateChatSource() {
     const candidate = join(directory, "chat-deepseek");
     if (existsSync(join(candidate, MARKER2)))
       return candidate;
-    const parent2 = dirname(directory);
-    if (parent2 === directory)
+    const parent = dirname(directory);
+    if (parent === directory)
       return null;
-    directory = parent2;
+    directory = parent;
   }
 }
-async function copyTree2(from2, to, written, prefix = "") {
+async function copyTree2(from, to, written, prefix = "") {
   await mkdir2(to, { recursive: true });
-  for (const entry of (await readdir2(from2, { withFileTypes: true })).sort((a, b) => a.name.localeCompare(b.name))) {
+  for (const entry of (await readdir2(from, { withFileTypes: true })).sort((a, b) => a.name.localeCompare(b.name))) {
     if (skipped(entry.name))
       continue;
-    const source = join(from2, entry.name);
+    const source = join(from, entry.name);
     const target = join(to, entry.name);
-    const relative2 = prefix ? `${prefix}/${entry.name}` : entry.name;
+    const relative = prefix ? `${prefix}/${entry.name}` : entry.name;
     if (entry.isDirectory()) {
-      await copyTree2(source, target, written, relative2);
+      await copyTree2(source, target, written, relative);
     } else if (entry.isFile()) {
       await copyFile2(source, target);
-      written.push(relative2);
+      written.push(relative);
     }
   }
 }
@@ -25731,10 +24418,12 @@ async function writeManifest(outputDir, model, settings, extras = {}) {
       backendPort: port,
       frontendPort: settings.frontendPort ?? port + 1,
       apiUrl: settings.apiBaseUrl ?? `http://localhost:${port}`,
-      entities: model.entities.map((entity2) => entity2.name),
+      entities: model.entities.map((entity) => entity.name),
       categories: model.categories.map((category) => category.name),
       enums: model.enums.map((modelEnum) => `${modelEnum.name} (${modelEnum.values.length})`),
       sagas: model.sagas.map((saga) => `${saga.name} on ${saga.entity} (${saga.steps.length} steps, ${saga.trigger})`),
+      lastWriteWins: model.entities.filter((entity) => entity.concurrency === "last-write-wins").map((entity) => entity.name),
+      finalStates: model.workflows.filter((workflow) => workflow.terminal.length > 0).map((workflow) => `${workflow.entity}: ${workflow.terminal.join(", ")}`),
       packageManager: extras.packageManager,
       generatedAt: new Date().toISOString()
     }, null, 2));
@@ -25829,10 +24518,10 @@ var OUTPUT = "/out";
 function decode(asset) {
   if (typeof asset === "string")
     return asset;
-  const binary2 = atob(asset.base64);
-  const bytes = new Uint8Array(binary2.length);
-  for (let i2 = 0;i2 < binary2.length; i2++)
-    bytes[i2] = binary2.charCodeAt(i2);
+  const binary = atob(asset.base64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0;i < binary.length; i++)
+    bytes[i] = binary.charCodeAt(i);
   return bytes;
 }
 var mounted;
@@ -25870,6 +24559,6 @@ async function generateLocoApplication(options) {
   return application;
 }
 export {
-  generateLocoApplication,
-  LOCO_DEFAULTS
+  LOCO_DEFAULTS,
+  generateLocoApplication
 };

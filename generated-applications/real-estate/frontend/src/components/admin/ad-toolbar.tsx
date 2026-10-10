@@ -31,6 +31,11 @@ interface ADToolbarProps {
   hasChanges?: boolean;
   canDelete?: boolean;
   canCreate?: boolean;
+  /**
+   * False for a record in a final state: a completed transaction the API
+   * refuses to change, so the screen does not offer a form it would refuse.
+   */
+  canEdit?: boolean;
   isEditing?: boolean;
   isDetailView?: boolean;
   isAdvancedSearchOpen?: boolean;
@@ -52,6 +57,7 @@ export function ADToolbar({
   hasChanges,
   canDelete = true,
   canCreate = true,
+  canEdit = true,
   isEditing = false,
   isDetailView = false,
   isAdvancedSearchOpen = false,
@@ -123,13 +129,17 @@ export function ADToolbar({
               <Button
                 size="sm"
                 onClick={onEdit}
+                disabled={!canEdit}
+                aria-disabled={!canEdit}
                 className="h-9 gap-2 px-4 text-sm font-semibold bg-teal-600 hover:bg-teal-700 text-white shadow-sm"
               >
                 <Pencil size={16} />
                 Edit
               </Button>
             </TooltipTrigger>
-            <TooltipContent>Edit Record</TooltipContent>
+            <TooltipContent>
+              {canEdit ? "Edit Record" : "Closed — this transaction is complete and cannot be changed or deleted"}
+            </TooltipContent>
           </Tooltip>
         )}
 

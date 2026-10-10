@@ -379,7 +379,12 @@ function workflowFor(model: ParsedModel, entity: Entity): string {
         workflow.terminal.length
           ? ` and finishes at ${workflow.terminal.map((state) => `<code>${escapeHtml(state)}</code>`).join(" or ")}`
           : ""
-      }. These are the moves it may make, and no others:</p>
+      }. These are the moves it may make, and no others:</p>${
+        workflow.terminal.length
+          ? `
+      <p>A record that reaches ${workflow.terminal.length === 1 ? "that final state" : "a final state"} is a completed transaction: the application refuses every change to it and every deletion of it, for every role, an administrator included.</p>`
+          : ""
+      }
       <table>
         <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
         <tbody>
@@ -388,6 +393,16 @@ ${rows}
       </table>`;
     })
     .join("\n");
+}
+
+/**
+ * What happens when two people edit one record, from the entity's
+ * `concurrency` — the behaviour a person meets as the conflict dialog.
+ */
+function concurrencyPhrase(entity: Entity): string {
+  return entity.concurrency === "last-write-wins"
+    ? "When two people change the same record, the later save replaces the earlier one: this record is <em>last-write-wins</em>."
+    : "When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.";
 }
 
 function rulesFor(model: ParsedModel, entity: Entity): string {
@@ -539,6 +554,7 @@ ${model.rules.length ? '          <li><a href="#rules">The decisions it makes</a
             "</code> in the model.</span>"
       }</p>
       <p class="meta">Stored as <code>${escapeHtml(tableNameFor(entity))}</code>, keyed by <code>${escapeHtml(entity.primaryKey || "id")}</code>.</p>
+      <p class="meta">${concurrencyPhrase(entity)}</p>
 
       <h4>Its fields</h4>
 ${
