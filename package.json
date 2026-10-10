@@ -20,6 +20,10 @@
     "lint:fix": "biome check --write .",
     "type-check": "tsc --noEmit",
     "type-check:language": "tsc -p tsconfig.language.json",
+    "type-check:tools": "tsc -p tsconfig.tools.json",
+    "spec:check": "bun tools/check.ts",
+    "spec:validate": "bun tools/validate.ts",
+    "test:tools": "bun test tools",
     "parity": "./scripts/parity-check.sh",
     "build:wasm": "cargo build -p appwithai-gen --release --target wasm32-wasip1",
     "wasm": "node --no-warnings scripts/appwithai-wasm.mjs",
@@ -56,7 +60,8 @@
     "@types/pg": "^8.16.0",
     "kysely": "^0.29.4",
     "playwright": "^1.62.0",
-    "typescript": "^7.0.2"
+    "typescript": "^7.0.2",
+    "yaml": "^2.8.1"
   },
   "engines": {
     "bun": ">=1.3.14"

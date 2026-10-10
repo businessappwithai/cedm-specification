@@ -1,14 +1,18 @@
 #!/usr/bin/env bash
-# Validate, commit and push what has been authored, then print the next batch's skeleton.
-#   tools/help-next.sh "message" [count]
-set -u
+# Check what has been authored, then print the next batch's skeleton.
+#
+#   tools/help-next.sh [count]
+#
+# Applying a batch is `bun tools/help-apply.ts tools/help-batches/bNNN.txt`;
+# this only reports. It commits and pushes nothing: that stays with the author.
+set -euo pipefail
 cd "$(dirname "$0")/.."
-if python3 tools/validate.py 2>&1 | grep -q "^ERROR"; then python3 tools/validate.py 2>&1 | grep "^ERROR"; echo "NOT COMMITTED"; exit 1; fi
-git add -A tools domain
-git commit -qm "$1
-
-Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>
-Claude-Session: https://claude.ai/code/session_01XXVXaam1YE4tWxq3ZP4SSK" && echo committed
-git push -q origin claude/practical-thompson-0m5ji3 2>&1 | tail -1
-echo "remaining: $(python3 tools/help_skeleton.py --todo | wc -l)"
-python3 tools/help_skeleton.py --next "${2:-8}" | grep -v "^      keep" | cut -c1-190
+if ! bun tools/validate.ts >/tmp/help-next-validate.$$ 2>&1; then
+  grep "^ERROR" /tmp/help-next-validate.$$ || cat /tmp/help-next-validate.$$
+  rm -f /tmp/help-next-validate.$$
+  echo "The library does not validate; fix it before authoring more."
+  exit 1
+fi
+rm -f /tmp/help-next-validate.$$
+echo "remaining: $(bun tools/help-skeleton.ts --todo | grep -c . || true)"
+bun tools/help-skeleton.ts --next "${1:-8}" | grep -v "^      keep" | cut -c1-190
