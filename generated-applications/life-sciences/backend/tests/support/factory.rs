@@ -8,7 +8,7 @@
 //! randomness — and carry a per-run token so they never collide with the rows
 //! an earlier run left behind.
 //!
-//! Generated: 2026-10-10T02:40:42.097Z
+//! Generated: 2026-10-10T04:18:10.583Z
 //! Project: life-sciences
 
 #![allow(dead_code)]
@@ -122,6 +122,12 @@ pub fn build_record(entity: &EntityMeta) -> Map<String, Value> {
     let mut payload = Map::new();
     for field in entity.writable_fields() {
         if field.field_type == FieldType::Reference {
+            continue;
+        }
+        // A record begins in its machine's initial state; any other string is a
+        // record the transition guard would never let it leave.
+        if let Some(initial) = entity.initial_state(field.name) {
+            payload.insert(field.name.to_string(), json!(initial));
             continue;
         }
         payload.insert(field.name.to_string(), value_for(field));
