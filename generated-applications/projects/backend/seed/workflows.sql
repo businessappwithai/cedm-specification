@@ -705,6 +705,122 @@ ON CONFLICT (name) DO UPDATE SET
 
 INSERT INTO sys_workflow_definitions
   (name, entity_name, operation, trigger_type, bpmn_xml, description, is_active, is_model_managed, created_at, updated_at)
+VALUES ('ProjectCostFollowUpRequired', 'bus_project_cost', 'UPDATE',
+        'rule', '<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+  xmlns:appwithai="http://appwithai.io/schema/1.0"
+  id="Definitions_ProjectCostFollowUpRequired"
+  targetNamespace="http://appwithai.io/bpmn">
+  <bpmn:process id="Process_ProjectCostFollowUpRequired" isExecutable="true">
+    <bpmn:startEvent id="Process_ProjectCostFollowUpRequired_start"/>
+    <bpmn:serviceTask id="Process_ProjectCostFollowUpRequired_S1" name="Raise a task: follow up on">
+      <bpmn:extensionElements>
+        <appwithai:properties>
+        <appwithai:property name="nodeType" value="CreateEntity"/>
+        <appwithai:property name="entity" value="bus_task"/>
+        <appwithai:property name="as" value="taskId"/>
+        <appwithai:property name="fields" value="{&quot;code&quot;:&quot;PROJECT-COST-FOLLOW-UP-{{id}}&quot;,&quot;name&quot;:&quot;Follow up on project cost {{cost_number}}&quot;,&quot;description&quot;:&quot;Project cost {{cost_number}} is now {{status}}. Check the records that depended on it and tell the people affected.&quot;,&quot;task_type&quot;:&quot;USER&quot;,&quot;status&quot;:&quot;CREATED&quot;,&quot;priority&quot;:&quot;NORMAL&quot;}"/>
+        </appwithai:properties>
+      </bpmn:extensionElements>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="Process_ProjectCostFollowUpRequired_end"/>
+    <bpmn:sequenceFlow id="Process_ProjectCostFollowUpRequired_flow_0" sourceRef="Process_ProjectCostFollowUpRequired_start" targetRef="Process_ProjectCostFollowUpRequired_S1"/>
+    <bpmn:sequenceFlow id="Process_ProjectCostFollowUpRequired_flow_1" sourceRef="Process_ProjectCostFollowUpRequired_S1" targetRef="Process_ProjectCostFollowUpRequired_end"/>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Process_ProjectCostFollowUpRequired">
+    <bpmndi:BPMNPlane id="BPMNPlane_Process_ProjectCostFollowUpRequired" bpmnElement="Process_ProjectCostFollowUpRequired">
+      <bpmndi:BPMNShape id="Process_ProjectCostFollowUpRequired_start_di" bpmnElement="Process_ProjectCostFollowUpRequired_start">
+        <dc:Bounds x="160" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_ProjectCostFollowUpRequired_S1_di" bpmnElement="Process_ProjectCostFollowUpRequired_S1">
+        <dc:Bounds x="256" y="100" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_ProjectCostFollowUpRequired_end_di" bpmnElement="Process_ProjectCostFollowUpRequired_end">
+        <dc:Bounds x="456" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Process_ProjectCostFollowUpRequired_flow_0_di" bpmnElement="Process_ProjectCostFollowUpRequired_flow_0">
+        <di:waypoint x="196" y="140"/>
+        <di:waypoint x="256" y="140"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Process_ProjectCostFollowUpRequired_flow_1_di" bpmnElement="Process_ProjectCostFollowUpRequired_flow_1">
+        <di:waypoint x="396" y="140"/>
+        <di:waypoint x="456" y="140"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>', 'When a project cost is cancelled or reversed, a task asks someone to settle what depended on it.', TRUE, TRUE, NOW(), NOW())
+ON CONFLICT (name) DO UPDATE SET
+  entity_name      = EXCLUDED.entity_name,
+  operation        = EXCLUDED.operation,
+  trigger_type     = EXCLUDED.trigger_type,
+  bpmn_xml         = EXCLUDED.bpmn_xml,
+  description      = EXCLUDED.description,
+  is_model_managed = TRUE,
+  updated_at       = NOW();
+
+INSERT INTO sys_workflow_definitions
+  (name, entity_name, operation, trigger_type, bpmn_xml, description, is_active, is_model_managed, created_at, updated_at)
+VALUES ('ProjectCostCompletionConfirmed', 'bus_project_cost', 'UPDATE',
+        'rule', '<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+  xmlns:appwithai="http://appwithai.io/schema/1.0"
+  id="Definitions_ProjectCostCompletionConfirmed"
+  targetNamespace="http://appwithai.io/bpmn">
+  <bpmn:process id="Process_ProjectCostCompletionConfirmed" isExecutable="true">
+    <bpmn:startEvent id="Process_ProjectCostCompletionConfirmed_start"/>
+    <bpmn:serviceTask id="Process_ProjectCostCompletionConfirmed_S1" name="Raise a task: confirm">
+      <bpmn:extensionElements>
+        <appwithai:properties>
+        <appwithai:property name="nodeType" value="CreateEntity"/>
+        <appwithai:property name="entity" value="bus_task"/>
+        <appwithai:property name="as" value="taskId"/>
+        <appwithai:property name="fields" value="{&quot;code&quot;:&quot;PROJECT-COST-COMPLETED-{{id}}&quot;,&quot;name&quot;:&quot;Confirm project cost {{cost_number}}&quot;,&quot;description&quot;:&quot;Project cost {{cost_number}} is now {{status}}. Check the outcome is what was agreed and close any open items.&quot;,&quot;task_type&quot;:&quot;USER&quot;,&quot;status&quot;:&quot;CREATED&quot;,&quot;priority&quot;:&quot;LOW&quot;}"/>
+        </appwithai:properties>
+      </bpmn:extensionElements>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="Process_ProjectCostCompletionConfirmed_end"/>
+    <bpmn:sequenceFlow id="Process_ProjectCostCompletionConfirmed_flow_0" sourceRef="Process_ProjectCostCompletionConfirmed_start" targetRef="Process_ProjectCostCompletionConfirmed_S1"/>
+    <bpmn:sequenceFlow id="Process_ProjectCostCompletionConfirmed_flow_1" sourceRef="Process_ProjectCostCompletionConfirmed_S1" targetRef="Process_ProjectCostCompletionConfirmed_end"/>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Process_ProjectCostCompletionConfirmed">
+    <bpmndi:BPMNPlane id="BPMNPlane_Process_ProjectCostCompletionConfirmed" bpmnElement="Process_ProjectCostCompletionConfirmed">
+      <bpmndi:BPMNShape id="Process_ProjectCostCompletionConfirmed_start_di" bpmnElement="Process_ProjectCostCompletionConfirmed_start">
+        <dc:Bounds x="160" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_ProjectCostCompletionConfirmed_S1_di" bpmnElement="Process_ProjectCostCompletionConfirmed_S1">
+        <dc:Bounds x="256" y="100" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_ProjectCostCompletionConfirmed_end_di" bpmnElement="Process_ProjectCostCompletionConfirmed_end">
+        <dc:Bounds x="456" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Process_ProjectCostCompletionConfirmed_flow_0_di" bpmnElement="Process_ProjectCostCompletionConfirmed_flow_0">
+        <di:waypoint x="196" y="140"/>
+        <di:waypoint x="256" y="140"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Process_ProjectCostCompletionConfirmed_flow_1_di" bpmnElement="Process_ProjectCostCompletionConfirmed_flow_1">
+        <di:waypoint x="396" y="140"/>
+        <di:waypoint x="456" y="140"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>', 'When a project cost is posted, a task asks someone to confirm the outcome.', TRUE, TRUE, NOW(), NOW())
+ON CONFLICT (name) DO UPDATE SET
+  entity_name      = EXCLUDED.entity_name,
+  operation        = EXCLUDED.operation,
+  trigger_type     = EXCLUDED.trigger_type,
+  bpmn_xml         = EXCLUDED.bpmn_xml,
+  description      = EXCLUDED.description,
+  is_model_managed = TRUE,
+  updated_at       = NOW();
+
+INSERT INTO sys_workflow_definitions
+  (name, entity_name, operation, trigger_type, bpmn_xml, description, is_active, is_model_managed, created_at, updated_at)
 VALUES ('ProfessionalEngagementApprovalRequested', 'bus_professional_engagement', 'UPDATE',
         'rule', '<?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"

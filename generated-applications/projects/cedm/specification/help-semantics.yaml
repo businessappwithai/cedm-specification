@@ -6,7 +6,7 @@ helpContract:
   mandatory: true
 
 entityHelp:
-  # Enforced by tools/validate.py as DICT-003: `summary` and `businessMeaning`
+  # Enforced by tools/validate.ts as DICT-003: `summary` and `businessMeaning`
   # (or its alias `purpose`). The remaining keys are recommended, and every
   # key must be one dictionary-mapping.yaml carries (DICT-004).
   required:
@@ -37,7 +37,7 @@ entityHelp:
     uiGuidance: Guidance for forms, lists, search, object pages, dashboards, and user actions.
 
 fieldHelp:
-  # Enforced by tools/validate.py as DICT-006: `summary` and `usage`.
+  # Enforced by tools/validate.ts as DICT-006: `summary` and `usage`.
   required:
     - summary
     - usage

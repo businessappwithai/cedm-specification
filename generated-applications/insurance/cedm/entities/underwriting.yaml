@@ -1,0 +1,67 @@
+entity:
+  name: Underwriting
+  namespace: cedm.domain
+  kind: insurance_underwriting
+  description: A governed insurance risk-evaluation process and decision record used to determine whether and on what terms a proposed or renewable InsurancePolicy may be accepted.
+  ui: {icon: scan-search}
+  identity: {key: underwritingId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: underwritingId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the underwriting evaluation., businessMeaning: Identifies one governed risk decision independently of later policy issuance., usage: "Insurance sales, risk, policy issuance, renewal and audit.", relationshipContext: May precede an InsurancePolicy or evaluate an existing policy renewal.}}
+    - {name: underwritingNumber, type: string, required: true, unique: true, maxLength: 120, help: {summary: 'The business reference of the underwriting case, such as UW-2026-118, separate from any policy number.', usage: 'Unique; assigned when the case opens and quoted by underwriters, brokers and integrations when searching or referring to the review.', businessMeaning: Operational identifier for risk review and integration., relationshipContext: Distinct from policy number.}}
+    - {name: riskScore, type: decimal, required: false, precision: 12, scale: 4, help: {summary: 'A numeric measure of the assessed risk, produced by a scoring model or set by the underwriter.', usage: 'Optional; used to segment risks and support the decision, but never the sole reason for it. The scale depends on the model used.', businessMeaning: Supports but does not replace explainable underwriting decision evidence., relationshipContext: Scoring model and scale require separate policy/model governance.}}
+    - name: decision
+      type: enum
+      required: false
+      values: [ACCEPT, ACCEPT_WITH_TERMS, DECLINE, REFER]
+      help:
+        summary: 'The outcome of the risk review: accept, accept with terms, decline or refer onwards.'
+        usage: Recorded once the evaluation concludes; it gates policy issuance and pricing, and must be backed by evidence and approvals.
+        valueSemantics:
+          ACCEPT: The risk is accepted on standard terms and the policy may be issued.
+          ACCEPT_WITH_TERMS: The risk is accepted only with special conditions, exclusions, loadings or a changed premium.
+          DECLINE: The risk is refused and no policy may be issued on this evaluation.
+          REFER: The case exceeds the reviewer's authority or needs specialist input and is passed to a more senior underwriter.
+        businessMeaning: Determines whether issuance/renewal may proceed and whether special terms are required.
+        relationshipContext: Must be supported by attributable risk evidence and approvals.
+    - name: status
+      type: enum
+      required: true
+      default: DRAFT
+      values: [DRAFT, IN_REVIEW, DECIDED, WITHDRAWN]
+      help:
+        summary: The stage the underwriting review has reached, from preparation to a final decision or withdrawal.
+        usage: Starts as DRAFT; moved as review begins and ends. DECIDED requires a recorded decision, and issuance waits for it.
+        valueSemantics:
+          DRAFT: The case is being prepared and review has not started.
+          IN_REVIEW: An underwriter is actively evaluating the risk.
+          DECIDED: A decision has been recorded and the review is closed. A final state.
+          WITHDRAWN: The applicant or insurer abandoned the case without a decision. A final state.
+        businessMeaning: "Separates preparation, active risk review, decision and withdrawal."
+        relationshipContext: DECIDED requires a recorded decision.
+  relationships:
+    - {name: applicant, target: Party, cardinality: "1", ownership: reference, help: {summary: Party whose proposed insurance risk is evaluated., businessMeaning: Establishes applicant or insured context., usage: "Underwriting, communication and audit.", cardinalityMeaning: Exactly one Party in this baseline evaluation., workflowRole: Applicant identity must remain traceable into issued policy relationships.}}
+    - {name: policy, target: InsurancePolicy, cardinality: "0..1", ownership: reference, help: {summary: Policy resulting from or being renewed by this underwriting evaluation., businessMeaning: Preserves decision-to-policy provenance., usage: "Issuance, renewal and audit.", cardinalityMeaning: Optional before issuance or when risk is declined., workflowRole: Issued terms must reconcile to approved underwriting decision.}}
+    - {name: riskAssessment, target: RiskAssessment, cardinality: "0..1", ownership: reference, help: {summary: Structured risk assessment supporting the underwriting decision., businessMeaning: Reuses enterprise risk evidence without conflating it with insurance decision authority., usage: "Decision support and audit.", cardinalityMeaning: Optional when underwriting evidence is represented differently., workflowRole: Decision must remain explainable through attributable evidence.}}
+  invariants:
+    - {id: UNDERWRITING-001, rule: DECIDED status requires decision to be present.}
+    - {id: UNDERWRITING-002, rule: Issued or renewed InsurancePolicy terms must reconcile to the governing underwriting decision and approved exceptions.}
+    - {id: UNDERWRITING-003, rule: Final underwriting evidence is not destructively rewritten; later re-underwriting creates new decision evidence.}
+  lifecycle:
+    title: Underwriting Lifecycle
+    attribute: status
+    states: [DRAFT, IN_REVIEW, DECIDED, WITHDRAWN]
+    initial: DRAFT
+    terminal: [DECIDED, WITHDRAWN]
+    transitions:
+      - {from: DRAFT, to: IN_REVIEW, action: submit}
+      - {from: DRAFT, to: WITHDRAWN, action: withdraw}
+      - {from: IN_REVIEW, to: DECIDED, action: decide}
+      - {from: IN_REVIEW, to: WITHDRAWN, action: withdraw}
+  help:
+    summary: Records the governed risk evaluation and decision behind insurance issuance or renewal.
+    businessMeaning: Underwriting explains why a risk was accepted, modified, referred or declined; InsurancePolicy records the resulting contract when issued.
+    usage: Insurance new business, renewal, pricing, risk governance, compliance and audit.
+    relationshipContext: Applicant is mandatory, RiskAssessment may supply structured evidence, and InsurancePolicy preserves the resulting contract linkage.
+    lifecycle: Underwriting moves from draft to active review and ends with a decision or withdrawal.
+    example: A commercial applicant undergoes risk review, receives ACCEPT_WITH_TERMS, and the issued InsurancePolicy links back to that Underwriting record.
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-UNDERWRITING}

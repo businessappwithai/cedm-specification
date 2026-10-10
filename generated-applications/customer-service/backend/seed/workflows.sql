@@ -183,6 +183,64 @@ ON CONFLICT (name) DO UPDATE SET
 
 INSERT INTO sys_workflow_definitions
   (name, entity_name, operation, trigger_type, bpmn_xml, description, is_active, is_model_managed, created_at, updated_at)
+VALUES ('ServiceCaseFollowUpRequired', 'bus_service_case', 'UPDATE',
+        'rule', '<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+  xmlns:appwithai="http://appwithai.io/schema/1.0"
+  id="Definitions_ServiceCaseFollowUpRequired"
+  targetNamespace="http://appwithai.io/bpmn">
+  <bpmn:process id="Process_ServiceCaseFollowUpRequired" isExecutable="true">
+    <bpmn:startEvent id="Process_ServiceCaseFollowUpRequired_start"/>
+    <bpmn:serviceTask id="Process_ServiceCaseFollowUpRequired_S1" name="Raise a task: follow up on">
+      <bpmn:extensionElements>
+        <appwithai:properties>
+        <appwithai:property name="nodeType" value="CreateEntity"/>
+        <appwithai:property name="entity" value="bus_task"/>
+        <appwithai:property name="as" value="taskId"/>
+        <appwithai:property name="fields" value="{&quot;code&quot;:&quot;SERVICE-CASE-FOLLOW-UP-{{id}}&quot;,&quot;name&quot;:&quot;Follow up on service case {{case_number}}&quot;,&quot;description&quot;:&quot;Service case {{case_number}} is now {{status}}. Check the records that depended on it and tell the people affected.&quot;,&quot;task_type&quot;:&quot;USER&quot;,&quot;status&quot;:&quot;CREATED&quot;,&quot;priority&quot;:&quot;NORMAL&quot;}"/>
+        </appwithai:properties>
+      </bpmn:extensionElements>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="Process_ServiceCaseFollowUpRequired_end"/>
+    <bpmn:sequenceFlow id="Process_ServiceCaseFollowUpRequired_flow_0" sourceRef="Process_ServiceCaseFollowUpRequired_start" targetRef="Process_ServiceCaseFollowUpRequired_S1"/>
+    <bpmn:sequenceFlow id="Process_ServiceCaseFollowUpRequired_flow_1" sourceRef="Process_ServiceCaseFollowUpRequired_S1" targetRef="Process_ServiceCaseFollowUpRequired_end"/>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Process_ServiceCaseFollowUpRequired">
+    <bpmndi:BPMNPlane id="BPMNPlane_Process_ServiceCaseFollowUpRequired" bpmnElement="Process_ServiceCaseFollowUpRequired">
+      <bpmndi:BPMNShape id="Process_ServiceCaseFollowUpRequired_start_di" bpmnElement="Process_ServiceCaseFollowUpRequired_start">
+        <dc:Bounds x="160" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_ServiceCaseFollowUpRequired_S1_di" bpmnElement="Process_ServiceCaseFollowUpRequired_S1">
+        <dc:Bounds x="256" y="100" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_ServiceCaseFollowUpRequired_end_di" bpmnElement="Process_ServiceCaseFollowUpRequired_end">
+        <dc:Bounds x="456" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Process_ServiceCaseFollowUpRequired_flow_0_di" bpmnElement="Process_ServiceCaseFollowUpRequired_flow_0">
+        <di:waypoint x="196" y="140"/>
+        <di:waypoint x="256" y="140"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Process_ServiceCaseFollowUpRequired_flow_1_di" bpmnElement="Process_ServiceCaseFollowUpRequired_flow_1">
+        <di:waypoint x="396" y="140"/>
+        <di:waypoint x="456" y="140"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>', 'When a service case is cancelled, a task asks someone to settle what depended on it.', TRUE, TRUE, NOW(), NOW())
+ON CONFLICT (name) DO UPDATE SET
+  entity_name      = EXCLUDED.entity_name,
+  operation        = EXCLUDED.operation,
+  trigger_type     = EXCLUDED.trigger_type,
+  bpmn_xml         = EXCLUDED.bpmn_xml,
+  description      = EXCLUDED.description,
+  is_model_managed = TRUE,
+  updated_at       = NOW();
+
+INSERT INTO sys_workflow_definitions
+  (name, entity_name, operation, trigger_type, bpmn_xml, description, is_active, is_model_managed, created_at, updated_at)
 VALUES ('ServiceRequestFollowUpRequired', 'bus_service_request', 'UPDATE',
         'rule', '<?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
@@ -230,6 +288,122 @@ VALUES ('ServiceRequestFollowUpRequired', 'bus_service_request', 'UPDATE',
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
 </bpmn:definitions>', 'When a service request is cancelled, a task asks someone to settle what depended on it.', TRUE, TRUE, NOW(), NOW())
+ON CONFLICT (name) DO UPDATE SET
+  entity_name      = EXCLUDED.entity_name,
+  operation        = EXCLUDED.operation,
+  trigger_type     = EXCLUDED.trigger_type,
+  bpmn_xml         = EXCLUDED.bpmn_xml,
+  description      = EXCLUDED.description,
+  is_model_managed = TRUE,
+  updated_at       = NOW();
+
+INSERT INTO sys_workflow_definitions
+  (name, entity_name, operation, trigger_type, bpmn_xml, description, is_active, is_model_managed, created_at, updated_at)
+VALUES ('TicketFollowUpRequired', 'bus_ticket', 'UPDATE',
+        'rule', '<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+  xmlns:appwithai="http://appwithai.io/schema/1.0"
+  id="Definitions_TicketFollowUpRequired"
+  targetNamespace="http://appwithai.io/bpmn">
+  <bpmn:process id="Process_TicketFollowUpRequired" isExecutable="true">
+    <bpmn:startEvent id="Process_TicketFollowUpRequired_start"/>
+    <bpmn:serviceTask id="Process_TicketFollowUpRequired_S1" name="Raise a task: follow up on">
+      <bpmn:extensionElements>
+        <appwithai:properties>
+        <appwithai:property name="nodeType" value="CreateEntity"/>
+        <appwithai:property name="entity" value="bus_task"/>
+        <appwithai:property name="as" value="taskId"/>
+        <appwithai:property name="fields" value="{&quot;code&quot;:&quot;TICKET-FOLLOW-UP-{{id}}&quot;,&quot;name&quot;:&quot;Follow up on ticket {{ticket_number}}&quot;,&quot;description&quot;:&quot;Ticket {{ticket_number}} is now {{status}}. Check the records that depended on it and tell the people affected.&quot;,&quot;task_type&quot;:&quot;USER&quot;,&quot;status&quot;:&quot;CREATED&quot;,&quot;priority&quot;:&quot;NORMAL&quot;}"/>
+        </appwithai:properties>
+      </bpmn:extensionElements>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="Process_TicketFollowUpRequired_end"/>
+    <bpmn:sequenceFlow id="Process_TicketFollowUpRequired_flow_0" sourceRef="Process_TicketFollowUpRequired_start" targetRef="Process_TicketFollowUpRequired_S1"/>
+    <bpmn:sequenceFlow id="Process_TicketFollowUpRequired_flow_1" sourceRef="Process_TicketFollowUpRequired_S1" targetRef="Process_TicketFollowUpRequired_end"/>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Process_TicketFollowUpRequired">
+    <bpmndi:BPMNPlane id="BPMNPlane_Process_TicketFollowUpRequired" bpmnElement="Process_TicketFollowUpRequired">
+      <bpmndi:BPMNShape id="Process_TicketFollowUpRequired_start_di" bpmnElement="Process_TicketFollowUpRequired_start">
+        <dc:Bounds x="160" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_TicketFollowUpRequired_S1_di" bpmnElement="Process_TicketFollowUpRequired_S1">
+        <dc:Bounds x="256" y="100" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_TicketFollowUpRequired_end_di" bpmnElement="Process_TicketFollowUpRequired_end">
+        <dc:Bounds x="456" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Process_TicketFollowUpRequired_flow_0_di" bpmnElement="Process_TicketFollowUpRequired_flow_0">
+        <di:waypoint x="196" y="140"/>
+        <di:waypoint x="256" y="140"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Process_TicketFollowUpRequired_flow_1_di" bpmnElement="Process_TicketFollowUpRequired_flow_1">
+        <di:waypoint x="396" y="140"/>
+        <di:waypoint x="456" y="140"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>', 'When a ticket is cancelled, a task asks someone to settle what depended on it.', TRUE, TRUE, NOW(), NOW())
+ON CONFLICT (name) DO UPDATE SET
+  entity_name      = EXCLUDED.entity_name,
+  operation        = EXCLUDED.operation,
+  trigger_type     = EXCLUDED.trigger_type,
+  bpmn_xml         = EXCLUDED.bpmn_xml,
+  description      = EXCLUDED.description,
+  is_model_managed = TRUE,
+  updated_at       = NOW();
+
+INSERT INTO sys_workflow_definitions
+  (name, entity_name, operation, trigger_type, bpmn_xml, description, is_active, is_model_managed, created_at, updated_at)
+VALUES ('ServiceOrderFollowUpRequired', 'bus_service_order', 'UPDATE',
+        'rule', '<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+  xmlns:appwithai="http://appwithai.io/schema/1.0"
+  id="Definitions_ServiceOrderFollowUpRequired"
+  targetNamespace="http://appwithai.io/bpmn">
+  <bpmn:process id="Process_ServiceOrderFollowUpRequired" isExecutable="true">
+    <bpmn:startEvent id="Process_ServiceOrderFollowUpRequired_start"/>
+    <bpmn:serviceTask id="Process_ServiceOrderFollowUpRequired_S1" name="Raise a task: follow up on">
+      <bpmn:extensionElements>
+        <appwithai:properties>
+        <appwithai:property name="nodeType" value="CreateEntity"/>
+        <appwithai:property name="entity" value="bus_task"/>
+        <appwithai:property name="as" value="taskId"/>
+        <appwithai:property name="fields" value="{&quot;code&quot;:&quot;SERVICE-ORDER-FOLLOW-UP-{{id}}&quot;,&quot;name&quot;:&quot;Follow up on service order {{service_order_number}}&quot;,&quot;description&quot;:&quot;Service order {{service_order_number}} is now {{status}}. Check the records that depended on it and tell the people affected.&quot;,&quot;task_type&quot;:&quot;USER&quot;,&quot;status&quot;:&quot;CREATED&quot;,&quot;priority&quot;:&quot;NORMAL&quot;}"/>
+        </appwithai:properties>
+      </bpmn:extensionElements>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="Process_ServiceOrderFollowUpRequired_end"/>
+    <bpmn:sequenceFlow id="Process_ServiceOrderFollowUpRequired_flow_0" sourceRef="Process_ServiceOrderFollowUpRequired_start" targetRef="Process_ServiceOrderFollowUpRequired_S1"/>
+    <bpmn:sequenceFlow id="Process_ServiceOrderFollowUpRequired_flow_1" sourceRef="Process_ServiceOrderFollowUpRequired_S1" targetRef="Process_ServiceOrderFollowUpRequired_end"/>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Process_ServiceOrderFollowUpRequired">
+    <bpmndi:BPMNPlane id="BPMNPlane_Process_ServiceOrderFollowUpRequired" bpmnElement="Process_ServiceOrderFollowUpRequired">
+      <bpmndi:BPMNShape id="Process_ServiceOrderFollowUpRequired_start_di" bpmnElement="Process_ServiceOrderFollowUpRequired_start">
+        <dc:Bounds x="160" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_ServiceOrderFollowUpRequired_S1_di" bpmnElement="Process_ServiceOrderFollowUpRequired_S1">
+        <dc:Bounds x="256" y="100" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_ServiceOrderFollowUpRequired_end_di" bpmnElement="Process_ServiceOrderFollowUpRequired_end">
+        <dc:Bounds x="456" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Process_ServiceOrderFollowUpRequired_flow_0_di" bpmnElement="Process_ServiceOrderFollowUpRequired_flow_0">
+        <di:waypoint x="196" y="140"/>
+        <di:waypoint x="256" y="140"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Process_ServiceOrderFollowUpRequired_flow_1_di" bpmnElement="Process_ServiceOrderFollowUpRequired_flow_1">
+        <di:waypoint x="396" y="140"/>
+        <di:waypoint x="456" y="140"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>', 'When a service order is cancelled, a task asks someone to settle what depended on it.', TRUE, TRUE, NOW(), NOW())
 ON CONFLICT (name) DO UPDATE SET
   entity_name      = EXCLUDED.entity_name,
   operation        = EXCLUDED.operation,

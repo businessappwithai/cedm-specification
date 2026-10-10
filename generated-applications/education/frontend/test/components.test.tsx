@@ -25,6 +25,7 @@ const GRID_COLUMNS: string[] = [
   'status',
   'external_reference',
   'education_course_id',
+  'class_id',
 ];
 const GRID_FIELDS: FieldMetadata[] = GRID_COLUMNS.map((column, index) => ({
   sys_field_id: `field-${column}`,

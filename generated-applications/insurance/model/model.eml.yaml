@@ -215,6 +215,57 @@ enums:
       SUSPENDED: Cover is paused, for example because a premium is unpaid, and can be restored.
       EXPIRED: The policy term has ended without renewal. A final state.
       CANCELLED: Ended early, or withdrawn while still a quote. A final state.
+  - name: CoverageStatus
+    values: [DRAFT, ACTIVE, SUSPENDED, EXPIRED, CANCELLED]
+    table: true
+    descriptions:
+      DRAFT: Being written into the policy; not yet in force.
+      ACTIVE: In force; claims may be assessed against it.
+      SUSPENDED: Temporarily not in force, for example for non-payment of premium; new claims are not assessed against it.
+      EXPIRED: Its period has ended; historical claims remain valid.
+      CANCELLED: Withdrawn before or during its term; kept for history.
+  - name: InsuredPartyRoleType
+    values: [INSURED, BENEFICIARY, DEPENDENT, COVERED_MEMBER, OTHER]
+    table: true
+    descriptions:
+      INSURED: The person or thing whose risk is insured.
+      BENEFICIARY: The party entitled to be paid on a claim.
+      DEPENDENT: A person covered through the main insured.
+      COVERED_MEMBER: A member covered under a group policy.
+      OTHER: Any other covered role.
+  - name: InsuredPartyStatus
+    values: [ACTIVE, SUSPENDED, ENDED]
+    table: true
+    descriptions:
+      ACTIVE: Covered under the policy.
+      SUSPENDED: Cover paused for this party.
+      ENDED: No longer covered. A final state.
+  - name: UnderwritingDecision
+    values: [ACCEPT, ACCEPT_WITH_TERMS, DECLINE, REFER]
+    table: true
+    descriptions:
+      ACCEPT: The risk is accepted on standard terms and the policy may be issued.
+      ACCEPT_WITH_TERMS: The risk is accepted only with special conditions, exclusions, loadings or a changed premium.
+      DECLINE: The risk is refused and no policy may be issued on this evaluation.
+      REFER: The case exceeds the reviewer's authority or needs specialist input and is passed to a more senior underwriter.
+  - name: UnderwritingStatus
+    values: [DRAFT, IN_REVIEW, DECIDED, WITHDRAWN]
+    table: true
+    descriptions:
+      DRAFT: The case is being prepared and review has not started.
+      IN_REVIEW: An underwriter is actively evaluating the risk.
+      DECIDED: A decision has been recorded and the review is closed. A final state.
+      WITHDRAWN: The applicant or insurer abandoned the case without a decision. A final state.
+  - name: PremiumStatus
+    values: [DRAFT, DUE, INVOICED, PAID, WAIVED, CANCELLED]
+    table: true
+    descriptions:
+      DRAFT: Calculated but not yet due and not yet billed to anyone.
+      DUE: Payable now; the due date has been assessed and collection can begin.
+      INVOICED: Included on an invoice to the policyholder and awaiting payment.
+      PAID: Received and reconciled against payment. A final state.
+      WAIVED: Excused by the insurer so no payment is expected. A final state.
+      CANCELLED: Withdrawn, for example because the policy was cancelled. A final state.
   - name: InsuranceClaimStatus
     values: [REPORTED, UNDER_REVIEW, APPROVED, PARTIALLY_APPROVED, DENIED, SETTLED, CLOSED]
     table: true
@@ -226,6 +277,33 @@ enums:
       DENIED: Refused, for example because the loss is not covered. A final state.
       SETTLED: Payment has been made to the claimant.
       CLOSED: Finished with nothing further to do. A final state.
+  - name: ClaimLineStatus
+    values: [SUBMITTED, ASSESSED, APPROVED, DENIED, SETTLED, CANCELLED]
+    table: true
+    descriptions:
+      SUBMITTED: Line was received and awaits assessment by claims staff.
+      ASSESSED: Review is underway or completed without final decision.
+      APPROVED: Benefit was approved and is awaiting payment.
+      DENIED: Benefit was denied and no payment will be made. A final state.
+      SETTLED: Approved benefit has been paid and reconciled to a settlement. A final state.
+      CANCELLED: Line was withdrawn or cancelled before a decision was paid. A final state.
+  - name: SettlementMethod
+    values: [PAYMENT, SERVICE, OFFSET, RECOVERY, OTHER]
+    table: true
+    descriptions:
+      PAYMENT: Liability is discharged by a cash payment to the claimant, which should be linked to a Payment.
+      SERVICE: Liability is discharged by providing a service, such as a repair or replacement, instead of money.
+      OFFSET: Liability is discharged by netting it against an amount the claimant owes, with no cash movement.
+      RECOVERY: Liability is discharged through recovery from a third party, such as a subrogation or salvage recovery.
+      OTHER: Liability is discharged by a method not listed here, with the arrangement described in the claim notes.
+  - name: SettlementStatus
+    values: [DRAFT, APPROVED, EXECUTED, VOID]
+    table: true
+    descriptions:
+      DRAFT: Being prepared; nothing is committed.
+      APPROVED: Approved and ready to be carried out.
+      EXECUTED: Paid or otherwise discharged. A final state.
+      VOID: Cancelled and of no effect. A final state.
 categories:
   - name: Foundation
     description: Parties, places, units and reference data every domain shares
@@ -234,10 +312,10 @@ categories:
     entities: [Party, Person, Organization, PartyRole, PartyRelationship, LegalEntity, BusinessUnit, Department, Address, ContactPoint, Location, Country, StateProvince, City, Language, Currency, ExchangeRate, UnitOfMeasure, Calendar, Attachment, Task]
   - name: Insurance
     icon: umbrella
-    entities: [InsurancePolicy, InsuranceClaim]
+    entities: [InsurancePolicy, Underwriting, InsuranceClaim, Settlement]
   - name: Reference Data
     icon: list
-    entities: [PartyPartyType, PartyStatus, PersonGender, PersonPartyType, PersonStatus, OrganizationOrganizationType, OrganizationStatus, OrganizationPartyType, PartyRoleRoleType, PartyRoleStatus, AddressAddressType, AddressStatus, LocationLocationType, LocationStatus, CurrencyStatus, ExchangeRateRateType, ExchangeRateStatus, UnitOfMeasureCategory, UnitOfMeasureStatus, TaskTaskType, TaskStatus, TaskPriority, InsurancePolicyStatus, InsuranceClaimStatus]
+    entities: [PartyPartyType, PartyStatus, PersonGender, PersonPartyType, PersonStatus, OrganizationOrganizationType, OrganizationStatus, OrganizationPartyType, PartyRoleRoleType, PartyRoleStatus, AddressAddressType, AddressStatus, LocationLocationType, LocationStatus, CurrencyStatus, ExchangeRateRateType, ExchangeRateStatus, UnitOfMeasureCategory, UnitOfMeasureStatus, TaskTaskType, TaskStatus, TaskPriority, InsurancePolicyStatus, CoverageStatus, InsuredPartyRoleType, InsuredPartyStatus, UnderwritingDecision, UnderwritingStatus, PremiumStatus, InsuranceClaimStatus, ClaimLineStatus, SettlementMethod, SettlementStatus]
 entities:
   - name: Party
     help: The foundational CEDM business concept for an identifiable person or organization participating in business. Party separates who an actor is from the roles that actor performs. The same party can be a customer, supplier, employee, owner, provider, or contract party without creating duplicate identities. Used as the identity foundation for onboarding, customer management, procurement, sales, finance, logistics, HR, healthcare, contracts, compliance, and audit. Party connects to Person or Organization for intrinsic identity details and to PartyRole for business roles. Transactions and domain entities should reference the appropriate role when role-specific behavior matters. Party identity is long-lived. Operational eligibility is controlled by status, while historical relationships and transactions remain referentially valid. One organization may be represented by a single Party and simultaneously participate as Customer and Supplier in different business relationships.
@@ -14450,6 +14528,151 @@ entities:
         fk: true
         references: Organization
         help: "The organisation that carries the risk and issues the policy. Set at quotation; its underwriting rules and capital stand behind the cover. Exactly one insurer: a policy is a contract with a single risk carrier (co-insurance is split into separate policies). Determines who must pay valid claims."
+  - name: Coverage
+    help: Represents one governed insured benefit or risk component of a policy. InsurancePolicy is the contract-level aggregate; Coverage states the specific protection and limits applied to claims. Insurance policy administration, underwriting, claims, exposure management and audit. Policy is mandatory, insured parties define beneficiaries or risk subjects, and ClaimLines preserve utilization and adjudication. Coverage is drafted, activated, may suspend, and ends through expiry or cancellation while historical claims retain applied terms. A motor policy has collision Coverage with a monetary limit and deductible; claim lines are assessed against that specific component.
+    icon: shield-check
+    parent: InsurancePolicy
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: The stable identity of one coverage component within a policy, unchanged for its whole life. Generated when the coverage is created; claim lines and assessments point to it so the terms applied to a claim stay traceable. Identifies one coverage independently of policy header and claims. InsurancePolicy supplies the governing contract context.
+      - name: coverage_code
+        type: string(120)
+        help: The business code naming the type of cover, such as collision, theft or liability. Chosen from the insurer's product setup when a policy is written; claims are matched to the right cover by this code. Classifies the insured benefit or risk for policy and claim processing. May repeat across policies while coverageId remains unique.
+      - name: description
+        type: string(1000)
+        help: A plain-language statement of what risk or benefit this coverage protects against. Written by the underwriter when the policy is set up; read by servicing staff and shown to customers explaining their protection. Explains what benefit or risk the Coverage represents. Detailed legal terms remain in policy/contract documents and clauses.
+      - name: limit_amount
+        type: decimal
+        optional: true
+        help: The most the insurer will pay under this coverage for a covered loss. Set when the policy is written; claim assessment caps the approved amount at it. Not negative. Expressed in the coverage's currency; a deductible, if any, is applied before the limit. Provides claim authorization limit without replacing detailed policy terms.
+      - name: deductible_amount
+        type: decimal
+        optional: true
+        help: The portion of a covered loss the insured bears before the insurer pays. Set when the policy is written; claim assessment subtracts it from the covered amount. Not negative. Expressed in the coverage's currency and applied before the limit. Supports claim responsibility calculation.
+      - name: status
+        type: string
+        enum: CoverageStatus
+        help: "Where the coverage stands: being written, in force, paused, ended by expiry or withdrawn. Moved by policy administration; only an active coverage lets claims be assessed, while ended ones stay readable for past claims. Being written into the policy; not yet in force. In force; claims may be assessed against it. Temporarily not in force, for example for non-payment of premium; new claims are not assessed against it. Its period has ended; historical claims remain valid. Withdrawn before or during its term; kept for history. Controls eligibility for new loss events while preserving historical policy and claim evidence. Policy lifecycle remains separately authoritative."
+        default: DRAFT
+      - name: policy_id
+        type: string
+        fk: true
+        references: InsurancePolicy
+        help: "The insurance policy of which this coverage is a part. Exactly one policy: a coverage is a section of a single policy and cannot exist alone. Supplies contract parties and overall policy lifecycle. Policy administration and claims. Coverage cannot be effective outside applicable policy terms."
+      - name: currency_id
+        type: string
+        fk: true
+        optional: true
+        help: Currency for monetary limits and deductibles. Makes monetary coverage values unambiguous. Claims, exposure and reporting. Optional when no monetary values are defined. Currency changes require new governed terms rather than reinterpretation of historical claims.
+  - name: InsuredParty
+    help: Represents a Party's insured or beneficiary role under an InsurancePolicy. InsuredParty separates common Party identity from policy-specific coverage eligibility. Insurance enrollment, policy servicing, coverage validation, claims and reporting. Party and Policy are mandatory; Coverage refines benefits and Claims preserve utilization/history. Relationship is active, may suspend, and eventually ends without losing historical eligibility evidence. A dependent Person is represented as an InsuredParty under a family policy and linked to the health Coverage applicable to that member.
+    icon: shield-check
+    parent: InsurancePolicy
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: The identity of the insured role. Generated when the party is added to a policy. Identifies one Party-policy insurance role independently of Party identity. Party supplies common identity; InsurancePolicy supplies contract context.
+      - name: insured_party_code
+        type: string(120)
+        unique: true
+        help: The unique reference of this insured party within the insurer's systems. Allocated when added; quoted in claims. Supports policy administration and integration without reusing Party identifiers. Distinct from Party and policy numbers.
+      - name: role_type
+        type: string
+        enum: InsuredPartyRoleType
+        help: How the party is connected to the policy. Chosen when added; decides entitlement to cover and to payment. The person or thing whose risk is insured. The party entitled to be paid on a claim. A person covered through the main insured. A member covered under a group policy. Any other covered role. Determines coverage and claim eligibility semantics under policy terms. Policyholder status may be modeled separately through InsurancePolicy policyholders.
+      - name: status
+        type: string
+        enum: InsuredPartyStatus
+        help: Whether this party's insured or beneficiary relationship to the policy is currently in force. Set by policy administration; coverage checks and claims only treat ACTIVE relationships as eligible, while ended ones stay as historical evidence. Covered under the policy. Cover paused for this party. No longer covered. A final state. Controls new eligibility while preserving historical claim evidence. Coverage may apply only during a subset of policy period.
+        default: ACTIVE
+      - name: policy_id
+        type: string
+        fk: true
+        references: InsurancePolicy
+        help: "The policy that this party is covered under. Set when added. Exactly one policy: an insured role exists only within a policy. Ties the party's cover to a policy's terms. Supplies governing insurance contract context."
+      - name: party_id
+        type: string
+        fk: true
+        help: "The person or organisation holding the insured role. Chosen when added to the policy. Exactly one party: each role is held by a specific person or organisation. Identifies who is covered, or who is paid, under the policy. Reuses common identity and contact data."
+  - name: Underwriting
+    help: Records the governed risk evaluation and decision behind insurance issuance or renewal. Underwriting explains why a risk was accepted, modified, referred or declined; InsurancePolicy records the resulting contract when issued. Insurance new business, renewal, pricing, risk governance, compliance and audit. Applicant is mandatory, RiskAssessment may supply structured evidence, and InsurancePolicy preserves the resulting contract linkage. Underwriting moves from draft to active review and ends with a decision or withdrawal. A commercial applicant undergoes risk review, receives ACCEPT_WITH_TERMS, and the issued InsurancePolicy links back to that Underwriting record.
+    icon: scan-search
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: Stable identity of the underwriting evaluation. Identifies one governed risk decision independently of later policy issuance. Insurance sales, risk, policy issuance, renewal and audit. May precede an InsurancePolicy or evaluate an existing policy renewal.
+      - name: underwriting_number
+        type: string(120)
+        unique: true
+        help: The business reference of the underwriting case, such as UW-2026-118, separate from any policy number. Unique; assigned when the case opens and quoted by underwriters, brokers and integrations when searching or referring to the review. Operational identifier for risk review and integration. Distinct from policy number.
+      - name: risk_score
+        type: decimal
+        optional: true
+        help: A numeric measure of the assessed risk, produced by a scoring model or set by the underwriter. Optional; used to segment risks and support the decision, but never the sole reason for it. The scale depends on the model used. Supports but does not replace explainable underwriting decision evidence. Scoring model and scale require separate policy/model governance.
+      - name: decision
+        type: string
+        optional: true
+        enum: UnderwritingDecision
+        help: "The outcome of the risk review: accept, accept with terms, decline or refer onwards. Recorded once the evaluation concludes; it gates policy issuance and pricing, and must be backed by evidence and approvals. The risk is accepted on standard terms and the policy may be issued. The risk is accepted only with special conditions, exclusions, loadings or a changed premium. The risk is refused and no policy may be issued on this evaluation. The case exceeds the reviewer's authority or needs specialist input and is passed to a more senior underwriter. Determines whether issuance/renewal may proceed and whether special terms are required. Must be supported by attributable risk evidence and approvals."
+      - name: status
+        type: string
+        enum: UnderwritingStatus
+        help: The stage the underwriting review has reached, from preparation to a final decision or withdrawal. Starts as DRAFT; moved as review begins and ends. DECIDED requires a recorded decision, and issuance waits for it. The case is being prepared and review has not started. An underwriter is actively evaluating the risk. A decision has been recorded and the review is closed. A final state. The applicant or insurer abandoned the case without a decision. A final state. Separates preparation, active risk review, decision and withdrawal. DECIDED requires a recorded decision.
+        default: DRAFT
+      - name: policy_id
+        type: string
+        fk: true
+        references: InsurancePolicy
+        optional: true
+        help: Policy resulting from or being renewed by this underwriting evaluation. Preserves decision-to-policy provenance. Issuance, renewal and audit. Optional before issuance or when risk is declined. Issued terms must reconcile to approved underwriting decision.
+      - name: applicant_id
+        type: string
+        fk: true
+        references: Party
+        help: Party whose proposed insurance risk is evaluated. Establishes applicant or insured context. Underwriting, communication and audit. Exactly one Party in this baseline evaluation. Applicant identity must remain traceable into issued policy relationships.
+  - name: Premium
+    help: Represents a policy premium obligation while keeping receivable and payment evidence in finance entities. Premium explains the insurance charge; Invoice formalizes a financial claim; Payment settles it. Insurance billing, collections, policy servicing, accounting and audit. Policy is mandatory, optional InsuredParty supports member-level pricing, Currency defines value and Invoice provides receivable evidence. Premium is prepared, becomes due, may be invoiced, then ends paid, waived or cancelled. A quarterly policy premium becomes due, is invoiced, and is later marked paid after the invoice settlement is reconciled.
+    icon: banknote
+    parent: InsurancePolicy
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: The identity of the premium record. Generated when the premium is assessed; invoices and payments refer to it. Identifies one policy premium assessment or installment independently of billing and payment records. InsurancePolicy defines why the premium is owed.
+      - name: premium_number
+        type: string(120)
+        unique: true
+        help: The number of the premium notice, quoted to the policyholder. Allocated from a number series; unique. Operational identifier for policy billing and reconciliation. Distinct from policy and invoice numbers.
+      - name: amount
+        type: decimal
+        help: The premium amount due for the period. Calculated from the policy's rating; not negative. Expressed in the premium's currency; the invoice, if one is raised, repeats it. Premium value due under policy terms.
+      - name: due_date
+        type: date
+        optional: true
+        help: The date by which the premium must be paid. Set from the billing schedule; reminders and lapse rules run from it. Supports policy billing and delinquency decisions. Invoice payment terms may become authoritative after formal billing.
+      - name: status
+        type: string
+        enum: PremiumStatus
+        help: Where this premium stands between being calculated, billed to the policyholder and settled, waived or withdrawn. Moved by policy billing and finance; PAID must be backed by settled payment evidence and the three closing states are final. Calculated but not yet due and not yet billed to anyone. Payable now; the due date has been assessed and collection can begin. Included on an invoice to the policyholder and awaiting payment. Received and reconciled against payment. A final state. Excused by the insurer so no payment is expected. A final state. Withdrawn, for example because the policy was cancelled. A final state. Distinguishes preparation, due, billed, settled, waived and cancelled states. PAID must reconcile to financial settlement evidence.
+        default: DRAFT
+      - name: policy_id
+        type: string
+        fk: true
+        references: InsurancePolicy
+        help: "Exactly one policy: a premium is the price of the cover under a specific policy. InsurancePolicy giving rise to this Premium. Supplies contractual basis and coverage period. Policy billing and reconciliation. Premium must be compatible with policy terms."
+      - name: insured_party_id
+        type: string
+        fk: true
+        optional: true
+        help: The insured party the premium is charged for, where cover is priced per person. Set for group and family policies. At most one insured party. Lets a premium be traced to the person it covers. Supports member-specific pricing without making all premiums party-specific.
+      - name: currency_id
+        type: string
+        fk: true
+        help: Exactly one currency, so the amount is unambiguous. Currency of the premium amount. Makes monetary obligation unambiguous. Billing, accounting and reporting. Historical premium currency does not change after assessment.
   - name: InsuranceClaim
     help: A request for payment or service under an insurance policy after a covered event. The claim is the moment the insurer's promise is tested. It records what happened, how much is claimed and what is decided, so the insurer pays what is owed, the customer can see why, and fraud and disputes can be reviewed. Raised by the claimant or on their behalf; assessed; approved, partly approved or denied; settled; read by claims handlers and finance. A claim is made under an InsurancePolicy by a claimant Party, may concern an incident, is broken into ClaimLines assessed against Coverages and is paid through Settlements. A claim is reported, goes under review and is approved, partially approved or denied. Approved claims are settled and closed; denied claims end there. A water-damage claim for 8,400 on a home policy, approved in part at 6,100 after assessment and settled by bank transfer.
     icon: file-warning
@@ -14487,11 +14710,86 @@ entities:
         fk: true
         references: InsurancePolicy
         help: "The policy under which the claim is made. Chosen at registration; its cover, limits and deductibles decide what can be paid. Exactly one policy: a claim is made against a particular contract of insurance. Decides cover, limits and deductibles for the assessment."
+      - name: insured_party_id
+        type: string
+        fk: true
+        optional: true
+        help: The covered person or entity the claim concerns. Chosen at registration from the policy's insured parties. At most one insured party; a claim under a property policy may name none. Checks that the claimant's loss falls within the persons covered. Preserves policy-specific eligibility context beyond generic claimant identity.
       - name: claimant_id
         type: string
         fk: true
         references: Party
         help: "The party making the claim. Set at registration; payment and correspondence go to this party unless a beneficiary is named. Exactly one claimant: every claim has a named person or organisation behind it. Identifies who is paid and who is contacted."
+  - name: ClaimLine
+    help: Provides line-level insurance claim adjudication and settlement traceability. InsuranceClaim is the claim aggregate; ClaimLine evaluates a particular benefit/loss against Coverage; Settlement records actual discharge of approved liability. Claims intake, adjudication, reserves, settlement, analytics and audit. Claim and Coverage are mandatory; Settlements provide downstream payment/service evidence. Lines are submitted, assessed and then approved, denied, settled or cancelled with decisions retained. A vehicle repair claim has separate parts and towing ClaimLines evaluated against different Coverage components.
+    icon: list-checks
+    parent: InsuranceClaim
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: The permanent system identity of one line of an insurance claim. Generated on creation; settlements and adjudication decisions refer to the line through it. Identifies one line-level claimed item independently of claim header and settlement. InsuranceClaim supplies header context and Coverage supplies benefit/risk rules.
+      - name: line_number
+        type: integer
+        help: The position of the line within its claim, used to refer to it in conversation and documents. Assigned in sequence when lines are added; unique within the parent claim, and quoted to claimants and in integrations. Supports ordered claim review and communication. Unique within the parent InsuranceClaim under policy.
+      - name: description
+        type: string(1000)
+        help: A plain statement of the benefit, loss item or expense the claimant is asking to be paid for. Written at submission; the adjudicator reads it to judge the line against the coverage and to explain a decision. Explains the line-level subject of adjudication. Coverage provides structured policy context.
+      - name: claimed_amount
+        type: decimal
+        optional: true
+        help: The amount the claimant requests for this line, before any assessment. Entered at submission and never negative; compared with the approved amount to show how much was reduced or declined. Line-level claimant request before adjudication. Currency is inherited or governed by Claim policy context.
+      - name: approved_amount
+        type: decimal
+        optional: true
+        help: The amount the insurer agrees to pay for this line after adjudication. Set by the adjudicator when the line is approved and never negative; it drives reserves and the settlement that follows. Insurer-recognized line benefit before settlement. Must comply with Coverage limits, deductibles and policy terms.
+      - name: status
+        type: string
+        enum: ClaimLineStatus
+        help: Where the line stands in adjudication, from receipt through a decision to settlement or cancellation. Moved by claims staff as the line is assessed and decided; settlement only follows an approval, and decisions are retained. Line was received and awaits assessment by claims staff. Review is underway or completed without final decision. Benefit was approved and is awaiting payment. Benefit was denied and no payment will be made. A final state. Approved benefit has been paid and reconciled to a settlement. A final state. Line was withdrawn or cancelled before a decision was paid. A final state. Tracks review, decision and settlement progression. Header claim status may summarize but does not replace line decisions.
+        default: SUBMITTED
+      - name: coverage_id
+        type: string
+        fk: true
+        help: Exactly one coverage; each line is assessed against the coverage under which it is claimed. Coverage against which this line is adjudicated. Supplies limits, deductibles and eligibility rules. Claims decisioning and exposure. Coverage must belong to the Claim policy and apply to the loss context.
+      - name: claim_id
+        type: string
+        fk: true
+        references: InsuranceClaim
+        help: Exactly one claim; a line is one component of a single claim. Parent InsuranceClaim containing this line. Supplies policy, claimant and loss context. Claims processing and reporting. Line lifecycle must remain compatible with claim lifecycle.
+  - name: Settlement
+    help: Records the governed discharge of approved insurance claim liability. ClaimLine determines approved liability; Settlement allocates/discharges it; Payment records cash movement when applicable. Insurance claims, payments, recoveries, reconciliation, accounting and audit. Claim and ClaimLines are mandatory, Currency defines value, and Payment supplies execution evidence for monetary settlement. Settlement is drafted, approved and executed or voided, with executed transactions immutable. Two approved ClaimLines totaling 4,000 are paid through one Settlement linked to the resulting Payment transaction.
+    icon: heart-handshake
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: The stable identity of one claim settlement transaction, assigned once and never changed. Generated on creation; payments, reconciliation reports and audit entries refer to it even if the settlement number is corrected. Identifies one discharge of insurance liability independently of claim approval and payment execution. InsuranceClaim supplies liability context while Payment may provide financial execution evidence.
+      - name: settlement_number
+        type: string(120)
+        unique: true
+        help: The business reference of the settlement, such as STL-3041, used by claims finance to find it. Assigned when the settlement is drafted; unique; quoted in correspondence with the claimant and in integrations with accounting. Operational identifier for claims finance and reconciliation. Distinct from claim and payment numbers.
+      - name: amount
+        type: decimal
+        help: The monetary liability this settlement discharges, stated in the settlement currency. Entered by the claims handler from the approved claim lines; it must not exceed approved liability and is reported against reserves. Compared with the approved claim amount and the payment made. Represents settlement value attributable to the claim.
+      - name: method
+        type: string
+        enum: SettlementMethod
+        help: "How the approved claim liability is discharged: by payment, service, offset, recovery or another agreed route. Chosen when the settlement is drafted; decides whether a Payment is expected and how accounting records the discharge. Liability is discharged by a cash payment to the claimant, which should be linked to a Payment. Liability is discharged by providing a service, such as a repair or replacement, instead of money. Liability is discharged by netting it against an amount the claimant owes, with no cash movement. Liability is discharged through recovery from a third party, such as a subrogation or salvage recovery. Liability is discharged by a method not listed here, with the arrangement described in the claim notes. Distinguishes cash payment from non-cash or recovery settlement semantics. Payment relationship is expected when method is PAYMENT under policy."
+      - name: status
+        type: string
+        enum: SettlementStatus
+        help: Where the settlement stands between preparation, approval, execution and voiding. Starts as DRAFT; claims finance approves and then executes it, and an executed settlement must reconcile to its payment or service evidence. Being prepared; nothing is committed. Approved and ready to be carried out. Paid or otherwise discharged. A final state. Cancelled and of no effect. A final state. Separates preparation, approval, execution and voiding. EXECUTED must reconcile to payment/service evidence where applicable.
+        default: DRAFT
+      - name: claim_id
+        type: string
+        fk: true
+        references: InsuranceClaim
+        help: A settlement discharges one insurance claim; separate claims are settled separately. InsuranceClaim whose liability is settled. Supplies approved claim context. Claims payment and reconciliation. Settlement must not exceed approved liability except governed adjustments.
+      - name: currency_id
+        type: string
+        fk: true
+        help: The amount is in exactly one currency. Currency of the settlement amount. Makes financial value unambiguous. Claims finance and reporting. Conversion and accounting policy remain separately governed.
   - name: PartyPartyType
     help: "The values of party party type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows."
     icon: list
@@ -15067,8 +15365,233 @@ entities:
         type: boolean
         help: Whether the value is offered on new records.
         default: "true"
+  - name: CoverageStatus
+    help: "The values of coverage status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows."
+    icon: list
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string(100)
+        unique: true
+        help: The value stored on every record that uses this list. Fixed once created.
+      - name: name
+        type: string(200)
+        help: What a person reads in the dropdown and on a record.
+      - name: description
+        type: text
+        optional: true
+        help: What the value means to the business.
+      - name: sequence
+        type: integer
+        help: The position of the value in a dropdown, lowest first.
+      - name: is_active
+        type: boolean
+        help: Whether the value is offered on new records.
+        default: "true"
+  - name: InsuredPartyRoleType
+    help: "The values of insured party role type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows."
+    icon: list
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string(100)
+        unique: true
+        help: The value stored on every record that uses this list. Fixed once created.
+      - name: name
+        type: string(200)
+        help: What a person reads in the dropdown and on a record.
+      - name: description
+        type: text
+        optional: true
+        help: What the value means to the business.
+      - name: sequence
+        type: integer
+        help: The position of the value in a dropdown, lowest first.
+      - name: is_active
+        type: boolean
+        help: Whether the value is offered on new records.
+        default: "true"
+  - name: InsuredPartyStatus
+    help: "The values of insured party status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows."
+    icon: list
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string(100)
+        unique: true
+        help: The value stored on every record that uses this list. Fixed once created.
+      - name: name
+        type: string(200)
+        help: What a person reads in the dropdown and on a record.
+      - name: description
+        type: text
+        optional: true
+        help: What the value means to the business.
+      - name: sequence
+        type: integer
+        help: The position of the value in a dropdown, lowest first.
+      - name: is_active
+        type: boolean
+        help: Whether the value is offered on new records.
+        default: "true"
+  - name: UnderwritingDecision
+    help: "The values of underwriting decision, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows."
+    icon: list
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string(100)
+        unique: true
+        help: The value stored on every record that uses this list. Fixed once created.
+      - name: name
+        type: string(200)
+        help: What a person reads in the dropdown and on a record.
+      - name: description
+        type: text
+        optional: true
+        help: What the value means to the business.
+      - name: sequence
+        type: integer
+        help: The position of the value in a dropdown, lowest first.
+      - name: is_active
+        type: boolean
+        help: Whether the value is offered on new records.
+        default: "true"
+  - name: UnderwritingStatus
+    help: "The values of underwriting status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows."
+    icon: list
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string(100)
+        unique: true
+        help: The value stored on every record that uses this list. Fixed once created.
+      - name: name
+        type: string(200)
+        help: What a person reads in the dropdown and on a record.
+      - name: description
+        type: text
+        optional: true
+        help: What the value means to the business.
+      - name: sequence
+        type: integer
+        help: The position of the value in a dropdown, lowest first.
+      - name: is_active
+        type: boolean
+        help: Whether the value is offered on new records.
+        default: "true"
+  - name: PremiumStatus
+    help: "The values of premium status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows."
+    icon: list
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string(100)
+        unique: true
+        help: The value stored on every record that uses this list. Fixed once created.
+      - name: name
+        type: string(200)
+        help: What a person reads in the dropdown and on a record.
+      - name: description
+        type: text
+        optional: true
+        help: What the value means to the business.
+      - name: sequence
+        type: integer
+        help: The position of the value in a dropdown, lowest first.
+      - name: is_active
+        type: boolean
+        help: Whether the value is offered on new records.
+        default: "true"
   - name: InsuranceClaimStatus
     help: "The values of insurance claim status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows."
+    icon: list
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string(100)
+        unique: true
+        help: The value stored on every record that uses this list. Fixed once created.
+      - name: name
+        type: string(200)
+        help: What a person reads in the dropdown and on a record.
+      - name: description
+        type: text
+        optional: true
+        help: What the value means to the business.
+      - name: sequence
+        type: integer
+        help: The position of the value in a dropdown, lowest first.
+      - name: is_active
+        type: boolean
+        help: Whether the value is offered on new records.
+        default: "true"
+  - name: ClaimLineStatus
+    help: "The values of claim line status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows."
+    icon: list
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string(100)
+        unique: true
+        help: The value stored on every record that uses this list. Fixed once created.
+      - name: name
+        type: string(200)
+        help: What a person reads in the dropdown and on a record.
+      - name: description
+        type: text
+        optional: true
+        help: What the value means to the business.
+      - name: sequence
+        type: integer
+        help: The position of the value in a dropdown, lowest first.
+      - name: is_active
+        type: boolean
+        help: Whether the value is offered on new records.
+        default: "true"
+  - name: SettlementMethod
+    help: "The values of settlement method, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows."
+    icon: list
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string(100)
+        unique: true
+        help: The value stored on every record that uses this list. Fixed once created.
+      - name: name
+        type: string(200)
+        help: What a person reads in the dropdown and on a record.
+      - name: description
+        type: text
+        optional: true
+        help: What the value means to the business.
+      - name: sequence
+        type: integer
+        help: The position of the value in a dropdown, lowest first.
+      - name: is_active
+        type: boolean
+        help: Whether the value is offered on new records.
+        default: "true"
+  - name: SettlementStatus
+    help: "The values of settlement status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows."
     icon: list
     attributes:
       - name: id
@@ -15247,11 +15770,86 @@ relationships:
     to: InsuranceClaim
     toCardinality: zero-or-more
     label: claims
+  - from: InsurancePolicy
+    fromCardinality: exactly-one
+    to: Coverage
+    toCardinality: zero-or-more
+    label: coverages
+  - from: InsurancePolicy
+    fromCardinality: exactly-one
+    to: InsuredParty
+    toCardinality: zero-or-more
+    label: insured_parties
+  - from: InsurancePolicy
+    fromCardinality: exactly-one
+    to: Premium
+    toCardinality: zero-or-more
+    label: premiums
+  - from: InsurancePolicy
+    fromCardinality: exactly-one
+    to: Underwriting
+    toCardinality: zero-or-more
+    label: underwriting_evaluations
+  - from: Currency
+    fromCardinality: exactly-one
+    to: Coverage
+    toCardinality: zero-or-more
+  - from: Coverage
+    fromCardinality: zero-or-more
+    to: InsuredParty
+    toCardinality: zero-or-more
+    label: insured_parties
+  - from: Coverage
+    fromCardinality: exactly-one
+    to: ClaimLine
+    toCardinality: zero-or-more
+    label: claim_lines
+  - from: Party
+    fromCardinality: exactly-one
+    to: InsuredParty
+    toCardinality: zero-or-more
+  - from: InsuredParty
+    fromCardinality: exactly-one
+    to: InsuranceClaim
+    toCardinality: zero-or-more
+    label: claims
+  - from: Party
+    fromCardinality: exactly-one
+    to: Underwriting
+    toCardinality: zero-or-more
+    label: applicant
+  - from: InsuredParty
+    fromCardinality: exactly-one
+    to: Premium
+    toCardinality: zero-or-more
+  - from: Currency
+    fromCardinality: exactly-one
+    to: Premium
+    toCardinality: zero-or-more
   - from: Party
     fromCardinality: exactly-one
     to: InsuranceClaim
     toCardinality: zero-or-more
     label: claimant
+  - from: InsuranceClaim
+    fromCardinality: exactly-one
+    to: ClaimLine
+    toCardinality: zero-or-more
+    label: claim_lines
+  - from: InsuranceClaim
+    fromCardinality: exactly-one
+    to: Settlement
+    toCardinality: zero-or-more
+    label: settlements
+  - from: ClaimLine
+    fromCardinality: zero-or-more
+    to: Settlement
+    toCardinality: zero-or-more
+    label: settlements
+  - from: Currency
+    fromCardinality: exactly-one
+    to: Settlement
+    toCardinality: zero-or-more
 rules:
   - name: partyRoleInvariantsBeforeCreate
     title: PartyRole invariants (beforeCreate)
@@ -15453,6 +16051,96 @@ rules:
         when: effective_from != null and effective_to != null and effective_to < effective_from
         props:
           message: Effective To cannot be earlier than effective from.
+  - name: coverageInvariantsBeforeCreate
+    title: Coverage invariants (beforeCreate)
+    entity: Coverage
+    event: beforeCreate
+    nodes:
+      - id: S
+        label: "Start: Coverage beforeCreate"
+        type: start
+      - id: E
+        label: "End: invariants hold"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: COVERAGE-EXE-001
+        type: validation-error
+        when: limit_amount != null and limit_amount < 0
+        props:
+          message: Limit Amount cannot be negative.
+      - name: COVERAGE-EXE-002
+        type: validation-error
+        when: deductible_amount != null and deductible_amount < 0
+        props:
+          message: Deductible Amount cannot be negative.
+  - name: coverageInvariantsBeforeUpdate
+    title: Coverage invariants (beforeUpdate)
+    entity: Coverage
+    event: beforeUpdate
+    nodes:
+      - id: S
+        label: "Start: Coverage beforeUpdate"
+        type: start
+      - id: E
+        label: "End: invariants hold"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: COVERAGE-EXE-001
+        type: validation-error
+        when: limit_amount != null and limit_amount < 0
+        props:
+          message: Limit Amount cannot be negative.
+      - name: COVERAGE-EXE-002
+        type: validation-error
+        when: deductible_amount != null and deductible_amount < 0
+        props:
+          message: Deductible Amount cannot be negative.
+  - name: premiumInvariantsBeforeCreate
+    title: Premium invariants (beforeCreate)
+    entity: Premium
+    event: beforeCreate
+    nodes:
+      - id: S
+        label: "Start: Premium beforeCreate"
+        type: start
+      - id: E
+        label: "End: invariants hold"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: PREMIUM-EXE-001
+        type: validation-error
+        when: amount != null and amount < 0
+        props:
+          message: Amount cannot be negative.
+  - name: premiumInvariantsBeforeUpdate
+    title: Premium invariants (beforeUpdate)
+    entity: Premium
+    event: beforeUpdate
+    nodes:
+      - id: S
+        label: "Start: Premium beforeUpdate"
+        type: start
+      - id: E
+        label: "End: invariants hold"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: PREMIUM-EXE-001
+        type: validation-error
+        when: amount != null and amount < 0
+        props:
+          message: Amount cannot be negative.
   - name: insuranceClaimInvariantsBeforeCreate
     title: InsuranceClaim invariants (beforeCreate)
     entity: InsuranceClaim
@@ -15503,6 +16191,96 @@ rules:
         when: approved_amount != null and approved_amount < 0
         props:
           message: Approved Amount cannot be negative.
+  - name: claimLineInvariantsBeforeCreate
+    title: ClaimLine invariants (beforeCreate)
+    entity: ClaimLine
+    event: beforeCreate
+    nodes:
+      - id: S
+        label: "Start: ClaimLine beforeCreate"
+        type: start
+      - id: E
+        label: "End: invariants hold"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: CLAIM-LINE-EXE-001
+        type: validation-error
+        when: claimed_amount != null and claimed_amount < 0
+        props:
+          message: Claimed Amount cannot be negative.
+      - name: CLAIM-LINE-EXE-002
+        type: validation-error
+        when: approved_amount != null and approved_amount < 0
+        props:
+          message: Approved Amount cannot be negative.
+  - name: claimLineInvariantsBeforeUpdate
+    title: ClaimLine invariants (beforeUpdate)
+    entity: ClaimLine
+    event: beforeUpdate
+    nodes:
+      - id: S
+        label: "Start: ClaimLine beforeUpdate"
+        type: start
+      - id: E
+        label: "End: invariants hold"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: CLAIM-LINE-EXE-001
+        type: validation-error
+        when: claimed_amount != null and claimed_amount < 0
+        props:
+          message: Claimed Amount cannot be negative.
+      - name: CLAIM-LINE-EXE-002
+        type: validation-error
+        when: approved_amount != null and approved_amount < 0
+        props:
+          message: Approved Amount cannot be negative.
+  - name: settlementInvariantsBeforeCreate
+    title: Settlement invariants (beforeCreate)
+    entity: Settlement
+    event: beforeCreate
+    nodes:
+      - id: S
+        label: "Start: Settlement beforeCreate"
+        type: start
+      - id: E
+        label: "End: invariants hold"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: SETTLEMENT-EXE-001
+        type: validation-error
+        when: amount != null and amount < 0
+        props:
+          message: Amount cannot be negative.
+  - name: settlementInvariantsBeforeUpdate
+    title: Settlement invariants (beforeUpdate)
+    entity: Settlement
+    event: beforeUpdate
+    nodes:
+      - id: S
+        label: "Start: Settlement beforeUpdate"
+        type: start
+      - id: E
+        label: "End: invariants hold"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: SETTLEMENT-EXE-001
+        type: validation-error
+        when: amount != null and amount < 0
+        props:
+          message: Amount cannot be negative.
   - name: partyWorkflowsAfterUpdate
     title: Party workflows (afterUpdate)
     entity: Party
@@ -15563,6 +16341,46 @@ rules:
         when: status == "CANCELLED" and status != _previous_status
         props:
           workflow: InsurancePolicyFollowUpRequired
+  - name: coverageWorkflowsAfterUpdate
+    title: Coverage workflows (afterUpdate)
+    entity: Coverage
+    event: afterUpdate
+    nodes:
+      - id: S
+        label: "Start: Coverage afterUpdate"
+        type: start
+      - id: E
+        label: "End: workflows started"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: FollowUpRequired
+        type: trigger-workflow
+        when: status == "CANCELLED" and status != _previous_status
+        props:
+          workflow: CoverageFollowUpRequired
+  - name: premiumWorkflowsAfterUpdate
+    title: Premium workflows (afterUpdate)
+    entity: Premium
+    event: afterUpdate
+    nodes:
+      - id: S
+        label: "Start: Premium afterUpdate"
+        type: start
+      - id: E
+        label: "End: workflows started"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: FollowUpRequired
+        type: trigger-workflow
+        when: status == "CANCELLED" and status != _previous_status
+        props:
+          workflow: PremiumFollowUpRequired
   - name: insuranceClaimWorkflowsAfterUpdate
     title: InsuranceClaim workflows (afterUpdate)
     entity: InsuranceClaim
@@ -15588,6 +16406,51 @@ rules:
         when: status == "DENIED" and status != _previous_status
         props:
           workflow: InsuranceClaimFollowUpRequired
+  - name: claimLineWorkflowsAfterUpdate
+    title: ClaimLine workflows (afterUpdate)
+    entity: ClaimLine
+    event: afterUpdate
+    nodes:
+      - id: S
+        label: "Start: ClaimLine afterUpdate"
+        type: start
+      - id: E
+        label: "End: workflows started"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: ApprovalRequested
+        type: trigger-workflow
+        when: status == "SUBMITTED" and status != _previous_status
+        props:
+          workflow: ClaimLineApprovalRequested
+      - name: FollowUpRequired
+        type: trigger-workflow
+        when: (status == "CANCELLED" or status == "DENIED") and status != _previous_status
+        props:
+          workflow: ClaimLineFollowUpRequired
+  - name: settlementWorkflowsAfterUpdate
+    title: Settlement workflows (afterUpdate)
+    entity: Settlement
+    event: afterUpdate
+    nodes:
+      - id: S
+        label: "Start: Settlement afterUpdate"
+        type: start
+      - id: E
+        label: "End: workflows started"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: FollowUpRequired
+        type: trigger-workflow
+        when: status == "VOID" and status != _previous_status
+        props:
+          workflow: SettlementFollowUpRequired
 stateMachines:
   - name: PartyLifecycle
     title: Party Lifecycle
@@ -15860,6 +16723,103 @@ stateMachines:
       - from: SUSPENDED
         to: CANCELLED
         trigger: cancel
+  - name: CoverageLifecycle
+    title: Coverage Lifecycle
+    entity: Coverage
+    states: [DRAFT, ACTIVE, SUSPENDED, EXPIRED, CANCELLED]
+    initial: DRAFT
+    final: [EXPIRED, CANCELLED]
+    transitions:
+      - from: DRAFT
+        to: ACTIVE
+        trigger: activate
+      - from: DRAFT
+        to: CANCELLED
+        trigger: cancel
+      - from: ACTIVE
+        to: SUSPENDED
+        trigger: suspend
+      - from: SUSPENDED
+        to: ACTIVE
+        trigger: resume
+      - from: ACTIVE
+        to: EXPIRED
+        trigger: expire
+      - from: SUSPENDED
+        to: EXPIRED
+        trigger: expire
+      - from: ACTIVE
+        to: CANCELLED
+        trigger: cancel
+      - from: SUSPENDED
+        to: CANCELLED
+        trigger: cancel
+  - name: InsuredPartyLifecycle
+    title: Insured Party Lifecycle
+    entity: InsuredParty
+    states: [ACTIVE, SUSPENDED, ENDED]
+    initial: ACTIVE
+    final: [ENDED]
+    transitions:
+      - from: ACTIVE
+        to: SUSPENDED
+        trigger: suspend
+      - from: SUSPENDED
+        to: ACTIVE
+        trigger: resume
+      - from: ACTIVE
+        to: ENDED
+        trigger: end
+      - from: SUSPENDED
+        to: ENDED
+        trigger: end
+  - name: UnderwritingLifecycle
+    title: Underwriting Lifecycle
+    entity: Underwriting
+    states: [DRAFT, IN_REVIEW, DECIDED, WITHDRAWN]
+    initial: DRAFT
+    final: [DECIDED, WITHDRAWN]
+    transitions:
+      - from: DRAFT
+        to: IN_REVIEW
+        trigger: submit
+      - from: DRAFT
+        to: WITHDRAWN
+        trigger: withdraw
+      - from: IN_REVIEW
+        to: DECIDED
+        trigger: decide
+      - from: IN_REVIEW
+        to: WITHDRAWN
+        trigger: withdraw
+  - name: PremiumLifecycle
+    title: Premium Lifecycle
+    entity: Premium
+    states: [DRAFT, DUE, INVOICED, PAID, WAIVED, CANCELLED]
+    initial: DRAFT
+    final: [PAID, WAIVED, CANCELLED]
+    transitions:
+      - from: DRAFT
+        to: DUE
+        trigger: assess
+      - from: DRAFT
+        to: CANCELLED
+        trigger: cancel
+      - from: DUE
+        to: INVOICED
+        trigger: invoice
+      - from: DUE
+        to: WAIVED
+        trigger: waive
+      - from: DUE
+        to: CANCELLED
+        trigger: cancel
+      - from: INVOICED
+        to: PAID
+        trigger: mark_paid
+      - from: INVOICED
+        to: WAIVED
+        trigger: waive
   - name: InsuranceClaimLifecycle
     title: Insurance Claim Lifecycle
     entity: InsuranceClaim
@@ -15891,6 +16851,50 @@ stateMachines:
       - from: SETTLED
         to: CLOSED
         trigger: close
+  - name: ClaimLineLifecycle
+    title: Claim Line Lifecycle
+    entity: ClaimLine
+    states: [SUBMITTED, ASSESSED, APPROVED, DENIED, SETTLED, CANCELLED]
+    initial: SUBMITTED
+    final: [DENIED, SETTLED, CANCELLED]
+    transitions:
+      - from: SUBMITTED
+        to: ASSESSED
+        trigger: assess
+      - from: SUBMITTED
+        to: CANCELLED
+        trigger: cancel
+      - from: ASSESSED
+        to: APPROVED
+        trigger: approve
+      - from: ASSESSED
+        to: DENIED
+        trigger: deny
+      - from: ASSESSED
+        to: CANCELLED
+        trigger: cancel
+      - from: APPROVED
+        to: SETTLED
+        trigger: settle
+  - name: SettlementLifecycle
+    title: Settlement Lifecycle
+    entity: Settlement
+    states: [DRAFT, APPROVED, EXECUTED, VOID]
+    initial: DRAFT
+    final: [EXECUTED, VOID]
+    transitions:
+      - from: DRAFT
+        to: APPROVED
+        trigger: approve
+      - from: DRAFT
+        to: VOID
+        trigger: void
+      - from: APPROVED
+        to: EXECUTED
+        trigger: execute
+      - from: APPROVED
+        to: VOID
+        trigger: void
 sagas:
   - name: PartyExceptionRaised
     title: Raise a task when a party is stopped
@@ -15934,6 +16938,34 @@ sagas:
           entity: bus_task
           as: taskId
           fields: '{"code":"INSURANCE-POLICY-FOLLOW-UP-{{id}}","name":"Follow up on insurance policy {{policy_number}}","description":"Insurance policy {{policy_number}} is now {{status}}. Check the records that depended on it and tell the people affected.","task_type":"USER","status":"CREATED","priority":"NORMAL"}'
+  - name: CoverageFollowUpRequired
+    title: Follow up when a coverage is ended
+    entity: Coverage
+    operation: UPDATE
+    trigger: rule
+    description: When a coverage is cancelled, a task asks someone to settle what depended on it.
+    steps:
+      - id: S1
+        type: CreateEntity
+        label: "Raise a task: follow up on"
+        properties:
+          entity: bus_task
+          as: taskId
+          fields: '{"code":"COVERAGE-FOLLOW-UP-{{id}}","name":"Follow up on coverage {{id}}","description":"Coverage {{id}} is now {{status}}. Check the records that depended on it and tell the people affected.","task_type":"USER","status":"CREATED","priority":"NORMAL"}'
+  - name: PremiumFollowUpRequired
+    title: Follow up when a premium is ended
+    entity: Premium
+    operation: UPDATE
+    trigger: rule
+    description: When a premium is cancelled, a task asks someone to settle what depended on it.
+    steps:
+      - id: S1
+        type: CreateEntity
+        label: "Raise a task: follow up on"
+        properties:
+          entity: bus_task
+          as: taskId
+          fields: '{"code":"PREMIUM-FOLLOW-UP-{{id}}","name":"Follow up on premium {{premium_number}}","description":"Premium {{premium_number}} is now {{status}}. Check the records that depended on it and tell the people affected.","task_type":"USER","status":"CREATED","priority":"NORMAL"}'
   - name: InsuranceClaimApprovalRequested
     title: Ask for a decision when a insurance claim is put forward
     entity: InsuranceClaim
@@ -15962,3 +16994,45 @@ sagas:
           entity: bus_task
           as: taskId
           fields: '{"code":"INSURANCE-CLAIM-FOLLOW-UP-{{id}}","name":"Follow up on insurance claim {{claim_number}}","description":"Insurance claim {{claim_number}} is now {{status}}. Check the records that depended on it and tell the people affected.","task_type":"USER","status":"CREATED","priority":"NORMAL"}'
+  - name: ClaimLineApprovalRequested
+    title: Ask for a decision when a claim line is put forward
+    entity: ClaimLine
+    operation: UPDATE
+    trigger: rule
+    description: When a claim line is submitted, a task asks someone to decide on it.
+    steps:
+      - id: S1
+        type: CreateEntity
+        label: "Raise a task: decide on"
+        properties:
+          entity: bus_task
+          as: taskId
+          fields: '{"code":"CLAIM-LINE-APPROVAL-{{id}}","name":"Decide on claim line {{id}}","description":"Claim line {{id}} is now {{status}}. Approve it, return it for change or reject it; the move you make is recorded on the record.","task_type":"APPROVAL","status":"CREATED","priority":"NORMAL"}'
+  - name: ClaimLineFollowUpRequired
+    title: Follow up when a claim line is ended
+    entity: ClaimLine
+    operation: UPDATE
+    trigger: rule
+    description: When a claim line is cancelled or denied, a task asks someone to settle what depended on it.
+    steps:
+      - id: S1
+        type: CreateEntity
+        label: "Raise a task: follow up on"
+        properties:
+          entity: bus_task
+          as: taskId
+          fields: '{"code":"CLAIM-LINE-FOLLOW-UP-{{id}}","name":"Follow up on claim line {{id}}","description":"Claim line {{id}} is now {{status}}. Check the records that depended on it and tell the people affected.","task_type":"USER","status":"CREATED","priority":"NORMAL"}'
+  - name: SettlementFollowUpRequired
+    title: Follow up when a settlement is ended
+    entity: Settlement
+    operation: UPDATE
+    trigger: rule
+    description: When a settlement is void, a task asks someone to settle what depended on it.
+    steps:
+      - id: S1
+        type: CreateEntity
+        label: "Raise a task: follow up on"
+        properties:
+          entity: bus_task
+          as: taskId
+          fields: '{"code":"SETTLEMENT-FOLLOW-UP-{{id}}","name":"Follow up on settlement {{settlement_number}}","description":"Settlement {{settlement_number}} is now {{status}}. Check the records that depended on it and tell the people affected.","task_type":"USER","status":"CREATED","priority":"NORMAL"}'

@@ -1,6 +1,6 @@
 //! Two people, one record: optimistic locking and closed transactions.
 //!
-//! Generated: 2026-10-09T15:28:09.287Z
+//! Generated: 2026-10-10T02:39:25.615Z
 //! Project: container-logistics
 //!
 //! Every entity is optimistic unless the model says `concurrency:
@@ -48,6 +48,12 @@ const FINAL_STATES: &[(&str, &str, &str)] = &[
     ("YardBlock", "status", "CLOSED"),
     ("YardBay", "status", "CLOSED"),
     ("YardTier", "status", "CLOSED"),
+    ("Berth", "status", "RETIRED"),
+    ("Gate", "status", "RETIRED"),
+    ("GateEvent", "status", "VERIFIED"),
+    ("ContainerVisit", "status", "COMPLETED"),
+    ("Vessel", "status", "RETIRED"),
+    ("Voyage", "status", "COMPLETED"),
 ];
 
 /// `(entity, status column, initial, [targets of edges out of initial])`.
@@ -88,6 +94,28 @@ const FIRST_MOVES: &[(&str, &str, &str, &[&str])] = &[
     ("YardBay", "status", "ACTIVE", &["CLOSED", "BLOCKED"]),
     ("YardTier", "status", "ACTIVE", &["CLOSED", "BLOCKED"]),
     ("YardSlot", "status", "EMPTY", &["OCCUPIED"]),
+    ("Port", "status", "ACTIVE", &["RESTRICTED", "CLOSED"]),
+    (
+        "Berth",
+        "status",
+        "ACTIVE",
+        &["RESTRICTED", "OUT_OF_SERVICE", "RETIRED"],
+    ),
+    ("Gate", "status", "OPEN", &["CLOSED", "RETIRED"]),
+    ("GateEvent", "status", "RECORDED", &["VERIFIED", "REVERSED"]),
+    (
+        "ContainerVisit",
+        "status",
+        "ACTIVE",
+        &["COMPLETED", "CANCELLED"],
+    ),
+    (
+        "Vessel",
+        "status",
+        "ACTIVE",
+        &["INACTIVE", "OUT_OF_SERVICE", "RETIRED"],
+    ),
+    ("Voyage", "status", "PLANNED", &["ACTIVE", "CANCELLED"]),
 ];
 
 /// The first entity that is optimistic and has a text column to edit.

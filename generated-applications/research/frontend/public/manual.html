@@ -91,7 +91,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
          the WASM overlay's footprint, blanking ISO timestamps first. A
          "2026-08-22" would survive that blanking and make the two copies differ
          whenever the pair of runs straddles midnight. -->
-    <div class="stamp">Manual for version 1.0.0 &middot; generated <time datetime="2026-10-09T15:30:29.294Z">2026-10-09T15:30:29.294Z</time></div>
+    <div class="stamp">Manual for version 1.0.0 &middot; generated <time datetime="2026-10-10T02:41:57.102Z">2026-10-10T02:41:57.102Z</time></div>
   </header>
 
       <nav class="toc" aria-label="Contents">
@@ -104,6 +104,8 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
               <li><a href="#entity-address">Address</a></li>
               <li><a href="#entity-address-address-type">Address Address Type</a></li>
               <li><a href="#entity-address-status">Address Status</a></li>
+              <li><a href="#entity-assay">Assay</a></li>
+              <li><a href="#entity-assay-status">Assay Status</a></li>
               <li><a href="#entity-attachment">Attachment</a></li>
               <li><a href="#entity-business-unit">Business Unit</a></li>
               <li><a href="#entity-calendar">Calendar</a></li>
@@ -121,6 +123,8 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
               <li><a href="#entity-location">Location</a></li>
               <li><a href="#entity-location-location-type">Location Location Type</a></li>
               <li><a href="#entity-location-status">Location Status</a></li>
+              <li><a href="#entity-observation">Observation</a></li>
+              <li><a href="#entity-observation-status">Observation Status</a></li>
               <li><a href="#entity-organization">Organization</a></li>
               <li><a href="#entity-organization-organization-type">Organization Organization Type</a></li>
               <li><a href="#entity-organization-party-type">Organization Party Type</a></li>
@@ -136,9 +140,18 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
               <li><a href="#entity-person-gender">Person Gender</a></li>
               <li><a href="#entity-person-party-type">Person Party Type</a></li>
               <li><a href="#entity-person-status">Person Status</a></li>
+              <li><a href="#entity-protocol">Protocol</a></li>
+              <li><a href="#entity-protocol-status">Protocol Status</a></li>
               <li><a href="#entity-research-project">Research Project</a></li>
               <li><a href="#entity-research-project-status">Research Project Status</a></li>
+              <li><a href="#entity-result">Result</a></li>
+              <li><a href="#entity-result-status">Result Status</a></li>
+              <li><a href="#entity-sample">Sample</a></li>
+              <li><a href="#entity-sample-sample-type">Sample Sample Type</a></li>
+              <li><a href="#entity-sample-status">Sample Status</a></li>
               <li><a href="#entity-state-province">State Province</a></li>
+              <li><a href="#entity-study">Study</a></li>
+              <li><a href="#entity-study-status">Study Status</a></li>
               <li><a href="#entity-task">Task</a></li>
               <li><a href="#entity-task-priority">Task Priority</a></li>
               <li><a href="#entity-task-status">Task Status</a></li>
@@ -157,14 +170,14 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
   <section id="overview">
     <h2>What this application is</h2>
     <div class="app-overview"><p>Research and Scientific Operations, built on the CEDM common foundation.</p></div>
-    <p>research keeps 45 kinds of records, grouped into 3 areas of the business. Every screen in it &mdash; every list, every form, every field label and every dropdown &mdash; is drawn from a description of those records held in the application itself, so the application can be changed by changing that description rather than by editing code.</p>
+    <p>research keeps 58 kinds of records, grouped into 3 areas of the business. Every screen in it &mdash; every list, every form, every field label and every dropdown &mdash; is drawn from a description of those records held in the application itself, so the application can be changed by changing that description rather than by editing code.</p>
     <p>This manual is generated from the same description. It cannot describe a record type the application does not have, and it cannot miss one it does.</p>
     <table>
       <thead><tr><th>Area</th><th>Records</th></tr></thead>
       <tbody>
-        <tr><td>Foundation<div class="detail">Parties, places, units and reference data every domain shares</div></td><td><a href="#entity-party">Party</a>, <a href="#entity-person">Person</a>, <a href="#entity-organization">Organization</a>, <a href="#entity-party-role">Party Role</a>, <a href="#entity-party-relationship">Party Relationship</a>, <a href="#entity-legal-entity">Legal Entity</a>, <a href="#entity-business-unit">Business Unit</a>, <a href="#entity-department">Department</a>, <a href="#entity-address">Address</a>, <a href="#entity-contact-point">Contact Point</a>, <a href="#entity-location">Location</a>, <a href="#entity-country">Country</a>, <a href="#entity-state-province">State Province</a>, <a href="#entity-city">City</a>, <a href="#entity-language">Language</a>, <a href="#entity-currency">Currency</a>, <a href="#entity-exchange-rate">Exchange Rate</a>, <a href="#entity-unit-of-measure">Unit Of Measure</a>, <a href="#entity-calendar">Calendar</a>, <a href="#entity-attachment">Attachment</a>, <a href="#entity-task">Task</a></td></tr>
-        <tr><td>Research and Scientific Operations</td><td><a href="#entity-research-project">Research Project</a></td></tr>
-        <tr><td>Reference Data</td><td><a href="#entity-party-party-type">Party Party Type</a>, <a href="#entity-party-status">Party Status</a>, <a href="#entity-person-gender">Person Gender</a>, <a href="#entity-person-party-type">Person Party Type</a>, <a href="#entity-person-status">Person Status</a>, <a href="#entity-organization-organization-type">Organization Organization Type</a>, <a href="#entity-organization-status">Organization Status</a>, <a href="#entity-organization-party-type">Organization Party Type</a>, <a href="#entity-party-role-role-type">Party Role Role Type</a>, <a href="#entity-party-role-status">Party Role Status</a>, <a href="#entity-address-address-type">Address Address Type</a>, <a href="#entity-address-status">Address Status</a>, <a href="#entity-location-location-type">Location Location Type</a>, <a href="#entity-location-status">Location Status</a>, <a href="#entity-currency-status">Currency Status</a>, <a href="#entity-exchange-rate-rate-type">Exchange Rate Rate Type</a>, <a href="#entity-exchange-rate-status">Exchange Rate Status</a>, <a href="#entity-unit-of-measure-category">Unit Of Measure Category</a>, <a href="#entity-unit-of-measure-status">Unit Of Measure Status</a>, <a href="#entity-task-task-type">Task Task Type</a>, <a href="#entity-task-status">Task Status</a>, <a href="#entity-task-priority">Task Priority</a>, <a href="#entity-research-project-status">Research Project Status</a></td></tr>
+        <tr><td>Foundation<div class="detail">Parties, places, units and reference data every domain shares</div></td><td><a href="#entity-party">Party</a>, <a href="#entity-person">Person</a>, <a href="#entity-organization">Organization</a>, <a href="#entity-party-role">Party Role</a>, <a href="#entity-party-relationship">Party Relationship</a>, <a href="#entity-legal-entity">Legal Entity</a>, <a href="#entity-business-unit">Business Unit</a>, <a href="#entity-department">Department</a>, <a href="#entity-address">Address</a>, <a href="#entity-contact-point">Contact Point</a>, <a href="#entity-location">Location</a>, <a href="#entity-country">Country</a>, <a href="#entity-state-province">State Province</a>, <a href="#entity-city">City</a>, <a href="#entity-language">Language</a>, <a href="#entity-currency">Currency</a>, <a href="#entity-exchange-rate">Exchange Rate</a>, <a href="#entity-unit-of-measure">Unit Of Measure</a>, <a href="#entity-calendar">Calendar</a>, <a href="#entity-attachment">Attachment</a>, <a href="#entity-task">Task</a>, <a href="#entity-protocol">Protocol</a>, <a href="#entity-study">Study</a>, <a href="#entity-observation">Observation</a>, <a href="#entity-sample">Sample</a></td></tr>
+        <tr><td>Research and Scientific Operations</td><td><a href="#entity-research-project">Research Project</a>, <a href="#entity-assay">Assay</a>, <a href="#entity-result">Result</a></td></tr>
+        <tr><td>Reference Data</td><td><a href="#entity-party-party-type">Party Party Type</a>, <a href="#entity-party-status">Party Status</a>, <a href="#entity-person-gender">Person Gender</a>, <a href="#entity-person-party-type">Person Party Type</a>, <a href="#entity-person-status">Person Status</a>, <a href="#entity-organization-organization-type">Organization Organization Type</a>, <a href="#entity-organization-status">Organization Status</a>, <a href="#entity-organization-party-type">Organization Party Type</a>, <a href="#entity-party-role-role-type">Party Role Role Type</a>, <a href="#entity-party-role-status">Party Role Status</a>, <a href="#entity-address-address-type">Address Address Type</a>, <a href="#entity-address-status">Address Status</a>, <a href="#entity-location-location-type">Location Location Type</a>, <a href="#entity-location-status">Location Status</a>, <a href="#entity-currency-status">Currency Status</a>, <a href="#entity-exchange-rate-rate-type">Exchange Rate Rate Type</a>, <a href="#entity-exchange-rate-status">Exchange Rate Status</a>, <a href="#entity-unit-of-measure-category">Unit Of Measure Category</a>, <a href="#entity-unit-of-measure-status">Unit Of Measure Status</a>, <a href="#entity-task-task-type">Task Task Type</a>, <a href="#entity-task-status">Task Status</a>, <a href="#entity-task-priority">Task Priority</a>, <a href="#entity-research-project-status">Research Project Status</a>, <a href="#entity-protocol-status">Protocol Status</a>, <a href="#entity-study-status">Study Status</a>, <a href="#entity-assay-status">Assay Status</a>, <a href="#entity-observation-status">Observation Status</a>, <a href="#entity-result-status">Result Status</a>, <a href="#entity-sample-sample-type">Sample Sample Type</a>, <a href="#entity-sample-status">Sample Status</a></td></tr>
       </tbody>
     </table>
     <p class="back"><a href="#top">Back to contents</a></p>
@@ -176,8 +189,8 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
     <table>
       <thead><tr><th>Role</th><th>Account</th><th>Records it can see</th></tr></thead>
       <tbody>
-        <tr><td>Administrator</td><td><code>admin@admin.com</code></td><td>all 45</td></tr>
-        <tr><td>User</td><td><code>user@research.example.com</code></td><td>45 of 45</td></tr>
+        <tr><td>Administrator</td><td><code>admin@admin.com</code></td><td>all 58</td></tr>
+        <tr><td>User</td><td><code>user@research.example.com</code></td><td>58 of 58</td></tr>
       </tbody>
     </table>
 
@@ -630,6 +643,244 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       </table>
       <h4>Where it appears</h4>
       <p>The application opens this record in the <b>Address Status</b> window, on the <b>Address Status</b> tab. These are its 6 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>code</code></td>
+            <td>Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>name</code></td>
+            <td>Name</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>description</code></td>
+            <td>Description</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>sequence</code></td>
+            <td>Sequence</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>is_active</code></td>
+            <td>Is Active</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-assay" class="entity">
+      <h3>Assay <span class="group">Research and Scientific Operations</span></h3>
+      <p class="lede">Represents one analytical laboratory execution with sample and evidence provenance. Protocol defines method; Assay executes it; Observation records primary evidence; Result captures derived interpretation. Laboratories, research, life sciences, quality testing, analytics and audit. Samples are required inputs; Study/Protocol provide context; Observations and Results provide outputs. Assay is planned, runs, and ends completed, failed or cancelled with evidence retained.</p>
+      <p class="meta">Stored as <code>bus_assay</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td>The permanent system identity of one assay execution, unchanged however the run is later described or corrected. Generated on creation; observations, results and instrument records point back to the run through it. Identifies one analytical execution independently of samples and resulting measurements. Samples are inputs while Observations and Results are outputs.</td>
+        </tr>
+        <tr>
+          <td><code>assay_code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 120</span></td>
+          <td>The laboratory&#39;s unique reference number for this assay run, such as ASY-2026-0418. Used to find the run, to match instrument output to it, and to cite it in reports and audits. Operational identifier for laboratory execution and integration. Distinct from reusable Protocol code.</td>
+        </tr>
+        <tr>
+          <td><code>assay_type</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 160</span></td>
+          <td>The scientific kind of procedure performed, such as an ELISA, a potency test or a HPLC purity run. Chosen by the analyst when planning; routes the run to the right instrument and bench and groups results for analytics. Identifies analytical method family for planning and interpretation. Detailed method is supplied by Protocol when applicable.</td>
+        </tr>
+        <tr>
+          <td><code>status</code></td>
+          <td>Choice</td>
+          <td><span class="tag">required</span></td>
+          <td>Where the run is, from planned through execution to a completed, failed or cancelled outcome. Moved by the analyst or instrument integration as work starts and ends; results are only trusted from completed runs. Assay is prepared and scheduled but not yet started. Execution is underway and observations are being captured. Execution concluded successfully and its results can be relied on. A final state. Execution failed and its evidence is retained for investigation. A final state. Execution was called off, either before starting or part way through. A final state. Tracks analytical execution and final outcome. Completed observations/results retain assay identity.<div class="detail">One of: <code>PLANNED</code>, <code>RUNNING</code>, <code>COMPLETED</code>, <code>FAILED</code>, <code>CANCELLED</code></div></td>
+        </tr>
+        <tr>
+          <td><code>study_id</code></td>
+          <td>Lookup</td>
+          <td>&mdash;</td>
+          <td>Study to which the Assay contributes. Supplies investigation context. Research traceability and reporting. Optional for standalone laboratory work. Study and protocol context must be compatible.<div class="detail">Points at <b>Study</b></div></td>
+        </tr>
+        <tr>
+          <td><code>protocol_id</code></td>
+          <td>Lookup</td>
+          <td>&mdash;</td>
+          <td>Protocol governing the Assay method. Supplies reproducible procedure definition. Laboratory governance and audit. Optional when method is governed elsewhere. Applied version remains historical.<div class="detail">Points at <b>Protocol</b></div></td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Assay</b> window, on the <b>Assay</b> tab. These are its 6 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>assay_code</code></td>
+            <td>Assay Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>assay_type</code></td>
+            <td>Assay Type</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>status</code></td>
+            <td>Status</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>study_id</code></td>
+            <td>Study</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>protocol_id</code></td>
+            <td>Protocol</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <h4>Related records</h4>
+      <ul class="plain">
+          <li>Each <b>Assay</b> belongs to one <a href="#entity-study">Study</a>.</li>
+          <li>Each <b>Assay</b> belongs to one <a href="#entity-protocol">Protocol</a>.</li>
+          <li>Each <b>Assay</b> is linked to many <a href="#entity-sample">Sample</a> records.</li>
+          <li>Each <b>Assay</b> has many <a href="#entity-observation">Observation</a> records.</li>
+          <li>Each <b>Assay</b> has many <a href="#entity-result">Result</a> records.</li>
+      </ul>
+      <h4>Lifecycle &mdash; AssayLifecycle</h4>
+      <p>A record starts at <code>PLANNED</code> and finishes at <code>COMPLETED</code> or <code>FAILED</code> or <code>CANCELLED</code>. These are the moves it may make, and no others:</p>
+      <table>
+        <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
+        <tbody>
+          <tr><td><code>PLANNED</code></td><td><code>RUNNING</code></td><td><code>start</code></td></tr>
+          <tr><td><code>PLANNED</code></td><td><code>CANCELLED</code></td><td><code>cancel</code></td></tr>
+          <tr><td><code>RUNNING</code></td><td><code>COMPLETED</code></td><td><code>complete</code></td></tr>
+          <tr><td><code>RUNNING</code></td><td><code>FAILED</code></td><td><code>fail</code></td></tr>
+          <tr><td><code>RUNNING</code></td><td><code>CANCELLED</code></td><td><code>cancel</code></td></tr>
+        </tbody>
+      </table>
+      <h4>What happens when it is written</h4>
+      <table>
+        <thead><tr><th>Rule</th><th>Runs on</th><th>Order</th></tr></thead>
+        <tbody>
+          <tr><td><code>assayWorkflowsAfterUpdate</code></td><td>afterUpdate (UPDATE)</td><td>100</td></tr>
+        </tbody>
+      </table>
+      <p><b>Processes:</b> <a href="#process-assay-exception-raised">AssayExceptionRaised</a>, <a href="#process-assay-follow-up-required">AssayFollowUpRequired</a></p>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-assay-status" class="entity">
+      <h3>Assay Status <span class="group">Reference Data</span></h3>
+      <p class="lede">The values of assay status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
+      <p class="meta">Stored as <code>bus_assay_status</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td><span class="unset">&mdash;</span></td>
+        </tr>
+        <tr>
+          <td><code>code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 100</span></td>
+          <td>The value stored on every record that uses this list. Fixed once created.</td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 200</span></td>
+          <td>What a person reads in the dropdown and on a record.</td>
+        </tr>
+        <tr>
+          <td><code>description</code></td>
+          <td>Long text</td>
+          <td>&mdash;</td>
+          <td>What the value means to the business.</td>
+        </tr>
+        <tr>
+          <td><code>sequence</code></td>
+          <td>Whole number</td>
+          <td><span class="tag">required</span></td>
+          <td>The position of the value in a dropdown, lowest first.</td>
+        </tr>
+        <tr>
+          <td><code>is_active</code></td>
+          <td>Yes / No</td>
+          <td><span class="tag">required</span></td>
+          <td>Whether the value is offered on new records.</td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Assay Status</b> window, on the <b>Assay Status</b> tab. These are its 6 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
       <table>
         <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
         <tbody>
@@ -2363,6 +2614,275 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       </table>
       <h4>Where it appears</h4>
       <p>The application opens this record in the <b>Location Status</b> window, on the <b>Location Status</b> tab. These are its 6 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>code</code></td>
+            <td>Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>name</code></td>
+            <td>Name</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>description</code></td>
+            <td>Description</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>sequence</code></td>
+            <td>Sequence</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>is_active</code></td>
+            <td>Is Active</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-observation" class="entity">
+      <h3>Observation <span class="group">Foundation</span></h3>
+      <p class="lede">Captures primary scientific evidence with provenance and QC state. Observation is raw or primary evidence; Result is a derived interpretation or summarized output. Research, laboratories, life sciences, quality testing, analytics and audit. Sample/Assay/Experiment provide provenance, UnitOfMeasure provides quantitative semantics, Results preserve downstream derivation. Observation is recorded, then verified or invalidated without destructive deletion.</p>
+      <p class="meta">Stored as <code>bus_observation</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td>The identity of the observation. Generated on recording; results and verifications refer to it. Identifies one primary evidence item independently of later interpretation. Result may derive from one or more Observations.</td>
+        </tr>
+        <tr>
+          <td><code>observed_at</code></td>
+          <td>Date and time</td>
+          <td><span class="tag">required</span></td>
+          <td>The date and time at which the measurement was actually made or the phenomenon seen. Entered with the value and may differ from when it was recorded; used in time series, reproducibility checks and audit. Establishes scientific chronology. May differ from record-entry time.</td>
+        </tr>
+        <tr>
+          <td><code>observation_type</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 160</span></td>
+          <td>Names the characteristic observed, such as pH, absorbance or colony count, and fixes how the value is read. Chosen by the scientist when recording; analysis and validation use it to select the unit and expected range of values. Defines what property or phenomenon the value represents. Unit and value semantics depend on observation type.</td>
+        </tr>
+        <tr>
+          <td><code>value</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 2000</span></td>
+          <td>The measured or qualitative result exactly as captured, held as text so numbers and descriptions both fit. Entered or imported with the observation; numeric values are read with the unit of measure, and it is never overwritten. Primary scientific evidence as captured under applicable method. Numeric interpretation may require UnitOfMeasure and method context.</td>
+        </tr>
+        <tr>
+          <td><code>status</code></td>
+          <td>Choice</td>
+          <td><span class="tag">required</span></td>
+          <td>Whether the observation has been checked. Set by the scientist or reviewer; only verified observations feed final results. Captured but not yet checked. Checked and accepted as primary evidence. A final state. Found to be invalid, for example from a faulty instrument; kept for audit but not used. A final state. Distinguishes captured evidence, verified evidence and explicitly invalidated evidence. Invalidation preserves original evidence rather than deleting it.<div class="detail">One of: <code>RECORDED</code>, <code>VERIFIED</code>, <code>INVALIDATED</code></div></td>
+        </tr>
+        <tr>
+          <td><code>study_id</code></td>
+          <td>Lookup</td>
+          <td>&mdash;</td>
+          <td>The Study this Observation belongs to.<div class="detail">Points at <b>Study</b></div></td>
+        </tr>
+        <tr>
+          <td><code>assay_id</code></td>
+          <td>Lookup</td>
+          <td>&mdash;</td>
+          <td>Assay execution producing the Observation. Preserves method/execution provenance. Laboratory analysis and audit. Optional when captured outside an Assay. Completed Assay evidence retains observation identity.<div class="detail">Points at <b>Assay</b></div></td>
+        </tr>
+        <tr>
+          <td><code>sample_id</code></td>
+          <td>Lookup</td>
+          <td>&mdash;</td>
+          <td>Sample from which the Observation originates. Preserves specimen provenance. Traceability and interpretation. Optional for non-sample observations. Sample lineage remains intact.<div class="detail">Points at <b>Sample</b></div></td>
+        </tr>
+        <tr>
+          <td><code>unit_of_measure_id</code></td>
+          <td>Lookup</td>
+          <td>&mdash;</td>
+          <td>Unit for quantitative observations. Makes numerical evidence interpretable. Validation, analysis and integration. Optional for qualitative/categorical values. Unit changes do not reinterpret historical values.<div class="detail">Points at <b>Unit Of Measure</b></div></td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Assay</b> window, on the <b>Observation</b> tab. These are its 9 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>observed_at</code></td>
+            <td>Observed At</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>observation_type</code></td>
+            <td>Observation Type</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>value</code></td>
+            <td>Value</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>status</code></td>
+            <td>Status</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>study_id</code></td>
+            <td>Study</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>assay_id</code></td>
+            <td>Assay</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>70</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>sample_id</code></td>
+            <td>Sample</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>80</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>unit_of_measure_id</code></td>
+            <td>Unit Of Measure</td>
+            <td>Yes</td>
+            <td>No</td>
+            <td>90</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <h4>Related records</h4>
+      <ul class="plain">
+          <li>Each <b>Observation</b> belongs to one <a href="#entity-study">Study</a>.</li>
+          <li>Each <b>Observation</b> belongs to one <a href="#entity-assay">Assay</a>.</li>
+          <li>Each <b>Observation</b> belongs to one <a href="#entity-sample">Sample</a>.</li>
+          <li>Each <b>Observation</b> belongs to one <a href="#entity-unit-of-measure">Unit Of Measure</a>.</li>
+          <li>Each <b>Observation</b> is linked to many <a href="#entity-result">Result</a> records.</li>
+      </ul>
+      <h4>Lifecycle &mdash; ObservationLifecycle</h4>
+      <p>A record starts at <code>RECORDED</code> and finishes at <code>VERIFIED</code> or <code>INVALIDATED</code>. These are the moves it may make, and no others:</p>
+      <table>
+        <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
+        <tbody>
+          <tr><td><code>RECORDED</code></td><td><code>VERIFIED</code></td><td><code>verify</code></td></tr>
+          <tr><td><code>RECORDED</code></td><td><code>INVALIDATED</code></td><td><code>invalidate</code></td></tr>
+        </tbody>
+      </table>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-observation-status" class="entity">
+      <h3>Observation Status <span class="group">Reference Data</span></h3>
+      <p class="lede">The values of observation status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
+      <p class="meta">Stored as <code>bus_observation_status</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td><span class="unset">&mdash;</span></td>
+        </tr>
+        <tr>
+          <td><code>code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 100</span></td>
+          <td>The value stored on every record that uses this list. Fixed once created.</td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 200</span></td>
+          <td>What a person reads in the dropdown and on a record.</td>
+        </tr>
+        <tr>
+          <td><code>description</code></td>
+          <td>Long text</td>
+          <td>&mdash;</td>
+          <td>What the value means to the business.</td>
+        </tr>
+        <tr>
+          <td><code>sequence</code></td>
+          <td>Whole number</td>
+          <td><span class="tag">required</span></td>
+          <td>The position of the value in a dropdown, lowest first.</td>
+        </tr>
+        <tr>
+          <td><code>is_active</code></td>
+          <td>Yes / No</td>
+          <td><span class="tag">required</span></td>
+          <td>Whether the value is offered on new records.</td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Observation Status</b> window, on the <b>Observation Status</b> tab. These are its 6 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
       <table>
         <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
         <tbody>
@@ -4327,6 +4847,221 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <p class="back"><a href="#top">Back to contents</a></p>
     </section>
 
+    <section id="entity-protocol" class="entity">
+      <h3>Protocol <span class="group">Foundation</span></h3>
+      <p class="lede">A governed scientific procedure that sets out objectives, methods, eligibility, measurements, controls and execution rules for studies and experiments. A protocol fixes how work is to be done so that results are comparable and defensible. Studies and experiments follow an approved protocol, and a change goes through a new approval rather than being made on the day. Written by the scientist or study lead; approved by quality or the principal investigator; read by everyone who runs the work. A protocol may belong to a research project and is followed by studies and experiments; documents support it. A protocol is drafted, approved, may be suspended and reinstated, and is retired when superseded. Retired is final. Protocol PR-117 sets out how a cell viability assay is run and read, and is approved before any study uses it.</p>
+      <p class="meta">Stored as <code>bus_protocol</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td>The permanent, system-generated identity of this research protocol, constant across its amendments. Generated on creation and never changed; studies, experiments, assays and audit records refer to the protocol through it for reproducibility. Identifies one governed procedure definition independently of executions. Studies and Experiments execute against a Protocol version.</td>
+        </tr>
+        <tr>
+          <td><code>protocol_code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 120</span></td>
+          <td>The code of the protocol, such as PR-117. Unique; quoted in studies, experiments and reports. Operational identifier for scientific and regulatory traceability. Distinct from Study and Experiment identifiers.</td>
+        </tr>
+        <tr>
+          <td><code>title</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 500</span></td>
+          <td>The descriptive title of the protocol, naming the scientific procedure it defines. Entered by the protocol author; shown in protocol lists, study plans and reports so scientists can pick the right method. States the research procedure or objective to users. Detailed methods remain in protocol content or Documents.</td>
+        </tr>
+        <tr>
+          <td><code>status</code></td>
+          <td>Choice</td>
+          <td><span class="tag">required</span></td>
+          <td>Whether the protocol is cleared for new research execution, still being written, withdrawn or retired. Moved by research governance; only APPROVED protocols can be applied to new studies, and RETIRED is final. Being written; not yet approved for use. Cleared for use by studies and experiments. Withdrawn from use for a time, for example pending a review. Superseded or no longer used. A final state. Separates preparation, approved use, temporary suspension and retirement. Historical executions retain the protocol version applied.<div class="detail">One of: <code>DRAFT</code>, <code>APPROVED</code>, <code>SUSPENDED</code>, <code>RETIRED</code></div></td>
+        </tr>
+        <tr>
+          <td><code>project_id</code></td>
+          <td>Lookup</td>
+          <td>&mdash;</td>
+          <td>Research project governing this Protocol. Supplies program context and accountability. Portfolio, governance and reporting. Optional for reusable protocols. Project state constrains new protocol use.<div class="detail">Points at <b>Project</b></div></td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Research Project</b> window, on the <b>Protocol</b> tab. These are its 5 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>protocol_code</code></td>
+            <td>Protocol Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>title</code></td>
+            <td>Title</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>status</code></td>
+            <td>Status</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>project_id</code></td>
+            <td>Project</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <h4>Related records</h4>
+      <ul class="plain">
+          <li>Each <b>Protocol</b> belongs to one <a href="#entity-research-project">Research Project</a>.</li>
+          <li>Each <b>Protocol</b> has many <a href="#entity-study">Study</a> records.</li>
+          <li>Each <b>Protocol</b> has many <a href="#entity-assay">Assay</a> records.</li>
+      </ul>
+      <h4>Lifecycle &mdash; ProtocolLifecycle</h4>
+      <p>A record starts at <code>DRAFT</code> and finishes at <code>RETIRED</code>. These are the moves it may make, and no others:</p>
+      <table>
+        <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
+        <tbody>
+          <tr><td><code>DRAFT</code></td><td><code>APPROVED</code></td><td><code>approve</code></td></tr>
+          <tr><td><code>APPROVED</code></td><td><code>SUSPENDED</code></td><td><code>suspend</code></td></tr>
+          <tr><td><code>SUSPENDED</code></td><td><code>APPROVED</code></td><td><code>resume</code></td></tr>
+          <tr><td><code>DRAFT</code></td><td><code>RETIRED</code></td><td><code>retire</code></td></tr>
+          <tr><td><code>APPROVED</code></td><td><code>RETIRED</code></td><td><code>retire</code></td></tr>
+          <tr><td><code>SUSPENDED</code></td><td><code>RETIRED</code></td><td><code>retire</code></td></tr>
+        </tbody>
+      </table>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-protocol-status" class="entity">
+      <h3>Protocol Status <span class="group">Reference Data</span></h3>
+      <p class="lede">The values of protocol status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
+      <p class="meta">Stored as <code>bus_protocol_status</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td><span class="unset">&mdash;</span></td>
+        </tr>
+        <tr>
+          <td><code>code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 100</span></td>
+          <td>The value stored on every record that uses this list. Fixed once created.</td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 200</span></td>
+          <td>What a person reads in the dropdown and on a record.</td>
+        </tr>
+        <tr>
+          <td><code>description</code></td>
+          <td>Long text</td>
+          <td>&mdash;</td>
+          <td>What the value means to the business.</td>
+        </tr>
+        <tr>
+          <td><code>sequence</code></td>
+          <td>Whole number</td>
+          <td><span class="tag">required</span></td>
+          <td>The position of the value in a dropdown, lowest first.</td>
+        </tr>
+        <tr>
+          <td><code>is_active</code></td>
+          <td>Yes / No</td>
+          <td><span class="tag">required</span></td>
+          <td>Whether the value is offered on new records.</td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Protocol Status</b> window, on the <b>Protocol Status</b> tab. These are its 6 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>code</code></td>
+            <td>Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>name</code></td>
+            <td>Name</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>description</code></td>
+            <td>Description</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>sequence</code></td>
+            <td>Sequence</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>is_active</code></td>
+            <td>Is Active</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
     <section id="entity-research-project" class="entity">
       <h3>Research Project <span class="group">Research and Scientific Operations</span></h3>
       <p class="lede">A structured scientific research initiative with defined objectives, resources, experiments and outcomes. A research project is the top-level frame for a body of scientific work. It gathers the protocols, studies and experiments run under one objective, the team doing the work and the documents produced, so progress and results can be reviewed together. Created by a project lead; read by scientists, management and quality. A project may belong to an organisation, has a team, and contains protocols, studies and experiments with documents. A project is planned, becomes active, may be suspended and resumed, and completes. It is then archived, or cancelled earlier. Archived and cancelled are final. Project RP-014 investigates a new formulation for stability over twelve months, with three studies and a protocol.</p>
@@ -4433,6 +5168,8 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <ul class="plain">
           <li>Each <b>Research Project</b> belongs to one <a href="#entity-organization">Organization</a>.</li>
           <li>Each <b>Research Project</b> has many <a href="#entity-party">Party</a> records.</li>
+          <li>Each <b>Research Project</b> has many <a href="#entity-protocol">Protocol</a> records.</li>
+          <li>Each <b>Research Project</b> has many <a href="#entity-study">Study</a> records.</li>
       </ul>
       <h4>Lifecycle &mdash; ResearchProjectLifecycle</h4>
       <p>A record starts at <code>PLANNED</code> and finishes at <code>ARCHIVED</code> or <code>CANCELLED</code>. These are the moves it may make, and no others:</p>
@@ -4509,6 +5246,645 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       </table>
       <h4>Where it appears</h4>
       <p>The application opens this record in the <b>Research Project Status</b> window, on the <b>Research Project Status</b> tab. These are its 6 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>code</code></td>
+            <td>Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>name</code></td>
+            <td>Name</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>description</code></td>
+            <td>Description</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>sequence</code></td>
+            <td>Sequence</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>is_active</code></td>
+            <td>Is Active</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-result" class="entity">
+      <h3>Result <span class="group">Research and Scientific Operations</span></h3>
+      <p class="lede">Captures derived scientific output separately from primary observations. Observation is source evidence; Result is an interpretation, calculation or summary whose lineage must remain reproducible. Research, laboratories, life sciences, reporting, analytics, decisions and audit. Observations are mandatory sources; Study and Assay provide execution context; UnitOfMeasure supports quantitative semantics. Result is drafted and then finalized or invalidated, with final evidence immutable.</p>
+      <p class="meta">Stored as <code>bus_result</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td>The identity of the result, constant for its life. Identifies one derived scientific output independently of source evidence and presentation. Analysis, reporting, decisions and audit. Provenance relationships identify source Observations or execution context.</td>
+        </tr>
+        <tr>
+          <td><code>result_code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 120</span></td>
+          <td>The code that identifies one derived result, such as R-2210. Assigned when the result is created and unique; used to search, report and exchange the result with other systems. Supports operational identification and integration. May be unique within a Study or Assay under domain policy.</td>
+        </tr>
+        <tr>
+          <td><code>result_type</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 160</span></td>
+          <td>The kind of derived output this result is, such as an IC50, a purity percentage or a pass/fail call. Chosen by the analyst; it decides how the value is read and which reports and analyses include the result. Describes analytical or interpretive semantics. Source observations and method define how the result can be interpreted.</td>
+        </tr>
+        <tr>
+          <td><code>value</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 4000</span></td>
+          <td>The derived or interpreted outcome computed from the underlying observations, held as text. Entered or calculated by the analyst; read in reporting and decisions, and locked once the result is final. Captures the governed scientific output. Quantitative results may additionally use UnitOfMeasure.</td>
+        </tr>
+        <tr>
+          <td><code>status</code></td>
+          <td>Choice</td>
+          <td><span class="tag">required</span></td>
+          <td>Whether the result is still provisional, approved as final, or withdrawn as invalid. Starts as DRAFT; set by the reviewing scientist, and a final result can no longer be edited, only invalidated. The result is provisional and may still be changed or discarded. The result has been reviewed and approved, and its value is locked as evidence. The result is kept for the record but is no longer considered valid. Separates provisional analysis from finalized or invalidated output. FINAL results preserve source provenance.<div class="detail">One of: <code>DRAFT</code>, <code>FINAL</code>, <code>INVALIDATED</code></div></td>
+        </tr>
+        <tr>
+          <td><code>study_id</code></td>
+          <td>Lookup</td>
+          <td>&mdash;</td>
+          <td>Study to which the Result belongs. Supplies investigation context. Reporting and research traceability. Optional for standalone analysis. Study closure does not erase finalized Results.<div class="detail">Points at <b>Study</b></div></td>
+        </tr>
+        <tr>
+          <td><code>assay_id</code></td>
+          <td>Lookup</td>
+          <td>&mdash;</td>
+          <td>Assay contributing directly to the Result. Preserves analytical execution provenance. Laboratory interpretation and audit. Optional when derived at Study or Experiment level. Result must reconcile to source Assay evidence.<div class="detail">Points at <b>Assay</b></div></td>
+        </tr>
+        <tr>
+          <td><code>unit_of_measure_id</code></td>
+          <td>Lookup</td>
+          <td>&mdash;</td>
+          <td>Unit for quantitative Result values. Makes numerical output interpretable. Analysis and integration. Optional for qualitative or structured values. Unit remains historical with finalized Result.<div class="detail">Points at <b>Unit Of Measure</b></div></td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Result</b> window, on the <b>Result</b> tab. These are its 8 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>result_code</code></td>
+            <td>Result Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>result_type</code></td>
+            <td>Result Type</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>value</code></td>
+            <td>Value</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>status</code></td>
+            <td>Status</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>study_id</code></td>
+            <td>Study</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>assay_id</code></td>
+            <td>Assay</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>70</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>unit_of_measure_id</code></td>
+            <td>Unit Of Measure</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>80</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <h4>Related records</h4>
+      <ul class="plain">
+          <li>Each <b>Result</b> belongs to one <a href="#entity-study">Study</a>.</li>
+          <li>Each <b>Result</b> belongs to one <a href="#entity-assay">Assay</a>.</li>
+          <li>Each <b>Result</b> is linked to many <a href="#entity-observation">Observation</a> records.</li>
+          <li>Each <b>Result</b> belongs to one <a href="#entity-unit-of-measure">Unit Of Measure</a>.</li>
+      </ul>
+      <h4>Lifecycle &mdash; ResultLifecycle</h4>
+      <p>A record starts at <code>DRAFT</code> and finishes at <code>FINAL</code> or <code>INVALIDATED</code>. These are the moves it may make, and no others:</p>
+      <table>
+        <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
+        <tbody>
+          <tr><td><code>DRAFT</code></td><td><code>FINAL</code></td><td><code>finalize</code></td></tr>
+          <tr><td><code>DRAFT</code></td><td><code>INVALIDATED</code></td><td><code>invalidate</code></td></tr>
+        </tbody>
+      </table>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-result-status" class="entity">
+      <h3>Result Status <span class="group">Reference Data</span></h3>
+      <p class="lede">The values of result status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
+      <p class="meta">Stored as <code>bus_result_status</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td><span class="unset">&mdash;</span></td>
+        </tr>
+        <tr>
+          <td><code>code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 100</span></td>
+          <td>The value stored on every record that uses this list. Fixed once created.</td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 200</span></td>
+          <td>What a person reads in the dropdown and on a record.</td>
+        </tr>
+        <tr>
+          <td><code>description</code></td>
+          <td>Long text</td>
+          <td>&mdash;</td>
+          <td>What the value means to the business.</td>
+        </tr>
+        <tr>
+          <td><code>sequence</code></td>
+          <td>Whole number</td>
+          <td><span class="tag">required</span></td>
+          <td>The position of the value in a dropdown, lowest first.</td>
+        </tr>
+        <tr>
+          <td><code>is_active</code></td>
+          <td>Yes / No</td>
+          <td><span class="tag">required</span></td>
+          <td>Whether the value is offered on new records.</td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Result Status</b> window, on the <b>Result Status</b> tab. These are its 6 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>code</code></td>
+            <td>Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>name</code></td>
+            <td>Name</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>description</code></td>
+            <td>Description</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>sequence</code></td>
+            <td>Sequence</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>is_active</code></td>
+            <td>Is Active</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-sample" class="entity">
+      <h3>Sample <span class="group">Foundation</span></h3>
+      <p class="lede">First-class research specimen and sample entity for life-sciences and scientific workflows. Sample closes the research traceability graph between Compound and Experiment while keeping scientific specimens separate from quality-control InspectionSample. Sample represents research material; InspectionSample represents a selection event within a QualityInspection. Life sciences, drug discovery, laboratory research, scientific experiments, compound studies, specimen management, chain of custody, reporting, and audit. Compound supplies investigated substance context; Experiment supplies research execution context; parentSample and derivedSamples preserve lineage; UnitOfMeasure supplies quantity semantics. It is intentionally distinct from InspectionSample. Planned/collected/received → available → in use → consumed/disposed/archived, with quarantine or loss as controlled exceptional states. Changes to sample status, quantity, unit, lineage, Compound association, or Experiment participation must revalidate open research workflows while preserving completed historical evidence. A compound stock specimen is received as Sample S-100, split into aliquot Sample S-101, and S-101 is used by Experiment E-42. Both the Compound association and parent-sample lineage remain traceable after the experiment completes.</p>
+      <p class="meta">Stored as <code>bus_sample</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td>Stable identity of the research sample. Identifies one specimen or material sample independently of experiments, compounds, storage locations, and observations. Chain of custody, experiment execution, laboratory tracking, reporting, audit, and integration. Connects Sample to Experiment, Compound, parent/derived samples, and related scientific evidence.</td>
+        </tr>
+        <tr>
+          <td><code>sample_code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 120</span></td>
+          <td>Human-readable business identifier for the sample. Provides the operational label used to identify the specimen during collection, handling, testing, storage, and reporting. Labels, searches, laboratory workflows, reports, integrations, and audit. Identifies the Sample rather than the Experiment or Compound associated with it.</td>
+        </tr>
+        <tr>
+          <td><code>sample_type</code></td>
+          <td>Choice</td>
+          <td><span class="tag">required</span></td>
+          <td>The category of the sample, saying what kind of material it is or what role it plays in the work. Chosen when the sample is registered; it decides handling and storage rules, which protocols apply, and how results are reported. A portion taken from a larger whole in order to study it. A measured part divided from a prepared parent sample. A sample of a chemical compound under study. A sample of a material or substance, such as a polymer or alloy. Biological matter such as tissue, cells, blood or other fluid. A chemical substance or mixture, such as a reagent or solvent. Taken from the environment, such as water, soil or air. A sample with a known result, used to check that a test is working. A certified standard that other samples are compared against. A sample that fits none of the other types. Describes the nature or role of the sample so handling, storage, testing, and interpretation can apply appropriate rules. Sample type is independent of the Compound or Experiment relationship and can constrain applicable processes.<div class="detail">One of: <code>SPECIMEN</code>, <code>ALIQUOT</code>, <code>COMPOUND</code>, <code>MATERIAL</code>, <code>BIOLOGICAL</code>, <code>CHEMICAL</code>, <code>ENVIRONMENTAL</code>, <code>CONTROL</code>, <code>REFERENCE</code>, <code>OTHER</code></div></td>
+        </tr>
+        <tr>
+          <td><code>status</code></td>
+          <td>Choice</td>
+          <td><span class="tag">required</span></td>
+          <td>Where the sample is in its life, from planned through use to disposal. Indicates whether the specimen is planned, available for research, in use, exhausted, unavailable, or retained historically. Experiment gating, chain of custody, inventory-like laboratory control, audit, and disposal. Status constrains new Experiment use but does not rewrite historical Experiment or Compound associations. Sample is expected but has not yet been collected or received. Sample has been collected and awaits normal receipt or availability controls. Sample has entered the governed laboratory or research custody process. Sample is eligible for governed research use. Sample is currently participating in an active research activity. Usable sample quantity has been exhausted by governed activity. Sample was intentionally disposed of under an authorized process. Sample can no longer be physically accounted for. Sample is held from normal use pending review or resolution. Sample is retained for historical or long-term controlled storage.<div class="detail">One of: <code>PLANNED</code>, <code>COLLECTED</code>, <code>RECEIVED</code>, <code>AVAILABLE</code>, <code>IN_USE</code>, <code>CONSUMED</code>, <code>DISPOSED</code>, <code>LOST</code>, <code>QUARANTINED</code>, <code>ARCHIVED</code></div></td>
+        </tr>
+        <tr>
+          <td><code>collected_at</code></td>
+          <td>Date and time</td>
+          <td>&mdash;</td>
+          <td>Time at which the sample was collected or created. Establishes the origin chronology of the specimen. Chain of custody, protocol compliance, stability analysis, reporting, and audit. May precede receipt and experiment use; derived samples may use creation time as collection time.</td>
+        </tr>
+        <tr>
+          <td><code>quantity</code></td>
+          <td>Amount</td>
+          <td>&mdash;</td>
+          <td>Governed quantity currently represented by the sample record when quantity tracking applies. Describes how much specimen or material is associated with the sample for planning and traceability. Laboratory planning, aliquoting, consumption tracking, reporting, and reconciliation. Quantity requires a compatible UnitOfMeasure and must not be confused with enterprise InventoryBalance unless an explicit integration exists.</td>
+        </tr>
+        <tr>
+          <td><code>unit_of_measure</code></td>
+          <td>Lookup</td>
+          <td>&mdash;</td>
+          <td>The unit, such as mL, mg or units, in which the amount of this sample is stated. Chosen when the sample is registered; quantities are compared and converted using it, so it must suit the sample type. Gives dimensional meaning to the sample quantity. Required when quantity is dimensional; changes to unit definitions must not silently reinterpret historical sample evidence.</td>
+        </tr>
+        <tr>
+          <td><code>parent_sample_id</code></td>
+          <td>Lookup</td>
+          <td>&mdash;</td>
+          <td>Source sample from which this sample was derived. Preserves provenance for aliquots, splits, preparations, or other derived specimens. Lineage, chain of custody, quantity reconciliation, and audit. A sample may have at most one immediate parent in this model. Parent-child lineage must remain acyclic.<div class="detail">Points at <b>Parent Sample</b></div></td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Sample</b> window, on the <b>Sample</b> tab. These are its 8 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>sample_code</code></td>
+            <td>Sample Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>sample_type</code></td>
+            <td>Sample Type</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>status</code></td>
+            <td>Status</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>collected_at</code></td>
+            <td>Collected At</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>quantity</code></td>
+            <td>Quantity</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>unit_of_measure</code></td>
+            <td>Unit Of Measure</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>70</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>parent_sample_id</code></td>
+            <td>Parent Sample</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>80</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <h4>Related records</h4>
+      <ul class="plain">
+          <li>Each <b>Sample</b> is linked to many <a href="#entity-assay">Assay</a> records.</li>
+          <li>Each <b>Sample</b> has many <a href="#entity-observation">Observation</a> records.</li>
+          <li>Each <b>Sample</b> has many <a href="#entity-sample">Sample</a> records.</li>
+          <li>Each <b>Sample</b> has many <a href="#entity-sample">Sample</a> records.</li>
+      </ul>
+      <h4>Lifecycle &mdash; SampleLifecycle</h4>
+      <p>A record starts at <code>PLANNED</code> and finishes at <code>CONSUMED</code> or <code>DISPOSED</code> or <code>LOST</code>. These are the moves it may make, and no others:</p>
+      <table>
+        <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
+        <tbody>
+          <tr><td><code>PLANNED</code></td><td><code>COLLECTED</code></td><td><code>collect</code></td></tr>
+          <tr><td><code>COLLECTED</code></td><td><code>RECEIVED</code></td><td><code>receive</code></td></tr>
+          <tr><td><code>RECEIVED</code></td><td><code>AVAILABLE</code></td><td><code>release</code></td></tr>
+          <tr><td><code>AVAILABLE</code></td><td><code>IN_USE</code></td><td><code>issue</code></td></tr>
+          <tr><td><code>IN_USE</code></td><td><code>AVAILABLE</code></td><td><code>return</code></td></tr>
+          <tr><td><code>IN_USE</code></td><td><code>CONSUMED</code></td><td><code>consume</code></td></tr>
+          <tr><td><code>AVAILABLE</code></td><td><code>CONSUMED</code></td><td><code>consume</code></td></tr>
+          <tr><td><code>AVAILABLE</code></td><td><code>DISPOSED</code></td><td><code>dispose</code></td></tr>
+          <tr><td><code>QUARANTINED</code></td><td><code>DISPOSED</code></td><td><code>dispose</code></td></tr>
+          <tr><td><code>AVAILABLE</code></td><td><code>LOST</code></td><td><code>lose</code></td></tr>
+          <tr><td><code>IN_USE</code></td><td><code>LOST</code></td><td><code>lose</code></td></tr>
+          <tr><td><code>COLLECTED</code></td><td><code>QUARANTINED</code></td><td><code>quarantine</code></td></tr>
+          <tr><td><code>RECEIVED</code></td><td><code>QUARANTINED</code></td><td><code>quarantine</code></td></tr>
+          <tr><td><code>AVAILABLE</code></td><td><code>QUARANTINED</code></td><td><code>quarantine</code></td></tr>
+          <tr><td><code>QUARANTINED</code></td><td><code>AVAILABLE</code></td><td><code>release</code></td></tr>
+          <tr><td><code>AVAILABLE</code></td><td><code>ARCHIVED</code></td><td><code>archive</code></td></tr>
+          <tr><td><code>ARCHIVED</code></td><td><code>AVAILABLE</code></td><td><code>restore</code></td></tr>
+          <tr><td><code>ARCHIVED</code></td><td><code>DISPOSED</code></td><td><code>dispose</code></td></tr>
+        </tbody>
+      </table>
+      <h4>What happens when it is written</h4>
+      <table>
+        <thead><tr><th>Rule</th><th>Runs on</th><th>Order</th></tr></thead>
+        <tbody>
+          <tr><td><code>sampleInvariantsBeforeCreate</code></td><td>beforeCreate (CREATE)</td><td>100</td></tr>
+          <tr><td><code>sampleInvariantsBeforeUpdate</code></td><td>beforeUpdate (UPDATE)</td><td>100</td></tr>
+          <tr><td><code>sampleWorkflowsAfterUpdate</code></td><td>afterUpdate (UPDATE)</td><td>100</td></tr>
+        </tbody>
+      </table>
+      <p><b>Processes:</b> <a href="#process-sample-exception-raised">SampleExceptionRaised</a></p>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-sample-sample-type" class="entity">
+      <h3>Sample Sample Type <span class="group">Reference Data</span></h3>
+      <p class="lede">The values of sample sample type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
+      <p class="meta">Stored as <code>bus_sample_sample_type</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td><span class="unset">&mdash;</span></td>
+        </tr>
+        <tr>
+          <td><code>code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 100</span></td>
+          <td>The value stored on every record that uses this list. Fixed once created.</td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 200</span></td>
+          <td>What a person reads in the dropdown and on a record.</td>
+        </tr>
+        <tr>
+          <td><code>description</code></td>
+          <td>Long text</td>
+          <td>&mdash;</td>
+          <td>What the value means to the business.</td>
+        </tr>
+        <tr>
+          <td><code>sequence</code></td>
+          <td>Whole number</td>
+          <td><span class="tag">required</span></td>
+          <td>The position of the value in a dropdown, lowest first.</td>
+        </tr>
+        <tr>
+          <td><code>is_active</code></td>
+          <td>Yes / No</td>
+          <td><span class="tag">required</span></td>
+          <td>Whether the value is offered on new records.</td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Sample Sample Type</b> window, on the <b>Sample Sample Type</b> tab. These are its 6 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>code</code></td>
+            <td>Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>name</code></td>
+            <td>Name</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>description</code></td>
+            <td>Description</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>sequence</code></td>
+            <td>Sequence</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>is_active</code></td>
+            <td>Is Active</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-sample-status" class="entity">
+      <h3>Sample Status <span class="group">Reference Data</span></h3>
+      <p class="lede">The values of sample status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
+      <p class="meta">Stored as <code>bus_sample_status</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td><span class="unset">&mdash;</span></td>
+        </tr>
+        <tr>
+          <td><code>code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 100</span></td>
+          <td>The value stored on every record that uses this list. Fixed once created.</td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 200</span></td>
+          <td>What a person reads in the dropdown and on a record.</td>
+        </tr>
+        <tr>
+          <td><code>description</code></td>
+          <td>Long text</td>
+          <td>&mdash;</td>
+          <td>What the value means to the business.</td>
+        </tr>
+        <tr>
+          <td><code>sequence</code></td>
+          <td>Whole number</td>
+          <td><span class="tag">required</span></td>
+          <td>The position of the value in a dropdown, lowest first.</td>
+        </tr>
+        <tr>
+          <td><code>is_active</code></td>
+          <td>Yes / No</td>
+          <td><span class="tag">required</span></td>
+          <td>Whether the value is offered on new records.</td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Sample Status</b> window, on the <b>Sample Status</b> tab. These are its 6 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
       <table>
         <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
         <tbody>
@@ -4659,6 +6035,247 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <li>Each <b>State Province</b> belongs to one <a href="#entity-country">Country</a>.</li>
           <li>Each <b>State Province</b> has many <a href="#entity-city">City</a> records.</li>
       </ul>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-study" class="entity">
+      <h3>Study <span class="group">Foundation</span></h3>
+      <p class="lede">Coordinates one governed research investigation under a Protocol. Study is the organized investigation; Experiment and Assay execute work; Observation records evidence; Result records derived interpretation. Research, life sciences, laboratories, analytics, reproducibility and audit. Project and Protocol are mandatory; experiments, assays, observations and results form the evidence graph. Study is planned, executed, may suspend, completes and archives or is cancelled.</p>
+      <p class="meta">Stored as <code>bus_study</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td>The identity of the study, constant for its life. Identifies one organized research investigation independently of its component experiments and measurements. Research operations, reporting and audit. Protocol supplies governed method while ResearchProject supplies portfolio context.</td>
+        </tr>
+        <tr>
+          <td><code>study_code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 120</span></td>
+          <td>The short code of the study, such as ST-2026-04, used to find it quickly. Assigned when the study is planned; unique; used in documents, reports and integrations, and distinct from protocol and experiment codes. Operational identifier for study execution and integration. Distinct from Protocol and Experiment codes.</td>
+        </tr>
+        <tr>
+          <td><code>title</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 500</span></td>
+          <td>The descriptive title stating what the study investigates. Written by the study lead when the study is planned; shown in lists and reports and may be refined, unlike the code. States the investigation focus. Protocol and project provide additional governance context.</td>
+        </tr>
+        <tr>
+          <td><code>status</code></td>
+          <td>Choice</td>
+          <td><span class="tag">required</span></td>
+          <td>The stage of the study from planning through execution, completion and archiving, or cancellation. Starts as PLANNED; the study lead moves it as work begins, pauses or ends, and it controls whether evidence can be collected. The study is approved for planning but execution has not started. The study is being executed and experiments and observations are being collected. Work is paused, for example for a protocol amendment, and may resume later. Execution has finished and results are final, awaiting archiving. The study was stopped before completion and will not resume. A final state. The completed study is retained as a read-only record. A final state. Controls execution and evidence collection progression. Completed evidence remains immutable.<div class="detail">One of: <code>PLANNED</code>, <code>ACTIVE</code>, <code>SUSPENDED</code>, <code>COMPLETED</code>, <code>CANCELLED</code>, <code>ARCHIVED</code></div></td>
+        </tr>
+        <tr>
+          <td><code>project_id</code></td>
+          <td>Lookup</td>
+          <td><span class="tag">required</span></td>
+          <td>The research project the study is part of. A study belongs to exactly one research project. Supplies sponsorship, portfolio and accountability context. Research governance and reporting. Project state constrains study execution.<div class="detail">Points at <b>Project</b></div></td>
+        </tr>
+        <tr>
+          <td><code>protocol_id</code></td>
+          <td>Lookup</td>
+          <td><span class="tag">required</span></td>
+          <td>A study follows exactly one approved protocol. Approved Protocol governing this Study. Defines methods and execution rules. Study execution, reproducibility and audit. Applied version must be retained.<div class="detail">Points at <b>Protocol</b></div></td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Research Project</b> window, on the <b>Study</b> tab. These are its 6 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>study_code</code></td>
+            <td>Study Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>title</code></td>
+            <td>Title</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>status</code></td>
+            <td>Status</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>project_id</code></td>
+            <td>Project</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>protocol_id</code></td>
+            <td>Protocol</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <h4>Related records</h4>
+      <ul class="plain">
+          <li>Each <b>Study</b> belongs to one <a href="#entity-research-project">Research Project</a>.</li>
+          <li>Each <b>Study</b> belongs to one <a href="#entity-protocol">Protocol</a>.</li>
+          <li>Each <b>Study</b> has many <a href="#entity-assay">Assay</a> records.</li>
+          <li>Each <b>Study</b> has many <a href="#entity-observation">Observation</a> records.</li>
+          <li>Each <b>Study</b> has many <a href="#entity-result">Result</a> records.</li>
+      </ul>
+      <h4>Lifecycle &mdash; StudyLifecycle</h4>
+      <p>A record starts at <code>PLANNED</code> and finishes at <code>CANCELLED</code> or <code>ARCHIVED</code>. These are the moves it may make, and no others:</p>
+      <table>
+        <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
+        <tbody>
+          <tr><td><code>PLANNED</code></td><td><code>ACTIVE</code></td><td><code>activate</code></td></tr>
+          <tr><td><code>PLANNED</code></td><td><code>CANCELLED</code></td><td><code>cancel</code></td></tr>
+          <tr><td><code>ACTIVE</code></td><td><code>SUSPENDED</code></td><td><code>suspend</code></td></tr>
+          <tr><td><code>SUSPENDED</code></td><td><code>ACTIVE</code></td><td><code>resume</code></td></tr>
+          <tr><td><code>ACTIVE</code></td><td><code>COMPLETED</code></td><td><code>complete</code></td></tr>
+          <tr><td><code>SUSPENDED</code></td><td><code>CANCELLED</code></td><td><code>cancel</code></td></tr>
+          <tr><td><code>ACTIVE</code></td><td><code>CANCELLED</code></td><td><code>cancel</code></td></tr>
+          <tr><td><code>COMPLETED</code></td><td><code>ARCHIVED</code></td><td><code>archive</code></td></tr>
+        </tbody>
+      </table>
+      <h4>What happens when it is written</h4>
+      <table>
+        <thead><tr><th>Rule</th><th>Runs on</th><th>Order</th></tr></thead>
+        <tbody>
+          <tr><td><code>studyWorkflowsAfterUpdate</code></td><td>afterUpdate (UPDATE)</td><td>100</td></tr>
+        </tbody>
+      </table>
+      <p><b>Processes:</b> <a href="#process-study-follow-up-required">StudyFollowUpRequired</a></p>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-study-status" class="entity">
+      <h3>Study Status <span class="group">Reference Data</span></h3>
+      <p class="lede">The values of study status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
+      <p class="meta">Stored as <code>bus_study_status</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td><span class="unset">&mdash;</span></td>
+        </tr>
+        <tr>
+          <td><code>code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 100</span></td>
+          <td>The value stored on every record that uses this list. Fixed once created.</td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 200</span></td>
+          <td>What a person reads in the dropdown and on a record.</td>
+        </tr>
+        <tr>
+          <td><code>description</code></td>
+          <td>Long text</td>
+          <td>&mdash;</td>
+          <td>What the value means to the business.</td>
+        </tr>
+        <tr>
+          <td><code>sequence</code></td>
+          <td>Whole number</td>
+          <td><span class="tag">required</span></td>
+          <td>The position of the value in a dropdown, lowest first.</td>
+        </tr>
+        <tr>
+          <td><code>is_active</code></td>
+          <td>Yes / No</td>
+          <td><span class="tag">required</span></td>
+          <td>Whether the value is offered on new records.</td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Study Status</b> window, on the <b>Study Status</b> tab. These are its 6 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>code</code></td>
+            <td>Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>name</code></td>
+            <td>Name</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>description</code></td>
+            <td>Description</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>sequence</code></td>
+            <td>Sequence</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>is_active</code></td>
+            <td>Is Active</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
       <p class="back"><a href="#top">Back to contents</a></p>
     </section>
 
@@ -5339,6 +6956,8 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <ul class="plain">
           <li>Each <b>Unit Of Measure</b> has many <a href="#entity-unit-of-measure">Unit Of Measure</a> records.</li>
           <li>Each <b>Unit Of Measure</b> has many <a href="#entity-unit-of-measure">Unit Of Measure</a> records.</li>
+          <li>Each <b>Unit Of Measure</b> has many <a href="#entity-observation">Observation</a> records.</li>
+          <li>Each <b>Unit Of Measure</b> has many <a href="#entity-result">Result</a> records.</li>
       </ul>
       <h4>Lifecycle &mdash; UnitOfMeasureLifecycle</h4>
       <p>A record starts at <code>ACTIVE</code> and finishes at <code>RETIRED</code>. These are the moves it may make, and no others:</p>
@@ -5579,9 +7198,14 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
         <tr><td><code>exchangeRateInvariantsBeforeUpdate</code></td><td><a href="#entity-exchange-rate">Exchange Rate</a></td><td>beforeUpdate</td></tr>
         <tr><td><code>taskInvariantsBeforeCreate</code></td><td><a href="#entity-task">Task</a></td><td>beforeCreate</td></tr>
         <tr><td><code>taskInvariantsBeforeUpdate</code></td><td><a href="#entity-task">Task</a></td><td>beforeUpdate</td></tr>
+        <tr><td><code>sampleInvariantsBeforeCreate</code></td><td><a href="#entity-sample">Sample</a></td><td>beforeCreate</td></tr>
+        <tr><td><code>sampleInvariantsBeforeUpdate</code></td><td><a href="#entity-sample">Sample</a></td><td>beforeUpdate</td></tr>
         <tr><td><code>partyWorkflowsAfterUpdate</code></td><td><a href="#entity-party">Party</a></td><td>afterUpdate</td></tr>
         <tr><td><code>exchangeRateWorkflowsAfterUpdate</code></td><td><a href="#entity-exchange-rate">Exchange Rate</a></td><td>afterUpdate</td></tr>
         <tr><td><code>researchProjectWorkflowsAfterUpdate</code></td><td><a href="#entity-research-project">Research Project</a></td><td>afterUpdate</td></tr>
+        <tr><td><code>studyWorkflowsAfterUpdate</code></td><td><a href="#entity-study">Study</a></td><td>afterUpdate</td></tr>
+        <tr><td><code>assayWorkflowsAfterUpdate</code></td><td><a href="#entity-assay">Assay</a></td><td>afterUpdate</td></tr>
+        <tr><td><code>sampleWorkflowsAfterUpdate</code></td><td><a href="#entity-sample">Sample</a></td><td>afterUpdate</td></tr>
       </tbody>
     </table>
     <p class="back"><a href="#top">Back to contents</a></p>
@@ -5611,6 +7235,34 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
         <li>Raise a task: follow up on <span class="tag">CreateEntity</span></li>
       </ol>
     </div>
+    <div id="process-study-follow-up-required" class="process">
+      <h3>StudyFollowUpRequired</h3>
+      <p class="meta">On <a href="#entity-study">Study</a>, rule on UPDATE.</p>
+      <ol>
+        <li>Raise a task: follow up on <span class="tag">CreateEntity</span></li>
+      </ol>
+    </div>
+    <div id="process-assay-exception-raised" class="process">
+      <h3>AssayExceptionRaised</h3>
+      <p class="meta">On <a href="#entity-assay">Assay</a>, rule on UPDATE.</p>
+      <ol>
+        <li>Raise a task: resolve <span class="tag">CreateEntity</span></li>
+      </ol>
+    </div>
+    <div id="process-assay-follow-up-required" class="process">
+      <h3>AssayFollowUpRequired</h3>
+      <p class="meta">On <a href="#entity-assay">Assay</a>, rule on UPDATE.</p>
+      <ol>
+        <li>Raise a task: follow up on <span class="tag">CreateEntity</span></li>
+      </ol>
+    </div>
+    <div id="process-sample-exception-raised" class="process">
+      <h3>SampleExceptionRaised</h3>
+      <p class="meta">On <a href="#entity-sample">Sample</a>, rule on UPDATE.</p>
+      <ol>
+        <li>Raise a task: resolve <span class="tag">CreateEntity</span></li>
+      </ol>
+    </div>
     <p class="back"><a href="#top">Back to contents</a></p>
   </section>
 
@@ -5623,7 +7275,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
   </section>
 
   <footer>
-    research 1.0.0 &middot; 45 record types &middot; 11 rules &middot; 13 processes
+    research 1.0.0 &middot; 58 record types &middot; 16 rules &middot; 23 processes
   </footer>
 </div>
 </body>

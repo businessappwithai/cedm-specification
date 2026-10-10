@@ -6,20 +6,20 @@
 #
 #   lifecycle   the states of a status attribute and the moves between them
 #   invariants  business rules; one with `violatedWhen` is executable
-#   processes   workflows that run when a rule fires (domains/processes/)
+#   workflows   steps that run when a written record meets a condition
 #
-# `tools/validate.py` enforces BL-001…BL-014; the generators compile what
+# `tools/validate.ts` enforces BL-001…BL-014; the generators compile what
 # conforms: a lifecycle to a state machine (`sys_workflow_transitions`, which
 # every write to the status column is checked against), an executable invariant
-# to a validation rule (`/admin/rules`), a process to a workflow definition
-# (`/admin/workflow-definitions`). A generated application also ships tests for
+# to a validation rule (`/admin/rules`), a workflow to a workflow definition
+# (`/admin/workflow-definitions`) and the rule that starts it. A generated application also ships tests for
 # each one, so a rule that stops being enforced fails a build rather than a
 # customer.
 specification:
   name: CEDM Business Logic
   version: 1.0.0
   status: draft
-  appliesTo: [domain/entities, domains/processes, specification/lifecycle.yaml, specification/business-rules.yaml]
+  appliesTo: [domain/entities, domains/application-catalog.yaml, specification/lifecycle.yaml, specification/business-rules.yaml]
 
 lifecycle:
   where: "An entity's top-level `lifecycle` key."
@@ -33,7 +33,7 @@ lifecycle:
     - Topology is enforced for every caller, the master role included. A move the diagram never drew is a move that does not exist.
     - A transition may carry `authorization` (roles that may make it) and `guard` (a condition over the record).
   derivation: >-
-    Where an entity states only its status values, tools/derive_business_logic.py draws the lifecycle
+    Where an entity states only its status values, tools/derive-business-logic.ts draws the lifecycle
     from them: the values are sorted into a starting run, detours that are left and returned to
     (SUSPENDED, ON_HOLD, BLOCKED, INACTIVE…), ends that mean it ran its course (COMPLETED, CLOSED…)
     and ends that mean it did not or is no longer in use (CANCELLED, REJECTED, RETIRED…). A derived
@@ -65,10 +65,20 @@ rules:
     - id: stamps
       rule: "A record that is completed, closed, approved, posted, cancelled, shipped, delivered or retired states when, where the entity has a date attribute for it."
 
-processes:
-  where: domains/processes/<domain>.yaml, folded into the domain's application.
-  contract: "A process names the entity whose change starts it (`entity`, `trigger: rule`), the condition (the rule that fires it) and its steps. It is one of the saga step types the generated backend runs."
-  firing: "A process runs when a rule's `trigger-workflow` action names it. It is never started by being defined, so a process with no rule is documentation and BL-012 says so."
+workflows:
+  where: "An entity's top-level `workflows` list, in the entity's own file."
+  keys:
+    name: "PascalCase, unique within the entity; the generated workflow is `<Entity><name>`."
+    when: "A condition over the written record, in the rules engine's expression language. On an update `_previous_<column>` is the column as it was, so `status != _previous_status` fires on entering a state rather than on every edit made in it."
+    event: "The write event the starting rule is filed under: `afterUpdate` unless stated (`afterCreate` for a record that arrives in the state)."
+    steps: "Each `{id, type, label, properties}`; `type` is one of the language's step types (CreateEntity, UpdateEntity, DeleteEntity, Decision, Formula, REST, Agent). An entity step names the `entity` it writes and the `fields` it sets, by column; `{{column}}` in a value reads the record that started the workflow."
+  firing: "Lowering turns each workflow into a saga and a rule whose `trigger-workflow` action starts it when `when` holds, so a workflow is never defined without the rule that runs it."
+  derivation: >-
+    Where an entity has a lifecycle and states no `workflows`, tools/derive-workflows.ts writes the
+    ones its states call for: a decision to ask for (SUBMITTED, PENDING_APPROVAL…), a stopped record
+    to resolve (BLOCKED, ON_HOLD…), an ended one to follow up (CANCELLED, REJECTED…) and, for a
+    transaction, a completed one to confirm. Each raises a Task. The tool never overwrites workflows
+    an author wrote.
 
 checks:
   - id: BL-001
@@ -106,10 +116,10 @@ checks:
     rule: "An entity with a status enum and no lifecycle says so; it accepts any move."
   - id: BL-012
     severity: warning
-    rule: "A process no rule triggers is documentation."
+    rule: "A workflow with no `when` or no steps never runs; it is documentation."
   - id: BL-013
     severity: error
-    rule: "A process's steps name entities and fields that exist."
+    rule: "A workflow's name is unique in its entity; its `when` reads only the entity's columns (and `_previous_<column>`); its `event` is a write event; its steps are language step types, and an entity step names an entity that exists, sets only that entity's columns, gives an enumerated column one of its values, and reads (`{{column}}`) only columns of the record that started it."
   - id: BL-014
     severity: error
-    rule: "Every domain with transaction entities defines at least one process."
+    rule: "Every application in domains/application-catalog.yaml that records transactions runs at least one workflow."

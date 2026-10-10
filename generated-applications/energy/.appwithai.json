@@ -100,8 +100,10 @@
   ],
   "sagas": [
     "PartyExceptionRaised on Party (1 steps, rule)",
-    "ExchangeRateFollowUpRequired on ExchangeRate (1 steps, rule)"
+    "ExchangeRateFollowUpRequired on ExchangeRate (1 steps, rule)",
+    "MeterReadingSuspectReadingRecorded on MeterReading (1 steps, rule)",
+    "MeterReadingReadingMarkedSuspect on MeterReading (1 steps, rule)"
   ],
   "packageManager": "bun",
-  "generatedAt": "2026-10-09T15:28:34.518Z"
+  "generatedAt": "2026-10-10T02:39:52.732Z"
 }

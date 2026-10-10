@@ -217,3 +217,36 @@ ON CONFLICT (entity_name, operation, rule_name) DO UPDATE
       updated_by  = EXCLUDED.updated_by,
       updated_at  = NOW()
   WHERE current_setting('appwithai.rules_overwrite', true) = 'on';
+
+-- gateEventWorkflowsAfterUpdate — GateEvent.afterUpdate (priority 100)
+INSERT INTO sys_rule_definitions (id, entity_name, rule_name, operation, jdm_content, version, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('bcdbdfe0-6644-5719-9833-e461043e3481', 'bus_gate_event', 'gateEventWorkflowsAfterUpdate', 'UPDATE', '{"nodes":[{"id":"input","name":"Input","type":"inputNode"},{"id":"gateEventWorkflowsAfterUpdate-table","name":"gateEventWorkflowsAfterUpdate","type":"decisionTableNode","content":{"hitPolicy":"collect","inputs":[{"id":"i1","name":"Record","field":""}],"outputs":[{"id":"o1","name":"Action","field":"action"},{"id":"o2","name":"Message","field":"message"},{"id":"o3","name":"Rule ID","field":"ruleId"},{"id":"o4","name":"Workflow Name","field":"workflowName"},{"id":"o5","name":"Target Entity","field":"targetEntity"},{"id":"o6","name":"Link Field","field":"linkField"},{"id":"o7","name":"Update Data","field":"updateData"},{"id":"o8","name":"Create Data","field":"createData"},{"id":"o9","name":"Transform Data","field":"transformData"}],"rules":[{"_id":"gateEventWorkflowsAfterUpdate-FollowUpRequired","i1":"status == \"REVERSED\" and status != _previous_status","o1":"''trigger-workflow''","o2":"''gateEventWorkflowsAfterUpdate: FollowUpRequired''","o3":"''gateEventWorkflowsAfterUpdate''","o4":"''GateEventFollowUpRequired''","o5":"''''","o6":"''''","o7":"''''","o8":"''''","o9":"''''"}]}},{"id":"output","name":"Output","type":"outputNode"}],"edges":[{"id":"edge-1","sourceId":"input","targetId":"gateEventWorkflowsAfterUpdate-table"},{"id":"edge-2","sourceId":"gateEventWorkflowsAfterUpdate-table","targetId":"output"}]}', 1, TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT (entity_name, operation, rule_name) DO UPDATE
+  SET jdm_content = EXCLUDED.jdm_content,
+      version     = sys_rule_definitions.version + 1,
+      is_active   = TRUE,
+      updated_by  = EXCLUDED.updated_by,
+      updated_at  = NOW()
+  WHERE current_setting('appwithai.rules_overwrite', true) = 'on';
+
+-- containerVisitWorkflowsAfterUpdate — ContainerVisit.afterUpdate (priority 100)
+INSERT INTO sys_rule_definitions (id, entity_name, rule_name, operation, jdm_content, version, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('11276fd7-3cb1-50c7-98ab-a25b1817e3d9', 'bus_container_visit', 'containerVisitWorkflowsAfterUpdate', 'UPDATE', '{"nodes":[{"id":"input","name":"Input","type":"inputNode"},{"id":"containerVisitWorkflowsAfterUpdate-table","name":"containerVisitWorkflowsAfterUpdate","type":"decisionTableNode","content":{"hitPolicy":"collect","inputs":[{"id":"i1","name":"Record","field":""}],"outputs":[{"id":"o1","name":"Action","field":"action"},{"id":"o2","name":"Message","field":"message"},{"id":"o3","name":"Rule ID","field":"ruleId"},{"id":"o4","name":"Workflow Name","field":"workflowName"},{"id":"o5","name":"Target Entity","field":"targetEntity"},{"id":"o6","name":"Link Field","field":"linkField"},{"id":"o7","name":"Update Data","field":"updateData"},{"id":"o8","name":"Create Data","field":"createData"},{"id":"o9","name":"Transform Data","field":"transformData"}],"rules":[{"_id":"containerVisitWorkflowsAfterUpdate-FollowUpRequired","i1":"status == \"CANCELLED\" and status != _previous_status","o1":"''trigger-workflow''","o2":"''containerVisitWorkflowsAfterUpdate: FollowUpRequired''","o3":"''containerVisitWorkflowsAfterUpdate''","o4":"''ContainerVisitFollowUpRequired''","o5":"''''","o6":"''''","o7":"''''","o8":"''''","o9":"''''"}]}},{"id":"output","name":"Output","type":"outputNode"}],"edges":[{"id":"edge-1","sourceId":"input","targetId":"containerVisitWorkflowsAfterUpdate-table"},{"id":"edge-2","sourceId":"containerVisitWorkflowsAfterUpdate-table","targetId":"output"}]}', 1, TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT (entity_name, operation, rule_name) DO UPDATE
+  SET jdm_content = EXCLUDED.jdm_content,
+      version     = sys_rule_definitions.version + 1,
+      is_active   = TRUE,
+      updated_by  = EXCLUDED.updated_by,
+      updated_at  = NOW()
+  WHERE current_setting('appwithai.rules_overwrite', true) = 'on';
+
+-- voyageWorkflowsAfterUpdate — Voyage.afterUpdate (priority 100)
+INSERT INTO sys_rule_definitions (id, entity_name, rule_name, operation, jdm_content, version, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('601d3651-69ef-5b25-b477-5fe18a70f167', 'bus_voyage', 'voyageWorkflowsAfterUpdate', 'UPDATE', '{"nodes":[{"id":"input","name":"Input","type":"inputNode"},{"id":"voyageWorkflowsAfterUpdate-table","name":"voyageWorkflowsAfterUpdate","type":"decisionTableNode","content":{"hitPolicy":"collect","inputs":[{"id":"i1","name":"Record","field":""}],"outputs":[{"id":"o1","name":"Action","field":"action"},{"id":"o2","name":"Message","field":"message"},{"id":"o3","name":"Rule ID","field":"ruleId"},{"id":"o4","name":"Workflow Name","field":"workflowName"},{"id":"o5","name":"Target Entity","field":"targetEntity"},{"id":"o6","name":"Link Field","field":"linkField"},{"id":"o7","name":"Update Data","field":"updateData"},{"id":"o8","name":"Create Data","field":"createData"},{"id":"o9","name":"Transform Data","field":"transformData"}],"rules":[{"_id":"voyageWorkflowsAfterUpdate-FollowUpRequired","i1":"status == \"CANCELLED\" and status != _previous_status","o1":"''trigger-workflow''","o2":"''voyageWorkflowsAfterUpdate: FollowUpRequired''","o3":"''voyageWorkflowsAfterUpdate''","o4":"''VoyageFollowUpRequired''","o5":"''''","o6":"''''","o7":"''''","o8":"''''","o9":"''''"}]}},{"id":"output","name":"Output","type":"outputNode"}],"edges":[{"id":"edge-1","sourceId":"input","targetId":"voyageWorkflowsAfterUpdate-table"},{"id":"edge-2","sourceId":"voyageWorkflowsAfterUpdate-table","targetId":"output"}]}', 1, TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT (entity_name, operation, rule_name) DO UPDATE
+  SET jdm_content = EXCLUDED.jdm_content,
+      version     = sys_rule_definitions.version + 1,
+      is_active   = TRUE,
+      updated_by  = EXCLUDED.updated_by,
+      updated_at  = NOW()
+  WHERE current_setting('appwithai.rules_overwrite', true) = 'on';

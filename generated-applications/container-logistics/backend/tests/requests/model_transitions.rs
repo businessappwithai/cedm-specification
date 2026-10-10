@@ -1,6 +1,6 @@
 //! The state machines the *model* drew, and whether the API enforces them.
 //!
-//! Generated: 2026-10-09T15:28:09.279Z
+//! Generated: 2026-10-10T02:39:25.609Z
 //! Project: container-logistics
 //!
 //! `requests/rbac.rs` proves the topology guard works by seeding an edge of its
@@ -133,6 +133,38 @@ const MODEL_EDGES: &[(&str, &str, &str, &str)] = &[
     ("bus_yard_slot", "status", "OUT_OF_SERVICE", "OCCUPIED"),
     ("bus_yard_slot", "status", "RESERVED", "OUT_OF_SERVICE"),
     ("bus_yard_slot", "status", "OUT_OF_SERVICE", "RESERVED"),
+    ("bus_port", "status", "ACTIVE", "RESTRICTED"),
+    ("bus_port", "status", "RESTRICTED", "ACTIVE"),
+    ("bus_port", "status", "ACTIVE", "CLOSED"),
+    ("bus_port", "status", "RESTRICTED", "CLOSED"),
+    ("bus_port", "status", "CLOSED", "ACTIVE"),
+    ("bus_berth", "status", "ACTIVE", "RESTRICTED"),
+    ("bus_berth", "status", "RESTRICTED", "ACTIVE"),
+    ("bus_berth", "status", "ACTIVE", "OUT_OF_SERVICE"),
+    ("bus_berth", "status", "RESTRICTED", "OUT_OF_SERVICE"),
+    ("bus_berth", "status", "OUT_OF_SERVICE", "ACTIVE"),
+    ("bus_berth", "status", "ACTIVE", "RETIRED"),
+    ("bus_berth", "status", "RESTRICTED", "RETIRED"),
+    ("bus_berth", "status", "OUT_OF_SERVICE", "RETIRED"),
+    ("bus_gate", "status", "OPEN", "CLOSED"),
+    ("bus_gate", "status", "CLOSED", "OPEN"),
+    ("bus_gate", "status", "OPEN", "RETIRED"),
+    ("bus_gate", "status", "CLOSED", "RETIRED"),
+    ("bus_gate_event", "status", "RECORDED", "VERIFIED"),
+    ("bus_gate_event", "status", "RECORDED", "REVERSED"),
+    ("bus_container_visit", "status", "ACTIVE", "COMPLETED"),
+    ("bus_container_visit", "status", "ACTIVE", "CANCELLED"),
+    ("bus_vessel", "status", "ACTIVE", "INACTIVE"),
+    ("bus_vessel", "status", "INACTIVE", "ACTIVE"),
+    ("bus_vessel", "status", "ACTIVE", "OUT_OF_SERVICE"),
+    ("bus_vessel", "status", "OUT_OF_SERVICE", "ACTIVE"),
+    ("bus_vessel", "status", "ACTIVE", "RETIRED"),
+    ("bus_vessel", "status", "INACTIVE", "RETIRED"),
+    ("bus_vessel", "status", "OUT_OF_SERVICE", "RETIRED"),
+    ("bus_voyage", "status", "PLANNED", "ACTIVE"),
+    ("bus_voyage", "status", "PLANNED", "CANCELLED"),
+    ("bus_voyage", "status", "ACTIVE", "COMPLETED"),
+    ("bus_voyage", "status", "ACTIVE", "CANCELLED"),
 ];
 
 /// The entity and starting state of the first machine, for the live check.

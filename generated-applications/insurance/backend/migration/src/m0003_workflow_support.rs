@@ -209,6 +209,38 @@ ALTER TABLE bus_insurance_policy
 
 CREATE INDEX IF NOT EXISTS idx_bus_insurance_policy_doc_status ON bus_insurance_policy (doc_status);
 
+ALTER TABLE bus_coverage
+  ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
+  ADD COLUMN IF NOT EXISTS workflow_run_id UUID,
+  ADD COLUMN IF NOT EXISTS doc_status VARCHAR(20) NOT NULL DEFAULT 'draft',
+  ADD COLUMN IF NOT EXISTS doc_status_message TEXT;
+
+CREATE INDEX IF NOT EXISTS idx_bus_coverage_doc_status ON bus_coverage (doc_status);
+
+ALTER TABLE bus_insured_party
+  ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
+  ADD COLUMN IF NOT EXISTS workflow_run_id UUID,
+  ADD COLUMN IF NOT EXISTS doc_status VARCHAR(20) NOT NULL DEFAULT 'draft',
+  ADD COLUMN IF NOT EXISTS doc_status_message TEXT;
+
+CREATE INDEX IF NOT EXISTS idx_bus_insured_party_doc_status ON bus_insured_party (doc_status);
+
+ALTER TABLE bus_underwriting
+  ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
+  ADD COLUMN IF NOT EXISTS workflow_run_id UUID,
+  ADD COLUMN IF NOT EXISTS doc_status VARCHAR(20) NOT NULL DEFAULT 'draft',
+  ADD COLUMN IF NOT EXISTS doc_status_message TEXT;
+
+CREATE INDEX IF NOT EXISTS idx_bus_underwriting_doc_status ON bus_underwriting (doc_status);
+
+ALTER TABLE bus_premium
+  ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
+  ADD COLUMN IF NOT EXISTS workflow_run_id UUID,
+  ADD COLUMN IF NOT EXISTS doc_status VARCHAR(20) NOT NULL DEFAULT 'draft',
+  ADD COLUMN IF NOT EXISTS doc_status_message TEXT;
+
+CREATE INDEX IF NOT EXISTS idx_bus_premium_doc_status ON bus_premium (doc_status);
+
 ALTER TABLE bus_insurance_claim
   ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
   ADD COLUMN IF NOT EXISTS workflow_run_id UUID,
@@ -216,6 +248,22 @@ ALTER TABLE bus_insurance_claim
   ADD COLUMN IF NOT EXISTS doc_status_message TEXT;
 
 CREATE INDEX IF NOT EXISTS idx_bus_insurance_claim_doc_status ON bus_insurance_claim (doc_status);
+
+ALTER TABLE bus_claim_line
+  ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
+  ADD COLUMN IF NOT EXISTS workflow_run_id UUID,
+  ADD COLUMN IF NOT EXISTS doc_status VARCHAR(20) NOT NULL DEFAULT 'draft',
+  ADD COLUMN IF NOT EXISTS doc_status_message TEXT;
+
+CREATE INDEX IF NOT EXISTS idx_bus_claim_line_doc_status ON bus_claim_line (doc_status);
+
+ALTER TABLE bus_settlement
+  ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
+  ADD COLUMN IF NOT EXISTS workflow_run_id UUID,
+  ADD COLUMN IF NOT EXISTS doc_status VARCHAR(20) NOT NULL DEFAULT 'draft',
+  ADD COLUMN IF NOT EXISTS doc_status_message TEXT;
+
+CREATE INDEX IF NOT EXISTS idx_bus_settlement_doc_status ON bus_settlement (doc_status);
 
 ALTER TABLE bus_party_party_type
   ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
@@ -401,6 +449,54 @@ ALTER TABLE bus_insurance_policy_status
 
 CREATE INDEX IF NOT EXISTS idx_bus_insurance_policy_status_doc_status ON bus_insurance_policy_status (doc_status);
 
+ALTER TABLE bus_coverage_status
+  ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
+  ADD COLUMN IF NOT EXISTS workflow_run_id UUID,
+  ADD COLUMN IF NOT EXISTS doc_status VARCHAR(20) NOT NULL DEFAULT 'draft',
+  ADD COLUMN IF NOT EXISTS doc_status_message TEXT;
+
+CREATE INDEX IF NOT EXISTS idx_bus_coverage_status_doc_status ON bus_coverage_status (doc_status);
+
+ALTER TABLE bus_insured_party_role_type
+  ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
+  ADD COLUMN IF NOT EXISTS workflow_run_id UUID,
+  ADD COLUMN IF NOT EXISTS doc_status VARCHAR(20) NOT NULL DEFAULT 'draft',
+  ADD COLUMN IF NOT EXISTS doc_status_message TEXT;
+
+CREATE INDEX IF NOT EXISTS idx_bus_insured_party_role_type_doc_status ON bus_insured_party_role_type (doc_status);
+
+ALTER TABLE bus_insured_party_status
+  ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
+  ADD COLUMN IF NOT EXISTS workflow_run_id UUID,
+  ADD COLUMN IF NOT EXISTS doc_status VARCHAR(20) NOT NULL DEFAULT 'draft',
+  ADD COLUMN IF NOT EXISTS doc_status_message TEXT;
+
+CREATE INDEX IF NOT EXISTS idx_bus_insured_party_status_doc_status ON bus_insured_party_status (doc_status);
+
+ALTER TABLE bus_underwriting_decision
+  ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
+  ADD COLUMN IF NOT EXISTS workflow_run_id UUID,
+  ADD COLUMN IF NOT EXISTS doc_status VARCHAR(20) NOT NULL DEFAULT 'draft',
+  ADD COLUMN IF NOT EXISTS doc_status_message TEXT;
+
+CREATE INDEX IF NOT EXISTS idx_bus_underwriting_decision_doc_status ON bus_underwriting_decision (doc_status);
+
+ALTER TABLE bus_underwriting_status
+  ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
+  ADD COLUMN IF NOT EXISTS workflow_run_id UUID,
+  ADD COLUMN IF NOT EXISTS doc_status VARCHAR(20) NOT NULL DEFAULT 'draft',
+  ADD COLUMN IF NOT EXISTS doc_status_message TEXT;
+
+CREATE INDEX IF NOT EXISTS idx_bus_underwriting_status_doc_status ON bus_underwriting_status (doc_status);
+
+ALTER TABLE bus_premium_status
+  ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
+  ADD COLUMN IF NOT EXISTS workflow_run_id UUID,
+  ADD COLUMN IF NOT EXISTS doc_status VARCHAR(20) NOT NULL DEFAULT 'draft',
+  ADD COLUMN IF NOT EXISTS doc_status_message TEXT;
+
+CREATE INDEX IF NOT EXISTS idx_bus_premium_status_doc_status ON bus_premium_status (doc_status);
+
 ALTER TABLE bus_insurance_claim_status
   ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
   ADD COLUMN IF NOT EXISTS workflow_run_id UUID,
@@ -408,6 +504,30 @@ ALTER TABLE bus_insurance_claim_status
   ADD COLUMN IF NOT EXISTS doc_status_message TEXT;
 
 CREATE INDEX IF NOT EXISTS idx_bus_insurance_claim_status_doc_status ON bus_insurance_claim_status (doc_status);
+
+ALTER TABLE bus_claim_line_status
+  ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
+  ADD COLUMN IF NOT EXISTS workflow_run_id UUID,
+  ADD COLUMN IF NOT EXISTS doc_status VARCHAR(20) NOT NULL DEFAULT 'draft',
+  ADD COLUMN IF NOT EXISTS doc_status_message TEXT;
+
+CREATE INDEX IF NOT EXISTS idx_bus_claim_line_status_doc_status ON bus_claim_line_status (doc_status);
+
+ALTER TABLE bus_settlement_method
+  ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
+  ADD COLUMN IF NOT EXISTS workflow_run_id UUID,
+  ADD COLUMN IF NOT EXISTS doc_status VARCHAR(20) NOT NULL DEFAULT 'draft',
+  ADD COLUMN IF NOT EXISTS doc_status_message TEXT;
+
+CREATE INDEX IF NOT EXISTS idx_bus_settlement_method_doc_status ON bus_settlement_method (doc_status);
+
+ALTER TABLE bus_settlement_status
+  ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
+  ADD COLUMN IF NOT EXISTS workflow_run_id UUID,
+  ADD COLUMN IF NOT EXISTS doc_status VARCHAR(20) NOT NULL DEFAULT 'draft',
+  ADD COLUMN IF NOT EXISTS doc_status_message TEXT;
+
+CREATE INDEX IF NOT EXISTS idx_bus_settlement_status_doc_status ON bus_settlement_status (doc_status);
 
 "#;
 
@@ -588,9 +708,57 @@ ALTER TABLE bus_insurance_policy
   DROP COLUMN IF EXISTS doc_status,
   DROP COLUMN IF EXISTS doc_status_message;
 
+DROP INDEX IF EXISTS idx_bus_coverage_doc_status;
+
+ALTER TABLE bus_coverage
+  DROP COLUMN IF EXISTS workflow_status,
+  DROP COLUMN IF EXISTS workflow_run_id,
+  DROP COLUMN IF EXISTS doc_status,
+  DROP COLUMN IF EXISTS doc_status_message;
+
+DROP INDEX IF EXISTS idx_bus_insured_party_doc_status;
+
+ALTER TABLE bus_insured_party
+  DROP COLUMN IF EXISTS workflow_status,
+  DROP COLUMN IF EXISTS workflow_run_id,
+  DROP COLUMN IF EXISTS doc_status,
+  DROP COLUMN IF EXISTS doc_status_message;
+
+DROP INDEX IF EXISTS idx_bus_underwriting_doc_status;
+
+ALTER TABLE bus_underwriting
+  DROP COLUMN IF EXISTS workflow_status,
+  DROP COLUMN IF EXISTS workflow_run_id,
+  DROP COLUMN IF EXISTS doc_status,
+  DROP COLUMN IF EXISTS doc_status_message;
+
+DROP INDEX IF EXISTS idx_bus_premium_doc_status;
+
+ALTER TABLE bus_premium
+  DROP COLUMN IF EXISTS workflow_status,
+  DROP COLUMN IF EXISTS workflow_run_id,
+  DROP COLUMN IF EXISTS doc_status,
+  DROP COLUMN IF EXISTS doc_status_message;
+
 DROP INDEX IF EXISTS idx_bus_insurance_claim_doc_status;
 
 ALTER TABLE bus_insurance_claim
+  DROP COLUMN IF EXISTS workflow_status,
+  DROP COLUMN IF EXISTS workflow_run_id,
+  DROP COLUMN IF EXISTS doc_status,
+  DROP COLUMN IF EXISTS doc_status_message;
+
+DROP INDEX IF EXISTS idx_bus_claim_line_doc_status;
+
+ALTER TABLE bus_claim_line
+  DROP COLUMN IF EXISTS workflow_status,
+  DROP COLUMN IF EXISTS workflow_run_id,
+  DROP COLUMN IF EXISTS doc_status,
+  DROP COLUMN IF EXISTS doc_status_message;
+
+DROP INDEX IF EXISTS idx_bus_settlement_doc_status;
+
+ALTER TABLE bus_settlement
   DROP COLUMN IF EXISTS workflow_status,
   DROP COLUMN IF EXISTS workflow_run_id,
   DROP COLUMN IF EXISTS doc_status,
@@ -780,9 +948,81 @@ ALTER TABLE bus_insurance_policy_status
   DROP COLUMN IF EXISTS doc_status,
   DROP COLUMN IF EXISTS doc_status_message;
 
+DROP INDEX IF EXISTS idx_bus_coverage_status_doc_status;
+
+ALTER TABLE bus_coverage_status
+  DROP COLUMN IF EXISTS workflow_status,
+  DROP COLUMN IF EXISTS workflow_run_id,
+  DROP COLUMN IF EXISTS doc_status,
+  DROP COLUMN IF EXISTS doc_status_message;
+
+DROP INDEX IF EXISTS idx_bus_insured_party_role_type_doc_status;
+
+ALTER TABLE bus_insured_party_role_type
+  DROP COLUMN IF EXISTS workflow_status,
+  DROP COLUMN IF EXISTS workflow_run_id,
+  DROP COLUMN IF EXISTS doc_status,
+  DROP COLUMN IF EXISTS doc_status_message;
+
+DROP INDEX IF EXISTS idx_bus_insured_party_status_doc_status;
+
+ALTER TABLE bus_insured_party_status
+  DROP COLUMN IF EXISTS workflow_status,
+  DROP COLUMN IF EXISTS workflow_run_id,
+  DROP COLUMN IF EXISTS doc_status,
+  DROP COLUMN IF EXISTS doc_status_message;
+
+DROP INDEX IF EXISTS idx_bus_underwriting_decision_doc_status;
+
+ALTER TABLE bus_underwriting_decision
+  DROP COLUMN IF EXISTS workflow_status,
+  DROP COLUMN IF EXISTS workflow_run_id,
+  DROP COLUMN IF EXISTS doc_status,
+  DROP COLUMN IF EXISTS doc_status_message;
+
+DROP INDEX IF EXISTS idx_bus_underwriting_status_doc_status;
+
+ALTER TABLE bus_underwriting_status
+  DROP COLUMN IF EXISTS workflow_status,
+  DROP COLUMN IF EXISTS workflow_run_id,
+  DROP COLUMN IF EXISTS doc_status,
+  DROP COLUMN IF EXISTS doc_status_message;
+
+DROP INDEX IF EXISTS idx_bus_premium_status_doc_status;
+
+ALTER TABLE bus_premium_status
+  DROP COLUMN IF EXISTS workflow_status,
+  DROP COLUMN IF EXISTS workflow_run_id,
+  DROP COLUMN IF EXISTS doc_status,
+  DROP COLUMN IF EXISTS doc_status_message;
+
 DROP INDEX IF EXISTS idx_bus_insurance_claim_status_doc_status;
 
 ALTER TABLE bus_insurance_claim_status
+  DROP COLUMN IF EXISTS workflow_status,
+  DROP COLUMN IF EXISTS workflow_run_id,
+  DROP COLUMN IF EXISTS doc_status,
+  DROP COLUMN IF EXISTS doc_status_message;
+
+DROP INDEX IF EXISTS idx_bus_claim_line_status_doc_status;
+
+ALTER TABLE bus_claim_line_status
+  DROP COLUMN IF EXISTS workflow_status,
+  DROP COLUMN IF EXISTS workflow_run_id,
+  DROP COLUMN IF EXISTS doc_status,
+  DROP COLUMN IF EXISTS doc_status_message;
+
+DROP INDEX IF EXISTS idx_bus_settlement_method_doc_status;
+
+ALTER TABLE bus_settlement_method
+  DROP COLUMN IF EXISTS workflow_status,
+  DROP COLUMN IF EXISTS workflow_run_id,
+  DROP COLUMN IF EXISTS doc_status,
+  DROP COLUMN IF EXISTS doc_status_message;
+
+DROP INDEX IF EXISTS idx_bus_settlement_status_doc_status;
+
+ALTER TABLE bus_settlement_status
   DROP COLUMN IF EXISTS workflow_status,
   DROP COLUMN IF EXISTS workflow_run_id,
   DROP COLUMN IF EXISTS doc_status,

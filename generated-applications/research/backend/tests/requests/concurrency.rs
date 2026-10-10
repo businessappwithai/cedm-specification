@@ -1,6 +1,6 @@
 //! Two people, one record: optimistic locking and closed transactions.
 //!
-//! Generated: 2026-10-09T15:30:27.086Z
+//! Generated: 2026-10-10T02:41:54.518Z
 //! Project: research
 //!
 //! Every entity is optimistic unless the model says `concurrency:
@@ -43,6 +43,12 @@ const FINAL_STATES: &[(&str, &str, &str)] = &[
     ("UnitOfMeasure", "status", "RETIRED"),
     ("Task", "status", "COMPLETED"),
     ("ResearchProject", "status", "ARCHIVED"),
+    ("Protocol", "status", "RETIRED"),
+    ("Study", "status", "CANCELLED"),
+    ("Assay", "status", "COMPLETED"),
+    ("Observation", "status", "VERIFIED"),
+    ("Result", "status", "FINAL"),
+    ("Sample", "status", "CONSUMED"),
 ];
 
 /// `(entity, status column, initial, [targets of edges out of initial])`.
@@ -72,6 +78,17 @@ const FIRST_MOVES: &[(&str, &str, &str, &[&str])] = &[
         "PLANNED",
         &["ACTIVE", "CANCELLED"],
     ),
+    ("Protocol", "status", "DRAFT", &["APPROVED", "RETIRED"]),
+    ("Study", "status", "PLANNED", &["ACTIVE", "CANCELLED"]),
+    ("Assay", "status", "PLANNED", &["RUNNING", "CANCELLED"]),
+    (
+        "Observation",
+        "status",
+        "RECORDED",
+        &["VERIFIED", "INVALIDATED"],
+    ),
+    ("Result", "status", "DRAFT", &["FINAL", "INVALIDATED"]),
+    ("Sample", "status", "PLANNED", &["COLLECTED"]),
 ];
 
 /// The first entity that is optimistic and has a text column to edit.

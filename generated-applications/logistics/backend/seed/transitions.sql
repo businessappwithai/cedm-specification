@@ -500,6 +500,61 @@ INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, st
 VALUES ('78864b3f-c87b-5437-abbd-a2c14718c033', 'bus_trip_segment', 'status', 'IN_PROGRESS', 'CANCELLED', 'cancel', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
+-- DriverLifecycle: DRAFT → ACTIVE (activate)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('07dbe577-1474-570c-a25a-0af43f6cc6f7', 'bus_driver', 'status', 'DRAFT', 'ACTIVE', 'activate', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- DriverLifecycle: ACTIVE → SUSPENDED (suspend)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('17a95db6-df00-52ef-80e7-90f901029d30', 'bus_driver', 'status', 'ACTIVE', 'SUSPENDED', 'suspend', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- DriverLifecycle: SUSPENDED → ACTIVE (resume)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('409f400c-2ab7-5b04-b214-5b01ccfcff6f', 'bus_driver', 'status', 'SUSPENDED', 'ACTIVE', 'resume', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- DriverLifecycle: ACTIVE → INACTIVE (deactivate)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('810c318a-146b-505a-9e0e-95391cd50ee7', 'bus_driver', 'status', 'ACTIVE', 'INACTIVE', 'deactivate', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- DriverLifecycle: INACTIVE → ACTIVE (reactivate)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('658d44a4-542c-5520-b0a5-b27bdd664635', 'bus_driver', 'status', 'INACTIVE', 'ACTIVE', 'reactivate', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- DriverLifecycle: DRAFT → RETIRED (retire)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('15c6ef20-963f-52b9-8119-1b4e8d9822f0', 'bus_driver', 'status', 'DRAFT', 'RETIRED', 'retire', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- DriverLifecycle: ACTIVE → RETIRED (retire)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('f84d7ff9-05a1-5cbf-8b6d-a4cb309da49a', 'bus_driver', 'status', 'ACTIVE', 'RETIRED', 'retire', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- DriverLifecycle: SUSPENDED → RETIRED (retire)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('9e180dce-a987-581e-8566-13b4f28e6b7b', 'bus_driver', 'status', 'SUSPENDED', 'RETIRED', 'retire', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- DriverLifecycle: INACTIVE → RETIRED (retire)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('e15cb1bf-5a9a-5751-b99d-7211bc49424b', 'bus_driver', 'status', 'INACTIVE', 'RETIRED', 'retire', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- FuelTransactionLifecycle: RECORDED → VERIFIED (verify)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('2d99339a-0cd7-54db-9e09-3613934ab66e', 'bus_fuel_transaction', 'status', 'RECORDED', 'VERIFIED', 'verify', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- FuelTransactionLifecycle: RECORDED → REVERSED (reverse)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('cc20017e-e878-5a63-ad3a-951aa4a76202', 'bus_fuel_transaction', 'status', 'RECORDED', 'REVERSED', 'reverse', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
 -- CustomerLifecycle: ACTIVE → INACTIVE (deactivate)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
 VALUES ('ad3072fa-e47d-55f9-8e81-ec98ff15965d', 'bus_customer', 'status', 'ACTIVE', 'INACTIVE', 'deactivate', TRUE, NOW())
@@ -795,6 +850,34 @@ VALUES ('f2c3a99f-fadb-5576-88cc-a6ef4d27b9d2', 'bus_trip_segment', 'status', 'C
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
 VALUES ('1a658bb5-0bd8-5c99-a807-2abd8b70c98e', 'bus_trip_segment', 'status', 'CANCELLED', FALSE, TRUE, 50, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- DriverLifecycle: states
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('860537dd-8a83-5336-b8e1-722419ce5502', 'bus_driver', 'status', 'DRAFT', TRUE, FALSE, 10, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('a70837f2-96c4-5622-8f69-c2c38d6d741e', 'bus_driver', 'status', 'ACTIVE', FALSE, FALSE, 20, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('1e83f8aa-9943-5245-a0f7-c912b1b8daef', 'bus_driver', 'status', 'SUSPENDED', FALSE, FALSE, 30, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('9d1293fb-e3ad-5d16-ac0e-d51fbd824591', 'bus_driver', 'status', 'INACTIVE', FALSE, FALSE, 40, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('e7a742ea-2e9d-5ab2-87c3-4cb6089d1bc2', 'bus_driver', 'status', 'RETIRED', FALSE, TRUE, 50, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- FuelTransactionLifecycle: states
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('1c3b1f23-261b-581c-a462-12a8edc78a71', 'bus_fuel_transaction', 'status', 'RECORDED', TRUE, FALSE, 10, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('2ca00488-fd34-5caa-8061-9d26c87bcc13', 'bus_fuel_transaction', 'status', 'VERIFIED', FALSE, TRUE, 20, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('d4251bcd-7224-51b8-9525-93ec4485b97e', 'bus_fuel_transaction', 'status', 'REVERSED', FALSE, TRUE, 30, TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- CustomerLifecycle: states

@@ -263,6 +263,19 @@ enums:
       RETURN: Stock comes back from a customer or is returned to a supplier.
       RESERVATION: Stock is set aside for a demand without moving.
       RELEASE: A reservation is withdrawn and the stock becomes available again.
+  - name: StopStopType
+    values: [ORIGIN, PICKUP, DELIVERY, SERVICE, WAYPOINT, FUEL, BREAK, DESTINATION, OTHER]
+    table: true
+    descriptions:
+      ORIGIN: The point where the route begins and the vehicle starts its journey.
+      PICKUP: A point where goods or passengers are collected onto the vehicle.
+      DELIVERY: A point where goods are handed over to the receiver.
+      SERVICE: A point where a service is performed, such as an installation or inspection.
+      WAYPOINT: A point passed through to shape the route, with no loading or service.
+      FUEL: A point where the vehicle stops to refuel or recharge.
+      BREAK: A point where the driver stops for a mandatory or planned rest.
+      DESTINATION: The point where the route ends and the journey is complete.
+      OTHER: Any purpose not covered by the other types, described in dispatch notes.
   - name: TripStatus
     values: [PLANNED, BOOKED, IN_PROGRESS, COMPLETED, CANCELLED]
     table: true
@@ -292,6 +305,22 @@ enums:
       IN_PROGRESS: The traveller is making the journey on this leg now.
       COMPLETED: The leg has been travelled to its destination. A final state.
       CANCELLED: The leg was called off and will not be travelled. A final state.
+  - name: DriverStatus
+    values: [DRAFT, ACTIVE, SUSPENDED, INACTIVE, RETIRED]
+    table: true
+    descriptions:
+      DRAFT: Being onboarded; not yet cleared to drive.
+      ACTIVE: Authorised and available for assignment.
+      SUSPENDED: Temporarily barred, for example after an incident or lapsed qualification.
+      INACTIVE: Not currently driving but may return.
+      RETIRED: No longer a driver; kept for history.
+  - name: FuelTransactionStatus
+    values: [RECORDED, VERIFIED, REVERSED]
+    table: true
+    descriptions:
+      RECORDED: Captured, not yet checked.
+      VERIFIED: Checked against the receipt and vehicle; costs may be allocated. A final state.
+      REVERSED: Cancelled because it was wrong or duplicated; the original stays on record. A final state.
   - name: CustomerCustomerType
     values: [INDIVIDUAL, BUSINESS, GOVERNMENT, INTERNAL, OTHER]
     table: true
@@ -374,10 +403,10 @@ categories:
   - name: Fulfillment
     entities: [SalesOrder, InventoryMovement]
   - name: Transportation and Logistics records
-    entities: [Carrier, Consignment, Delivery, DeliveryAttempt, FreightCharge, Fulfillment, Load, Route, TrackingEvent, Trip]
+    entities: [Carrier, Consignment, Delivery, DeliveryAttempt, FreightCharge, Fulfillment, Load, Route, TrackingEvent, Trip, Driver, FuelTransaction]
   - name: Reference Data
     icon: list
-    entities: [PartyPartyType, PartyStatus, PersonGender, PersonPartyType, PersonStatus, OrganizationOrganizationType, OrganizationStatus, OrganizationPartyType, PartyRoleRoleType, PartyRoleStatus, AddressAddressType, AddressStatus, LocationLocationType, LocationStatus, CurrencyStatus, ExchangeRateRateType, ExchangeRateStatus, UnitOfMeasureCategory, UnitOfMeasureStatus, TaskTaskType, TaskStatus, TaskPriority, ShipmentShipmentType, ShipmentStatus, VehicleVehicleType, VehicleStatus, SalesOrderStatus, InventoryMovementMovementType, TripStatus, TripSegmentMode, TripSegmentStatus, CustomerCustomerType, CustomerCreditStatus, CustomerStatus, CustomerRoleType, SalesOrderLinePriceSource, ProductProductType, ProductStatus]
+    entities: [PartyPartyType, PartyStatus, PersonGender, PersonPartyType, PersonStatus, OrganizationOrganizationType, OrganizationStatus, OrganizationPartyType, PartyRoleRoleType, PartyRoleStatus, AddressAddressType, AddressStatus, LocationLocationType, LocationStatus, CurrencyStatus, ExchangeRateRateType, ExchangeRateStatus, UnitOfMeasureCategory, UnitOfMeasureStatus, TaskTaskType, TaskStatus, TaskPriority, ShipmentShipmentType, ShipmentStatus, VehicleVehicleType, VehicleStatus, SalesOrderStatus, InventoryMovementMovementType, StopStopType, TripStatus, TripSegmentMode, TripSegmentStatus, DriverStatus, FuelTransactionStatus, CustomerCustomerType, CustomerCreditStatus, CustomerStatus, CustomerRoleType, SalesOrderLinePriceSource, ProductProductType, ProductStatus]
 entities:
   - name: Party
     help: The foundational CEDM business concept for an identifiable person or organization participating in business. Party separates who an actor is from the roles that actor performs. The same party can be a customer, supplier, employee, owner, provider, or contract party without creating duplicate identities. Used as the identity foundation for onboarding, customer management, procurement, sales, finance, logistics, HR, healthcare, contracts, compliance, and audit. Party connects to Person or Organization for intrinsic identity details and to PartyRole for business roles. Transactions and domain entities should reference the appropriate role when role-specific behavior matters. Party identity is long-lived. Operational eligibility is controlled by status, while historical relationships and transactions remain referentially valid. One organization may be represented by a single Party and simultaneously participate as Customer and Supplier in different business relationships.
@@ -14914,6 +14943,38 @@ entities:
         type: string(120)
         optional: true
         help: The short code of the route, such as R-NORTH. Used by dispatch and drivers.
+  - name: Stop
+    help: Represents one ordered operational point on a transportation Route. Route defines the journey; Stop defines sequence and activity at a reusable Location. Transportation, fleet, logistics, dispatch, ETA planning and audit. Route and Location are mandatory; planned times support scheduling while tracking events provide actual evidence. A delivery Route has origin, three delivery Stops and a fuel Stop before its final destination.
+    icon: map-pin
+    parent: Route
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: The stable identity of one stop on a route, independent of the location it visits. Generated on creation; dispatch, tracking and audit refer to it, and it stays the same when the stop is resequenced. Identifies one ordered route point independently of Location identity. Location states where; Stop states route sequence and operational purpose.
+      - name: sequence_number
+        type: integer
+        help: The order in which the stop is visited along its route, starting from the first stop. Assigned by the route planner; it should be unique within a route and is changed when stops are reordered. Defines planned route progression. Unique within a Route under ordinary policy.
+      - name: stop_type
+        type: string
+        enum: StopStopType
+        help: "The purpose of the stop: what the vehicle or driver is expected to do there. Chosen by the route planner; it drives dispatch instructions, ETA planning and reporting, and shipments may refine the activity further. The point where the route begins and the vehicle starts its journey. A point where goods or passengers are collected onto the vehicle. A point where goods are handed over to the receiver. A point where a service is performed, such as an installation or inspection. A point passed through to shape the route, with no loading or service. A point where the vehicle stops to refuel or recharge. A point where the driver stops for a mandatory or planned rest. The point where the route ends and the journey is complete. Any purpose not covered by the other types, described in dispatch notes. Explains expected activity at the route point. Specific shipments or tasks may further refine activity."
+      - name: planned_arrival_at
+        type: datetime
+        optional: true
+        help: The date and time the vehicle is scheduled to arrive at this stop. Set by the route planner and used for dispatch, customer ETA messages and punctuality analysis; actual arrival is recorded separately. Supports schedule and ETA expectations. Actual tracking events remain separate evidence.
+      - name: planned_departure_at
+        type: datetime
+        optional: true
+        help: The date and time the vehicle is scheduled to leave this stop after loading, unloading or service. Set by the planner to define dwell time and capacity; it must not be earlier than the planned arrival when both exist. Defines service window or dwell plan. Must not precede plannedArrivalAt when both are supplied.
+      - name: route_id
+        type: string
+        fk: true
+        help: The route the stop is part of. Exactly one route; a stop belongs to the route it sequences. Supplies ordered transportation context. Route planning, dispatch and reporting. sequenceNumber is interpreted within this Route.
+      - name: location_id
+        type: string
+        fk: true
+        help: Each stop is at one location, so the vehicle's destination is unambiguous. Physical or logical location of the Stop. Separates reusable Location master from route-specific occurrence. Navigation, dispatch and reporting. Location changes do not rewrite completed route history.
   - name: TrackingEvent
     help: "A timestamped observation of how a shipment or its containers and handling units are progressing. Tracking events give the shipment's trail: where it was and when. Because each is a fixed observation, the history can be trusted for delivery proof and delay analysis, and a correction is a new event. Created by carriers, scanners and staff; read by customer service and logistics. Each event belongs to one shipment. An event is recorded once and never changed. A mistaken one is followed by a correcting event. \"Departed Leeds depot\" recorded for shipment SH-1042 at 14:05 on 3 March."
     icon: activity
@@ -15001,6 +15062,85 @@ entities:
         fk: true
         optional: true
         help: The vehicle used for the leg, if known. Chosen for owned or hired vehicles. At most one vehicle. Links the leg to the vehicle record.
+  - name: Driver
+    help: Represents an authorized vehicle-operating role without duplicating Person identity. Driver supplies fleet-operating eligibility and attribution; Person remains the shared identity. Fleet management, dispatch, transportation, fuel management, compliance and audit. Person is mandatory; Vehicles define assignments and FuelTransactions preserve operating-cost evidence. Driver becomes active, may suspend or become inactive, and retires while historical operations remain attributable.
+    icon: contact
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: The identity of the driver role, independent of the person's other roles. Identifies one transportation operating role independently of Person identity. Fleet operations, dispatch, compliance, fuel and audit. Person supplies common identity while Driver supplies operating authorization context.
+      - name: driver_code
+        type: string(120)
+        unique: true
+        help: The short code that identifies this driver in dispatch and fleet systems. Assigned when the driver is set up; used in scheduling, fuel records and reports, and unrelated to licence or person identifiers. Operational identifier for dispatch and integration. Distinct from license number and Person identifiers.
+      - name: license_number
+        type: string(160)
+        optional: true
+        help: The number of the driving licence that authorises the person to drive. Entered from the licence document; checked against expiry and class. Supports operating eligibility and compliance. Jurisdiction/class/expiry may require additional governed attributes or documents.
+      - name: status
+        type: string
+        enum: DriverStatus
+        help: Whether the driver is being onboarded, cleared to drive, barred for now, dormant, or gone. Moved by fleet and compliance staff; only an ACTIVE driver is offered for assignment, and past trips keep their driver. Being onboarded; not yet cleared to drive. Authorised and available for assignment. Temporarily barred, for example after an incident or lapsed qualification. Not currently driving but may return. No longer a driver; kept for history. Separates setup, active eligibility, temporary restriction, inactivity and retirement. Historical trips and fuel transactions retain Driver attribution.
+        default: DRAFT
+      - name: person_id
+        type: string
+        fk: true
+        help: "The person who holds the driver role. Exactly one person: the role is held by a specific individual. Reuses common identity without duplicating Person data. Dispatch, contact and audit. Identity changes do not rewrite historical Driver evidence."
+  - name: FuelTransaction
+    help: Preserves vehicle fuel/energy consumption and cost evidence. FuelTransaction records the fleet event; Payment records settlement; Vehicle/Driver/Location provide operational attribution. Fleet management, fuel cards, efficiency analytics, accounting, fraud control and audit. Vehicle and UOM are mandatory; Driver, Location, Currency and Payment add accountability and reconciliation. Fuel transaction is recorded, then verified or reversed with history retained.
+    icon: fuel
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: The identity of the fuel transaction, separate from the card or receipt number. Generated when the fill-up is recorded; verification and payment refer to it. Identifies one refueling or energy-supply event independently of payment evidence. Vehicle and quantity define operating evidence; Payment may provide financial settlement.
+      - name: transaction_number
+        type: string(120)
+        unique: true
+        help: The reference of the fill-up as printed on the receipt or fuel-card statement. Entered or imported with the transaction; unique, which prevents the same fill-up being recorded twice. Operational identifier for reconciliation and integration. Distinct from Payment and supplier invoice identifiers.
+      - name: quantity
+        type: decimal
+        help: The amount of fuel or energy supplied to the vehicle in this fill, stated in the transaction's unit of measure. Taken from the pump receipt or fuel-card feed; must be positive, and consumption and efficiency reports divide distance by it. Primary consumption evidence used for efficiency and cost analysis. UnitOfMeasure defines quantity semantics.
+      - name: total_amount
+        type: decimal
+        optional: true
+        help: The total price paid for the fuel or energy supplied, in the transaction's currency. Taken from the receipt or card statement and must not be negative; fleet cost allocation and payment reconciliation read it. Operating cost attributable to the refueling event. Currency defines denomination.
+      - name: occurred_at
+        type: datetime
+        help: The date and time at which the vehicle was actually fuelled. Captured from the pump or card feed rather than the entry time; efficiency, route and fraud checks compare it with vehicle movements. Establishes consumption chronology. Must remain attributable to vehicle/driver state at the event time.
+      - name: odometer_or_meter_reading
+        type: decimal
+        optional: true
+        help: The vehicle's odometer or usage-meter reading taken at the time of fuelling. Entered by the driver or read from telematics; consumption per distance and maintenance schedules depend on consecutive readings. Enables fuel efficiency and anomaly analysis. Unit/measurement type follows fleet policy.
+      - name: status
+        type: string
+        enum: FuelTransactionStatus
+        help: Whether the fuel transaction has been checked against its evidence. Set by fleet administration after comparing it with the receipt and vehicle data. Captured, not yet checked. Checked against the receipt and vehicle; costs may be allocated. A final state. Cancelled because it was wrong or duplicated; the original stays on record. A final state. Distinguishes captured, verified and explicitly reversed evidence. Reversal preserves the original event rather than deleting it.
+        default: RECORDED
+      - name: vehicle_id
+        type: string
+        fk: true
+        help: "Exactly one vehicle: fuel is always put into a particular vehicle, which is what makes consumption trackable. Vehicle receiving the fuel or energy. Establishes asset-level consumption and cost attribution. Fleet efficiency, maintenance and reporting. Vehicle must be eligible at event time."
+      - name: driver_id
+        type: string
+        fk: true
+        optional: true
+        help: Driver performing or responsible for the fueling event. Supports accountability and fraud control. Fleet operations and audit. Optional for unattended or centrally managed fueling. Driver eligibility is evaluated at transaction time.
+      - name: location_id
+        type: string
+        fk: true
+        optional: true
+        help: Location where fueling occurred. Supplies station/depot context. Cost comparison, route analysis and audit. Optional when unavailable. Historical location remains tied to event.
+      - name: unit_of_measure_id
+        type: string
+        fk: true
+        help: Exactly one unit, such as litres or kilowatt-hours, so the quantity has a meaning. Unit of fuel or energy quantity. Makes consumption value unambiguous. Efficiency, reporting and integration. Unit does not change after verification.
+      - name: currency_id
+        type: string
+        fk: true
+        optional: true
+        help: Currency of totalAmount. Makes financial cost unambiguous. Accounting and reporting. Optional when no amount is recorded. Required when monetary amount is present under policy.
   - name: Customer
     help: Represents the commercial customer role of a Party. Party identifies who the party is; PartyRole establishes a role; Customer governs buyer-specific commercial behavior and controls. Central to sales order-to-cash, pricing, billing, receivables, collections, service, and customer analytics. Customer connects to SalesOrder, Invoice, Payment, PaymentAllocation through those transaction entities while retaining the underlying Party identity. Customer onboarding → eligibility/credit → SalesOrder → fulfillment → Invoice → Payment → PaymentAllocation → receivables settlement. Customer status constrains new activity but does not replace transaction evidence or rewrite history. Onboard → active → inactive/blocked → retired. Future eligibility changes do not invalidate historical relationships. A Party may simultaneously act as Customer and Supplier. Both roles reference the same Party identity while maintaining separate commercial controls and histories.
     icon: user-round
@@ -15901,6 +16041,31 @@ entities:
         type: boolean
         help: Whether the value is offered on new records.
         default: "true"
+  - name: StopStopType
+    help: "The values of stop stop type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows."
+    icon: list
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string(100)
+        unique: true
+        help: The value stored on every record that uses this list. Fixed once created.
+      - name: name
+        type: string(200)
+        help: What a person reads in the dropdown and on a record.
+      - name: description
+        type: text
+        optional: true
+        help: What the value means to the business.
+      - name: sequence
+        type: integer
+        help: The position of the value in a dropdown, lowest first.
+      - name: is_active
+        type: boolean
+        help: Whether the value is offered on new records.
+        default: "true"
   - name: TripStatus
     help: "The values of trip status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows."
     icon: list
@@ -15953,6 +16118,56 @@ entities:
         default: "true"
   - name: TripSegmentStatus
     help: "The values of trip segment status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows."
+    icon: list
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string(100)
+        unique: true
+        help: The value stored on every record that uses this list. Fixed once created.
+      - name: name
+        type: string(200)
+        help: What a person reads in the dropdown and on a record.
+      - name: description
+        type: text
+        optional: true
+        help: What the value means to the business.
+      - name: sequence
+        type: integer
+        help: The position of the value in a dropdown, lowest first.
+      - name: is_active
+        type: boolean
+        help: Whether the value is offered on new records.
+        default: "true"
+  - name: DriverStatus
+    help: "The values of driver status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows."
+    icon: list
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string(100)
+        unique: true
+        help: The value stored on every record that uses this list. Fixed once created.
+      - name: name
+        type: string(200)
+        help: What a person reads in the dropdown and on a record.
+      - name: description
+        type: text
+        optional: true
+        help: What the value means to the business.
+      - name: sequence
+        type: integer
+        help: The position of the value in a dropdown, lowest first.
+      - name: is_active
+        type: boolean
+        help: Whether the value is offered on new records.
+        default: "true"
+  - name: FuelTransactionStatus
+    help: "The values of fuel transaction status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows."
     icon: list
     attributes:
       - name: id
@@ -16359,6 +16574,16 @@ relationships:
     fromCardinality: exactly-one
     to: Vehicle
     toCardinality: zero-or-more
+  - from: Vehicle
+    fromCardinality: zero-or-more
+    to: Driver
+    toCardinality: zero-or-more
+    label: drivers
+  - from: Vehicle
+    fromCardinality: exactly-one
+    to: FuelTransaction
+    toCardinality: zero-or-more
+    label: fuel_transactions
   - from: Customer
     fromCardinality: exactly-one
     to: SalesOrder
@@ -16425,6 +16650,15 @@ relationships:
     fromCardinality: exactly-one
     to: FreightCharge
     toCardinality: zero-or-more
+  - from: Route
+    fromCardinality: exactly-one
+    to: Stop
+    toCardinality: zero-or-more
+    label: stops
+  - from: Location
+    fromCardinality: exactly-one
+    to: Stop
+    toCardinality: zero-or-more
   - from: Shipment
     fromCardinality: exactly-one
     to: TrackingEvent
@@ -16452,6 +16686,27 @@ relationships:
   - from: Vehicle
     fromCardinality: exactly-one
     to: TripSegment
+    toCardinality: zero-or-more
+  - from: Person
+    fromCardinality: exactly-one
+    to: Driver
+    toCardinality: zero-or-more
+  - from: Driver
+    fromCardinality: exactly-one
+    to: FuelTransaction
+    toCardinality: zero-or-more
+    label: fuel_transactions
+  - from: Location
+    fromCardinality: exactly-one
+    to: FuelTransaction
+    toCardinality: zero-or-more
+  - from: UnitOfMeasure
+    fromCardinality: exactly-one
+    to: FuelTransaction
+    toCardinality: zero-or-more
+  - from: Currency
+    fromCardinality: exactly-one
+    to: FuelTransaction
     toCardinality: zero-or-more
   - from: Customer
     fromCardinality: exactly-one
@@ -16782,6 +17037,96 @@ rules:
         when: delivered_quantity != null and delivered_quantity < 0
         props:
           message: Delivered Quantity cannot be negative.
+  - name: tripInvariantsBeforeCreate
+    title: Trip invariants (beforeCreate)
+    entity: Trip
+    event: beforeCreate
+    nodes:
+      - id: S
+        label: "Start: Trip beforeCreate"
+        type: start
+      - id: E
+        label: "End: invariants hold"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: TRIP-EXE-001
+        type: validation-error
+        when: start_date != null and end_date != null and end_date < start_date
+        props:
+          message: End Date cannot be earlier than start date.
+  - name: tripInvariantsBeforeUpdate
+    title: Trip invariants (beforeUpdate)
+    entity: Trip
+    event: beforeUpdate
+    nodes:
+      - id: S
+        label: "Start: Trip beforeUpdate"
+        type: start
+      - id: E
+        label: "End: invariants hold"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: TRIP-EXE-001
+        type: validation-error
+        when: start_date != null and end_date != null and end_date < start_date
+        props:
+          message: End Date cannot be earlier than start date.
+  - name: fuelTransactionInvariantsBeforeCreate
+    title: FuelTransaction invariants (beforeCreate)
+    entity: FuelTransaction
+    event: beforeCreate
+    nodes:
+      - id: S
+        label: "Start: FuelTransaction beforeCreate"
+        type: start
+      - id: E
+        label: "End: invariants hold"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: FUEL-TRANSACTION-EXE-001
+        type: validation-error
+        when: quantity != null and quantity < 0
+        props:
+          message: Quantity cannot be negative.
+      - name: FUEL-TRANSACTION-EXE-002
+        type: validation-error
+        when: total_amount != null and total_amount < 0
+        props:
+          message: Total Amount cannot be negative.
+  - name: fuelTransactionInvariantsBeforeUpdate
+    title: FuelTransaction invariants (beforeUpdate)
+    entity: FuelTransaction
+    event: beforeUpdate
+    nodes:
+      - id: S
+        label: "Start: FuelTransaction beforeUpdate"
+        type: start
+      - id: E
+        label: "End: invariants hold"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: FUEL-TRANSACTION-EXE-001
+        type: validation-error
+        when: quantity != null and quantity < 0
+        props:
+          message: Quantity cannot be negative.
+      - name: FUEL-TRANSACTION-EXE-002
+        type: validation-error
+        when: total_amount != null and total_amount < 0
+        props:
+          message: Total Amount cannot be negative.
   - name: salesOrderLineInvariantsBeforeCreate
     title: SalesOrderLine invariants (beforeCreate)
     entity: SalesOrderLine
@@ -17037,6 +17382,26 @@ rules:
         when: status == "CANCELLED" and status != _previous_status
         props:
           workflow: TripSegmentFollowUpRequired
+  - name: fuelTransactionWorkflowsAfterUpdate
+    title: FuelTransaction workflows (afterUpdate)
+    entity: FuelTransaction
+    event: afterUpdate
+    nodes:
+      - id: S
+        label: "Start: FuelTransaction afterUpdate"
+        type: start
+      - id: E
+        label: "End: workflows started"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: FollowUpRequired
+        type: trigger-workflow
+        when: status == "REVERSED" and status != _previous_status
+        props:
+          workflow: FuelTransactionFollowUpRequired
   - name: customerWorkflowsAfterUpdate
     title: Customer workflows (afterUpdate)
     entity: Customer
@@ -17467,6 +17832,53 @@ stateMachines:
       - from: IN_PROGRESS
         to: CANCELLED
         trigger: cancel
+  - name: DriverLifecycle
+    title: Driver Lifecycle
+    entity: Driver
+    states: [DRAFT, ACTIVE, SUSPENDED, INACTIVE, RETIRED]
+    initial: DRAFT
+    final: [RETIRED]
+    transitions:
+      - from: DRAFT
+        to: ACTIVE
+        trigger: activate
+      - from: ACTIVE
+        to: SUSPENDED
+        trigger: suspend
+      - from: SUSPENDED
+        to: ACTIVE
+        trigger: resume
+      - from: ACTIVE
+        to: INACTIVE
+        trigger: deactivate
+      - from: INACTIVE
+        to: ACTIVE
+        trigger: reactivate
+      - from: DRAFT
+        to: RETIRED
+        trigger: retire
+      - from: ACTIVE
+        to: RETIRED
+        trigger: retire
+      - from: SUSPENDED
+        to: RETIRED
+        trigger: retire
+      - from: INACTIVE
+        to: RETIRED
+        trigger: retire
+  - name: FuelTransactionLifecycle
+    title: Fuel Transaction Lifecycle
+    entity: FuelTransaction
+    states: [RECORDED, VERIFIED, REVERSED]
+    initial: RECORDED
+    final: [VERIFIED, REVERSED]
+    transitions:
+      - from: RECORDED
+        to: VERIFIED
+        trigger: verify
+      - from: RECORDED
+        to: REVERSED
+        trigger: reverse
   - name: CustomerLifecycle
     title: Customer Lifecycle
     entity: Customer
@@ -17656,6 +18068,20 @@ sagas:
           entity: bus_task
           as: taskId
           fields: '{"code":"TRIP-SEGMENT-FOLLOW-UP-{{id}}","name":"Follow up on trip segment {{id}}","description":"Trip segment {{id}} is now {{status}}. Check the records that depended on it and tell the people affected.","task_type":"USER","status":"CREATED","priority":"NORMAL"}'
+  - name: FuelTransactionFollowUpRequired
+    title: Follow up when a fuel transaction is ended
+    entity: FuelTransaction
+    operation: UPDATE
+    trigger: rule
+    description: When a fuel transaction is reversed, a task asks someone to settle what depended on it.
+    steps:
+      - id: S1
+        type: CreateEntity
+        label: "Raise a task: follow up on"
+        properties:
+          entity: bus_task
+          as: taskId
+          fields: '{"code":"FUEL-TRANSACTION-FOLLOW-UP-{{id}}","name":"Follow up on fuel transaction {{transaction_number}}","description":"Fuel transaction {{transaction_number}} is now {{status}}. Check the records that depended on it and tell the people affected.","task_type":"USER","status":"CREATED","priority":"NORMAL"}'
   - name: CustomerExceptionRaised
     title: Raise a task when a customer is stopped
     entity: Customer

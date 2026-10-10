@@ -54,6 +54,7 @@ entity:
     - {id: PROJECT-COST-002, rule: projectTask must belong to project whenever projectTask is supplied.}
     - {id: PROJECT-COST-003, rule: POSTED cost is historical evidence and cannot be destructively edited; corrections use reversal or follow-up evidence.}
     - {id: PROJECT-COST-004, rule: Repeated posting or import of the same external cost evidence must be idempotent.}
+    - {id: PROJECT-COST-EXE-001, rule: "Amount cannot be negative.", violatedWhen: "amount != null and amount < 0", message: "Amount cannot be negative."}
   lifecycle:
     title: Project Cost Lifecycle
     attribute: status
@@ -66,6 +67,43 @@ entity:
       - {from: APPROVED, to: POSTED, action: post}
       - {from: APPROVED, to: CANCELLED, action: cancel}
       - {from: POSTED, to: REVERSED, action: reverse}
+  workflows:
+    - name: FollowUpRequired
+      title: "Follow up when a project cost is ended"
+      description: "When a project cost is cancelled or reversed, a task asks someone to settle what depended on it."
+      when: "(status == \"CANCELLED\" or status == \"REVERSED\") and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "PROJECT-COST-FOLLOW-UP-{{id}}"
+              name: "Follow up on project cost {{cost_number}}"
+              description: "Project cost {{cost_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
+    - name: CompletionConfirmed
+      title: "Confirm when a project cost is done"
+      description: "When a project cost is posted, a task asks someone to confirm the outcome."
+      when: "status == \"POSTED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: confirm"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "PROJECT-COST-COMPLETED-{{id}}"
+              name: "Confirm project cost {{cost_number}}"
+              description: "Project cost {{cost_number}} is now {{status}}. Check the outcome is what was agreed and close any open items."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "LOW"
   help:
     summary: A cost charged to a project, kept as operational evidence separate from its accounting posting.
     businessMeaning: A project cost records what was spent on a project, of what kind, on what date and in which currency. It stays as operational evidence even after finance posts it, and links to the task, timesheet, invoice line and journal line it came from, so spend can be traced and reconciled with the ledger.

@@ -71,6 +71,32 @@ Readable by every signed-in person.
 Fields:
   - **Effective At** — When the attachment became part of the record. Set when the file is attached; used to show what evidence existed at a given moment.
 
+### Berth
+
+Represents berth infrastructure and availability within a Port. Berth is a persistent terminal resource; Voyage is a journey that may be assigned to it. Port operations, berth planning, vessel scheduling, capacity, reporting and audit. Port is mandatory; Location is optional physical context; Voyages preserve utilization history. Berth is active, may be restricted/out of service and eventually retired.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Berth Code** (required) — The terminal's reference for the berth, such as B12, used by planners and in vessel schedules. Operational code used by terminal and vessel planners. Scheduling, communication and integration. Stable within port governance.
+  - **Name** — The descriptive name of the berth, for example North Quay Berth 3. Supports operational recognition. Planning screens and reports. Code remains the primary operational reference.
+  - **Status** (required, one of the Berth Status values) — Whether the berth can currently take vessels, and with what limits, through to being permanently withdrawn. Set by port planners as conditions change; vessel scheduling consults it before assigning a voyage, and safety restrictions are app…
+  - **Port** (required, a Port) — The port in which the berth is located. Exactly one port; a berth cannot be shared between ports. Establishes terminal ownership and operational context. Port planning and reporting. Berth assignments occur within this Port.
+  - **Location** (a Location) — Physical location record associated with the Berth. Provides geospatial/site context without duplicating Location master data. Navigation, GIS and reporting. Optional where Port/Berth code is sufficient. Location changes do not rewrite his…
+
+### Berth Status
+
+The values of berth status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
 ### Business Unit
 
 A major business, division, product line or operating segment within an organisation. Business units are how a large organisation divides its activity for management and reporting. They let results, budgets and responsibility be assigned to a meaningful segment rather than to the organisation as a whole. Defined by management and finance; assigned to people, transactions and budgets; read when reporting by segment. Each business unit belongs to one Organization and groups the work and results of one part of it. A business unit keeps its code and identity stable. Reorganisations are recorded e…
@@ -158,6 +184,7 @@ Fields:
   - **Container** (required, a Container) — Identifies the physical container being moved. Connects movement execution to equipment identity, size, type, ownership, condition, status, and current position. Exactly one Container is the subject of a movement. Container is the asset/cu…
   - **Source Slot** (a Yard Slot) — Identifies the exact yard position occupied immediately before the movement when the move originates in a modeled yard slot. Supports occupancy release, validation, stack dependency analysis, travel planning, and historical reconstruction.…
   - **Assigned To** (a Party) — Identifies the party responsible for executing the movement when responsibility is modeled at party level. Supports dispatch accountability, contractor management, workload, safety, and performance reporting. Optional because execution may…
+  - **Container Visit** (a Container Visit) — The ContainerVisit this ContainerMovement belongs to.
 
 ### Container Movement Movement Type
 
@@ -201,6 +228,33 @@ Fields:
 ### Container Status
 
 The values of container status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Container Visit
+
+Represents one continuous stay of a container in a terminal, with the events and moves that make it up. Container is the physical box; ContainerVisit is one stay of it in a terminal; GateEvent and ContainerMovement are the events inside the stay. Terminal operations, yard inventory, dwell and demurrage billing, customs and audit. A visit belongs to one container and collects its gate events and movements. A visit is opened on arrival, then completed when the container leaves or cancelled if opened in error.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Visit Reference** — The terminal's own reference for the visit, such as the visit number printed on the gate receipt. Lets drivers, shipping lines and the terminal refer to the same stay without exchanging internal identifiers. Quoted on gate receipts, appoin…
+  - **Arrived At** (required) — When the container entered the terminal and custody began. Starts the dwell clock that storage charges and free-time rules run against. Used to calculate dwell time, storage billing and demurrage exposure. Normally equals the time of the i…
+  - **Departed At** — When the container left the terminal and custody ended. Closes the dwell clock; an empty value means the container is still in the terminal. Used to close the visit, finalise storage billing and report dwell. Normally equals the time of th…
+  - **Status** (required, one of the Container Visit Status values) — Where the visit stands: in progress, finished or withdrawn. Distinguishes containers currently in custody from completed stays and visits opened in error. Filters yard inventory, dwell reports and billing runs. Gate events and movements st…
+  - **Container** (required, a Container) — The container whose stay this visit records. Ties custody, dwell and billing to the physical container. Inventory and history lookup per container. A visit concerns exactly one container; one container has many visits over time. A containe…
+  - **Voyage** (a Voyage) — The Voyage this ContainerVisit belongs to.
+
+### Container Visit Status
+
+The values of container visit status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
 
 Readable by every signed-in person.
 
@@ -294,6 +348,85 @@ Fields:
 ### Exchange Rate Status
 
 The values of exchange rate status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Gate
+
+Represents a landside checkpoint at a port through which containers and vehicles pass. Gate is checkpoint master data; GateEvent records what happened at it; Port provides the wider terminal context. Gate appointments, event capture, security, custody, throughput reporting and audit. Port is mandatory; events accumulate against the gate and are never reassigned. A gate is open, may be closed and reopened, and is eventually retired.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Gate Code** (required) — The operational code of the gate, such as the number painted on the lane or used in the terminal operating system. The reference gate clerks, truck drivers and integrations use to name a checkpoint. Used in gate appointments, event capture…
+  - **Name** — The descriptive name of the gate, such as North Truck Gate, as staff and drivers know it. Entered at set-up and shown on operations screens and reports; it can change while the gate code stays the key. Helps staff recognise the checkpoint,…
+  - **Gate Type** (required, one of the Gate Gate Type values) — The kind of traffic the gate is built and staffed to process. Different traffic needs different checks, so the type decides which procedures apply at the checkpoint. Used to route appointments and to filter gate events by mode. The type co…
+  - **Status** (required, one of the Gate Status values) — Whether the gate is accepting traffic. Allows a checkpoint to be closed for shifts, maintenance or incidents without losing its event history. Checked when gate appointments are issued and when events are captured. Recorded gate events rem…
+  - **Port** (required, a Port) — The port to which this gate belongs. Places the checkpoint in a terminal operation so throughput can be reported per port. Port-level gate planning and reporting. A gate belongs to exactly one port; a port has many gates. Closing a port st…
+
+### Gate Event
+
+Preserves immutable terminal gate entry/exit evidence. Gate is checkpoint master data; GateEvent records what happened; ContainerVisit and Movement summarize broader operational state/history. Container terminals, ports, yards, security, custody, billing, tracking and audit. Gate is mandatory; Container, Vehicle, Driver and ContainerVisit identify event subjects and context. Event is recorded, then verified or reversed with original evidence retained.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Occurred At** (required) — The moment the container, vehicle or visit passed through the gate or was processed there. Taken from the gate system's own timestamp; dwell time, security review and billing disputes are resolved against it. Establishes custody and termin…
+  - **Direction** (required, one of the Gate Event Direction values) — Whether the movement entered the controlled area, left it, or passed between internal zones. Set by the gate system at capture; yard inventory and custody transfer change according to it. Entry into the controlled terminal area, which star…
+  - **Status** (required, one of the Gate Event Status values) — Whether the recorded gate event has been checked. Set by gate supervision or reconciliation. Captured at the gate, not yet checked. Checked and accepted as evidence. A final state. Withdrawn because it was recorded in error; a follow-up ev…
+  - **Gate** (required, a Gate) — Exactly one gate: every occurrence is recorded at a specific checkpoint. Terminal Gate where the event occurred. Supplies checkpoint context. Operations, security and reporting. Gate must be operational at event time except governed except…
+  - **Container** (a Container) — Container processed by the GateEvent. Preserves container custody and terminal presence evidence. Container tracking and yard operations. Optional for vehicle-only or non-container events. ContainerVisit/Movement direction must reconcile.
+  - **Container Visit** (a Container Visit) — Container terminal visit to which this GateEvent belongs. Connects immutable gate evidence to the container's broader terminal stay. Dwell, custody and terminal reporting. Optional before visit matching or for non-container events. Gate-in…
+
+### Gate Event Direction
+
+The values of gate event direction, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Gate Event Status
+
+The values of gate event status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Gate Gate Type
+
+The values of gate gate type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Gate Status
+
+The values of gate status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
 
 Readable by every signed-in person.
 
@@ -575,6 +708,32 @@ Fields:
   - **Sequence** (required) — The position of the value in a dropdown, lowest first.
   - **Is Active** (required) — Whether the value is offered on new records.
 
+### Port
+
+Represents a port facility that vessels call at and that contains berths and gates. Port is the facility master record; Voyage is a journey between ports, Berth is a quay position at one port and Gate is a landside checkpoint at one port. Voyage planning, berth and gate management, schedule exchange, throughput reporting and audit. Berths and gates belong to a port; voyages name ports as origin and destination; Location supplies the physical site. A port is active, may be restricted or closed, and can reopen; its history is never removed.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Port Code** (required) — The recognised port code, such as a UN/LOCODE, used by carriers, customs and terminal systems. The code partners use to name this port in bookings, manifests and schedules, so it must be stable and unique. Used for lookup, voyage planning,…
+  - **Name** (required) — The name people use for the port. Supports recognition on planning screens and reports; it may be reworded without changing the port's identity. Shown in lists, voyage schedules, berth planning and reports. The code stays the operational k…
+  - **Time Zone** — The IANA time zone in which the port schedules arrivals, departures and gate hours. Port calls and gate hours are quoted in local time, so the zone is needed to compare them across ports. Applied when displaying and comparing voyage times…
+  - **Status** (required, one of the Port Status values) — Whether the port is open for ordinary new vessel calls and terminal activity. Lets planners stop scheduling new calls at a port without losing its voyage and berth history. Checked when planning voyages and assigning berths; filtered in po…
+  - **Location** (a Location) — The physical site record on which the port stands. Provides address and geospatial context without duplicating location master data on the port. Navigation, mapping and distance or transit-time calculation. A port stands on at most one loc…
+
+### Port Status
+
+The values of port status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
 ### State Province
 
 A first-level division of a country, such as a state, province or region, from the ISO 3166-2 registry. States and provinces give addresses a standard, checkable subdivision. Choosing from this list avoids misspelt regions and lets reports group by region. Maintained as reference data; chosen in addresses; read by tax, shipping and reports. A state or province belongs to one country and contains cities. Entries are loaded from the standard and rarely change; when a division is abolished it is withdrawn without deleting history. "California" belongs to the United States and contains cities suc…
@@ -686,6 +845,59 @@ Fields:
   - **Sequence** (required) — The position of the value in a dropdown, lowest first.
   - **Is Active** (required) — Whether the value is offered on new records.
 
+### Vessel
+
+Represents the persistent maritime transport resource across voyages and port operations. Vessel is the long-lived ship identity; Voyage is one journey; Berth and Port provide terminal context. Shipping, port operations, container logistics, scheduling, reporting and audit. Owner/operator provide Party context and Voyages preserve operational history. Vessel remains active or temporarily unavailable until retirement, with voyage history retained.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Vessel Code** (required) — The operational reference by which schedulers and port staff identify the vessel. Unique; assigned when the vessel is registered and used in voyage planning, searches, reports and integrations. Human/integration identifier for port and shi…
+  - **Name** (required) — The registered name of the ship as shown on its papers and used in port communication. Entered when the vessel is registered; shown on voyage schedules, berth plans and cargo documents. Operationally recognizes the maritime asset. Name may…
+  - **Imo Number** — The seven-digit International Maritime Organization number that identifies a ship for life. Entered where the vessel has one; used for compliance, port clearance and matching to external registries and tracking services. Supports external…
+  - **Status** (required, one of the Vessel Status values) — Whether the vessel is available for voyages, idle, out of action or permanently withdrawn. Starts as ACTIVE; moved by operations staff, and scheduling only assigns voyages to vessels that are active. In service and available for voyages. T…
+  - **Owner** (a Organization) — Organization owning the Vessel where known. Supplies asset ownership context. Shipping, finance and reporting. Optional for leased/third-party vessels. Ownership changes do not rewrite voyage history.
+
+### Vessel Status
+
+The values of vessel status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Voyage
+
+Represents one maritime journey used by shipping and terminal operations. Vessel is the resource; Voyage is the journey; Port/Berth provide terminal context; ContainerVisit ties cargo presence to the journey. Maritime logistics, port scheduling, container terminals, tracking, reporting and audit. Vessel is mandatory; Ports, Berths and ContainerVisits provide operational context. Voyage is planned, becomes active and completes or is cancelled with history retained.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Voyage Number** (required) — The operational reference for one sailing, quoted in bookings and schedules. Unique; assigned when the voyage is planned and used by shippers, terminals and tracking to refer to that sailing. Human/integration identifier used by carriers,…
+  - **Planned Departure At** — The scheduled time the vessel is due to leave its origin port. Set when the voyage is planned and revised if the schedule changes; port planners use it to prepare berths and ETA forecasts. Supports berth, yard and cargo scheduling. Actual…
+  - **Planned Arrival At** — The scheduled time the vessel is due to reach its destination or principal port. Must not precede the planned departure; berth, yard and crane planning are built around it and updated as the ETA moves. Supports downstream terminal planning…
+  - **Status** (required, one of the Voyage Status values) — How far the sailing has progressed, from planning through the voyage to its end. Starts as PLANNED; moved by shipping operations as the vessel sails, arrives or the sailing is called off. Scheduled but the vessel has not yet departed. The…
+  - **Vessel** (required, a Vessel) — A voyage is made by exactly one vessel. Vessel performing the Voyage. Establishes maritime transport resource. Shipping operations and reporting. Vessel must be eligible when Voyage begins.
+  - **Origin Port** (a Port) — Principal origin Port. Establishes planned maritime journey start. Scheduling and reporting. Optional for complex multi-port voyage representation. Port schedule must reconcile to voyage plan.
+
+### Voyage Status
+
+The values of voyage status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
 ### Yard
 
 Represents the facility-level operational boundary for container storage and handling. Yard is the physical and operational context in which containers enter, occupy storage positions, move between positions, undergo inspection or repair, and eventually leave the facility. It is more specific than Location but broader than a YardBlock or YardSlot. Used by container depots, terminals, inland yards, maintenance facilities, logistics operators, gate systems, yard management systems, capacity planning, and transport integrations. Location provides geographic identity. Yard provides facility seman…
@@ -783,6 +995,13 @@ Fields:
 - **INACTIVE** — Temporarily not offered, for example while a move is being confirmed; it can be reactivated.
 - **RETIRED** — No longer valid; kept only as history and in past documents.
 
+### Berth Status
+
+- **ACTIVE** — Open for ordinary vessel assignments.
+- **RESTRICTED** — Usable only with limits, such as reduced draught or vessel length; new assignments need planner approval.
+- **OUT OF SERVICE** — Temporarily unusable, for example for dredging or repair; no new assignments.
+- **RETIRED** — Permanently removed from use; kept for history of past assignments. A final state.
+
 ### Container Movement Movement Type
 
 - **RECEIVE** — Establishes controlled receipt of a container into a facility or receiving flow.
@@ -823,6 +1042,12 @@ Fields:
 - **LOST** — Equipment cannot currently be located and requires investigation or recovery.
 - **RETIRED** — Equipment has permanently left normal operational service without necessarily being sold or scrapped.
 
+### Container Visit Status
+
+- **ACTIVE** — The container is in the terminal and the visit is open.
+- **COMPLETED** — The container has left and the visit is closed for billing.
+- **CANCELLED** — The visit was opened in error or the container never arrived; no storage charges apply.
+
 ### Currency Status
 
 - **ACTIVE** — Available for use on new prices, documents and payments.
@@ -844,6 +1069,32 @@ Fields:
 - **ACTIVE** — In force and usable for conversion.
 - **EXPIRED** — Its validity period has ended; kept for past conversions.
 - **CANCELLED** — Withdrawn; must not be used.
+
+### Gate Event Direction
+
+- **IN** — Entry into the controlled terminal area, which starts the subject's time inside.
+- **OUT** — Exit from the controlled terminal area, which ends the subject's time inside.
+- **INTERNAL** — A gate-controlled move between zones inside the terminal, with no entry or exit.
+- **OTHER** — Another governed gate occurrence that is neither entry, exit nor internal move.
+
+### Gate Event Status
+
+- **RECORDED** — Captured at the gate, not yet checked.
+- **VERIFIED** — Checked and accepted as evidence. A final state.
+- **REVERSED** — Withdrawn because it was recorded in error; a follow-up event carries the correction. A final state.
+
+### Gate Gate Type
+
+- **TRUCK** — Road haulage entry and exit with container and driver checks.
+- **RAIL** — Rail entry and exit for wagons and rail-borne containers.
+- **PEDESTRIAN** — Personnel access only, with no cargo custody transfer.
+- **VESSEL SIDE** — Access from the quay side for ship-borne movements.
+
+### Gate Status
+
+- **OPEN** — Accepting traffic during its operating hours.
+- **CLOSED** — Temporarily not accepting traffic; it can reopen.
+- **RETIRED** — Permanently decommissioned; kept for history only.
 
 ### Location Location Type
 
@@ -940,6 +1191,12 @@ Fields:
 - **BLOCKED** — Business activity is restricted pending resolution of a business, risk, compliance, or operational condition.
 - **RETIRED** — The party relationship is permanently ended for normal operational use while historical references remain valid.
 
+### Port Status
+
+- **ACTIVE** — Open for ordinary calls and terminal operations.
+- **RESTRICTED** — Open with limits such as draught, hazardous cargo or weather restrictions; new calls need planner approval.
+- **CLOSED** — Not accepting new calls; historical records remain valid.
+
 ### Task Priority
 
 - **LOW** — Can wait behind other work without business impact.
@@ -985,6 +1242,20 @@ Fields:
 - **ACTIVE** — Available for use on products and documents.
 - **INACTIVE** — Not offered for now; can be reactivated.
 - **RETIRED** — No longer used; kept for history. A final state.
+
+### Vessel Status
+
+- **ACTIVE** — In service and available for voyages.
+- **INACTIVE** — Temporarily not used, for example laid up, but expected to return.
+- **OUT OF SERVICE** — Unavailable because of damage, repair or a compliance problem.
+- **RETIRED** — Permanently withdrawn from the fleet, for example sold or scrapped. A final state.
+
+### Voyage Status
+
+- **PLANNED** — Scheduled but the vessel has not yet departed.
+- **ACTIVE** — The vessel has departed and the voyage is under way.
+- **COMPLETED** — The vessel has arrived and the voyage is finished. A final state.
+- **CANCELLED** — The sailing was called off before completion. A final state.
 
 ### Yard Bay Status
 
@@ -1236,9 +1507,89 @@ Moves:
 - RESERVED → OUT OF SERVICE (Mark Out Of Service)
 - OUT OF SERVICE → RESERVED (Return To Service)
 
+### Port — Port Lifecycle
+
+Starts at **ACTIVE**.
+
+Moves:
+- ACTIVE → RESTRICTED (Restrict)
+- RESTRICTED → ACTIVE (Restore)
+- ACTIVE → CLOSED (Close)
+- RESTRICTED → CLOSED (Close)
+- CLOSED → ACTIVE (Reopen)
+
+### Berth — Berth Lifecycle
+
+Starts at **ACTIVE**.
+Final: **RETIRED**.
+
+Moves:
+- ACTIVE → RESTRICTED (Restrict)
+- RESTRICTED → ACTIVE (Restore)
+- ACTIVE → OUT OF SERVICE (Take Out Of Service)
+- RESTRICTED → OUT OF SERVICE (Take Out Of Service)
+- OUT OF SERVICE → ACTIVE (Return To Service)
+- ACTIVE → RETIRED (Retire)
+- RESTRICTED → RETIRED (Retire)
+- OUT OF SERVICE → RETIRED (Retire)
+
+### Gate — Gate Lifecycle
+
+Starts at **OPEN**.
+Final: **RETIRED**.
+
+Moves:
+- OPEN → CLOSED (Close)
+- CLOSED → OPEN (Reopen)
+- OPEN → RETIRED (Retire)
+- CLOSED → RETIRED (Retire)
+
+### Gate Event — Gate Event Lifecycle
+
+Starts at **RECORDED**.
+Final: **VERIFIED**, **REVERSED**.
+
+Moves:
+- RECORDED → VERIFIED (Verify)
+- RECORDED → REVERSED (Reverse)
+
+### Container Visit — Container Visit Lifecycle
+
+Starts at **ACTIVE**.
+Final: **COMPLETED**, **CANCELLED**.
+
+Moves:
+- ACTIVE → COMPLETED (Complete)
+- ACTIVE → CANCELLED (Cancel)
+
+### Vessel — Vessel Lifecycle
+
+Starts at **ACTIVE**.
+Final: **RETIRED**.
+
+Moves:
+- ACTIVE → INACTIVE (Deactivate)
+- INACTIVE → ACTIVE (Reactivate)
+- ACTIVE → OUT OF SERVICE (Take Out Of Service)
+- OUT OF SERVICE → ACTIVE (Return To Service)
+- ACTIVE → RETIRED (Retire)
+- INACTIVE → RETIRED (Retire)
+- OUT OF SERVICE → RETIRED (Retire)
+
+### Voyage — Voyage Lifecycle
+
+Starts at **PLANNED**.
+Final: **COMPLETED**, **CANCELLED**.
+
+Moves:
+- PLANNED → ACTIVE (Start)
+- PLANNED → CANCELLED (Cancel)
+- ACTIVE → COMPLETED (Complete)
+- ACTIVE → CANCELLED (Cancel)
+
 ## Roles
 
-- **User** — reads 59 of 59 record types
+- **User** — reads 75 of 75 record types
 - **Administrator** — reads and changes everything the lifecycles allow
 
 A refusal means the person's role does not allow it. Say which role does, from this list, and suggest their administrator.

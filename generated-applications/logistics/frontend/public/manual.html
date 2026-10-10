@@ -91,7 +91,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
          the WASM overlay's footprint, blanking ISO timestamps first. A
          "2026-08-22" would survive that blanking and make the two copies differ
          whenever the pair of runs straddles midnight. -->
-    <div class="stamp">Manual for version 1.0.0 &middot; generated <time datetime="2026-10-09T15:29:27.470Z">2026-10-09T15:29:27.470Z</time></div>
+    <div class="stamp">Manual for version 1.0.0 &middot; generated <time datetime="2026-10-10T02:40:50.632Z">2026-10-10T02:40:50.632Z</time></div>
   </header>
 
       <nav class="toc" aria-label="Contents">
@@ -122,10 +122,14 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
               <li><a href="#entity-delivery">Delivery</a></li>
               <li><a href="#entity-delivery-attempt">Delivery Attempt</a></li>
               <li><a href="#entity-department">Department</a></li>
+              <li><a href="#entity-driver">Driver</a></li>
+              <li><a href="#entity-driver-status">Driver Status</a></li>
               <li><a href="#entity-exchange-rate">Exchange Rate</a></li>
               <li><a href="#entity-exchange-rate-rate-type">Exchange Rate Rate Type</a></li>
               <li><a href="#entity-exchange-rate-status">Exchange Rate Status</a></li>
               <li><a href="#entity-freight-charge">Freight Charge</a></li>
+              <li><a href="#entity-fuel-transaction">Fuel Transaction</a></li>
+              <li><a href="#entity-fuel-transaction-status">Fuel Transaction Status</a></li>
               <li><a href="#entity-fulfillment">Fulfillment</a></li>
               <li><a href="#entity-integration-endpoint">Integration Endpoint</a></li>
               <li><a href="#entity-inventory-movement">Inventory Movement</a></li>
@@ -165,6 +169,8 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
               <li><a href="#entity-shipment-shipment-type">Shipment Shipment Type</a></li>
               <li><a href="#entity-shipment-status">Shipment Status</a></li>
               <li><a href="#entity-state-province">State Province</a></li>
+              <li><a href="#entity-stop">Stop</a></li>
+              <li><a href="#entity-stop-stop-type">Stop Stop Type</a></li>
               <li><a href="#entity-task">Task</a></li>
               <li><a href="#entity-task-priority">Task Priority</a></li>
               <li><a href="#entity-task-status">Task Status</a></li>
@@ -192,16 +198,16 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
   <section id="overview">
     <h2>What this application is</h2>
     <div class="app-overview"><p>Transportation and Logistics, built on the CEDM common foundation.</p></div>
-    <p>logistics keeps 80 kinds of records, grouped into 5 areas of the business. Every screen in it &mdash; every list, every form, every field label and every dropdown &mdash; is drawn from a description of those records held in the application itself, so the application can be changed by changing that description rather than by editing code.</p>
+    <p>logistics keeps 86 kinds of records, grouped into 5 areas of the business. Every screen in it &mdash; every list, every form, every field label and every dropdown &mdash; is drawn from a description of those records held in the application itself, so the application can be changed by changing that description rather than by editing code.</p>
     <p>This manual is generated from the same description. It cannot describe a record type the application does not have, and it cannot miss one it does.</p>
     <table>
       <thead><tr><th>Area</th><th>Records</th></tr></thead>
       <tbody>
-        <tr><td>Foundation<div class="detail">Parties, places, units and reference data every domain shares</div></td><td><a href="#entity-party">Party</a>, <a href="#entity-person">Person</a>, <a href="#entity-organization">Organization</a>, <a href="#entity-party-role">Party Role</a>, <a href="#entity-party-relationship">Party Relationship</a>, <a href="#entity-legal-entity">Legal Entity</a>, <a href="#entity-business-unit">Business Unit</a>, <a href="#entity-department">Department</a>, <a href="#entity-address">Address</a>, <a href="#entity-contact-point">Contact Point</a>, <a href="#entity-location">Location</a>, <a href="#entity-country">Country</a>, <a href="#entity-state-province">State Province</a>, <a href="#entity-city">City</a>, <a href="#entity-language">Language</a>, <a href="#entity-currency">Currency</a>, <a href="#entity-exchange-rate">Exchange Rate</a>, <a href="#entity-unit-of-measure">Unit Of Measure</a>, <a href="#entity-calendar">Calendar</a>, <a href="#entity-attachment">Attachment</a>, <a href="#entity-task">Task</a>, <a href="#entity-shipment-line">Shipment Line</a>, <a href="#entity-trip-segment">Trip Segment</a>, <a href="#entity-customer">Customer</a>, <a href="#entity-sales-order-line">Sales Order Line</a>, <a href="#entity-product">Product</a>, <a href="#entity-message">Message</a>, <a href="#entity-integration-endpoint">Integration Endpoint</a></td></tr>
+        <tr><td>Foundation<div class="detail">Parties, places, units and reference data every domain shares</div></td><td><a href="#entity-party">Party</a>, <a href="#entity-person">Person</a>, <a href="#entity-organization">Organization</a>, <a href="#entity-party-role">Party Role</a>, <a href="#entity-party-relationship">Party Relationship</a>, <a href="#entity-legal-entity">Legal Entity</a>, <a href="#entity-business-unit">Business Unit</a>, <a href="#entity-department">Department</a>, <a href="#entity-address">Address</a>, <a href="#entity-contact-point">Contact Point</a>, <a href="#entity-location">Location</a>, <a href="#entity-country">Country</a>, <a href="#entity-state-province">State Province</a>, <a href="#entity-city">City</a>, <a href="#entity-language">Language</a>, <a href="#entity-currency">Currency</a>, <a href="#entity-exchange-rate">Exchange Rate</a>, <a href="#entity-unit-of-measure">Unit Of Measure</a>, <a href="#entity-calendar">Calendar</a>, <a href="#entity-attachment">Attachment</a>, <a href="#entity-task">Task</a>, <a href="#entity-shipment-line">Shipment Line</a>, <a href="#entity-stop">Stop</a>, <a href="#entity-trip-segment">Trip Segment</a>, <a href="#entity-customer">Customer</a>, <a href="#entity-sales-order-line">Sales Order Line</a>, <a href="#entity-product">Product</a>, <a href="#entity-message">Message</a>, <a href="#entity-integration-endpoint">Integration Endpoint</a></td></tr>
         <tr><td>Transportation Management</td><td><a href="#entity-shipment">Shipment</a>, <a href="#entity-vehicle">Vehicle</a></td></tr>
         <tr><td>Fulfillment</td><td><a href="#entity-sales-order">Sales Order</a>, <a href="#entity-inventory-movement">Inventory Movement</a></td></tr>
-        <tr><td>Transportation and Logistics records</td><td><a href="#entity-carrier">Carrier</a>, <a href="#entity-consignment">Consignment</a>, <a href="#entity-delivery">Delivery</a>, <a href="#entity-delivery-attempt">Delivery Attempt</a>, <a href="#entity-freight-charge">Freight Charge</a>, <a href="#entity-fulfillment">Fulfillment</a>, <a href="#entity-load">Load</a>, <a href="#entity-route">Route</a>, <a href="#entity-tracking-event">Tracking Event</a>, <a href="#entity-trip">Trip</a></td></tr>
-        <tr><td>Reference Data</td><td><a href="#entity-party-party-type">Party Party Type</a>, <a href="#entity-party-status">Party Status</a>, <a href="#entity-person-gender">Person Gender</a>, <a href="#entity-person-party-type">Person Party Type</a>, <a href="#entity-person-status">Person Status</a>, <a href="#entity-organization-organization-type">Organization Organization Type</a>, <a href="#entity-organization-status">Organization Status</a>, <a href="#entity-organization-party-type">Organization Party Type</a>, <a href="#entity-party-role-role-type">Party Role Role Type</a>, <a href="#entity-party-role-status">Party Role Status</a>, <a href="#entity-address-address-type">Address Address Type</a>, <a href="#entity-address-status">Address Status</a>, <a href="#entity-location-location-type">Location Location Type</a>, <a href="#entity-location-status">Location Status</a>, <a href="#entity-currency-status">Currency Status</a>, <a href="#entity-exchange-rate-rate-type">Exchange Rate Rate Type</a>, <a href="#entity-exchange-rate-status">Exchange Rate Status</a>, <a href="#entity-unit-of-measure-category">Unit Of Measure Category</a>, <a href="#entity-unit-of-measure-status">Unit Of Measure Status</a>, <a href="#entity-task-task-type">Task Task Type</a>, <a href="#entity-task-status">Task Status</a>, <a href="#entity-task-priority">Task Priority</a>, <a href="#entity-shipment-shipment-type">Shipment Shipment Type</a>, <a href="#entity-shipment-status">Shipment Status</a>, <a href="#entity-vehicle-vehicle-type">Vehicle Vehicle Type</a>, <a href="#entity-vehicle-status">Vehicle Status</a>, <a href="#entity-sales-order-status">Sales Order Status</a>, <a href="#entity-inventory-movement-movement-type">Inventory Movement Movement Type</a>, <a href="#entity-trip-status">Trip Status</a>, <a href="#entity-trip-segment-mode">Trip Segment Mode</a>, <a href="#entity-trip-segment-status">Trip Segment Status</a>, <a href="#entity-customer-customer-type">Customer Customer Type</a>, <a href="#entity-customer-credit-status">Customer Credit Status</a>, <a href="#entity-customer-status">Customer Status</a>, <a href="#entity-customer-role-type">Customer Role Type</a>, <a href="#entity-sales-order-line-price-source">Sales Order Line Price Source</a>, <a href="#entity-product-product-type">Product Product Type</a>, <a href="#entity-product-status">Product Status</a></td></tr>
+        <tr><td>Transportation and Logistics records</td><td><a href="#entity-carrier">Carrier</a>, <a href="#entity-consignment">Consignment</a>, <a href="#entity-delivery">Delivery</a>, <a href="#entity-delivery-attempt">Delivery Attempt</a>, <a href="#entity-freight-charge">Freight Charge</a>, <a href="#entity-fulfillment">Fulfillment</a>, <a href="#entity-load">Load</a>, <a href="#entity-route">Route</a>, <a href="#entity-tracking-event">Tracking Event</a>, <a href="#entity-trip">Trip</a>, <a href="#entity-driver">Driver</a>, <a href="#entity-fuel-transaction">Fuel Transaction</a></td></tr>
+        <tr><td>Reference Data</td><td><a href="#entity-party-party-type">Party Party Type</a>, <a href="#entity-party-status">Party Status</a>, <a href="#entity-person-gender">Person Gender</a>, <a href="#entity-person-party-type">Person Party Type</a>, <a href="#entity-person-status">Person Status</a>, <a href="#entity-organization-organization-type">Organization Organization Type</a>, <a href="#entity-organization-status">Organization Status</a>, <a href="#entity-organization-party-type">Organization Party Type</a>, <a href="#entity-party-role-role-type">Party Role Role Type</a>, <a href="#entity-party-role-status">Party Role Status</a>, <a href="#entity-address-address-type">Address Address Type</a>, <a href="#entity-address-status">Address Status</a>, <a href="#entity-location-location-type">Location Location Type</a>, <a href="#entity-location-status">Location Status</a>, <a href="#entity-currency-status">Currency Status</a>, <a href="#entity-exchange-rate-rate-type">Exchange Rate Rate Type</a>, <a href="#entity-exchange-rate-status">Exchange Rate Status</a>, <a href="#entity-unit-of-measure-category">Unit Of Measure Category</a>, <a href="#entity-unit-of-measure-status">Unit Of Measure Status</a>, <a href="#entity-task-task-type">Task Task Type</a>, <a href="#entity-task-status">Task Status</a>, <a href="#entity-task-priority">Task Priority</a>, <a href="#entity-shipment-shipment-type">Shipment Shipment Type</a>, <a href="#entity-shipment-status">Shipment Status</a>, <a href="#entity-vehicle-vehicle-type">Vehicle Vehicle Type</a>, <a href="#entity-vehicle-status">Vehicle Status</a>, <a href="#entity-sales-order-status">Sales Order Status</a>, <a href="#entity-inventory-movement-movement-type">Inventory Movement Movement Type</a>, <a href="#entity-stop-stop-type">Stop Stop Type</a>, <a href="#entity-trip-status">Trip Status</a>, <a href="#entity-trip-segment-mode">Trip Segment Mode</a>, <a href="#entity-trip-segment-status">Trip Segment Status</a>, <a href="#entity-driver-status">Driver Status</a>, <a href="#entity-fuel-transaction-status">Fuel Transaction Status</a>, <a href="#entity-customer-customer-type">Customer Customer Type</a>, <a href="#entity-customer-credit-status">Customer Credit Status</a>, <a href="#entity-customer-status">Customer Status</a>, <a href="#entity-customer-role-type">Customer Role Type</a>, <a href="#entity-sales-order-line-price-source">Sales Order Line Price Source</a>, <a href="#entity-product-product-type">Product Product Type</a>, <a href="#entity-product-status">Product Status</a></td></tr>
       </tbody>
     </table>
     <p class="back"><a href="#top">Back to contents</a></p>
@@ -213,8 +219,8 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
     <table>
       <thead><tr><th>Role</th><th>Account</th><th>Records it can see</th></tr></thead>
       <tbody>
-        <tr><td>Administrator</td><td><code>admin@admin.com</code></td><td>all 80</td></tr>
-        <tr><td>User</td><td><code>user@logistics.example.com</code></td><td>80 of 80</td></tr>
+        <tr><td>Administrator</td><td><code>admin@admin.com</code></td><td>all 86</td></tr>
+        <tr><td>User</td><td><code>user@logistics.example.com</code></td><td>86 of 86</td></tr>
       </tbody>
     </table>
 
@@ -1530,6 +1536,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <li>Each <b>Currency</b> has many <a href="#entity-sales-order">Sales Order</a> records.</li>
           <li>Each <b>Currency</b> has many <a href="#entity-exchange-rate">Exchange Rate</a> records.</li>
           <li>Each <b>Currency</b> has many <a href="#entity-exchange-rate">Exchange Rate</a> records.</li>
+          <li>Each <b>Currency</b> has many <a href="#entity-fuel-transaction">Fuel Transaction</a> records.</li>
       </ul>
       <h4>Lifecycle &mdash; CurrencyLifecycle</h4>
       <p>A record starts at <code>ACTIVE</code> and finishes at <code>RETIRED</code>. These are the moves it may make, and no others:</p>
@@ -2547,6 +2554,224 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <p class="back"><a href="#top">Back to contents</a></p>
     </section>
 
+    <section id="entity-driver" class="entity">
+      <h3>Driver <span class="group">Transportation and Logistics records</span></h3>
+      <p class="lede">Represents an authorized vehicle-operating role without duplicating Person identity. Driver supplies fleet-operating eligibility and attribution; Person remains the shared identity. Fleet management, dispatch, transportation, fuel management, compliance and audit. Person is mandatory; Vehicles define assignments and FuelTransactions preserve operating-cost evidence. Driver becomes active, may suspend or become inactive, and retires while historical operations remain attributable.</p>
+      <p class="meta">Stored as <code>bus_driver</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td>The identity of the driver role, independent of the person&#39;s other roles. Identifies one transportation operating role independently of Person identity. Fleet operations, dispatch, compliance, fuel and audit. Person supplies common identity while Driver supplies operating authorization context.</td>
+        </tr>
+        <tr>
+          <td><code>driver_code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 120</span></td>
+          <td>The short code that identifies this driver in dispatch and fleet systems. Assigned when the driver is set up; used in scheduling, fuel records and reports, and unrelated to licence or person identifiers. Operational identifier for dispatch and integration. Distinct from license number and Person identifiers.</td>
+        </tr>
+        <tr>
+          <td><code>license_number</code></td>
+          <td>Text</td>
+          <td><span class="tag">max 160</span></td>
+          <td>The number of the driving licence that authorises the person to drive. Entered from the licence document; checked against expiry and class. Supports operating eligibility and compliance. Jurisdiction/class/expiry may require additional governed attributes or documents.</td>
+        </tr>
+        <tr>
+          <td><code>status</code></td>
+          <td>Choice</td>
+          <td><span class="tag">required</span></td>
+          <td>Whether the driver is being onboarded, cleared to drive, barred for now, dormant, or gone. Moved by fleet and compliance staff; only an ACTIVE driver is offered for assignment, and past trips keep their driver. Being onboarded; not yet cleared to drive. Authorised and available for assignment. Temporarily barred, for example after an incident or lapsed qualification. Not currently driving but may return. No longer a driver; kept for history. Separates setup, active eligibility, temporary restriction, inactivity and retirement. Historical trips and fuel transactions retain Driver attribution.<div class="detail">One of: <code>DRAFT</code>, <code>ACTIVE</code>, <code>SUSPENDED</code>, <code>INACTIVE</code>, <code>RETIRED</code></div></td>
+        </tr>
+        <tr>
+          <td><code>person_id</code></td>
+          <td>Lookup</td>
+          <td><span class="tag">required</span></td>
+          <td>The person who holds the driver role. Exactly one person: the role is held by a specific individual. Reuses common identity without duplicating Person data. Dispatch, contact and audit. Identity changes do not rewrite historical Driver evidence.<div class="detail">Points at <b>Person</b></div></td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Driver</b> window, on the <b>Driver</b> tab. These are its 5 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>driver_code</code></td>
+            <td>Driver Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>license_number</code></td>
+            <td>License Number</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>status</code></td>
+            <td>Status</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>person_id</code></td>
+            <td>Person</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <h4>Related records</h4>
+      <ul class="plain">
+          <li>Each <b>Driver</b> is linked to many <a href="#entity-vehicle">Vehicle</a> records.</li>
+          <li>Each <b>Driver</b> belongs to one <a href="#entity-person">Person</a>.</li>
+          <li>Each <b>Driver</b> has many <a href="#entity-fuel-transaction">Fuel Transaction</a> records.</li>
+      </ul>
+      <h4>Lifecycle &mdash; DriverLifecycle</h4>
+      <p>A record starts at <code>DRAFT</code> and finishes at <code>RETIRED</code>. These are the moves it may make, and no others:</p>
+      <table>
+        <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
+        <tbody>
+          <tr><td><code>DRAFT</code></td><td><code>ACTIVE</code></td><td><code>activate</code></td></tr>
+          <tr><td><code>ACTIVE</code></td><td><code>SUSPENDED</code></td><td><code>suspend</code></td></tr>
+          <tr><td><code>SUSPENDED</code></td><td><code>ACTIVE</code></td><td><code>resume</code></td></tr>
+          <tr><td><code>ACTIVE</code></td><td><code>INACTIVE</code></td><td><code>deactivate</code></td></tr>
+          <tr><td><code>INACTIVE</code></td><td><code>ACTIVE</code></td><td><code>reactivate</code></td></tr>
+          <tr><td><code>DRAFT</code></td><td><code>RETIRED</code></td><td><code>retire</code></td></tr>
+          <tr><td><code>ACTIVE</code></td><td><code>RETIRED</code></td><td><code>retire</code></td></tr>
+          <tr><td><code>SUSPENDED</code></td><td><code>RETIRED</code></td><td><code>retire</code></td></tr>
+          <tr><td><code>INACTIVE</code></td><td><code>RETIRED</code></td><td><code>retire</code></td></tr>
+        </tbody>
+      </table>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-driver-status" class="entity">
+      <h3>Driver Status <span class="group">Reference Data</span></h3>
+      <p class="lede">The values of driver status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
+      <p class="meta">Stored as <code>bus_driver_status</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td><span class="unset">&mdash;</span></td>
+        </tr>
+        <tr>
+          <td><code>code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 100</span></td>
+          <td>The value stored on every record that uses this list. Fixed once created.</td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 200</span></td>
+          <td>What a person reads in the dropdown and on a record.</td>
+        </tr>
+        <tr>
+          <td><code>description</code></td>
+          <td>Long text</td>
+          <td>&mdash;</td>
+          <td>What the value means to the business.</td>
+        </tr>
+        <tr>
+          <td><code>sequence</code></td>
+          <td>Whole number</td>
+          <td><span class="tag">required</span></td>
+          <td>The position of the value in a dropdown, lowest first.</td>
+        </tr>
+        <tr>
+          <td><code>is_active</code></td>
+          <td>Yes / No</td>
+          <td><span class="tag">required</span></td>
+          <td>Whether the value is offered on new records.</td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Driver Status</b> window, on the <b>Driver Status</b> tab. These are its 6 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>code</code></td>
+            <td>Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>name</code></td>
+            <td>Name</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>description</code></td>
+            <td>Description</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>sequence</code></td>
+            <td>Sequence</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>is_active</code></td>
+            <td>Is Active</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
     <section id="entity-exchange-rate" class="entity">
       <h3>Exchange Rate <span class="group">Foundation</span></h3>
       <p class="lede">Represents an auditable conversion rate between two currencies for a defined time and business purpose. ExchangeRate is the conversion context between Currency denominations; it is not itself money, a payment, or an accounting entry. Used by multi-currency orders, invoices, payments, payment allocations, bank reconciliation, accounting, consolidation, and financial reporting. Currency defines denominations. Money carries amount plus currency. ExchangeRate provides the conversion between two Money values. PaymentAllocation and accounting consume the rate when cross-currency conversion is permitted. Source Money + source Currency → select valid ExchangeRate by rate type/effective time/source → convert → target Money → preserve ExchangeRate reference and rounding result. The selected rate becomes historical evidence of the conversion decision. Rate is created or imported, activated for its validity window, expires or is cancelled, while historical transactions retain the original rate reference. A customer invoice is USD 1,000 and payment is EUR. An approved EUR-to-USD ExchangeRate is selected according to settlement policy. The Payment remains EUR, the Invoice remains USD, PaymentAllocation records the conversion context, and accounting retains the rate used rather than later recalculating the historical settlement.</p>
@@ -2994,6 +3219,327 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <ul class="plain">
           <li>Each <b>Freight Charge</b> belongs to one <a href="#entity-shipment">Shipment</a>.</li>
       </ul>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-fuel-transaction" class="entity">
+      <h3>Fuel Transaction <span class="group">Transportation and Logistics records</span></h3>
+      <p class="lede">Preserves vehicle fuel/energy consumption and cost evidence. FuelTransaction records the fleet event; Payment records settlement; Vehicle/Driver/Location provide operational attribution. Fleet management, fuel cards, efficiency analytics, accounting, fraud control and audit. Vehicle and UOM are mandatory; Driver, Location, Currency and Payment add accountability and reconciliation. Fuel transaction is recorded, then verified or reversed with history retained.</p>
+      <p class="meta">Stored as <code>bus_fuel_transaction</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td>The identity of the fuel transaction, separate from the card or receipt number. Generated when the fill-up is recorded; verification and payment refer to it. Identifies one refueling or energy-supply event independently of payment evidence. Vehicle and quantity define operating evidence; Payment may provide financial settlement.</td>
+        </tr>
+        <tr>
+          <td><code>transaction_number</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 120</span></td>
+          <td>The reference of the fill-up as printed on the receipt or fuel-card statement. Entered or imported with the transaction; unique, which prevents the same fill-up being recorded twice. Operational identifier for reconciliation and integration. Distinct from Payment and supplier invoice identifiers.</td>
+        </tr>
+        <tr>
+          <td><code>quantity</code></td>
+          <td>Amount</td>
+          <td><span class="tag">required</span></td>
+          <td>The amount of fuel or energy supplied to the vehicle in this fill, stated in the transaction&#39;s unit of measure. Taken from the pump receipt or fuel-card feed; must be positive, and consumption and efficiency reports divide distance by it. Primary consumption evidence used for efficiency and cost analysis. UnitOfMeasure defines quantity semantics.</td>
+        </tr>
+        <tr>
+          <td><code>total_amount</code></td>
+          <td>Amount</td>
+          <td>&mdash;</td>
+          <td>The total price paid for the fuel or energy supplied, in the transaction&#39;s currency. Taken from the receipt or card statement and must not be negative; fleet cost allocation and payment reconciliation read it. Operating cost attributable to the refueling event. Currency defines denomination.</td>
+        </tr>
+        <tr>
+          <td><code>occurred_at</code></td>
+          <td>Date and time</td>
+          <td><span class="tag">required</span></td>
+          <td>The date and time at which the vehicle was actually fuelled. Captured from the pump or card feed rather than the entry time; efficiency, route and fraud checks compare it with vehicle movements. Establishes consumption chronology. Must remain attributable to vehicle/driver state at the event time.</td>
+        </tr>
+        <tr>
+          <td><code>odometer_or_meter_reading</code></td>
+          <td>Amount</td>
+          <td>&mdash;</td>
+          <td>The vehicle&#39;s odometer or usage-meter reading taken at the time of fuelling. Entered by the driver or read from telematics; consumption per distance and maintenance schedules depend on consecutive readings. Enables fuel efficiency and anomaly analysis. Unit/measurement type follows fleet policy.</td>
+        </tr>
+        <tr>
+          <td><code>status</code></td>
+          <td>Choice</td>
+          <td><span class="tag">required</span></td>
+          <td>Whether the fuel transaction has been checked against its evidence. Set by fleet administration after comparing it with the receipt and vehicle data. Captured, not yet checked. Checked against the receipt and vehicle; costs may be allocated. A final state. Cancelled because it was wrong or duplicated; the original stays on record. A final state. Distinguishes captured, verified and explicitly reversed evidence. Reversal preserves the original event rather than deleting it.<div class="detail">One of: <code>RECORDED</code>, <code>VERIFIED</code>, <code>REVERSED</code></div></td>
+        </tr>
+        <tr>
+          <td><code>vehicle_id</code></td>
+          <td>Lookup</td>
+          <td><span class="tag">required</span></td>
+          <td>Exactly one vehicle: fuel is always put into a particular vehicle, which is what makes consumption trackable. Vehicle receiving the fuel or energy. Establishes asset-level consumption and cost attribution. Fleet efficiency, maintenance and reporting. Vehicle must be eligible at event time.<div class="detail">Points at <b>Vehicle</b></div></td>
+        </tr>
+        <tr>
+          <td><code>driver_id</code></td>
+          <td>Lookup</td>
+          <td>&mdash;</td>
+          <td>Driver performing or responsible for the fueling event. Supports accountability and fraud control. Fleet operations and audit. Optional for unattended or centrally managed fueling. Driver eligibility is evaluated at transaction time.<div class="detail">Points at <b>Driver</b></div></td>
+        </tr>
+        <tr>
+          <td><code>location_id</code></td>
+          <td>Lookup</td>
+          <td>&mdash;</td>
+          <td>Location where fueling occurred. Supplies station/depot context. Cost comparison, route analysis and audit. Optional when unavailable. Historical location remains tied to event.<div class="detail">Points at <b>Location</b></div></td>
+        </tr>
+        <tr>
+          <td><code>unit_of_measure_id</code></td>
+          <td>Lookup</td>
+          <td><span class="tag">required</span></td>
+          <td>Exactly one unit, such as litres or kilowatt-hours, so the quantity has a meaning. Unit of fuel or energy quantity. Makes consumption value unambiguous. Efficiency, reporting and integration. Unit does not change after verification.<div class="detail">Points at <b>Unit Of Measure</b></div></td>
+        </tr>
+        <tr>
+          <td><code>currency_id</code></td>
+          <td>Lookup</td>
+          <td>&mdash;</td>
+          <td>Currency of totalAmount. Makes financial cost unambiguous. Accounting and reporting. Optional when no amount is recorded. Required when monetary amount is present under policy.<div class="detail">Points at <b>Currency</b></div></td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Fuel Transaction</b> window, on the <b>Fuel Transaction</b> tab. These are its 12 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>transaction_number</code></td>
+            <td>Transaction Number</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>quantity</code></td>
+            <td>Quantity</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>total_amount</code></td>
+            <td>Total Amount</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>occurred_at</code></td>
+            <td>Occurred At</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>odometer_or_meter_reading</code></td>
+            <td>Odometer Or Meter Reading</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>status</code></td>
+            <td>Status</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>70</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>vehicle_id</code></td>
+            <td>Vehicle</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>80</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>driver_id</code></td>
+            <td>Driver</td>
+            <td>Yes</td>
+            <td>No</td>
+            <td>90</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>location_id</code></td>
+            <td>Location</td>
+            <td>Yes</td>
+            <td>No</td>
+            <td>100</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>unit_of_measure_id</code></td>
+            <td>Unit Of Measure</td>
+            <td>Yes</td>
+            <td>No</td>
+            <td>110</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>currency_id</code></td>
+            <td>Currency</td>
+            <td>Yes</td>
+            <td>No</td>
+            <td>120</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <h4>Related records</h4>
+      <ul class="plain">
+          <li>Each <b>Fuel Transaction</b> belongs to one <a href="#entity-vehicle">Vehicle</a>.</li>
+          <li>Each <b>Fuel Transaction</b> belongs to one <a href="#entity-driver">Driver</a>.</li>
+          <li>Each <b>Fuel Transaction</b> belongs to one <a href="#entity-location">Location</a>.</li>
+          <li>Each <b>Fuel Transaction</b> belongs to one <a href="#entity-unit-of-measure">Unit Of Measure</a>.</li>
+          <li>Each <b>Fuel Transaction</b> belongs to one <a href="#entity-currency">Currency</a>.</li>
+      </ul>
+      <h4>Lifecycle &mdash; FuelTransactionLifecycle</h4>
+      <p>A record starts at <code>RECORDED</code> and finishes at <code>VERIFIED</code> or <code>REVERSED</code>. These are the moves it may make, and no others:</p>
+      <table>
+        <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
+        <tbody>
+          <tr><td><code>RECORDED</code></td><td><code>VERIFIED</code></td><td><code>verify</code></td></tr>
+          <tr><td><code>RECORDED</code></td><td><code>REVERSED</code></td><td><code>reverse</code></td></tr>
+        </tbody>
+      </table>
+      <h4>What happens when it is written</h4>
+      <table>
+        <thead><tr><th>Rule</th><th>Runs on</th><th>Order</th></tr></thead>
+        <tbody>
+          <tr><td><code>fuelTransactionInvariantsBeforeCreate</code></td><td>beforeCreate (CREATE)</td><td>100</td></tr>
+          <tr><td><code>fuelTransactionInvariantsBeforeUpdate</code></td><td>beforeUpdate (UPDATE)</td><td>100</td></tr>
+          <tr><td><code>fuelTransactionWorkflowsAfterUpdate</code></td><td>afterUpdate (UPDATE)</td><td>100</td></tr>
+        </tbody>
+      </table>
+      <p><b>Processes:</b> <a href="#process-fuel-transaction-follow-up-required">FuelTransactionFollowUpRequired</a></p>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-fuel-transaction-status" class="entity">
+      <h3>Fuel Transaction Status <span class="group">Reference Data</span></h3>
+      <p class="lede">The values of fuel transaction status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
+      <p class="meta">Stored as <code>bus_fuel_transaction_status</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td><span class="unset">&mdash;</span></td>
+        </tr>
+        <tr>
+          <td><code>code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 100</span></td>
+          <td>The value stored on every record that uses this list. Fixed once created.</td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 200</span></td>
+          <td>What a person reads in the dropdown and on a record.</td>
+        </tr>
+        <tr>
+          <td><code>description</code></td>
+          <td>Long text</td>
+          <td>&mdash;</td>
+          <td>What the value means to the business.</td>
+        </tr>
+        <tr>
+          <td><code>sequence</code></td>
+          <td>Whole number</td>
+          <td><span class="tag">required</span></td>
+          <td>The position of the value in a dropdown, lowest first.</td>
+        </tr>
+        <tr>
+          <td><code>is_active</code></td>
+          <td>Yes / No</td>
+          <td><span class="tag">required</span></td>
+          <td>Whether the value is offered on new records.</td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Fuel Transaction Status</b> window, on the <b>Fuel Transaction Status</b> tab. These are its 6 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>code</code></td>
+            <td>Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>name</code></td>
+            <td>Name</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>description</code></td>
+            <td>Description</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>sequence</code></td>
+            <td>Sequence</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>is_active</code></td>
+            <td>Is Active</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
       <p class="back"><a href="#top">Back to contents</a></p>
     </section>
 
@@ -3701,8 +4247,10 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <li>Each <b>Location</b> has many <a href="#entity-shipment">Shipment</a> records.</li>
           <li>Each <b>Location</b> has many <a href="#entity-vehicle">Vehicle</a> records.</li>
           <li>Each <b>Location</b> has many <a href="#entity-sales-order">Sales Order</a> records.</li>
+          <li>Each <b>Location</b> has many <a href="#entity-stop">Stop</a> records.</li>
           <li>Each <b>Location</b> has many <a href="#entity-trip-segment">Trip Segment</a> records.</li>
           <li>Each <b>Location</b> has many <a href="#entity-trip-segment">Trip Segment</a> records.</li>
+          <li>Each <b>Location</b> has many <a href="#entity-fuel-transaction">Fuel Transaction</a> records.</li>
           <li>Each <b>Location</b> belongs to one <a href="#entity-product">Product</a>.</li>
       </ul>
       <h4>Lifecycle &mdash; LocationLifecycle</h4>
@@ -5581,6 +6129,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <li>Each <b>Person</b> has many <a href="#entity-organization">Organization</a> records.</li>
           <li>Each <b>Person</b> has many <a href="#entity-address">Address</a> records.</li>
           <li>Each <b>Person</b> has many <a href="#entity-party-role">Party Role</a> records.</li>
+          <li>Each <b>Person</b> has many <a href="#entity-driver">Driver</a> records.</li>
       </ul>
       <p class="back"><a href="#top">Back to contents</a></p>
     </section>
@@ -6366,6 +6915,10 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           </tr>
         </tbody>
       </table>
+      <h4>Related records</h4>
+      <ul class="plain">
+          <li>Each <b>Route</b> has many <a href="#entity-stop">Stop</a> records.</li>
+      </ul>
       <p class="back"><a href="#top">Back to contents</a></p>
     </section>
 
@@ -7691,6 +8244,235 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <p class="back"><a href="#top">Back to contents</a></p>
     </section>
 
+    <section id="entity-stop" class="entity">
+      <h3>Stop <span class="group">Foundation</span></h3>
+      <p class="lede">Represents one ordered operational point on a transportation Route. Route defines the journey; Stop defines sequence and activity at a reusable Location. Transportation, fleet, logistics, dispatch, ETA planning and audit. Route and Location are mandatory; planned times support scheduling while tracking events provide actual evidence. A delivery Route has origin, three delivery Stops and a fuel Stop before its final destination.</p>
+      <p class="meta">Stored as <code>bus_stop</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td>The stable identity of one stop on a route, independent of the location it visits. Generated on creation; dispatch, tracking and audit refer to it, and it stays the same when the stop is resequenced. Identifies one ordered route point independently of Location identity. Location states where; Stop states route sequence and operational purpose.</td>
+        </tr>
+        <tr>
+          <td><code>sequence_number</code></td>
+          <td>Whole number</td>
+          <td><span class="tag">required</span></td>
+          <td>The order in which the stop is visited along its route, starting from the first stop. Assigned by the route planner; it should be unique within a route and is changed when stops are reordered. Defines planned route progression. Unique within a Route under ordinary policy.</td>
+        </tr>
+        <tr>
+          <td><code>stop_type</code></td>
+          <td>Choice</td>
+          <td><span class="tag">required</span></td>
+          <td>The purpose of the stop: what the vehicle or driver is expected to do there. Chosen by the route planner; it drives dispatch instructions, ETA planning and reporting, and shipments may refine the activity further. The point where the route begins and the vehicle starts its journey. A point where goods or passengers are collected onto the vehicle. A point where goods are handed over to the receiver. A point where a service is performed, such as an installation or inspection. A point passed through to shape the route, with no loading or service. A point where the vehicle stops to refuel or recharge. A point where the driver stops for a mandatory or planned rest. The point where the route ends and the journey is complete. Any purpose not covered by the other types, described in dispatch notes. Explains expected activity at the route point. Specific shipments or tasks may further refine activity.<div class="detail">One of: <code>ORIGIN</code>, <code>PICKUP</code>, <code>DELIVERY</code>, <code>SERVICE</code>, <code>WAYPOINT</code>, <code>FUEL</code>, <code>BREAK</code>, <code>DESTINATION</code>, <code>OTHER</code></div></td>
+        </tr>
+        <tr>
+          <td><code>planned_arrival_at</code></td>
+          <td>Date and time</td>
+          <td>&mdash;</td>
+          <td>The date and time the vehicle is scheduled to arrive at this stop. Set by the route planner and used for dispatch, customer ETA messages and punctuality analysis; actual arrival is recorded separately. Supports schedule and ETA expectations. Actual tracking events remain separate evidence.</td>
+        </tr>
+        <tr>
+          <td><code>planned_departure_at</code></td>
+          <td>Date and time</td>
+          <td>&mdash;</td>
+          <td>The date and time the vehicle is scheduled to leave this stop after loading, unloading or service. Set by the planner to define dwell time and capacity; it must not be earlier than the planned arrival when both exist. Defines service window or dwell plan. Must not precede plannedArrivalAt when both are supplied.</td>
+        </tr>
+        <tr>
+          <td><code>route_id</code></td>
+          <td>Lookup</td>
+          <td><span class="tag">required</span></td>
+          <td>The route the stop is part of. Exactly one route; a stop belongs to the route it sequences. Supplies ordered transportation context. Route planning, dispatch and reporting. sequenceNumber is interpreted within this Route.<div class="detail">Points at <b>Route</b></div></td>
+        </tr>
+        <tr>
+          <td><code>location_id</code></td>
+          <td>Lookup</td>
+          <td><span class="tag">required</span></td>
+          <td>Each stop is at one location, so the vehicle&#39;s destination is unambiguous. Physical or logical location of the Stop. Separates reusable Location master from route-specific occurrence. Navigation, dispatch and reporting. Location changes do not rewrite completed route history.<div class="detail">Points at <b>Location</b></div></td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Route</b> window, on the <b>Stop</b> tab. These are its 7 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>sequence_number</code></td>
+            <td>Sequence Number</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>stop_type</code></td>
+            <td>Stop Type</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>planned_arrival_at</code></td>
+            <td>Planned Arrival At</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>planned_departure_at</code></td>
+            <td>Planned Departure At</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>route_id</code></td>
+            <td>Route</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>location_id</code></td>
+            <td>Location</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>70</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <h4>Related records</h4>
+      <ul class="plain">
+          <li>Each <b>Stop</b> belongs to one <a href="#entity-route">Route</a>.</li>
+          <li>Each <b>Stop</b> belongs to one <a href="#entity-location">Location</a>.</li>
+      </ul>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-stop-stop-type" class="entity">
+      <h3>Stop Stop Type <span class="group">Reference Data</span></h3>
+      <p class="lede">The values of stop stop type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
+      <p class="meta">Stored as <code>bus_stop_stop_type</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td><span class="unset">&mdash;</span></td>
+        </tr>
+        <tr>
+          <td><code>code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 100</span></td>
+          <td>The value stored on every record that uses this list. Fixed once created.</td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 200</span></td>
+          <td>What a person reads in the dropdown and on a record.</td>
+        </tr>
+        <tr>
+          <td><code>description</code></td>
+          <td>Long text</td>
+          <td>&mdash;</td>
+          <td>What the value means to the business.</td>
+        </tr>
+        <tr>
+          <td><code>sequence</code></td>
+          <td>Whole number</td>
+          <td><span class="tag">required</span></td>
+          <td>The position of the value in a dropdown, lowest first.</td>
+        </tr>
+        <tr>
+          <td><code>is_active</code></td>
+          <td>Yes / No</td>
+          <td><span class="tag">required</span></td>
+          <td>Whether the value is offered on new records.</td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Stop Stop Type</b> window, on the <b>Stop Stop Type</b> tab. These are its 6 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>code</code></td>
+            <td>Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>name</code></td>
+            <td>Name</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>description</code></td>
+            <td>Description</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>sequence</code></td>
+            <td>Sequence</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>is_active</code></td>
+            <td>Is Active</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
     <section id="entity-task" class="entity">
       <h3>Task <span class="group">Foundation</span></h3>
       <p class="lede">A discrete unit of business work performed by a person, organisation, system or workflow participant. Tasks are how work is handed out and tracked, whether a person must act or a system step must run. Their type, status, owner and dates show what is waiting, what is stuck and what is done. Created by people or workflows; picked up by assignees; read by managers and reports. A task may belong to a workflow, an assignee, an organisation and a related document. A task is created, becomes ready, is assigned and worked, and ends completed, cancelled or failed. It may be blocked and resumed. All three end states are final. A task &quot;Approve purchase order PO-5120&quot; is assigned to a manager and completed the same day.</p>
@@ -8425,6 +9207,8 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <table>
         <thead><tr><th>Rule</th><th>Runs on</th><th>Order</th></tr></thead>
         <tbody>
+          <tr><td><code>tripInvariantsBeforeCreate</code></td><td>beforeCreate (CREATE)</td><td>100</td></tr>
+          <tr><td><code>tripInvariantsBeforeUpdate</code></td><td>beforeUpdate (UPDATE)</td><td>100</td></tr>
           <tr><td><code>tripWorkflowsAfterUpdate</code></td><td>afterUpdate (UPDATE)</td><td>100</td></tr>
         </tbody>
       </table>
@@ -9060,6 +9844,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <li>Each <b>Unit Of Measure</b> has many <a href="#entity-sales-order-line">Sales Order Line</a> records.</li>
           <li>Each <b>Unit Of Measure</b> has many <a href="#entity-inventory-movement">Inventory Movement</a> records.</li>
           <li>Each <b>Unit Of Measure</b> has many <a href="#entity-shipment-line">Shipment Line</a> records.</li>
+          <li>Each <b>Unit Of Measure</b> has many <a href="#entity-fuel-transaction">Fuel Transaction</a> records.</li>
       </ul>
       <h4>Lifecycle &mdash; UnitOfMeasureLifecycle</h4>
       <p>A record starts at <code>ACTIVE</code> and finishes at <code>RETIRED</code>. These are the moves it may make, and no others:</p>
@@ -9405,6 +10190,8 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <ul class="plain">
           <li>Each <b>Vehicle</b> belongs to one <a href="#entity-party">Party</a>.</li>
           <li>Each <b>Vehicle</b> belongs to one <a href="#entity-location">Location</a>.</li>
+          <li>Each <b>Vehicle</b> is linked to many <a href="#entity-driver">Driver</a> records.</li>
+          <li>Each <b>Vehicle</b> has many <a href="#entity-fuel-transaction">Fuel Transaction</a> records.</li>
           <li>Each <b>Vehicle</b> has many <a href="#entity-trip-segment">Trip Segment</a> records.</li>
       </ul>
       <h4>Lifecycle &mdash; VehicleLifecycle</h4>
@@ -9663,6 +10450,10 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
         <tr><td><code>salesOrderInvariantsBeforeUpdate</code></td><td><a href="#entity-sales-order">Sales Order</a></td><td>beforeUpdate</td></tr>
         <tr><td><code>shipmentLineInvariantsBeforeCreate</code></td><td><a href="#entity-shipment-line">Shipment Line</a></td><td>beforeCreate</td></tr>
         <tr><td><code>shipmentLineInvariantsBeforeUpdate</code></td><td><a href="#entity-shipment-line">Shipment Line</a></td><td>beforeUpdate</td></tr>
+        <tr><td><code>tripInvariantsBeforeCreate</code></td><td><a href="#entity-trip">Trip</a></td><td>beforeCreate</td></tr>
+        <tr><td><code>tripInvariantsBeforeUpdate</code></td><td><a href="#entity-trip">Trip</a></td><td>beforeUpdate</td></tr>
+        <tr><td><code>fuelTransactionInvariantsBeforeCreate</code></td><td><a href="#entity-fuel-transaction">Fuel Transaction</a></td><td>beforeCreate</td></tr>
+        <tr><td><code>fuelTransactionInvariantsBeforeUpdate</code></td><td><a href="#entity-fuel-transaction">Fuel Transaction</a></td><td>beforeUpdate</td></tr>
         <tr><td><code>salesOrderLineInvariantsBeforeCreate</code></td><td><a href="#entity-sales-order-line">Sales Order Line</a></td><td>beforeCreate</td></tr>
         <tr><td><code>salesOrderLineInvariantsBeforeUpdate</code></td><td><a href="#entity-sales-order-line">Sales Order Line</a></td><td>beforeUpdate</td></tr>
         <tr><td><code>productInvariantsBeforeCreate</code></td><td><a href="#entity-product">Product</a></td><td>beforeCreate</td></tr>
@@ -9673,6 +10464,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
         <tr><td><code>salesOrderWorkflowsAfterUpdate</code></td><td><a href="#entity-sales-order">Sales Order</a></td><td>afterUpdate</td></tr>
         <tr><td><code>tripWorkflowsAfterUpdate</code></td><td><a href="#entity-trip">Trip</a></td><td>afterUpdate</td></tr>
         <tr><td><code>tripSegmentWorkflowsAfterUpdate</code></td><td><a href="#entity-trip-segment">Trip Segment</a></td><td>afterUpdate</td></tr>
+        <tr><td><code>fuelTransactionWorkflowsAfterUpdate</code></td><td><a href="#entity-fuel-transaction">Fuel Transaction</a></td><td>afterUpdate</td></tr>
         <tr><td><code>customerWorkflowsAfterUpdate</code></td><td><a href="#entity-customer">Customer</a></td><td>afterUpdate</td></tr>
         <tr><td><code>productWorkflowsAfterUpdate</code></td><td><a href="#entity-product">Product</a></td><td>afterUpdate</td></tr>
       </tbody>
@@ -9746,6 +10538,13 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
         <li>Raise a task: follow up on <span class="tag">CreateEntity</span></li>
       </ol>
     </div>
+    <div id="process-fuel-transaction-follow-up-required" class="process">
+      <h3>FuelTransactionFollowUpRequired</h3>
+      <p class="meta">On <a href="#entity-fuel-transaction">Fuel Transaction</a>, rule on UPDATE.</p>
+      <ol>
+        <li>Raise a task: follow up on <span class="tag">CreateEntity</span></li>
+      </ol>
+    </div>
     <div id="process-customer-exception-raised" class="process">
       <h3>CustomerExceptionRaised</h3>
       <p class="meta">On <a href="#entity-customer">Customer</a>, rule on UPDATE.</p>
@@ -9772,7 +10571,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
   </section>
 
   <footer>
-    logistics 1.0.0 &middot; 80 record types &middot; 26 rules &middot; 27 processes
+    logistics 1.0.0 &middot; 86 record types &middot; 31 rules &middot; 30 processes
   </footer>
 </div>
 </body>

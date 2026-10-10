@@ -75,6 +75,7 @@ entity:
     - {id: AGREEMENT-001, rule: "Finalized evidence and effective history must be preserved; correction, reassessment, settlement or supersession must be explicit."}
     - id: AGREEMENT-002
       rule: effectiveTo must not precede effectiveFrom.
+    - {id: AGREEMENT-EXE-001, rule: "Effective To must not be earlier than effective from.", violatedWhen: "effective_from != null and effective_to != null and effective_to < effective_from", message: "Effective To cannot be earlier than effective from."}
   help:
     summary: A governed agreement between parties that fixes rights, duties, commitments or terms, of which a commercial contract is a specialisation.
     businessMeaning: 'An agreement is the record that two or more parties have committed to something. It is the parent concept behind contracts, service terms and similar understandings, so it holds what they share: who is bound, when, and what happened to the agreement over time.'

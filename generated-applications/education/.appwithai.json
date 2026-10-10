@@ -32,8 +32,13 @@
     "Task",
     "EducationProgram",
     "EducationCourse",
+    "Class",
     "EducationStudent",
+    "Guardian",
     "Enrollment",
+    "Assessment",
+    "Grade",
+    "Fee",
     "PartyPartyType",
     "PartyStatus",
     "PersonGender",
@@ -59,8 +64,15 @@
     "EducationProgramProgramType",
     "EducationProgramStatus",
     "EducationCourseStatus",
+    "ClassStatus",
     "EducationStudentStatus",
-    "EnrollmentStatus"
+    "GuardianRelationshipType",
+    "GuardianStatus",
+    "EnrollmentStatus",
+    "AssessmentAssessmentType",
+    "AssessmentStatus",
+    "GradeStatus",
+    "FeeStatus"
   ],
   "categories": [
     "Foundation",
@@ -70,6 +82,9 @@
   "enums": [
     "AddressAddressType (7)",
     "AddressStatus (3)",
+    "AssessmentAssessmentType (7)",
+    "AssessmentStatus (4)",
+    "ClassStatus (5)",
     "CurrencyStatus (3)",
     "EducationCourseStatus (4)",
     "EducationProgramProgramType (6)",
@@ -78,6 +93,10 @@
     "EnrollmentStatus (5)",
     "ExchangeRateRateType (6)",
     "ExchangeRateStatus (4)",
+    "FeeStatus (6)",
+    "GradeStatus (3)",
+    "GuardianRelationshipType (5)",
+    "GuardianStatus (2)",
     "LocationLocationType (10)",
     "LocationStatus (5)",
     "OrganizationOrganizationType (8)",
@@ -99,9 +118,13 @@
   "sagas": [
     "PartyExceptionRaised on Party (1 steps, rule)",
     "ExchangeRateFollowUpRequired on ExchangeRate (1 steps, rule)",
+    "ClassFollowUpRequired on Class (1 steps, rule)",
     "EnrollmentFollowUpRequired on Enrollment (1 steps, rule)",
-    "EnrollmentCompletionConfirmed on Enrollment (1 steps, rule)"
+    "EnrollmentCompletionConfirmed on Enrollment (1 steps, rule)",
+    "AssessmentFollowUpRequired on Assessment (1 steps, rule)",
+    "GradeFollowUpRequired on Grade (1 steps, rule)",
+    "FeeFollowUpRequired on Fee (1 steps, rule)"
   ],
   "packageManager": "bun",
-  "generatedAt": "2026-10-09T15:28:30.221Z"
+  "generatedAt": "2026-10-10T02:39:47.885Z"
 }

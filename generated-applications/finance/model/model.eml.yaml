@@ -19419,6 +19419,86 @@ rules:
         when: amount != null and amount < 0
         props:
           message: Amount cannot be negative.
+  - name: varianceInvariantsBeforeCreate
+    title: Variance invariants (beforeCreate)
+    entity: Variance
+    event: beforeCreate
+    nodes:
+      - id: S
+        label: "Start: Variance beforeCreate"
+        type: start
+      - id: E
+        label: "End: invariants hold"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: VARIANCE-EXE-001
+        type: validation-error
+        when: period_start != null and period_end != null and period_end < period_start
+        props:
+          message: Period End cannot be earlier than period start.
+  - name: varianceInvariantsBeforeUpdate
+    title: Variance invariants (beforeUpdate)
+    entity: Variance
+    event: beforeUpdate
+    nodes:
+      - id: S
+        label: "Start: Variance beforeUpdate"
+        type: start
+      - id: E
+        label: "End: invariants hold"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: VARIANCE-EXE-001
+        type: validation-error
+        when: period_start != null and period_end != null and period_end < period_start
+        props:
+          message: Period End cannot be earlier than period start.
+  - name: fiscalPeriodInvariantsBeforeCreate
+    title: FiscalPeriod invariants (beforeCreate)
+    entity: FiscalPeriod
+    event: beforeCreate
+    nodes:
+      - id: S
+        label: "Start: FiscalPeriod beforeCreate"
+        type: start
+      - id: E
+        label: "End: invariants hold"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: FISCAL-PERIOD-EXE-001
+        type: validation-error
+        when: start_date != null and end_date != null and end_date < start_date
+        props:
+          message: End Date cannot be earlier than start date.
+  - name: fiscalPeriodInvariantsBeforeUpdate
+    title: FiscalPeriod invariants (beforeUpdate)
+    entity: FiscalPeriod
+    event: beforeUpdate
+    nodes:
+      - id: S
+        label: "Start: FiscalPeriod beforeUpdate"
+        type: start
+      - id: E
+        label: "End: invariants hold"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: FISCAL-PERIOD-EXE-001
+        type: validation-error
+        when: start_date != null and end_date != null and end_date < start_date
+        props:
+          message: End Date cannot be earlier than start date.
   - name: invoiceLineInvariantsBeforeCreate
     title: InvoiceLine invariants (beforeCreate)
     entity: InvoiceLine
@@ -19759,6 +19839,56 @@ rules:
         when: invoice_amount != null and invoice_amount < 0
         props:
           message: Invoice Amount cannot be negative.
+  - name: taxRateInvariantsBeforeCreate
+    title: TaxRate invariants (beforeCreate)
+    entity: TaxRate
+    event: beforeCreate
+    nodes:
+      - id: S
+        label: "Start: TaxRate beforeCreate"
+        type: start
+      - id: E
+        label: "End: invariants hold"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: TAX-RATE-EXE-001
+        type: validation-error
+        when: effective_from != null and effective_to != null and effective_to < effective_from
+        props:
+          message: Effective To cannot be earlier than effective from.
+      - name: TAX-RATE-EXE-002
+        type: validation-error
+        when: rate != null and rate < 0
+        props:
+          message: Rate cannot be negative.
+  - name: taxRateInvariantsBeforeUpdate
+    title: TaxRate invariants (beforeUpdate)
+    entity: TaxRate
+    event: beforeUpdate
+    nodes:
+      - id: S
+        label: "Start: TaxRate beforeUpdate"
+        type: start
+      - id: E
+        label: "End: invariants hold"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: TAX-RATE-EXE-001
+        type: validation-error
+        when: effective_from != null and effective_to != null and effective_to < effective_from
+        props:
+          message: Effective To cannot be earlier than effective from.
+      - name: TAX-RATE-EXE-002
+        type: validation-error
+        when: rate != null and rate < 0
+        props:
+          message: Rate cannot be negative.
   - name: taxRuleInvariantsBeforeCreate
     title: TaxRule invariants (beforeCreate)
     entity: TaxRule
@@ -19799,6 +19929,46 @@ rules:
         when: valid_from != null and valid_to != null and valid_to < valid_from
         props:
           message: Valid To cannot be earlier than valid from.
+  - name: chargeInvariantsBeforeCreate
+    title: Charge invariants (beforeCreate)
+    entity: Charge
+    event: beforeCreate
+    nodes:
+      - id: S
+        label: "Start: Charge beforeCreate"
+        type: start
+      - id: E
+        label: "End: invariants hold"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: CHARGE-EXE-001
+        type: validation-error
+        when: amount != null and amount < 0
+        props:
+          message: Amount cannot be negative.
+  - name: chargeInvariantsBeforeUpdate
+    title: Charge invariants (beforeUpdate)
+    entity: Charge
+    event: beforeUpdate
+    nodes:
+      - id: S
+        label: "Start: Charge beforeUpdate"
+        type: start
+      - id: E
+        label: "End: invariants hold"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: CHARGE-EXE-001
+        type: validation-error
+        when: amount != null and amount < 0
+        props:
+          message: Amount cannot be negative.
   - name: assetDepreciationInvariantsBeforeCreate
     title: AssetDepreciation invariants (beforeCreate)
     entity: AssetDepreciation

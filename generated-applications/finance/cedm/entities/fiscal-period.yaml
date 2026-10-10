@@ -36,6 +36,7 @@ entity:
     - {id: FISCAL-PERIOD-003, rule: POSTED JournalEntry requires an eligible FiscalPeriod containing entryDate.}
     - {id: FISCAL-PERIOD-004, rule: CLOSED or LOCKED period rejects ordinary new posting; corrections require governed reopen or permitted adjustment-period treatment.}
     - {id: FISCAL-PERIOD-005, rule: Period close never rewrites posted journal history.}
+    - {id: FISCAL-PERIOD-EXE-001, rule: "End Date must not be earlier than start date.", violatedWhen: "start_date != null and end_date != null and end_date < start_date", message: "End Date cannot be earlier than start date."}
   lifecycle:
     title: Fiscal Period Lifecycle
     attribute: status

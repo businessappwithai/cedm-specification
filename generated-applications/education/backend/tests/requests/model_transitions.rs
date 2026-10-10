@@ -1,6 +1,6 @@
 //! The state machines the *model* drew, and whether the API enforces them.
 //!
-//! Generated: 2026-10-09T15:28:27.909Z
+//! Generated: 2026-10-10T02:39:45.373Z
 //! Project: education
 //!
 //! `requests/rbac.rs` proves the topology guard works by seeding an edge of its
@@ -87,6 +87,12 @@ const MODEL_EDGES: &[(&str, &str, &str, &str)] = &[
     ("bus_education_course", "status", "DRAFT", "RETIRED"),
     ("bus_education_course", "status", "ACTIVE", "RETIRED"),
     ("bus_education_course", "status", "INACTIVE", "RETIRED"),
+    ("bus_class", "status", "DRAFT", "OPEN"),
+    ("bus_class", "status", "DRAFT", "CANCELLED"),
+    ("bus_class", "status", "OPEN", "IN_PROGRESS"),
+    ("bus_class", "status", "OPEN", "CANCELLED"),
+    ("bus_class", "status", "IN_PROGRESS", "COMPLETED"),
+    ("bus_class", "status", "IN_PROGRESS", "CANCELLED"),
     ("bus_education_student", "status", "APPLICANT", "ACTIVE"),
     ("bus_education_student", "status", "APPLICANT", "WITHDRAWN"),
     ("bus_education_student", "status", "ACTIVE", "SUSPENDED"),
@@ -95,12 +101,27 @@ const MODEL_EDGES: &[(&str, &str, &str, &str)] = &[
     ("bus_education_student", "status", "GRADUATED", "ALUMNI"),
     ("bus_education_student", "status", "ACTIVE", "WITHDRAWN"),
     ("bus_education_student", "status", "SUSPENDED", "WITHDRAWN"),
+    ("bus_guardian", "status", "ACTIVE", "INACTIVE"),
+    ("bus_guardian", "status", "INACTIVE", "ACTIVE"),
     ("bus_enrollment", "status", "PENDING", "ACTIVE"),
     ("bus_enrollment", "status", "ACTIVE", "COMPLETED"),
     ("bus_enrollment", "status", "PENDING", "WITHDRAWN"),
     ("bus_enrollment", "status", "ACTIVE", "WITHDRAWN"),
     ("bus_enrollment", "status", "PENDING", "CANCELLED"),
     ("bus_enrollment", "status", "ACTIVE", "CANCELLED"),
+    ("bus_assessment", "status", "DRAFT", "PUBLISHED"),
+    ("bus_assessment", "status", "DRAFT", "CANCELLED"),
+    ("bus_assessment", "status", "PUBLISHED", "CLOSED"),
+    ("bus_assessment", "status", "PUBLISHED", "CANCELLED"),
+    ("bus_grade", "status", "DRAFT", "FINAL"),
+    ("bus_grade", "status", "DRAFT", "VOID"),
+    ("bus_fee", "status", "DRAFT", "ASSESSED"),
+    ("bus_fee", "status", "DRAFT", "CANCELLED"),
+    ("bus_fee", "status", "ASSESSED", "INVOICED"),
+    ("bus_fee", "status", "ASSESSED", "WAIVED"),
+    ("bus_fee", "status", "ASSESSED", "CANCELLED"),
+    ("bus_fee", "status", "INVOICED", "PAID"),
+    ("bus_fee", "status", "INVOICED", "WAIVED"),
 ];
 
 /// The entity and starting state of the first machine, for the live check.

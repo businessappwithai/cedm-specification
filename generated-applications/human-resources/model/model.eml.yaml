@@ -16173,6 +16173,136 @@ rules:
         when: effective_from != null and effective_to != null and effective_to < effective_from
         props:
           message: Effective To cannot be earlier than effective from.
+  - name: employmentInvariantsBeforeCreate
+    title: Employment invariants (beforeCreate)
+    entity: Employment
+    event: beforeCreate
+    nodes:
+      - id: S
+        label: "Start: Employment beforeCreate"
+        type: start
+      - id: E
+        label: "End: invariants hold"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: EMPLOYMENT-EXE-001
+        type: validation-error
+        when: start_date != null and end_date != null and end_date < start_date
+        props:
+          message: End Date cannot be earlier than start date.
+  - name: employmentInvariantsBeforeUpdate
+    title: Employment invariants (beforeUpdate)
+    entity: Employment
+    event: beforeUpdate
+    nodes:
+      - id: S
+        label: "Start: Employment beforeUpdate"
+        type: start
+      - id: E
+        label: "End: invariants hold"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: EMPLOYMENT-EXE-001
+        type: validation-error
+        when: start_date != null and end_date != null and end_date < start_date
+        props:
+          message: End Date cannot be earlier than start date.
+  - name: compensationInvariantsBeforeCreate
+    title: Compensation invariants (beforeCreate)
+    entity: Compensation
+    event: beforeCreate
+    nodes:
+      - id: S
+        label: "Start: Compensation beforeCreate"
+        type: start
+      - id: E
+        label: "End: invariants hold"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: COMPENSATION-EXE-001
+        type: validation-error
+        when: effective_from != null and effective_to != null and effective_to < effective_from
+        props:
+          message: Effective To cannot be earlier than effective from.
+      - name: COMPENSATION-EXE-002
+        type: validation-error
+        when: amount != null and amount < 0
+        props:
+          message: Amount cannot be negative.
+  - name: compensationInvariantsBeforeUpdate
+    title: Compensation invariants (beforeUpdate)
+    entity: Compensation
+    event: beforeUpdate
+    nodes:
+      - id: S
+        label: "Start: Compensation beforeUpdate"
+        type: start
+      - id: E
+        label: "End: invariants hold"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: COMPENSATION-EXE-001
+        type: validation-error
+        when: effective_from != null and effective_to != null and effective_to < effective_from
+        props:
+          message: Effective To cannot be earlier than effective from.
+      - name: COMPENSATION-EXE-002
+        type: validation-error
+        when: amount != null and amount < 0
+        props:
+          message: Amount cannot be negative.
+  - name: leaveRequestInvariantsBeforeCreate
+    title: LeaveRequest invariants (beforeCreate)
+    entity: LeaveRequest
+    event: beforeCreate
+    nodes:
+      - id: S
+        label: "Start: LeaveRequest beforeCreate"
+        type: start
+      - id: E
+        label: "End: invariants hold"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: LEAVE-REQUEST-EXE-001
+        type: validation-error
+        when: start_date != null and end_date != null and end_date < start_date
+        props:
+          message: End Date cannot be earlier than start date.
+  - name: leaveRequestInvariantsBeforeUpdate
+    title: LeaveRequest invariants (beforeUpdate)
+    entity: LeaveRequest
+    event: beforeUpdate
+    nodes:
+      - id: S
+        label: "Start: LeaveRequest beforeUpdate"
+        type: start
+      - id: E
+        label: "End: invariants hold"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: LEAVE-REQUEST-EXE-001
+        type: validation-error
+        when: start_date != null and end_date != null and end_date < start_date
+        props:
+          message: End Date cannot be earlier than start date.
   - name: payrollInvariantsBeforeCreate
     title: Payroll invariants (beforeCreate)
     entity: Payroll
@@ -16263,6 +16393,71 @@ rules:
         when: status == "CANCELLED" and status != _previous_status
         props:
           workflow: ExchangeRateFollowUpRequired
+  - name: compensationWorkflowsAfterUpdate
+    title: Compensation workflows (afterUpdate)
+    entity: Compensation
+    event: afterUpdate
+    nodes:
+      - id: S
+        label: "Start: Compensation afterUpdate"
+        type: start
+      - id: E
+        label: "End: workflows started"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: FollowUpRequired
+        type: trigger-workflow
+        when: status == "CANCELLED" and status != _previous_status
+        props:
+          workflow: CompensationFollowUpRequired
+  - name: attendanceWorkflowsAfterUpdate
+    title: Attendance workflows (afterUpdate)
+    entity: Attendance
+    event: afterUpdate
+    nodes:
+      - id: S
+        label: "Start: Attendance afterUpdate"
+        type: start
+      - id: E
+        label: "End: workflows started"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: FollowUpRequired
+        type: trigger-workflow
+        when: status == "CANCELLED" and status != _previous_status
+        props:
+          workflow: AttendanceFollowUpRequired
+  - name: leaveRequestWorkflowsAfterUpdate
+    title: LeaveRequest workflows (afterUpdate)
+    entity: LeaveRequest
+    event: afterUpdate
+    nodes:
+      - id: S
+        label: "Start: LeaveRequest afterUpdate"
+        type: start
+      - id: E
+        label: "End: workflows started"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: ApprovalRequested
+        type: trigger-workflow
+        when: status == "SUBMITTED" and status != _previous_status
+        props:
+          workflow: LeaveRequestApprovalRequested
+      - name: FollowUpRequired
+        type: trigger-workflow
+        when: (status == "REJECTED" or status == "CANCELLED") and status != _previous_status
+        props:
+          workflow: LeaveRequestFollowUpRequired
   - name: payrollWorkflowsAfterUpdate
     title: Payroll workflows (afterUpdate)
     entity: Payroll
@@ -16749,6 +16944,62 @@ sagas:
           entity: bus_task
           as: taskId
           fields: '{"code":"EXCHANGE-RATE-FOLLOW-UP-{{id}}","name":"Follow up on exchange rate {{id}}","description":"Exchange rate {{id}} is now {{status}}. Check the records that depended on it and tell the people affected.","task_type":"USER","status":"CREATED","priority":"NORMAL"}'
+  - name: CompensationFollowUpRequired
+    title: Follow up when a compensation is ended
+    entity: Compensation
+    operation: UPDATE
+    trigger: rule
+    description: When a compensation is cancelled, a task asks someone to settle what depended on it.
+    steps:
+      - id: S1
+        type: CreateEntity
+        label: "Raise a task: follow up on"
+        properties:
+          entity: bus_task
+          as: taskId
+          fields: '{"code":"COMPENSATION-FOLLOW-UP-{{id}}","name":"Follow up on compensation {{id}}","description":"Compensation {{id}} is now {{status}}. Check the records that depended on it and tell the people affected.","task_type":"USER","status":"CREATED","priority":"NORMAL"}'
+  - name: AttendanceFollowUpRequired
+    title: Follow up when a attendance is ended
+    entity: Attendance
+    operation: UPDATE
+    trigger: rule
+    description: When a attendance is cancelled, a task asks someone to settle what depended on it.
+    steps:
+      - id: S1
+        type: CreateEntity
+        label: "Raise a task: follow up on"
+        properties:
+          entity: bus_task
+          as: taskId
+          fields: '{"code":"ATTENDANCE-FOLLOW-UP-{{id}}","name":"Follow up on attendance {{id}}","description":"Attendance {{id}} is now {{status}}. Check the records that depended on it and tell the people affected.","task_type":"USER","status":"CREATED","priority":"NORMAL"}'
+  - name: LeaveRequestApprovalRequested
+    title: Ask for a decision when a leave request is put forward
+    entity: LeaveRequest
+    operation: UPDATE
+    trigger: rule
+    description: When a leave request is submitted, a task asks someone to decide on it.
+    steps:
+      - id: S1
+        type: CreateEntity
+        label: "Raise a task: decide on"
+        properties:
+          entity: bus_task
+          as: taskId
+          fields: '{"code":"LEAVE-REQUEST-APPROVAL-{{id}}","name":"Decide on leave request {{request_number}}","description":"Leave request {{request_number}} is now {{status}}. Approve it, return it for change or reject it; the move you make is recorded on the record.","task_type":"APPROVAL","status":"CREATED","priority":"NORMAL"}'
+  - name: LeaveRequestFollowUpRequired
+    title: Follow up when a leave request is ended
+    entity: LeaveRequest
+    operation: UPDATE
+    trigger: rule
+    description: When a leave request is rejected or cancelled, a task asks someone to settle what depended on it.
+    steps:
+      - id: S1
+        type: CreateEntity
+        label: "Raise a task: follow up on"
+        properties:
+          entity: bus_task
+          as: taskId
+          fields: '{"code":"LEAVE-REQUEST-FOLLOW-UP-{{id}}","name":"Follow up on leave request {{request_number}}","description":"Leave request {{request_number}} is now {{status}}. Check the records that depended on it and tell the people affected.","task_type":"USER","status":"CREATED","priority":"NORMAL"}'
   - name: PayrollFollowUpRequired
     title: Follow up when a payroll is ended
     entity: Payroll

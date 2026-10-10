@@ -1,6 +1,6 @@
 //! Two people, one record: optimistic locking and closed transactions.
 //!
-//! Generated: 2026-10-09T15:29:06.521Z
+//! Generated: 2026-10-10T02:40:26.592Z
 //! Project: insurance
 //!
 //! Every entity is optimistic unless the model says `concurrency:
@@ -43,7 +43,13 @@ const FINAL_STATES: &[(&str, &str, &str)] = &[
     ("UnitOfMeasure", "status", "RETIRED"),
     ("Task", "status", "COMPLETED"),
     ("InsurancePolicy", "status", "EXPIRED"),
+    ("Coverage", "status", "EXPIRED"),
+    ("InsuredParty", "status", "ENDED"),
+    ("Underwriting", "status", "DECIDED"),
+    ("Premium", "status", "PAID"),
     ("InsuranceClaim", "status", "DENIED"),
+    ("ClaimLine", "status", "DENIED"),
+    ("Settlement", "status", "EXECUTED"),
 ];
 
 /// `(entity, status column, initial, [targets of edges out of initial])`.
@@ -73,12 +79,28 @@ const FIRST_MOVES: &[(&str, &str, &str, &[&str])] = &[
         "QUOTED",
         &["ACTIVE", "CANCELLED"],
     ),
+    ("Coverage", "status", "DRAFT", &["ACTIVE", "CANCELLED"]),
+    ("InsuredParty", "status", "ACTIVE", &["SUSPENDED", "ENDED"]),
+    (
+        "Underwriting",
+        "status",
+        "DRAFT",
+        &["IN_REVIEW", "WITHDRAWN"],
+    ),
+    ("Premium", "status", "DRAFT", &["DUE", "CANCELLED"]),
     (
         "InsuranceClaim",
         "status",
         "REPORTED",
         &["UNDER_REVIEW", "DENIED"],
     ),
+    (
+        "ClaimLine",
+        "status",
+        "SUBMITTED",
+        &["ASSESSED", "CANCELLED"],
+    ),
+    ("Settlement", "status", "DRAFT", &["APPROVED", "VOID"]),
 ];
 
 /// The first entity that is optimistic and has a text column to edit.

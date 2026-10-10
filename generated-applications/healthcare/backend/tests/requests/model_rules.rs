@@ -1,6 +1,6 @@
 //! The rules the *model* declared, and whether they reached the application.
 //!
-//! Generated: 2026-10-09T15:28:53.525Z
+//! Generated: 2026-10-10T02:40:11.828Z
 //! Project: healthcare
 //!
 //! Every other rules suite creates a rule through the API and then checks that
@@ -47,10 +47,45 @@ const MODEL_RULES: &[(&str, &str, &str)] = &[
     ),
     ("taskInvariantsBeforeCreate", "bus_task", "CREATE"),
     ("taskInvariantsBeforeUpdate", "bus_task", "UPDATE"),
+    (
+        "appointmentInvariantsBeforeCreate",
+        "bus_appointment",
+        "CREATE",
+    ),
+    (
+        "appointmentInvariantsBeforeUpdate",
+        "bus_appointment",
+        "UPDATE",
+    ),
+    (
+        "healthcareEncounterInvariantsBeforeCreate",
+        "bus_healthcare_encounter",
+        "CREATE",
+    ),
+    (
+        "healthcareEncounterInvariantsBeforeUpdate",
+        "bus_healthcare_encounter",
+        "UPDATE",
+    ),
+    (
+        "prescriptionInvariantsBeforeCreate",
+        "bus_prescription",
+        "CREATE",
+    ),
+    (
+        "prescriptionInvariantsBeforeUpdate",
+        "bus_prescription",
+        "UPDATE",
+    ),
     ("partyWorkflowsAfterUpdate", "bus_party", "UPDATE"),
     (
         "exchangeRateWorkflowsAfterUpdate",
         "bus_exchange_rate",
+        "UPDATE",
+    ),
+    (
+        "appointmentWorkflowsAfterUpdate",
+        "bus_appointment",
         "UPDATE",
     ),
     (

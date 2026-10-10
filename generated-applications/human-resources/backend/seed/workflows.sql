@@ -125,6 +125,238 @@ ON CONFLICT (name) DO UPDATE SET
 
 INSERT INTO sys_workflow_definitions
   (name, entity_name, operation, trigger_type, bpmn_xml, description, is_active, is_model_managed, created_at, updated_at)
+VALUES ('CompensationFollowUpRequired', 'bus_compensation', 'UPDATE',
+        'rule', '<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+  xmlns:appwithai="http://appwithai.io/schema/1.0"
+  id="Definitions_CompensationFollowUpRequired"
+  targetNamespace="http://appwithai.io/bpmn">
+  <bpmn:process id="Process_CompensationFollowUpRequired" isExecutable="true">
+    <bpmn:startEvent id="Process_CompensationFollowUpRequired_start"/>
+    <bpmn:serviceTask id="Process_CompensationFollowUpRequired_S1" name="Raise a task: follow up on">
+      <bpmn:extensionElements>
+        <appwithai:properties>
+        <appwithai:property name="nodeType" value="CreateEntity"/>
+        <appwithai:property name="entity" value="bus_task"/>
+        <appwithai:property name="as" value="taskId"/>
+        <appwithai:property name="fields" value="{&quot;code&quot;:&quot;COMPENSATION-FOLLOW-UP-{{id}}&quot;,&quot;name&quot;:&quot;Follow up on compensation {{id}}&quot;,&quot;description&quot;:&quot;Compensation {{id}} is now {{status}}. Check the records that depended on it and tell the people affected.&quot;,&quot;task_type&quot;:&quot;USER&quot;,&quot;status&quot;:&quot;CREATED&quot;,&quot;priority&quot;:&quot;NORMAL&quot;}"/>
+        </appwithai:properties>
+      </bpmn:extensionElements>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="Process_CompensationFollowUpRequired_end"/>
+    <bpmn:sequenceFlow id="Process_CompensationFollowUpRequired_flow_0" sourceRef="Process_CompensationFollowUpRequired_start" targetRef="Process_CompensationFollowUpRequired_S1"/>
+    <bpmn:sequenceFlow id="Process_CompensationFollowUpRequired_flow_1" sourceRef="Process_CompensationFollowUpRequired_S1" targetRef="Process_CompensationFollowUpRequired_end"/>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Process_CompensationFollowUpRequired">
+    <bpmndi:BPMNPlane id="BPMNPlane_Process_CompensationFollowUpRequired" bpmnElement="Process_CompensationFollowUpRequired">
+      <bpmndi:BPMNShape id="Process_CompensationFollowUpRequired_start_di" bpmnElement="Process_CompensationFollowUpRequired_start">
+        <dc:Bounds x="160" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_CompensationFollowUpRequired_S1_di" bpmnElement="Process_CompensationFollowUpRequired_S1">
+        <dc:Bounds x="256" y="100" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_CompensationFollowUpRequired_end_di" bpmnElement="Process_CompensationFollowUpRequired_end">
+        <dc:Bounds x="456" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Process_CompensationFollowUpRequired_flow_0_di" bpmnElement="Process_CompensationFollowUpRequired_flow_0">
+        <di:waypoint x="196" y="140"/>
+        <di:waypoint x="256" y="140"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Process_CompensationFollowUpRequired_flow_1_di" bpmnElement="Process_CompensationFollowUpRequired_flow_1">
+        <di:waypoint x="396" y="140"/>
+        <di:waypoint x="456" y="140"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>', 'When a compensation is cancelled, a task asks someone to settle what depended on it.', TRUE, TRUE, NOW(), NOW())
+ON CONFLICT (name) DO UPDATE SET
+  entity_name      = EXCLUDED.entity_name,
+  operation        = EXCLUDED.operation,
+  trigger_type     = EXCLUDED.trigger_type,
+  bpmn_xml         = EXCLUDED.bpmn_xml,
+  description      = EXCLUDED.description,
+  is_model_managed = TRUE,
+  updated_at       = NOW();
+
+INSERT INTO sys_workflow_definitions
+  (name, entity_name, operation, trigger_type, bpmn_xml, description, is_active, is_model_managed, created_at, updated_at)
+VALUES ('AttendanceFollowUpRequired', 'bus_attendance', 'UPDATE',
+        'rule', '<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+  xmlns:appwithai="http://appwithai.io/schema/1.0"
+  id="Definitions_AttendanceFollowUpRequired"
+  targetNamespace="http://appwithai.io/bpmn">
+  <bpmn:process id="Process_AttendanceFollowUpRequired" isExecutable="true">
+    <bpmn:startEvent id="Process_AttendanceFollowUpRequired_start"/>
+    <bpmn:serviceTask id="Process_AttendanceFollowUpRequired_S1" name="Raise a task: follow up on">
+      <bpmn:extensionElements>
+        <appwithai:properties>
+        <appwithai:property name="nodeType" value="CreateEntity"/>
+        <appwithai:property name="entity" value="bus_task"/>
+        <appwithai:property name="as" value="taskId"/>
+        <appwithai:property name="fields" value="{&quot;code&quot;:&quot;ATTENDANCE-FOLLOW-UP-{{id}}&quot;,&quot;name&quot;:&quot;Follow up on attendance {{id}}&quot;,&quot;description&quot;:&quot;Attendance {{id}} is now {{status}}. Check the records that depended on it and tell the people affected.&quot;,&quot;task_type&quot;:&quot;USER&quot;,&quot;status&quot;:&quot;CREATED&quot;,&quot;priority&quot;:&quot;NORMAL&quot;}"/>
+        </appwithai:properties>
+      </bpmn:extensionElements>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="Process_AttendanceFollowUpRequired_end"/>
+    <bpmn:sequenceFlow id="Process_AttendanceFollowUpRequired_flow_0" sourceRef="Process_AttendanceFollowUpRequired_start" targetRef="Process_AttendanceFollowUpRequired_S1"/>
+    <bpmn:sequenceFlow id="Process_AttendanceFollowUpRequired_flow_1" sourceRef="Process_AttendanceFollowUpRequired_S1" targetRef="Process_AttendanceFollowUpRequired_end"/>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Process_AttendanceFollowUpRequired">
+    <bpmndi:BPMNPlane id="BPMNPlane_Process_AttendanceFollowUpRequired" bpmnElement="Process_AttendanceFollowUpRequired">
+      <bpmndi:BPMNShape id="Process_AttendanceFollowUpRequired_start_di" bpmnElement="Process_AttendanceFollowUpRequired_start">
+        <dc:Bounds x="160" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_AttendanceFollowUpRequired_S1_di" bpmnElement="Process_AttendanceFollowUpRequired_S1">
+        <dc:Bounds x="256" y="100" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_AttendanceFollowUpRequired_end_di" bpmnElement="Process_AttendanceFollowUpRequired_end">
+        <dc:Bounds x="456" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Process_AttendanceFollowUpRequired_flow_0_di" bpmnElement="Process_AttendanceFollowUpRequired_flow_0">
+        <di:waypoint x="196" y="140"/>
+        <di:waypoint x="256" y="140"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Process_AttendanceFollowUpRequired_flow_1_di" bpmnElement="Process_AttendanceFollowUpRequired_flow_1">
+        <di:waypoint x="396" y="140"/>
+        <di:waypoint x="456" y="140"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>', 'When a attendance is cancelled, a task asks someone to settle what depended on it.', TRUE, TRUE, NOW(), NOW())
+ON CONFLICT (name) DO UPDATE SET
+  entity_name      = EXCLUDED.entity_name,
+  operation        = EXCLUDED.operation,
+  trigger_type     = EXCLUDED.trigger_type,
+  bpmn_xml         = EXCLUDED.bpmn_xml,
+  description      = EXCLUDED.description,
+  is_model_managed = TRUE,
+  updated_at       = NOW();
+
+INSERT INTO sys_workflow_definitions
+  (name, entity_name, operation, trigger_type, bpmn_xml, description, is_active, is_model_managed, created_at, updated_at)
+VALUES ('LeaveRequestApprovalRequested', 'bus_leave_request', 'UPDATE',
+        'rule', '<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+  xmlns:appwithai="http://appwithai.io/schema/1.0"
+  id="Definitions_LeaveRequestApprovalRequested"
+  targetNamespace="http://appwithai.io/bpmn">
+  <bpmn:process id="Process_LeaveRequestApprovalRequested" isExecutable="true">
+    <bpmn:startEvent id="Process_LeaveRequestApprovalRequested_start"/>
+    <bpmn:serviceTask id="Process_LeaveRequestApprovalRequested_S1" name="Raise a task: decide on">
+      <bpmn:extensionElements>
+        <appwithai:properties>
+        <appwithai:property name="nodeType" value="CreateEntity"/>
+        <appwithai:property name="entity" value="bus_task"/>
+        <appwithai:property name="as" value="taskId"/>
+        <appwithai:property name="fields" value="{&quot;code&quot;:&quot;LEAVE-REQUEST-APPROVAL-{{id}}&quot;,&quot;name&quot;:&quot;Decide on leave request {{request_number}}&quot;,&quot;description&quot;:&quot;Leave request {{request_number}} is now {{status}}. Approve it, return it for change or reject it; the move you make is recorded on the record.&quot;,&quot;task_type&quot;:&quot;APPROVAL&quot;,&quot;status&quot;:&quot;CREATED&quot;,&quot;priority&quot;:&quot;NORMAL&quot;}"/>
+        </appwithai:properties>
+      </bpmn:extensionElements>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="Process_LeaveRequestApprovalRequested_end"/>
+    <bpmn:sequenceFlow id="Process_LeaveRequestApprovalRequested_flow_0" sourceRef="Process_LeaveRequestApprovalRequested_start" targetRef="Process_LeaveRequestApprovalRequested_S1"/>
+    <bpmn:sequenceFlow id="Process_LeaveRequestApprovalRequested_flow_1" sourceRef="Process_LeaveRequestApprovalRequested_S1" targetRef="Process_LeaveRequestApprovalRequested_end"/>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Process_LeaveRequestApprovalRequested">
+    <bpmndi:BPMNPlane id="BPMNPlane_Process_LeaveRequestApprovalRequested" bpmnElement="Process_LeaveRequestApprovalRequested">
+      <bpmndi:BPMNShape id="Process_LeaveRequestApprovalRequested_start_di" bpmnElement="Process_LeaveRequestApprovalRequested_start">
+        <dc:Bounds x="160" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_LeaveRequestApprovalRequested_S1_di" bpmnElement="Process_LeaveRequestApprovalRequested_S1">
+        <dc:Bounds x="256" y="100" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_LeaveRequestApprovalRequested_end_di" bpmnElement="Process_LeaveRequestApprovalRequested_end">
+        <dc:Bounds x="456" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Process_LeaveRequestApprovalRequested_flow_0_di" bpmnElement="Process_LeaveRequestApprovalRequested_flow_0">
+        <di:waypoint x="196" y="140"/>
+        <di:waypoint x="256" y="140"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Process_LeaveRequestApprovalRequested_flow_1_di" bpmnElement="Process_LeaveRequestApprovalRequested_flow_1">
+        <di:waypoint x="396" y="140"/>
+        <di:waypoint x="456" y="140"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>', 'When a leave request is submitted, a task asks someone to decide on it.', TRUE, TRUE, NOW(), NOW())
+ON CONFLICT (name) DO UPDATE SET
+  entity_name      = EXCLUDED.entity_name,
+  operation        = EXCLUDED.operation,
+  trigger_type     = EXCLUDED.trigger_type,
+  bpmn_xml         = EXCLUDED.bpmn_xml,
+  description      = EXCLUDED.description,
+  is_model_managed = TRUE,
+  updated_at       = NOW();
+
+INSERT INTO sys_workflow_definitions
+  (name, entity_name, operation, trigger_type, bpmn_xml, description, is_active, is_model_managed, created_at, updated_at)
+VALUES ('LeaveRequestFollowUpRequired', 'bus_leave_request', 'UPDATE',
+        'rule', '<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+  xmlns:appwithai="http://appwithai.io/schema/1.0"
+  id="Definitions_LeaveRequestFollowUpRequired"
+  targetNamespace="http://appwithai.io/bpmn">
+  <bpmn:process id="Process_LeaveRequestFollowUpRequired" isExecutable="true">
+    <bpmn:startEvent id="Process_LeaveRequestFollowUpRequired_start"/>
+    <bpmn:serviceTask id="Process_LeaveRequestFollowUpRequired_S1" name="Raise a task: follow up on">
+      <bpmn:extensionElements>
+        <appwithai:properties>
+        <appwithai:property name="nodeType" value="CreateEntity"/>
+        <appwithai:property name="entity" value="bus_task"/>
+        <appwithai:property name="as" value="taskId"/>
+        <appwithai:property name="fields" value="{&quot;code&quot;:&quot;LEAVE-REQUEST-FOLLOW-UP-{{id}}&quot;,&quot;name&quot;:&quot;Follow up on leave request {{request_number}}&quot;,&quot;description&quot;:&quot;Leave request {{request_number}} is now {{status}}. Check the records that depended on it and tell the people affected.&quot;,&quot;task_type&quot;:&quot;USER&quot;,&quot;status&quot;:&quot;CREATED&quot;,&quot;priority&quot;:&quot;NORMAL&quot;}"/>
+        </appwithai:properties>
+      </bpmn:extensionElements>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="Process_LeaveRequestFollowUpRequired_end"/>
+    <bpmn:sequenceFlow id="Process_LeaveRequestFollowUpRequired_flow_0" sourceRef="Process_LeaveRequestFollowUpRequired_start" targetRef="Process_LeaveRequestFollowUpRequired_S1"/>
+    <bpmn:sequenceFlow id="Process_LeaveRequestFollowUpRequired_flow_1" sourceRef="Process_LeaveRequestFollowUpRequired_S1" targetRef="Process_LeaveRequestFollowUpRequired_end"/>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Process_LeaveRequestFollowUpRequired">
+    <bpmndi:BPMNPlane id="BPMNPlane_Process_LeaveRequestFollowUpRequired" bpmnElement="Process_LeaveRequestFollowUpRequired">
+      <bpmndi:BPMNShape id="Process_LeaveRequestFollowUpRequired_start_di" bpmnElement="Process_LeaveRequestFollowUpRequired_start">
+        <dc:Bounds x="160" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_LeaveRequestFollowUpRequired_S1_di" bpmnElement="Process_LeaveRequestFollowUpRequired_S1">
+        <dc:Bounds x="256" y="100" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_LeaveRequestFollowUpRequired_end_di" bpmnElement="Process_LeaveRequestFollowUpRequired_end">
+        <dc:Bounds x="456" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Process_LeaveRequestFollowUpRequired_flow_0_di" bpmnElement="Process_LeaveRequestFollowUpRequired_flow_0">
+        <di:waypoint x="196" y="140"/>
+        <di:waypoint x="256" y="140"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Process_LeaveRequestFollowUpRequired_flow_1_di" bpmnElement="Process_LeaveRequestFollowUpRequired_flow_1">
+        <di:waypoint x="396" y="140"/>
+        <di:waypoint x="456" y="140"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>', 'When a leave request is rejected or cancelled, a task asks someone to settle what depended on it.', TRUE, TRUE, NOW(), NOW())
+ON CONFLICT (name) DO UPDATE SET
+  entity_name      = EXCLUDED.entity_name,
+  operation        = EXCLUDED.operation,
+  trigger_type     = EXCLUDED.trigger_type,
+  bpmn_xml         = EXCLUDED.bpmn_xml,
+  description      = EXCLUDED.description,
+  is_model_managed = TRUE,
+  updated_at       = NOW();
+
+INSERT INTO sys_workflow_definitions
+  (name, entity_name, operation, trigger_type, bpmn_xml, description, is_active, is_model_managed, created_at, updated_at)
 VALUES ('PayrollFollowUpRequired', 'bus_payroll', 'UPDATE',
         'rule', '<?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"

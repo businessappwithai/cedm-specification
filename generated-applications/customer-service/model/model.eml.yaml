@@ -16426,6 +16426,86 @@ rules:
         when: status == "COMPLETED" and completed_at == null
         props:
           message: Record completed at when the task is completed.
+  - name: serviceContractInvariantsBeforeCreate
+    title: ServiceContract invariants (beforeCreate)
+    entity: ServiceContract
+    event: beforeCreate
+    nodes:
+      - id: S
+        label: "Start: ServiceContract beforeCreate"
+        type: start
+      - id: E
+        label: "End: invariants hold"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: SERVICE-CONTRACT-EXE-001
+        type: validation-error
+        when: effective_from != null and effective_to != null and effective_to < effective_from
+        props:
+          message: Effective To cannot be earlier than effective from.
+  - name: serviceContractInvariantsBeforeUpdate
+    title: ServiceContract invariants (beforeUpdate)
+    entity: ServiceContract
+    event: beforeUpdate
+    nodes:
+      - id: S
+        label: "Start: ServiceContract beforeUpdate"
+        type: start
+      - id: E
+        label: "End: invariants hold"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: SERVICE-CONTRACT-EXE-001
+        type: validation-error
+        when: effective_from != null and effective_to != null and effective_to < effective_from
+        props:
+          message: Effective To cannot be earlier than effective from.
+  - name: entitlementInvariantsBeforeCreate
+    title: Entitlement invariants (beforeCreate)
+    entity: Entitlement
+    event: beforeCreate
+    nodes:
+      - id: S
+        label: "Start: Entitlement beforeCreate"
+        type: start
+      - id: E
+        label: "End: invariants hold"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: ENTITLEMENT-EXE-001
+        type: validation-error
+        when: effective_from != null and effective_to != null and effective_to < effective_from
+        props:
+          message: Effective To cannot be earlier than effective from.
+  - name: entitlementInvariantsBeforeUpdate
+    title: Entitlement invariants (beforeUpdate)
+    entity: Entitlement
+    event: beforeUpdate
+    nodes:
+      - id: S
+        label: "Start: Entitlement beforeUpdate"
+        type: start
+      - id: E
+        label: "End: invariants hold"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: ENTITLEMENT-EXE-001
+        type: validation-error
+        when: effective_from != null and effective_to != null and effective_to < effective_from
+        props:
+          message: Effective To cannot be earlier than effective from.
   - name: contractInvariantsBeforeCreate
     title: Contract invariants (beforeCreate)
     entity: Contract
@@ -16526,6 +16606,26 @@ rules:
         when: status == "BLOCKED" and status != _previous_status
         props:
           workflow: CustomerExceptionRaised
+  - name: serviceCaseWorkflowsAfterUpdate
+    title: ServiceCase workflows (afterUpdate)
+    entity: ServiceCase
+    event: afterUpdate
+    nodes:
+      - id: S
+        label: "Start: ServiceCase afterUpdate"
+        type: start
+      - id: E
+        label: "End: workflows started"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: FollowUpRequired
+        type: trigger-workflow
+        when: status == "CANCELLED" and status != _previous_status
+        props:
+          workflow: ServiceCaseFollowUpRequired
   - name: serviceRequestWorkflowsAfterUpdate
     title: ServiceRequest workflows (afterUpdate)
     entity: ServiceRequest
@@ -16546,6 +16646,46 @@ rules:
         when: status == "CANCELLED" and status != _previous_status
         props:
           workflow: ServiceRequestFollowUpRequired
+  - name: ticketWorkflowsAfterUpdate
+    title: Ticket workflows (afterUpdate)
+    entity: Ticket
+    event: afterUpdate
+    nodes:
+      - id: S
+        label: "Start: Ticket afterUpdate"
+        type: start
+      - id: E
+        label: "End: workflows started"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: FollowUpRequired
+        type: trigger-workflow
+        when: status == "CANCELLED" and status != _previous_status
+        props:
+          workflow: TicketFollowUpRequired
+  - name: serviceOrderWorkflowsAfterUpdate
+    title: ServiceOrder workflows (afterUpdate)
+    entity: ServiceOrder
+    event: afterUpdate
+    nodes:
+      - id: S
+        label: "Start: ServiceOrder afterUpdate"
+        type: start
+      - id: E
+        label: "End: workflows started"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: FollowUpRequired
+        type: trigger-workflow
+        when: status == "CANCELLED" and status != _previous_status
+        props:
+          workflow: ServiceOrderFollowUpRequired
   - name: escalationWorkflowsAfterUpdate
     title: Escalation workflows (afterUpdate)
     entity: Escalation
@@ -17198,6 +17338,20 @@ sagas:
           entity: bus_task
           as: taskId
           fields: '{"code":"CUSTOMER-EXCEPTION-{{id}}","name":"Resolve customer {{id}}","description":"Customer {{id}} is now {{status}}. Find out why it stopped and move it on or close it.","task_type":"USER","status":"CREATED","priority":"HIGH"}'
+  - name: ServiceCaseFollowUpRequired
+    title: Follow up when a service case is ended
+    entity: ServiceCase
+    operation: UPDATE
+    trigger: rule
+    description: When a service case is cancelled, a task asks someone to settle what depended on it.
+    steps:
+      - id: S1
+        type: CreateEntity
+        label: "Raise a task: follow up on"
+        properties:
+          entity: bus_task
+          as: taskId
+          fields: '{"code":"SERVICE-CASE-FOLLOW-UP-{{id}}","name":"Follow up on service case {{case_number}}","description":"Service case {{case_number}} is now {{status}}. Check the records that depended on it and tell the people affected.","task_type":"USER","status":"CREATED","priority":"NORMAL"}'
   - name: ServiceRequestFollowUpRequired
     title: Follow up when a service request is ended
     entity: ServiceRequest
@@ -17212,6 +17366,34 @@ sagas:
           entity: bus_task
           as: taskId
           fields: '{"code":"SERVICE-REQUEST-FOLLOW-UP-{{id}}","name":"Follow up on service request {{request_number}}","description":"Service request {{request_number}} is now {{status}}. Check the records that depended on it and tell the people affected.","task_type":"USER","status":"CREATED","priority":"NORMAL"}'
+  - name: TicketFollowUpRequired
+    title: Follow up when a ticket is ended
+    entity: Ticket
+    operation: UPDATE
+    trigger: rule
+    description: When a ticket is cancelled, a task asks someone to settle what depended on it.
+    steps:
+      - id: S1
+        type: CreateEntity
+        label: "Raise a task: follow up on"
+        properties:
+          entity: bus_task
+          as: taskId
+          fields: '{"code":"TICKET-FOLLOW-UP-{{id}}","name":"Follow up on ticket {{ticket_number}}","description":"Ticket {{ticket_number}} is now {{status}}. Check the records that depended on it and tell the people affected.","task_type":"USER","status":"CREATED","priority":"NORMAL"}'
+  - name: ServiceOrderFollowUpRequired
+    title: Follow up when a service order is ended
+    entity: ServiceOrder
+    operation: UPDATE
+    trigger: rule
+    description: When a service order is cancelled, a task asks someone to settle what depended on it.
+    steps:
+      - id: S1
+        type: CreateEntity
+        label: "Raise a task: follow up on"
+        properties:
+          entity: bus_task
+          as: taskId
+          fields: '{"code":"SERVICE-ORDER-FOLLOW-UP-{{id}}","name":"Follow up on service order {{service_order_number}}","description":"Service order {{service_order_number}} is now {{status}}. Check the records that depended on it and tell the people affected.","task_type":"USER","status":"CREATED","priority":"NORMAL"}'
   - name: EscalationFollowUpRequired
     title: Follow up when a escalation is ended
     entity: Escalation

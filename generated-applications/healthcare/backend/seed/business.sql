@@ -318,6 +318,23 @@ INSERT INTO bus_healthcare_provider (id, party_id, provider_number, provider_typ
 VALUES ('4e6dad03-2f12-53f7-ac24-e0b9af867716', '2ef84c4d-15a9-563a-8186-b2efe3c6d5c2', 'Healthcare Provider 5', 'LABORATORY', 'ACTIVE', '8e7321aa-be21-58a2-92cd-e7634dc4b0d0', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
+-- Practitioner (bus_practitioner)
+INSERT INTO bus_practitioner (id, practitioner_code, license_number, specialty, status, person_id, doc_status, created_at, updated_at)
+VALUES ('da41176d-b445-5bc0-8c14-b2cca2e4e51e', 'Practitioner 1', 'License Number 1', 'Specialty 1', 'DRAFT', '08072dd0-66ff-5fd1-8f01-d8a0a3356fe1', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_practitioner (id, practitioner_code, license_number, specialty, status, person_id, doc_status, created_at, updated_at)
+VALUES ('12abb147-7a1c-5618-ba24-b7b217cafb0d', 'Practitioner 2', 'License Number 2', 'Specialty 2', 'DRAFT', 'a5c23416-48fc-50a9-8b32-f8af71f97a78', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_practitioner (id, practitioner_code, license_number, specialty, status, person_id, doc_status, created_at, updated_at)
+VALUES ('72ac5086-fab1-5f58-a69a-daa34a6be807', 'Practitioner 3', 'License Number 3', 'Specialty 3', 'DRAFT', '63e4e690-ef3f-539a-ba11-5e0a0fd48411', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_practitioner (id, practitioner_code, license_number, specialty, status, person_id, doc_status, created_at, updated_at)
+VALUES ('d22bee66-dafa-5cd1-a737-09f7453c71fc', 'Practitioner 4', 'License Number 4', 'Specialty 4', 'DRAFT', 'a49fe203-69b8-5d97-8d0d-b24b98e2efe4', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_practitioner (id, practitioner_code, license_number, specialty, status, person_id, doc_status, created_at, updated_at)
+VALUES ('5a94cda0-6076-5fd3-bb39-789c68e04b09', 'Practitioner 5', 'License Number 5', 'Specialty 5', 'DRAFT', 'a2f8e9b5-918d-5058-a93f-fac48a19ae79', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+
 -- Healthcare Encounter (bus_healthcare_encounter)
 INSERT INTO bus_healthcare_encounter (id, encounter_type, status, start_at, end_at, reason, patient_id, provider_id, doc_status, created_at, updated_at)
 VALUES ('6c263795-c151-5d21-90b2-93e128b70279', 'OUTPATIENT', 'PLANNED', '2026-01-15T09:00:00Z', NULL, 'Reason 1', 'a7fec414-11a6-5129-9627-4cb76cfee868', 'bc30127e-a084-54f6-bb62-93e0282af561', 'final', NOW(), NOW())
@@ -333,6 +350,23 @@ VALUES ('b34582a9-256f-54a3-aab4-f2a2758ce946', 'VIRTUAL', 'PLANNED', '2026-04-1
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_healthcare_encounter (id, encounter_type, status, start_at, end_at, reason, patient_id, provider_id, doc_status, created_at, updated_at)
 VALUES ('6ed467c7-cc6f-544d-8b39-e5f5435c42d7', 'HOME_CARE', 'PLANNED', '2026-05-15T09:00:00Z', NULL, 'Reason 5', '08db6fe2-b131-53cc-b674-14e9324558d4', '4e6dad03-2f12-53f7-ac24-e0b9af867716', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+
+-- Appointment (bus_appointment)
+INSERT INTO bus_appointment (id, appointment_number, appointment_type, scheduled_start_at, scheduled_end_at, status, patient_id, provider_id, practitioner_id, location_id, encounter_id, doc_status, created_at, updated_at)
+VALUES ('467bb400-6b31-5f36-8974-bc6154250cde', 'Appointment 1', 'Appointment Type 1', '2026-01-15T09:00:00Z', NULL, 'SCHEDULED', 'a7fec414-11a6-5129-9627-4cb76cfee868', 'bc30127e-a084-54f6-bb62-93e0282af561', 'da41176d-b445-5bc0-8c14-b2cca2e4e51e', '5f69a96f-21a7-52d7-ade9-aff65addc62b', '6c263795-c151-5d21-90b2-93e128b70279', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_appointment (id, appointment_number, appointment_type, scheduled_start_at, scheduled_end_at, status, patient_id, provider_id, practitioner_id, location_id, encounter_id, doc_status, created_at, updated_at)
+VALUES ('c69d45be-af27-5572-babc-543c7db87e32', 'Appointment 2', 'Appointment Type 2', '2026-02-15T09:00:00Z', NULL, 'SCHEDULED', 'afff9792-6141-566d-93aa-f85529daf3a6', '5c234ded-008d-5ad9-b0c5-29a95594dc67', '12abb147-7a1c-5618-ba24-b7b217cafb0d', '8f058a9f-417b-50f7-b4f8-afc13a7ff5aa', '1570776c-c109-5024-986a-9b7ed395ff5c', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_appointment (id, appointment_number, appointment_type, scheduled_start_at, scheduled_end_at, status, patient_id, provider_id, practitioner_id, location_id, encounter_id, doc_status, created_at, updated_at)
+VALUES ('3ce9c8b8-43b5-5bc3-989c-ab87cb04fc75', 'Appointment 3', 'Appointment Type 3', '2026-03-15T09:00:00Z', NULL, 'SCHEDULED', 'eb53aad2-1ed4-59f1-bcc0-9b34b4770e51', 'b36ad12f-2f95-5d2b-ba1a-dfb2cd114df6', '72ac5086-fab1-5f58-a69a-daa34a6be807', '4c2e9465-19d3-5251-b7a0-947947265db9', '7587df37-245c-501b-b5e0-0bd786015fd8', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_appointment (id, appointment_number, appointment_type, scheduled_start_at, scheduled_end_at, status, patient_id, provider_id, practitioner_id, location_id, encounter_id, doc_status, created_at, updated_at)
+VALUES ('f07b2233-7029-54c5-8872-15cc81f569e3', 'Appointment 4', 'Appointment Type 4', '2026-04-15T09:00:00Z', NULL, 'SCHEDULED', 'c2b7b0cb-6a5b-52dd-9fdd-596ba705a7dd', 'ca996946-a6bc-5c83-a21d-cbf346bf0e50', 'd22bee66-dafa-5cd1-a737-09f7453c71fc', '8de8dd3f-9282-50bf-aefb-df6af0c57e1e', 'b34582a9-256f-54a3-aab4-f2a2758ce946', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_appointment (id, appointment_number, appointment_type, scheduled_start_at, scheduled_end_at, status, patient_id, provider_id, practitioner_id, location_id, encounter_id, doc_status, created_at, updated_at)
+VALUES ('4a636af5-dfe0-5dd9-9e5c-363e95f8523b', 'Appointment 5', 'Appointment Type 5', '2026-05-15T09:00:00Z', NULL, 'SCHEDULED', '08db6fe2-b131-53cc-b674-14e9324558d4', '4e6dad03-2f12-53f7-ac24-e0b9af867716', '5a94cda0-6076-5fd3-bb39-789c68e04b09', '828b9093-e13e-5688-a6b3-0a1f06abf242', '6ed467c7-cc6f-544d-8b39-e5f5435c42d7', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
 -- Healthcare Order (bus_healthcare_order)

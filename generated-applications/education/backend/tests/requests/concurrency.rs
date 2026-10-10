@@ -1,6 +1,6 @@
 //! Two people, one record: optimistic locking and closed transactions.
 //!
-//! Generated: 2026-10-09T15:28:27.914Z
+//! Generated: 2026-10-10T02:39:45.380Z
 //! Project: education
 //!
 //! Every entity is optimistic unless the model says `concurrency:
@@ -44,8 +44,12 @@ const FINAL_STATES: &[(&str, &str, &str)] = &[
     ("Task", "status", "COMPLETED"),
     ("EducationProgram", "status", "RETIRED"),
     ("EducationCourse", "status", "RETIRED"),
+    ("Class", "status", "COMPLETED"),
     ("EducationStudent", "status", "WITHDRAWN"),
     ("Enrollment", "status", "COMPLETED"),
+    ("Assessment", "status", "CLOSED"),
+    ("Grade", "status", "FINAL"),
+    ("Fee", "status", "PAID"),
 ];
 
 /// `(entity, status column, initial, [targets of edges out of initial])`.
@@ -76,18 +80,23 @@ const FIRST_MOVES: &[(&str, &str, &str, &[&str])] = &[
         &["ACTIVE", "RETIRED"],
     ),
     ("EducationCourse", "status", "DRAFT", &["ACTIVE", "RETIRED"]),
+    ("Class", "status", "DRAFT", &["OPEN", "CANCELLED"]),
     (
         "EducationStudent",
         "status",
         "APPLICANT",
         &["ACTIVE", "WITHDRAWN"],
     ),
+    ("Guardian", "status", "ACTIVE", &["INACTIVE"]),
     (
         "Enrollment",
         "status",
         "PENDING",
         &["ACTIVE", "WITHDRAWN", "CANCELLED"],
     ),
+    ("Assessment", "status", "DRAFT", &["PUBLISHED", "CANCELLED"]),
+    ("Grade", "status", "DRAFT", &["FINAL", "VOID"]),
+    ("Fee", "status", "DRAFT", &["ASSESSED", "CANCELLED"]),
 ];
 
 /// The first entity that is optimistic and has a text column to edit.

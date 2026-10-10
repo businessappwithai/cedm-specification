@@ -257,6 +257,62 @@ ALTER TABLE bus_yard_slot
 
 CREATE INDEX IF NOT EXISTS idx_bus_yard_slot_doc_status ON bus_yard_slot (doc_status);
 
+ALTER TABLE bus_port
+  ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
+  ADD COLUMN IF NOT EXISTS workflow_run_id UUID,
+  ADD COLUMN IF NOT EXISTS doc_status VARCHAR(20) NOT NULL DEFAULT 'draft',
+  ADD COLUMN IF NOT EXISTS doc_status_message TEXT;
+
+CREATE INDEX IF NOT EXISTS idx_bus_port_doc_status ON bus_port (doc_status);
+
+ALTER TABLE bus_berth
+  ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
+  ADD COLUMN IF NOT EXISTS workflow_run_id UUID,
+  ADD COLUMN IF NOT EXISTS doc_status VARCHAR(20) NOT NULL DEFAULT 'draft',
+  ADD COLUMN IF NOT EXISTS doc_status_message TEXT;
+
+CREATE INDEX IF NOT EXISTS idx_bus_berth_doc_status ON bus_berth (doc_status);
+
+ALTER TABLE bus_gate
+  ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
+  ADD COLUMN IF NOT EXISTS workflow_run_id UUID,
+  ADD COLUMN IF NOT EXISTS doc_status VARCHAR(20) NOT NULL DEFAULT 'draft',
+  ADD COLUMN IF NOT EXISTS doc_status_message TEXT;
+
+CREATE INDEX IF NOT EXISTS idx_bus_gate_doc_status ON bus_gate (doc_status);
+
+ALTER TABLE bus_gate_event
+  ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
+  ADD COLUMN IF NOT EXISTS workflow_run_id UUID,
+  ADD COLUMN IF NOT EXISTS doc_status VARCHAR(20) NOT NULL DEFAULT 'draft',
+  ADD COLUMN IF NOT EXISTS doc_status_message TEXT;
+
+CREATE INDEX IF NOT EXISTS idx_bus_gate_event_doc_status ON bus_gate_event (doc_status);
+
+ALTER TABLE bus_container_visit
+  ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
+  ADD COLUMN IF NOT EXISTS workflow_run_id UUID,
+  ADD COLUMN IF NOT EXISTS doc_status VARCHAR(20) NOT NULL DEFAULT 'draft',
+  ADD COLUMN IF NOT EXISTS doc_status_message TEXT;
+
+CREATE INDEX IF NOT EXISTS idx_bus_container_visit_doc_status ON bus_container_visit (doc_status);
+
+ALTER TABLE bus_vessel
+  ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
+  ADD COLUMN IF NOT EXISTS workflow_run_id UUID,
+  ADD COLUMN IF NOT EXISTS doc_status VARCHAR(20) NOT NULL DEFAULT 'draft',
+  ADD COLUMN IF NOT EXISTS doc_status_message TEXT;
+
+CREATE INDEX IF NOT EXISTS idx_bus_vessel_doc_status ON bus_vessel (doc_status);
+
+ALTER TABLE bus_voyage
+  ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
+  ADD COLUMN IF NOT EXISTS workflow_run_id UUID,
+  ADD COLUMN IF NOT EXISTS doc_status VARCHAR(20) NOT NULL DEFAULT 'draft',
+  ADD COLUMN IF NOT EXISTS doc_status_message TEXT;
+
+CREATE INDEX IF NOT EXISTS idx_bus_voyage_doc_status ON bus_voyage (doc_status);
+
 ALTER TABLE bus_party_party_type
   ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
   ADD COLUMN IF NOT EXISTS workflow_run_id UUID,
@@ -505,6 +561,78 @@ ALTER TABLE bus_yard_slot_status
 
 CREATE INDEX IF NOT EXISTS idx_bus_yard_slot_status_doc_status ON bus_yard_slot_status (doc_status);
 
+ALTER TABLE bus_port_status
+  ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
+  ADD COLUMN IF NOT EXISTS workflow_run_id UUID,
+  ADD COLUMN IF NOT EXISTS doc_status VARCHAR(20) NOT NULL DEFAULT 'draft',
+  ADD COLUMN IF NOT EXISTS doc_status_message TEXT;
+
+CREATE INDEX IF NOT EXISTS idx_bus_port_status_doc_status ON bus_port_status (doc_status);
+
+ALTER TABLE bus_berth_status
+  ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
+  ADD COLUMN IF NOT EXISTS workflow_run_id UUID,
+  ADD COLUMN IF NOT EXISTS doc_status VARCHAR(20) NOT NULL DEFAULT 'draft',
+  ADD COLUMN IF NOT EXISTS doc_status_message TEXT;
+
+CREATE INDEX IF NOT EXISTS idx_bus_berth_status_doc_status ON bus_berth_status (doc_status);
+
+ALTER TABLE bus_gate_gate_type
+  ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
+  ADD COLUMN IF NOT EXISTS workflow_run_id UUID,
+  ADD COLUMN IF NOT EXISTS doc_status VARCHAR(20) NOT NULL DEFAULT 'draft',
+  ADD COLUMN IF NOT EXISTS doc_status_message TEXT;
+
+CREATE INDEX IF NOT EXISTS idx_bus_gate_gate_type_doc_status ON bus_gate_gate_type (doc_status);
+
+ALTER TABLE bus_gate_status
+  ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
+  ADD COLUMN IF NOT EXISTS workflow_run_id UUID,
+  ADD COLUMN IF NOT EXISTS doc_status VARCHAR(20) NOT NULL DEFAULT 'draft',
+  ADD COLUMN IF NOT EXISTS doc_status_message TEXT;
+
+CREATE INDEX IF NOT EXISTS idx_bus_gate_status_doc_status ON bus_gate_status (doc_status);
+
+ALTER TABLE bus_gate_event_direction
+  ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
+  ADD COLUMN IF NOT EXISTS workflow_run_id UUID,
+  ADD COLUMN IF NOT EXISTS doc_status VARCHAR(20) NOT NULL DEFAULT 'draft',
+  ADD COLUMN IF NOT EXISTS doc_status_message TEXT;
+
+CREATE INDEX IF NOT EXISTS idx_bus_gate_event_direction_doc_status ON bus_gate_event_direction (doc_status);
+
+ALTER TABLE bus_gate_event_status
+  ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
+  ADD COLUMN IF NOT EXISTS workflow_run_id UUID,
+  ADD COLUMN IF NOT EXISTS doc_status VARCHAR(20) NOT NULL DEFAULT 'draft',
+  ADD COLUMN IF NOT EXISTS doc_status_message TEXT;
+
+CREATE INDEX IF NOT EXISTS idx_bus_gate_event_status_doc_status ON bus_gate_event_status (doc_status);
+
+ALTER TABLE bus_container_visit_status
+  ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
+  ADD COLUMN IF NOT EXISTS workflow_run_id UUID,
+  ADD COLUMN IF NOT EXISTS doc_status VARCHAR(20) NOT NULL DEFAULT 'draft',
+  ADD COLUMN IF NOT EXISTS doc_status_message TEXT;
+
+CREATE INDEX IF NOT EXISTS idx_bus_container_visit_status_doc_status ON bus_container_visit_status (doc_status);
+
+ALTER TABLE bus_vessel_status
+  ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
+  ADD COLUMN IF NOT EXISTS workflow_run_id UUID,
+  ADD COLUMN IF NOT EXISTS doc_status VARCHAR(20) NOT NULL DEFAULT 'draft',
+  ADD COLUMN IF NOT EXISTS doc_status_message TEXT;
+
+CREATE INDEX IF NOT EXISTS idx_bus_vessel_status_doc_status ON bus_vessel_status (doc_status);
+
+ALTER TABLE bus_voyage_status
+  ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
+  ADD COLUMN IF NOT EXISTS workflow_run_id UUID,
+  ADD COLUMN IF NOT EXISTS doc_status VARCHAR(20) NOT NULL DEFAULT 'draft',
+  ADD COLUMN IF NOT EXISTS doc_status_message TEXT;
+
+CREATE INDEX IF NOT EXISTS idx_bus_voyage_status_doc_status ON bus_voyage_status (doc_status);
+
 "#;
 
 const DOWN_SQL: &str = r#"
@@ -727,6 +855,62 @@ ALTER TABLE bus_yard_tier
 DROP INDEX IF EXISTS idx_bus_yard_slot_doc_status;
 
 ALTER TABLE bus_yard_slot
+  DROP COLUMN IF EXISTS workflow_status,
+  DROP COLUMN IF EXISTS workflow_run_id,
+  DROP COLUMN IF EXISTS doc_status,
+  DROP COLUMN IF EXISTS doc_status_message;
+
+DROP INDEX IF EXISTS idx_bus_port_doc_status;
+
+ALTER TABLE bus_port
+  DROP COLUMN IF EXISTS workflow_status,
+  DROP COLUMN IF EXISTS workflow_run_id,
+  DROP COLUMN IF EXISTS doc_status,
+  DROP COLUMN IF EXISTS doc_status_message;
+
+DROP INDEX IF EXISTS idx_bus_berth_doc_status;
+
+ALTER TABLE bus_berth
+  DROP COLUMN IF EXISTS workflow_status,
+  DROP COLUMN IF EXISTS workflow_run_id,
+  DROP COLUMN IF EXISTS doc_status,
+  DROP COLUMN IF EXISTS doc_status_message;
+
+DROP INDEX IF EXISTS idx_bus_gate_doc_status;
+
+ALTER TABLE bus_gate
+  DROP COLUMN IF EXISTS workflow_status,
+  DROP COLUMN IF EXISTS workflow_run_id,
+  DROP COLUMN IF EXISTS doc_status,
+  DROP COLUMN IF EXISTS doc_status_message;
+
+DROP INDEX IF EXISTS idx_bus_gate_event_doc_status;
+
+ALTER TABLE bus_gate_event
+  DROP COLUMN IF EXISTS workflow_status,
+  DROP COLUMN IF EXISTS workflow_run_id,
+  DROP COLUMN IF EXISTS doc_status,
+  DROP COLUMN IF EXISTS doc_status_message;
+
+DROP INDEX IF EXISTS idx_bus_container_visit_doc_status;
+
+ALTER TABLE bus_container_visit
+  DROP COLUMN IF EXISTS workflow_status,
+  DROP COLUMN IF EXISTS workflow_run_id,
+  DROP COLUMN IF EXISTS doc_status,
+  DROP COLUMN IF EXISTS doc_status_message;
+
+DROP INDEX IF EXISTS idx_bus_vessel_doc_status;
+
+ALTER TABLE bus_vessel
+  DROP COLUMN IF EXISTS workflow_status,
+  DROP COLUMN IF EXISTS workflow_run_id,
+  DROP COLUMN IF EXISTS doc_status,
+  DROP COLUMN IF EXISTS doc_status_message;
+
+DROP INDEX IF EXISTS idx_bus_voyage_doc_status;
+
+ALTER TABLE bus_voyage
   DROP COLUMN IF EXISTS workflow_status,
   DROP COLUMN IF EXISTS workflow_run_id,
   DROP COLUMN IF EXISTS doc_status,
@@ -975,6 +1159,78 @@ ALTER TABLE bus_yard_tier_status
 DROP INDEX IF EXISTS idx_bus_yard_slot_status_doc_status;
 
 ALTER TABLE bus_yard_slot_status
+  DROP COLUMN IF EXISTS workflow_status,
+  DROP COLUMN IF EXISTS workflow_run_id,
+  DROP COLUMN IF EXISTS doc_status,
+  DROP COLUMN IF EXISTS doc_status_message;
+
+DROP INDEX IF EXISTS idx_bus_port_status_doc_status;
+
+ALTER TABLE bus_port_status
+  DROP COLUMN IF EXISTS workflow_status,
+  DROP COLUMN IF EXISTS workflow_run_id,
+  DROP COLUMN IF EXISTS doc_status,
+  DROP COLUMN IF EXISTS doc_status_message;
+
+DROP INDEX IF EXISTS idx_bus_berth_status_doc_status;
+
+ALTER TABLE bus_berth_status
+  DROP COLUMN IF EXISTS workflow_status,
+  DROP COLUMN IF EXISTS workflow_run_id,
+  DROP COLUMN IF EXISTS doc_status,
+  DROP COLUMN IF EXISTS doc_status_message;
+
+DROP INDEX IF EXISTS idx_bus_gate_gate_type_doc_status;
+
+ALTER TABLE bus_gate_gate_type
+  DROP COLUMN IF EXISTS workflow_status,
+  DROP COLUMN IF EXISTS workflow_run_id,
+  DROP COLUMN IF EXISTS doc_status,
+  DROP COLUMN IF EXISTS doc_status_message;
+
+DROP INDEX IF EXISTS idx_bus_gate_status_doc_status;
+
+ALTER TABLE bus_gate_status
+  DROP COLUMN IF EXISTS workflow_status,
+  DROP COLUMN IF EXISTS workflow_run_id,
+  DROP COLUMN IF EXISTS doc_status,
+  DROP COLUMN IF EXISTS doc_status_message;
+
+DROP INDEX IF EXISTS idx_bus_gate_event_direction_doc_status;
+
+ALTER TABLE bus_gate_event_direction
+  DROP COLUMN IF EXISTS workflow_status,
+  DROP COLUMN IF EXISTS workflow_run_id,
+  DROP COLUMN IF EXISTS doc_status,
+  DROP COLUMN IF EXISTS doc_status_message;
+
+DROP INDEX IF EXISTS idx_bus_gate_event_status_doc_status;
+
+ALTER TABLE bus_gate_event_status
+  DROP COLUMN IF EXISTS workflow_status,
+  DROP COLUMN IF EXISTS workflow_run_id,
+  DROP COLUMN IF EXISTS doc_status,
+  DROP COLUMN IF EXISTS doc_status_message;
+
+DROP INDEX IF EXISTS idx_bus_container_visit_status_doc_status;
+
+ALTER TABLE bus_container_visit_status
+  DROP COLUMN IF EXISTS workflow_status,
+  DROP COLUMN IF EXISTS workflow_run_id,
+  DROP COLUMN IF EXISTS doc_status,
+  DROP COLUMN IF EXISTS doc_status_message;
+
+DROP INDEX IF EXISTS idx_bus_vessel_status_doc_status;
+
+ALTER TABLE bus_vessel_status
+  DROP COLUMN IF EXISTS workflow_status,
+  DROP COLUMN IF EXISTS workflow_run_id,
+  DROP COLUMN IF EXISTS doc_status,
+  DROP COLUMN IF EXISTS doc_status_message;
+
+DROP INDEX IF EXISTS idx_bus_voyage_status_doc_status;
+
+ALTER TABLE bus_voyage_status
   DROP COLUMN IF EXISTS workflow_status,
   DROP COLUMN IF EXISTS workflow_run_id,
   DROP COLUMN IF EXISTS doc_status,

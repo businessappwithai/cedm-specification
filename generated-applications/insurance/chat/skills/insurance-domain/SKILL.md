@@ -109,6 +109,19 @@ Fields:
   - **Country** (required, a Country) — Exactly one country; a city belongs to a single country. The country the city is in. Chosen first; the cities offered are those of that country. A city is narrowed by its country, and by its state where it has one.
   - **State Province** (a State Province) — The state or province the city is in, where the registry says which. Chosen after the country; narrows the cities offered. A city has at most one state or province; outside the United States and Canada the list leaves it empty. The state o…
 
+### Claim Line Status
+
+The values of claim line status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
 ### Contact Point
 
 A communication endpoint for a party, such as an email address, telephone number, web address or other channel. Reaching someone requires a specific address. A contact point holds each one with its own status, so messages go to working endpoints and old ones are not lost. Added when a party gives an email, phone or other channel; read by communications, notifications and service processes. Each contact point belongs to one Party, which may have several. Code and identity stay stable, and an endpoint that is retired remains in history. The billing team's email address invoices@acme.example, re…
@@ -133,6 +146,19 @@ Fields:
   - **Name** (required) — The country's short name in English. Shown in lists, on addresses and on reports. Does not replace the code as the stable key.
   - **Phone Code** — The international dialling prefix for the country, held without the plus sign, such as 44 or 1. Used to validate and format telephone numbers entered against addresses and contacts, so the same number reads the same everywhere. Belongs to…
   - **Currency** (a Currency) — The currency the country mainly uses. Chosen from the currency list; used to suggest a currency on records for the country. A country has at most one main currency; a currency can be the main one of many countries. Lets a default currency…
+
+### Coverage Status
+
+The values of coverage status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Currency
 
@@ -227,7 +253,10 @@ Fields:
   - **Approved Amount** — The amount the insurer has decided to pay. Set at decision; not negative and not above the claimed amount.
   - **Status** (required, one of the Insurance Claim Status values) — Where the claim stands in the insurer's handling, from first report through assessment to payment or refusal. Moved by claims handlers as the claim is assessed and paid; later states depend on the outcome of review, and denied or closed cl…
   - **Policy** (required, a Insurance Policy) — The policy under which the claim is made. Chosen at registration; its cover, limits and deductibles decide what can be paid. Exactly one policy: a claim is made against a particular contract of insurance. Decides cover, limits and deductib…
+  - **Insured Party** (a Insured Party) — The covered person or entity the claim concerns. Chosen at registration from the policy's insured parties. At most one insured party; a claim under a property policy may name none. Checks that the claimant's loss falls within the persons c…
   - **Claimant** (required, a Party) — The party making the claim. Set at registration; payment and correspondence go to this party unless a beneficiary is named. Exactly one claimant: every claim has a named person or organisation behind it. Identifies who is paid and who is c…
+
+Line items — **Claim Line**: kept inside each Insurance Claim and reached by opening it, never on their own. Provides line-level insurance claim adjudication and settlement traceability. InsuranceClaim is the claim aggregate; ClaimLine evaluates a particular benefit/loss against Coverage; Settlement records actual discharge of approved liability. Claims intake, adjudication, reserves, settlement, analytic…
 
 ### Insurance Claim Status
 
@@ -257,9 +286,41 @@ Fields:
   - **Status** (required, one of the Insurance Policy Status values) — Moved by underwriting and policy administration; claims are accepted only under ACTIVE policies, and EXPIRED or CANCELLED policies cannot be reinstated. Offered to the customer but not yet accepted, so no cover is in place. In force, so cl…
   - **Insurer** (required, a Organization) — The organisation that carries the risk and issues the policy. Set at quotation; its underwriting rules and capital stand behind the cover. Exactly one insurer: a policy is a contract with a single risk carrier (co-insurance is split into s…
 
+Line items — **Coverage**: kept inside each Insurance Policy and reached by opening it, never on their own. Represents one governed insured benefit or risk component of a policy. InsurancePolicy is the contract-level aggregate; Coverage states the specific protection and limits applied to claims. Insurance policy administration, underwriting, claims, exposure management and audit. Policy is mandatory, in…
+
+Line items — **Insured Party**: kept inside each Insurance Policy and reached by opening it, never on their own. Represents a Party's insured or beneficiary role under an InsurancePolicy. InsuredParty separates common Party identity from policy-specific coverage eligibility. Insurance enrollment, policy servicing, coverage validation, claims and reporting. Party and Policy are mandatory; Coverage refines bene…
+
+Line items — **Premium**: kept inside each Insurance Policy and reached by opening it, never on their own. Represents a policy premium obligation while keeping receivable and payment evidence in finance entities. Premium explains the insurance charge; Invoice formalizes a financial claim; Payment settles it. Insurance billing, collections, policy servicing, accounting and audit. Policy is mandatory, opt…
+
 ### Insurance Policy Status
 
 The values of insurance policy status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Insured Party Role Type
+
+The values of insured party role type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Insured Party Status
+
+The values of insured party status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
 
 Readable by every signed-in person.
 
@@ -542,6 +603,59 @@ Fields:
   - **Sequence** (required) — The position of the value in a dropdown, lowest first.
   - **Is Active** (required) — Whether the value is offered on new records.
 
+### Premium Status
+
+The values of premium status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Settlement
+
+Records the governed discharge of approved insurance claim liability. ClaimLine determines approved liability; Settlement allocates/discharges it; Payment records cash movement when applicable. Insurance claims, payments, recoveries, reconciliation, accounting and audit. Claim and ClaimLines are mandatory, Currency defines value, and Payment supplies execution evidence for monetary settlement. Settlement is drafted, approved and executed or voided, with executed transactions immutable. Two approved ClaimLines totaling 4,000 are paid through one Settlement linked to the resulting Payment trans…
+
+Readable by every signed-in person.
+
+Fields:
+  - **Settlement Number** (required) — The business reference of the settlement, such as STL-3041, used by claims finance to find it. Assigned when the settlement is drafted; unique; quoted in correspondence with the claimant and in integrations with accounting. Operational ide…
+  - **Amount** (required) — The monetary liability this settlement discharges, stated in the settlement currency. Entered by the claims handler from the approved claim lines; it must not exceed approved liability and is reported against reserves. Compared with the ap…
+  - **Method** (required, one of the Settlement Method values) — How the approved claim liability is discharged: by payment, service, offset, recovery or another agreed route. Chosen when the settlement is drafted; decides whether a Payment is expected and how accounting records the discharge. Liability…
+  - **Status** (required, one of the Settlement Status values) — Where the settlement stands between preparation, approval, execution and voiding. Starts as DRAFT; claims finance approves and then executes it, and an executed settlement must reconcile to its payment or service evidence. Being prepared;…
+  - **Claim** (required, a Insurance Claim) — A settlement discharges one insurance claim; separate claims are settled separately. InsuranceClaim whose liability is settled. Supplies approved claim context. Claims payment and reconciliation. Settlement must not exceed approved liabili…
+  - **Currency** (required, a Currency) — The amount is in exactly one currency. Currency of the settlement amount. Makes financial value unambiguous. Claims finance and reporting. Conversion and accounting policy remain separately governed.
+
+### Settlement Method
+
+The values of settlement method, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Settlement Status
+
+The values of settlement status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
 ### State Province
 
 A first-level division of a country, such as a state, province or region, from the ISO 3166-2 registry. States and provinces give addresses a standard, checkable subdivision. Choosing from this list avoids misspelt regions and lets reports group by region. Maintained as reference data; chosen in addresses; read by tax, shipping and reports. A state or province belongs to one country and contains cities. Entries are loaded from the standard and rarely change; when a division is abolished it is withdrawn without deleting history. "California" belongs to the United States and contains cities suc…
@@ -612,6 +726,46 @@ Fields:
   - **Sequence** (required) — The position of the value in a dropdown, lowest first.
   - **Is Active** (required) — Whether the value is offered on new records.
 
+### Underwriting
+
+Records the governed risk evaluation and decision behind insurance issuance or renewal. Underwriting explains why a risk was accepted, modified, referred or declined; InsurancePolicy records the resulting contract when issued. Insurance new business, renewal, pricing, risk governance, compliance and audit. Applicant is mandatory, RiskAssessment may supply structured evidence, and InsurancePolicy preserves the resulting contract linkage. Underwriting moves from draft to active review and ends with a decision or withdrawal. A commercial applicant undergoes risk review, receives ACCEPT_WITH_TERM…
+
+Readable by every signed-in person.
+
+Fields:
+  - **Underwriting Number** (required) — The business reference of the underwriting case, such as UW-2026-118, separate from any policy number. Unique; assigned when the case opens and quoted by underwriters, brokers and integrations when searching or referring to the review. Ope…
+  - **Risk Score** — A numeric measure of the assessed risk, produced by a scoring model or set by the underwriter. Optional; used to segment risks and support the decision, but never the sole reason for it. The scale depends on the model used. Supports but do…
+  - **Decision** (one of the Underwriting Decision values) — The outcome of the risk review: accept, accept with terms, decline or refer onwards. Recorded once the evaluation concludes; it gates policy issuance and pricing, and must be backed by evidence and approvals. The risk is accepted on standa…
+  - **Status** (required, one of the Underwriting Status values) — The stage the underwriting review has reached, from preparation to a final decision or withdrawal. Starts as DRAFT; moved as review begins and ends. DECIDED requires a recorded decision, and issuance waits for it. The case is being prepare…
+  - **Policy** (a Insurance Policy) — Policy resulting from or being renewed by this underwriting evaluation. Preserves decision-to-policy provenance. Issuance, renewal and audit. Optional before issuance or when risk is declined. Issued terms must reconcile to approved underw…
+  - **Applicant** (required, a Party) — Party whose proposed insurance risk is evaluated. Establishes applicant or insured context. Underwriting, communication and audit. Exactly one Party in this baseline evaluation. Applicant identity must remain traceable into issued policy r…
+
+### Underwriting Decision
+
+The values of underwriting decision, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Underwriting Status
+
+The values of underwriting status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
 ### Unit Of Measure
 
 Defines the measurement semantics that make numeric quantities comparable across CEDM workflows. A quantity without a valid unit is incomplete business information. UnitOfMeasure provides the dimension and conversion context needed to interpret quantities correctly. Central to Product, sales, procurement, receiving, inventory, fulfillment, invoicing, manufacturing, logistics, service, and reporting. Product supplies a default measurement context. Transaction lines may use compatible units. GoodsReceiptLine supplies received/accepted quantities. InventoryBalance and InventoryMovement require c…
@@ -671,6 +825,23 @@ Fields:
 - **INACTIVE** — Temporarily not offered, for example while a move is being confirmed; it can be reactivated.
 - **RETIRED** — No longer valid; kept only as history and in past documents.
 
+### Claim Line Status
+
+- **SUBMITTED** — Line was received and awaits assessment by claims staff.
+- **ASSESSED** — Review is underway or completed without final decision.
+- **APPROVED** — Benefit was approved and is awaiting payment.
+- **DENIED** — Benefit was denied and no payment will be made. A final state.
+- **SETTLED** — Approved benefit has been paid and reconciled to a settlement. A final state.
+- **CANCELLED** — Line was withdrawn or cancelled before a decision was paid. A final state.
+
+### Coverage Status
+
+- **DRAFT** — Being written into the policy; not yet in force.
+- **ACTIVE** — In force; claims may be assessed against it.
+- **SUSPENDED** — Temporarily not in force, for example for non-payment of premium; new claims are not assessed against it.
+- **EXPIRED** — Its period has ended; historical claims remain valid.
+- **CANCELLED** — Withdrawn before or during its term; kept for history.
+
 ### Currency Status
 
 - **ACTIVE** — Available for use on new prices, documents and payments.
@@ -710,6 +881,20 @@ Fields:
 - **SUSPENDED** — Cover is paused, for example because a premium is unpaid, and can be restored.
 - **EXPIRED** — The policy term has ended without renewal. A final state.
 - **CANCELLED** — Ended early, or withdrawn while still a quote. A final state.
+
+### Insured Party Role Type
+
+- **INSURED** — The person or thing whose risk is insured.
+- **BENEFICIARY** — The party entitled to be paid on a claim.
+- **DEPENDENT** — A person covered through the main insured.
+- **COVERED MEMBER** — A member covered under a group policy.
+- **OTHER** — Any other covered role.
+
+### Insured Party Status
+
+- **ACTIVE** — Covered under the policy.
+- **SUSPENDED** — Cover paused for this party.
+- **ENDED** — No longer covered. A final state.
 
 ### Location Location Type
 
@@ -806,6 +991,30 @@ Fields:
 - **BLOCKED** — Business activity is restricted pending resolution of a business, risk, compliance, or operational condition.
 - **RETIRED** — The party relationship is permanently ended for normal operational use while historical references remain valid.
 
+### Premium Status
+
+- **DRAFT** — Calculated but not yet due and not yet billed to anyone.
+- **DUE** — Payable now; the due date has been assessed and collection can begin.
+- **INVOICED** — Included on an invoice to the policyholder and awaiting payment.
+- **PAID** — Received and reconciled against payment. A final state.
+- **WAIVED** — Excused by the insurer so no payment is expected. A final state.
+- **CANCELLED** — Withdrawn, for example because the policy was cancelled. A final state.
+
+### Settlement Method
+
+- **PAYMENT** — Liability is discharged by a cash payment to the claimant, which should be linked to a Payment.
+- **SERVICE** — Liability is discharged by providing a service, such as a repair or replacement, instead of money.
+- **OFFSET** — Liability is discharged by netting it against an amount the claimant owes, with no cash movement.
+- **RECOVERY** — Liability is discharged through recovery from a third party, such as a subrogation or salvage recovery.
+- **OTHER** — Liability is discharged by a method not listed here, with the arrangement described in the claim notes.
+
+### Settlement Status
+
+- **DRAFT** — Being prepared; nothing is committed.
+- **APPROVED** — Approved and ready to be carried out.
+- **EXECUTED** — Paid or otherwise discharged. A final state.
+- **VOID** — Cancelled and of no effect. A final state.
+
 ### Task Priority
 
 - **LOW** — Can wait behind other work without business impact.
@@ -833,6 +1042,20 @@ Fields:
 - **NOTIFICATION** — A message to be sent.
 - **SCRIPT** — A script run by the system.
 - **OTHER** — Work that fits no other type.
+
+### Underwriting Decision
+
+- **ACCEPT** — The risk is accepted on standard terms and the policy may be issued.
+- **ACCEPT WITH TERMS** — The risk is accepted only with special conditions, exclusions, loadings or a changed premium.
+- **DECLINE** — The risk is refused and no policy may be issued on this evaluation.
+- **REFER** — The case exceeds the reviewer's authority or needs specialist input and is passed to a more senior underwriter.
+
+### Underwriting Status
+
+- **DRAFT** — The case is being prepared and review has not started.
+- **IN REVIEW** — An underwriter is actively evaluating the risk.
+- **DECIDED** — A decision has been recorded and the review is closed. A final state.
+- **WITHDRAWN** — The applicant or insurer abandoned the case without a decision. A final state.
 
 ### Unit Of Measure Category
 
@@ -993,6 +1216,57 @@ Moves:
 - ACTIVE → CANCELLED (Cancel)
 - SUSPENDED → CANCELLED (Cancel)
 
+### Coverage — Coverage Lifecycle
+
+Starts at **DRAFT**.
+Final: **EXPIRED**, **CANCELLED**.
+
+Moves:
+- DRAFT → ACTIVE (Activate)
+- DRAFT → CANCELLED (Cancel)
+- ACTIVE → SUSPENDED (Suspend)
+- SUSPENDED → ACTIVE (Resume)
+- ACTIVE → EXPIRED (Expire)
+- SUSPENDED → EXPIRED (Expire)
+- ACTIVE → CANCELLED (Cancel)
+- SUSPENDED → CANCELLED (Cancel)
+
+### Insured Party — Insured Party Lifecycle
+
+Starts at **ACTIVE**.
+Final: **ENDED**.
+
+Moves:
+- ACTIVE → SUSPENDED (Suspend)
+- SUSPENDED → ACTIVE (Resume)
+- ACTIVE → ENDED (End)
+- SUSPENDED → ENDED (End)
+
+### Underwriting — Underwriting Lifecycle
+
+Starts at **DRAFT**.
+Final: **DECIDED**, **WITHDRAWN**.
+
+Moves:
+- DRAFT → IN REVIEW (Submit)
+- DRAFT → WITHDRAWN (Withdraw)
+- IN REVIEW → DECIDED (Decide)
+- IN REVIEW → WITHDRAWN (Withdraw)
+
+### Premium — Premium Lifecycle
+
+Starts at **DRAFT**.
+Final: **PAID**, **WAIVED**, **CANCELLED**.
+
+Moves:
+- DRAFT → DUE (Assess)
+- DRAFT → CANCELLED (Cancel)
+- DUE → INVOICED (Invoice)
+- DUE → WAIVED (Waive)
+- DUE → CANCELLED (Cancel)
+- INVOICED → PAID (Mark Paid)
+- INVOICED → WAIVED (Waive)
+
 ### Insurance Claim — Insurance Claim Lifecycle
 
 Starts at **REPORTED**.
@@ -1008,9 +1282,33 @@ Moves:
 - PARTIALLY APPROVED → SETTLED (Settle)
 - SETTLED → CLOSED (Close)
 
+### Claim Line — Claim Line Lifecycle
+
+Starts at **SUBMITTED**.
+Final: **DENIED**, **SETTLED**, **CANCELLED**.
+
+Moves:
+- SUBMITTED → ASSESSED (Assess)
+- SUBMITTED → CANCELLED (Cancel)
+- ASSESSED → APPROVED (Approve)
+- ASSESSED → DENIED (Deny)
+- ASSESSED → CANCELLED (Cancel)
+- APPROVED → SETTLED (Settle)
+
+### Settlement — Settlement Lifecycle
+
+Starts at **DRAFT**.
+Final: **EXECUTED**, **VOID**.
+
+Moves:
+- DRAFT → APPROVED (Approve)
+- DRAFT → VOID (Void)
+- APPROVED → EXECUTED (Execute)
+- APPROVED → VOID (Void)
+
 ## Roles
 
-- **User** — reads 47 of 47 record types
+- **User** — reads 62 of 62 record types
 - **Administrator** — reads and changes everything the lifecycles allow
 
 A refusal means the person's role does not allow it. Say which role does, from this list, and suggest their administrator.

@@ -54,6 +54,12 @@ const ENTITIES: string[] = [
   'Attachment',
   'Task',
   'ResearchProject',
+  'Protocol',
+  'Study',
+  'Assay',
+  'Observation',
+  'Result',
+  'Sample',
   'PartyPartyType',
   'PartyStatus',
   'PersonGender',
@@ -77,6 +83,13 @@ const ENTITIES: string[] = [
   'TaskStatus',
   'TaskPriority',
   'ResearchProjectStatus',
+  'ProtocolStatus',
+  'StudyStatus',
+  'AssayStatus',
+  'ObservationStatus',
+  'ResultStatus',
+  'SampleSampleType',
+  'SampleStatus',
 ];
 
 const ENTITY_FIELDS: Record<string, string[]> = {
@@ -102,6 +115,12 @@ const ENTITY_FIELDS: Record<string, string[]> = {
   'Attachment': ['id', 'effective_at'],
   'Task': ['id', 'code', 'name', 'description', 'task_type', 'status', 'priority', 'due_at', 'started_at', 'completed_at', 'assignee_id', 'organization_id'],
   'ResearchProject': ['id', 'project_code', 'title', 'objective', 'status', 'organization_id'],
+  'Protocol': ['id', 'protocol_code', 'title', 'status', 'project_id'],
+  'Study': ['id', 'study_code', 'title', 'status', 'project_id', 'protocol_id'],
+  'Assay': ['id', 'assay_code', 'assay_type', 'status', 'study_id', 'protocol_id'],
+  'Observation': ['id', 'observed_at', 'observation_type', 'value', 'status', 'study_id', 'assay_id', 'sample_id', 'unit_of_measure_id'],
+  'Result': ['id', 'result_code', 'result_type', 'value', 'status', 'study_id', 'assay_id', 'unit_of_measure_id'],
+  'Sample': ['id', 'sample_code', 'sample_type', 'status', 'collected_at', 'quantity', 'unit_of_measure', 'parent_sample_id'],
   'PartyPartyType': ['id', 'code', 'name', 'description', 'sequence', 'is_active'],
   'PartyStatus': ['id', 'code', 'name', 'description', 'sequence', 'is_active'],
   'PersonGender': ['id', 'code', 'name', 'description', 'sequence', 'is_active'],
@@ -125,6 +144,13 @@ const ENTITY_FIELDS: Record<string, string[]> = {
   'TaskStatus': ['id', 'code', 'name', 'description', 'sequence', 'is_active'],
   'TaskPriority': ['id', 'code', 'name', 'description', 'sequence', 'is_active'],
   'ResearchProjectStatus': ['id', 'code', 'name', 'description', 'sequence', 'is_active'],
+  'ProtocolStatus': ['id', 'code', 'name', 'description', 'sequence', 'is_active'],
+  'StudyStatus': ['id', 'code', 'name', 'description', 'sequence', 'is_active'],
+  'AssayStatus': ['id', 'code', 'name', 'description', 'sequence', 'is_active'],
+  'ObservationStatus': ['id', 'code', 'name', 'description', 'sequence', 'is_active'],
+  'ResultStatus': ['id', 'code', 'name', 'description', 'sequence', 'is_active'],
+  'SampleSampleType': ['id', 'code', 'name', 'description', 'sequence', 'is_active'],
+  'SampleStatus': ['id', 'code', 'name', 'description', 'sequence', 'is_active'],
 };
 
 /** A rule as the endpoint returns it, in either casing. */

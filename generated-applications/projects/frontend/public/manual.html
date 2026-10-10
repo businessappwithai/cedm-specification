@@ -91,7 +91,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
          the WASM overlay's footprint, blanking ISO timestamps first. A
          "2026-08-22" would survive that blanking and make the two copies differ
          whenever the pair of runs straddles midnight. -->
-    <div class="stamp">Manual for version 1.0.0 &middot; generated <time datetime="2026-10-09T15:30:05.123Z">2026-10-09T15:30:05.123Z</time></div>
+    <div class="stamp">Manual for version 1.0.0 &middot; generated <time datetime="2026-10-10T02:41:31.939Z">2026-10-10T02:41:31.939Z</time></div>
   </header>
 
       <nav class="toc" aria-label="Contents">
@@ -4739,6 +4739,8 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <table>
         <thead><tr><th>Rule</th><th>Runs on</th><th>Order</th></tr></thead>
         <tbody>
+          <tr><td><code>professionalEngagementInvariantsBeforeCreate</code></td><td>beforeCreate (CREATE)</td><td>100</td></tr>
+          <tr><td><code>professionalEngagementInvariantsBeforeUpdate</code></td><td>beforeUpdate (UPDATE)</td><td>100</td></tr>
           <tr><td><code>professionalEngagementWorkflowsAfterUpdate</code></td><td>afterUpdate (UPDATE)</td><td>100</td></tr>
         </tbody>
       </table>
@@ -5229,6 +5231,16 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <tr><td><code>POSTED</code></td><td><code>REVERSED</code></td><td><code>reverse</code></td></tr>
         </tbody>
       </table>
+      <h4>What happens when it is written</h4>
+      <table>
+        <thead><tr><th>Rule</th><th>Runs on</th><th>Order</th></tr></thead>
+        <tbody>
+          <tr><td><code>projectCostInvariantsBeforeCreate</code></td><td>beforeCreate (CREATE)</td><td>100</td></tr>
+          <tr><td><code>projectCostInvariantsBeforeUpdate</code></td><td>beforeUpdate (UPDATE)</td><td>100</td></tr>
+          <tr><td><code>projectCostWorkflowsAfterUpdate</code></td><td>afterUpdate (UPDATE)</td><td>100</td></tr>
+        </tbody>
+      </table>
+      <p><b>Processes:</b> <a href="#process-project-cost-follow-up-required">ProjectCostFollowUpRequired</a>, <a href="#process-project-cost-completion-confirmed">ProjectCostCompletionConfirmed</a></p>
       <p class="back"><a href="#top">Back to contents</a></p>
     </section>
 
@@ -7625,6 +7637,10 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
         <tr><td><code>taskInvariantsBeforeUpdate</code></td><td><a href="#entity-task">Task</a></td><td>beforeUpdate</td></tr>
         <tr><td><code>projectInvariantsBeforeCreate</code></td><td><a href="#entity-project">Project</a></td><td>beforeCreate</td></tr>
         <tr><td><code>projectInvariantsBeforeUpdate</code></td><td><a href="#entity-project">Project</a></td><td>beforeUpdate</td></tr>
+        <tr><td><code>projectCostInvariantsBeforeCreate</code></td><td><a href="#entity-project-cost">Project Cost</a></td><td>beforeCreate</td></tr>
+        <tr><td><code>projectCostInvariantsBeforeUpdate</code></td><td><a href="#entity-project-cost">Project Cost</a></td><td>beforeUpdate</td></tr>
+        <tr><td><code>professionalEngagementInvariantsBeforeCreate</code></td><td><a href="#entity-professional-engagement">Professional Engagement</a></td><td>beforeCreate</td></tr>
+        <tr><td><code>professionalEngagementInvariantsBeforeUpdate</code></td><td><a href="#entity-professional-engagement">Professional Engagement</a></td><td>beforeUpdate</td></tr>
         <tr><td><code>partyWorkflowsAfterUpdate</code></td><td><a href="#entity-party">Party</a></td><td>afterUpdate</td></tr>
         <tr><td><code>exchangeRateWorkflowsAfterUpdate</code></td><td><a href="#entity-exchange-rate">Exchange Rate</a></td><td>afterUpdate</td></tr>
         <tr><td><code>projectWorkflowsAfterUpdate</code></td><td><a href="#entity-project">Project</a></td><td>afterUpdate</td></tr>
@@ -7633,6 +7649,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
         <tr><td><code>milestoneWorkflowsAfterUpdate</code></td><td><a href="#entity-milestone">Milestone</a></td><td>afterUpdate</td></tr>
         <tr><td><code>resourceAssignmentWorkflowsAfterUpdate</code></td><td><a href="#entity-resource-assignment">Resource Assignment</a></td><td>afterUpdate</td></tr>
         <tr><td><code>timesheetWorkflowsAfterUpdate</code></td><td><a href="#entity-timesheet">Timesheet</a></td><td>afterUpdate</td></tr>
+        <tr><td><code>projectCostWorkflowsAfterUpdate</code></td><td><a href="#entity-project-cost">Project Cost</a></td><td>afterUpdate</td></tr>
         <tr><td><code>professionalEngagementWorkflowsAfterUpdate</code></td><td><a href="#entity-professional-engagement">Professional Engagement</a></td><td>afterUpdate</td></tr>
       </tbody>
     </table>
@@ -7726,6 +7743,20 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
         <li>Raise a task: confirm <span class="tag">CreateEntity</span></li>
       </ol>
     </div>
+    <div id="process-project-cost-follow-up-required" class="process">
+      <h3>ProjectCostFollowUpRequired</h3>
+      <p class="meta">On <a href="#entity-project-cost">Project Cost</a>, rule on UPDATE.</p>
+      <ol>
+        <li>Raise a task: follow up on <span class="tag">CreateEntity</span></li>
+      </ol>
+    </div>
+    <div id="process-project-cost-completion-confirmed" class="process">
+      <h3>ProjectCostCompletionConfirmed</h3>
+      <p class="meta">On <a href="#entity-project-cost">Project Cost</a>, rule on UPDATE.</p>
+      <ol>
+        <li>Raise a task: confirm <span class="tag">CreateEntity</span></li>
+      </ol>
+    </div>
     <div id="process-professional-engagement-approval-requested" class="process">
       <h3>ProfessionalEngagementApprovalRequested</h3>
       <p class="meta">On <a href="#entity-professional-engagement">Professional Engagement</a>, rule on UPDATE.</p>
@@ -7759,7 +7790,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
   </section>
 
   <footer>
-    projects 1.0.0 &middot; 61 record types &middot; 19 rules &middot; 32 processes
+    projects 1.0.0 &middot; 61 record types &middot; 24 rules &middot; 34 processes
   </footer>
 </div>
 </body>

@@ -62,6 +62,32 @@ Fields:
   - **Sequence** (required) — The position of the value in a dropdown, lowest first.
   - **Is Active** (required) — Whether the value is offered on new records.
 
+### Assessment Assessment Type
+
+The values of assessment assessment type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Assessment Status
+
+The values of assessment status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
 ### Attachment
 
 A file or other content attached to an enterprise record, with its content identity and provenance kept for audit. Supporting documents, photos and scans back up decisions. Keeping them as governed records, rather than loose files, proves what was attached to what and when, and lets the same content be recognised if it is attached twice. Added when a user or system attaches evidence to a record; read when someone needs to see or verify the supporting document. An attachment is linked to the record it supports; the same file may be attached to more than one. Once attached, the content is evide…
@@ -108,6 +134,19 @@ Fields:
   - **Is Capital** — Marks the city as the capital of its country in the reference data. Loaded with the reference data; lists use it to highlight or sort capitals first when people choose a city. At most one capital per country in this list.
   - **Country** (required, a Country) — Exactly one country; a city belongs to a single country. The country the city is in. Chosen first; the cities offered are those of that country. A city is narrowed by its country, and by its state where it has one.
   - **State Province** (a State Province) — The state or province the city is in, where the registry says which. Chosen after the country; narrows the cities offered. A city has at most one state or province; outside the United States and Canada the list leaves it empty. The state o…
+
+### Class Status
+
+The values of class status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Contact Point
 
@@ -183,6 +222,8 @@ Fields:
   - **Credits** — The credit value the course carries towards a qualification. Set when the course is designed; summed to check a student's progress to a degree.
   - **Status** (required, one of the Education Course Status values) — Whether the course is offered. Set by the registrar; only ACTIVE courses can be scheduled into classes. Being designed; not yet offered. Offered and open to scheduling. Not currently offered but may return. Withdrawn permanently; kept for…
   - **Program** (a Education Program) — The program that includes the course. Chosen when the course is placed in a curriculum. At most one program; a course may stand alone, for example an elective. Places the course in a path to a qualification.
+
+Line items — **Class**: kept inside each Education Course and reached by opening it, never on their own. Represents one scheduled delivery instance of an EducationCourse. EducationCourse defines what is taught; Class defines when and to whom one offering is delivered. School and education scheduling, enrollment, attendance, assessment, portals and reporting. Course is mandatory; instructors and enroll…
 
 ### Education Course Status
 
@@ -308,6 +349,85 @@ Fields:
 ### Exchange Rate Status
 
 The values of exchange rate status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Fee
+
+Represents an education-specific charge while keeping receivable and settlement evidence in finance entities. Fee explains why a student is charged; Invoice records the financial claim; Payment records settlement. Tuition, school fees, student accounts, billing, collections, reporting and audit. EducationStudent is mandatory, Enrollment may supply academic cause, Currency defines value and Invoice provides financial claim evidence. Fees progress from draft to assessed and possibly invoiced, then paid, waived or cancelled with history retained. A laboratory Fee is assessed to an enrolled stude…
+
+Readable by every signed-in person.
+
+Fields:
+  - **Fee Code** (required) — The code of the fee type, such as TUITION-2026 or LAB. Chosen when the fee is assessed. Identifies tuition, laboratory, transport or other governed education charge category. Code may repeat across students while feeId remains unique.
+  - **Amount** (required) — The monetary value of the fee, charged to the student in the fee's currency. Calculated from the fee schedule when assessed; it must not be negative, and credits are modelled explicitly. Education charge value before or alongside invoice c…
+  - **Due Date** — The date by which the student or payer is expected to settle the fee. Set when the fee is assessed from the term calendar; collections and aging reports read it to find overdue charges. Supports collection and aging without replacing invoi…
+  - **Status** (required, one of the Fee Status values) — Where the education fee stands, from preparation and assessment through invoicing to settlement, waiver or cancellation. Moved by student accounts and billing staff; reports read it to separate open charges from settled ones. Being prepare…
+  - **Student** (required, a Education Student) — Exactly one student: a fee is always charged to a specific learner. Student to whom the fee is assessed. Establishes education account responsibility. Student accounts, billing and reporting. Student status and fee policy constrain new ass…
+  - **Enrollment** (a Enrollment) — Enrollment giving rise to the fee. Connects charge to program/course participation. Tuition, course fees and reconciliation. Optional for student-level fees not tied to one enrollment. Enrollment context must belong to the same student.
+  - **Currency** (required, a Currency) — Exactly one currency, so the amount is unambiguous. Currency of the assessed amount. Makes monetary value unambiguous. Billing, accounting and reporting. Currency remains historical after assessment.
+
+### Fee Status
+
+The values of fee status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Grade Status
+
+The values of grade status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Guardian
+
+A person who is authorised or expected to act for, support, receive communications about, or be responsible for one or more students. Schools deal with parents and carers as well as pupils. The guardian record states who may be contacted, who may authorise things such as trips or collections, and how they relate to the student. Recorded at admission and kept up to date; read by teachers and administrators when they communicate or need consent. A guardian is a Party linked to one or more EducationStudents. A guardian is active while the relationship applies and inactive afterwards; history is…
+
+Readable by every signed-in person.
+
+Fields:
+  - **Guardian Code** (required) — The unique reference of the guardian in the school's system. Assigned at admission; used in the parent portal. Operational identifier used in education administration. Distinct from Party identifiers.
+  - **Relationship Type** (required, one of the Guardian Relationship Type values) — A biological or adoptive parent. A person appointed with legal responsibility for the student. A person who cares for the student day to day without legal guardianship. A person or body that supports the student financially. Any relationsh…
+  - **Status** (required, one of the Guardian Status values) — Whether the guardian relationship to the student currently applies. Set by administration when the relationship starts or ends; only active guardians are contacted or asked for consent. Current; the guardian may be contacted and may act. N…
+  - **Party** (required, a Party) — The person or organisation who holds the guardian role. Exactly one party: the guardian role is held by a specific person or organisation. Reuses common identity and contact data without duplication. Communication, authorization and audit.…
+
+### Guardian Relationship Type
+
+The values of guardian relationship type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Guardian Status
+
+The values of guardian status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
 
 Readable by every signed-in person.
 
@@ -450,6 +570,7 @@ Fields:
   - **Status** (required, one of the Party Status values) — Controls whether the party may participate in new business activity. Represents the operational lifecycle of the party relationship with the enterprise, not the party's legal existence. Used by onboarding, transaction validation, account m…
   - **External Reference** — An identifier assigned to the party by an external system or business partner. Preserves a cross-system identity that allows CEDM to reconcile a party with another master-data system. Used for integrations, migration, reconciliation, EDI,…
   - **Education Course** (a Education Course) — The EducationCourse this Party belongs to.
+  - **Class** (a Class) — The Class this Party belongs to.
 
 ### Party Party Type
 
@@ -719,6 +840,31 @@ Fields:
 - **INACTIVE** — Temporarily not offered, for example while a move is being confirmed; it can be reactivated.
 - **RETIRED** — No longer valid; kept only as history and in past documents.
 
+### Assessment Assessment Type
+
+- **QUIZ** — Short-form evaluation, usually low weighted and taken in class.
+- **EXAM** — Formal examination taken under controlled, timed conditions.
+- **ASSIGNMENT** — Coursework submitted by the learner for marking.
+- **PROJECT** — Project-based evaluation completed over an extended period.
+- **PRACTICAL** — Practical or laboratory evaluation of applied skills.
+- **ORAL** — Oral evaluation, such as a viva or spoken presentation.
+- **OTHER** — Another governed assessment type not covered by the listed forms.
+
+### Assessment Status
+
+- **DRAFT** — Being prepared by the educator; not visible to learners and not gradeable.
+- **PUBLISHED** — Active for eligible learners, who can see it and be graded on it.
+- **CLOSED** — Assessment is complete for ordinary new grading. A final state.
+- **CANCELLED** — Assessment was withdrawn and will not be graded. A final state.
+
+### Class Status
+
+- **DRAFT** — Being planned; not yet visible to students.
+- **OPEN** — Open for enrolment, with teaching not yet begun.
+- **IN PROGRESS** — Teaching has started and attendance and assessments are being recorded.
+- **COMPLETED** — Finished; results are final and kept as delivery evidence. A final state.
+- **CANCELLED** — Called off before completion. A final state.
+
 ### Currency Status
 
 - **ACTIVE** — Available for use on new prices, documents and payments.
@@ -780,6 +926,34 @@ Fields:
 - **ACTIVE** — In force and usable for conversion.
 - **EXPIRED** — Its validity period has ended; kept for past conversions.
 - **CANCELLED** — Withdrawn; must not be used.
+
+### Fee Status
+
+- **DRAFT** — Being prepared; not yet charged to the student.
+- **ASSESSED** — Charged to the student but not yet invoiced.
+- **INVOICED** — Included on an invoice that now carries the receivable claim.
+- **PAID** — Settled, with payment evidence reconciled against the invoice. A final state.
+- **WAIVED** — Excused by the institution, so the student owes nothing. A final state.
+- **CANCELLED** — Withdrawn because it was raised in error or no longer applies. A final state.
+
+### Grade Status
+
+- **DRAFT** — Entered but not yet official; can still change.
+- **FINAL** — Confirmed and official; part of the student's record. A final state.
+- **VOID** — Withdrawn because it was entered in error or annulled; kept for audit. A final state.
+
+### Guardian Relationship Type
+
+- **PARENT** — A biological or adoptive parent.
+- **LEGAL GUARDIAN** — A person appointed with legal responsibility for the student.
+- **CAREGIVER** — A person who cares for the student day to day without legal guardianship.
+- **SPONSOR** — A person or body that supports the student financially.
+- **OTHER** — Any relationship to the student not covered by the other types.
+
+### Guardian Status
+
+- **ACTIVE** — Current; the guardian may be contacted and may act.
+- **INACTIVE** — No longer applies; kept for history.
 
 ### Location Location Type
 
@@ -1074,6 +1248,19 @@ Moves:
 - ACTIVE → RETIRED (Retire)
 - INACTIVE → RETIRED (Retire)
 
+### Class — Class Lifecycle
+
+Starts at **DRAFT**.
+Final: **COMPLETED**, **CANCELLED**.
+
+Moves:
+- DRAFT → OPEN (Open)
+- DRAFT → CANCELLED (Cancel)
+- OPEN → IN PROGRESS (Start)
+- OPEN → CANCELLED (Cancel)
+- IN PROGRESS → COMPLETED (Complete)
+- IN PROGRESS → CANCELLED (Cancel)
+
 ### Education Student — Education Student Lifecycle
 
 Starts at **APPLICANT**.
@@ -1089,6 +1276,14 @@ Moves:
 - ACTIVE → WITHDRAWN (Withdraw)
 - SUSPENDED → WITHDRAWN (Withdraw)
 
+### Guardian — Guardian Lifecycle
+
+Starts at **ACTIVE**.
+
+Moves:
+- ACTIVE → INACTIVE (Deactivate)
+- INACTIVE → ACTIVE (Reactivate)
+
 ### Enrollment — Enrollment Lifecycle
 
 Starts at **PENDING**.
@@ -1102,9 +1297,43 @@ Moves:
 - PENDING → CANCELLED (Cancel)
 - ACTIVE → CANCELLED (Cancel)
 
+### Assessment — Assessment Lifecycle
+
+Starts at **DRAFT**.
+Final: **CLOSED**, **CANCELLED**.
+
+Moves:
+- DRAFT → PUBLISHED (Publish)
+- DRAFT → CANCELLED (Cancel)
+- PUBLISHED → CLOSED (Close)
+- PUBLISHED → CANCELLED (Cancel)
+
+### Grade — Grade Lifecycle
+
+Starts at **DRAFT**.
+Final: **FINAL**, **VOID**.
+
+Moves:
+- DRAFT → FINAL (Finalize)
+- DRAFT → VOID (Void)
+
+### Fee — Fee Lifecycle
+
+Starts at **DRAFT**.
+Final: **PAID**, **WAIVED**, **CANCELLED**.
+
+Moves:
+- DRAFT → ASSESSED (Assess)
+- DRAFT → CANCELLED (Cancel)
+- ASSESSED → INVOICED (Invoice)
+- ASSESSED → WAIVED (Waive)
+- ASSESSED → CANCELLED (Cancel)
+- INVOICED → PAID (Mark Paid)
+- INVOICED → WAIVED (Waive)
+
 ## Roles
 
-- **User** — reads 52 of 52 record types
+- **User** — reads 64 of 64 record types
 - **Administrator** — reads and changes everything the lifecycles allow
 
 A refusal means the person's role does not allow it. Say which role does, from this list, and suggest their administrator.

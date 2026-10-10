@@ -62,6 +62,34 @@ Fields:
   - **Sequence** (required) — The position of the value in a dropdown, lowest first.
   - **Is Active** (required) — Whether the value is offered on new records.
 
+### Assay
+
+Represents one analytical laboratory execution with sample and evidence provenance. Protocol defines method; Assay executes it; Observation records primary evidence; Result captures derived interpretation. Laboratories, research, life sciences, quality testing, analytics and audit. Samples are required inputs; Study/Protocol provide context; Observations and Results provide outputs. Assay is planned, runs, and ends completed, failed or cancelled with evidence retained.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Assay Code** (required) — The laboratory's unique reference number for this assay run, such as ASY-2026-0418. Used to find the run, to match instrument output to it, and to cite it in reports and audits. Operational identifier for laboratory execution and integrati…
+  - **Assay Type** (required) — The scientific kind of procedure performed, such as an ELISA, a potency test or a HPLC purity run. Chosen by the analyst when planning; routes the run to the right instrument and bench and groups results for analytics. Identifies analytica…
+  - **Status** (required, one of the Assay Status values) — Where the run is, from planned through execution to a completed, failed or cancelled outcome. Moved by the analyst or instrument integration as work starts and ends; results are only trusted from completed runs. Assay is prepared and sched…
+  - **Study** (a Study) — Study to which the Assay contributes. Supplies investigation context. Research traceability and reporting. Optional for standalone laboratory work. Study and protocol context must be compatible.
+  - **Protocol** (a Protocol) — Protocol governing the Assay method. Supplies reproducible procedure definition. Laboratory governance and audit. Optional when method is governed elsewhere. Applied version remains historical.
+
+Line items — **Observation**: kept inside each Assay and reached by opening it, never on their own. Captures primary scientific evidence with provenance and QC state. Observation is raw or primary evidence; Result is a derived interpretation or summarized output. Research, laboratories, life sciences, quality testing, analytics and audit. Sample/Assay/Experiment provide provenance, UnitOfMeasure…
+
+### Assay Status
+
+The values of assay status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
 ### Attachment
 
 A file or other content attached to an enterprise record, with its content identity and provenance kept for audit. Supporting documents, photos and scans back up decisions. Keeping them as governed records, rather than loose files, proves what was attached to what and when, and lets the same content be recognised if it is attached twice. Added when a user or system attaches evidence to a record; read when someone needs to see or verify the supporting document. An attachment is linked to the record it supports; the same file may be attached to more than one. Once attached, the content is evide…
@@ -263,6 +291,19 @@ Fields:
 ### Location Status
 
 The values of location status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Observation Status
+
+The values of observation status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
 
 Readable by every signed-in person.
 
@@ -485,6 +526,19 @@ Fields:
   - **Sequence** (required) — The position of the value in a dropdown, lowest first.
   - **Is Active** (required) — Whether the value is offered on new records.
 
+### Protocol Status
+
+The values of protocol status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
 ### Research Project
 
 A structured scientific research initiative with defined objectives, resources, experiments and outcomes. A research project is the top-level frame for a body of scientific work. It gathers the protocols, studies and experiments run under one objective, the team doing the work and the documents produced, so progress and results can be reviewed together. Created by a project lead; read by scientists, management and quality. A project may belong to an organisation, has a team, and contains protocols, studies and experiments with documents. A project is planned, becomes active, may be suspended…
@@ -498,9 +552,82 @@ Fields:
   - **Status** (required, one of the Research Project Status values) — The stage of the research project, from approval through active work to closure. Starts as PLANNED and is moved by the project lead; it determines whether experiments and resources may be scheduled against the project. Approved to proceed…
   - **Organization** (a Organization) — The organisation that runs or funds the project. Chosen when the project is set up. At most one organisation. Decides whose records and budget the work belongs to.
 
+Line items — **Protocol**: kept inside each Research Project and reached by opening it, never on their own. A governed scientific procedure that sets out objectives, methods, eligibility, measurements, controls and execution rules for studies and experiments. A protocol fixes how work is to be done so that results are comparable and defensible. Studies and experiments follow an approved protocol, and a c…
+
+Line items — **Study**: kept inside each Research Project and reached by opening it, never on their own. Coordinates one governed research investigation under a Protocol. Study is the organized investigation; Experiment and Assay execute work; Observation records evidence; Result records derived interpretation. Research, life sciences, laboratories, analytics, reproducibility and audit. Project and Pr…
+
 ### Research Project Status
 
 The values of research project status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Result
+
+Captures derived scientific output separately from primary observations. Observation is source evidence; Result is an interpretation, calculation or summary whose lineage must remain reproducible. Research, laboratories, life sciences, reporting, analytics, decisions and audit. Observations are mandatory sources; Study and Assay provide execution context; UnitOfMeasure supports quantitative semantics. Result is drafted and then finalized or invalidated, with final evidence immutable.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Result Code** (required) — The code that identifies one derived result, such as R-2210. Assigned when the result is created and unique; used to search, report and exchange the result with other systems. Supports operational identification and integration. May be uni…
+  - **Result Type** (required) — The kind of derived output this result is, such as an IC50, a purity percentage or a pass/fail call. Chosen by the analyst; it decides how the value is read and which reports and analyses include the result. Describes analytical or interpr…
+  - **Value** (required) — The derived or interpreted outcome computed from the underlying observations, held as text. Entered or calculated by the analyst; read in reporting and decisions, and locked once the result is final. Captures the governed scientific output…
+  - **Status** (required, one of the Result Status values) — Whether the result is still provisional, approved as final, or withdrawn as invalid. Starts as DRAFT; set by the reviewing scientist, and a final result can no longer be edited, only invalidated. The result is provisional and may still be…
+  - **Study** (a Study) — Study to which the Result belongs. Supplies investigation context. Reporting and research traceability. Optional for standalone analysis. Study closure does not erase finalized Results.
+  - **Assay** (a Assay) — Assay contributing directly to the Result. Preserves analytical execution provenance. Laboratory interpretation and audit. Optional when derived at Study or Experiment level. Result must reconcile to source Assay evidence.
+  - **Unit Of Measure** (a Unit Of Measure) — Unit for quantitative Result values. Makes numerical output interpretable. Analysis and integration. Optional for qualitative or structured values. Unit remains historical with finalized Result.
+
+### Result Status
+
+The values of result status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Sample
+
+First-class research specimen and sample entity for life-sciences and scientific workflows. Sample closes the research traceability graph between Compound and Experiment while keeping scientific specimens separate from quality-control InspectionSample. Sample represents research material; InspectionSample represents a selection event within a QualityInspection. Life sciences, drug discovery, laboratory research, scientific experiments, compound studies, specimen management, chain of custody, reporting, and audit. Compound supplies investigated substance context; Experiment supplies research e…
+
+Readable by every signed-in person.
+
+Fields:
+  - **Sample Code** (required) — Human-readable business identifier for the sample. Provides the operational label used to identify the specimen during collection, handling, testing, storage, and reporting. Labels, searches, laboratory workflows, reports, integrations, an…
+  - **Sample Type** (required, one of the Sample Sample Type values) — The category of the sample, saying what kind of material it is or what role it plays in the work. Chosen when the sample is registered; it decides handling and storage rules, which protocols apply, and how results are reported. A portion t…
+  - **Status** (required, one of the Sample Status values) — Where the sample is in its life, from planned through use to disposal. Indicates whether the specimen is planned, available for research, in use, exhausted, unavailable, or retained historically. Experiment gating, chain of custody, invent…
+  - **Collected At** — Time at which the sample was collected or created. Establishes the origin chronology of the specimen. Chain of custody, protocol compliance, stability analysis, reporting, and audit. May precede receipt and experiment use; derived samples…
+  - **Quantity** — Governed quantity currently represented by the sample record when quantity tracking applies. Describes how much specimen or material is associated with the sample for planning and traceability. Laboratory planning, aliquoting, consumption…
+  - **Unit Of Measure** (a Unit Of Measure) — The unit, such as mL, mg or units, in which the amount of this sample is stated. Chosen when the sample is registered; quantities are compared and converted using it, so it must suit the sample type. Gives dimensional meaning to the sample…
+  - **Parent Sample** (a Sample) — Source sample from which this sample was derived. Preserves provenance for aliquots, splits, preparations, or other derived specimens. Lineage, chain of custody, quantity reconciliation, and audit. A sample may have at most one immediate p…
+
+### Sample Sample Type
+
+The values of sample sample type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Sample Status
+
+The values of sample status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
 
 Readable by every signed-in person.
 
@@ -522,6 +649,19 @@ Fields:
   - **Name** (required) — The English name of the division, such as California or Bavaria. Shown in lists and on addresses; it is a label only, so integrations should use the ISO code as the stable key. Does not replace the code as the stable key.
   - **Subdivision Type** — What the registry calls the division in its country: State, Province, Region, Territory and so on. Labelling the field for users of that country. Describes this division only.
   - **Country** (required, a Country) — The country the division belongs to. Chosen first; the divisions offered are those of that country. Every state or province belongs to exactly one country. A city and an address are narrowed by the country before the state.
+
+### Study Status
+
+The values of study status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Task
 
@@ -640,6 +780,14 @@ Fields:
 - **INACTIVE** — Temporarily not offered, for example while a move is being confirmed; it can be reactivated.
 - **RETIRED** — No longer valid; kept only as history and in past documents.
 
+### Assay Status
+
+- **PLANNED** — Assay is prepared and scheduled but not yet started.
+- **RUNNING** — Execution is underway and observations are being captured.
+- **COMPLETED** — Execution concluded successfully and its results can be relied on. A final state.
+- **FAILED** — Execution failed and its evidence is retained for investigation. A final state.
+- **CANCELLED** — Execution was called off, either before starting or part way through. A final state.
+
 ### Currency Status
 
 - **ACTIVE** — Available for use on new prices, documents and payments.
@@ -682,6 +830,12 @@ Fields:
 - **INACTIVE** — Temporarily not used but expected to return to service.
 - **CLOSED** — Closed down, with no new assignments but history kept.
 - **RETIRED** — Removed from use altogether. A final state.
+
+### Observation Status
+
+- **RECORDED** — Captured but not yet checked.
+- **VERIFIED** — Checked and accepted as primary evidence. A final state.
+- **INVALIDATED** — Found to be invalid, for example from a faulty instrument; kept for audit but not used. A final state.
 
 ### Organization Organization Type
 
@@ -757,6 +911,13 @@ Fields:
 - **BLOCKED** — Business activity is restricted pending resolution of a business, risk, compliance, or operational condition.
 - **RETIRED** — The party relationship is permanently ended for normal operational use while historical references remain valid.
 
+### Protocol Status
+
+- **DRAFT** — Being written; not yet approved for use.
+- **APPROVED** — Cleared for use by studies and experiments.
+- **SUSPENDED** — Withdrawn from use for a time, for example pending a review.
+- **RETIRED** — Superseded or no longer used. A final state.
+
 ### Research Project Status
 
 - **PLANNED** — Approved to proceed but work has not yet started.
@@ -765,6 +926,47 @@ Fields:
 - **SUSPENDED** — Paused for a reason such as funding or resources; it can be resumed.
 - **CANCELLED** — Stopped before completion and will not resume. A final state.
 - **ARCHIVED** — Closed out and kept as a record. A final state.
+
+### Result Status
+
+- **DRAFT** — The result is provisional and may still be changed or discarded.
+- **FINAL** — The result has been reviewed and approved, and its value is locked as evidence.
+- **INVALIDATED** — The result is kept for the record but is no longer considered valid.
+
+### Sample Sample Type
+
+- **SPECIMEN** — A portion taken from a larger whole in order to study it.
+- **ALIQUOT** — A measured part divided from a prepared parent sample.
+- **COMPOUND** — A sample of a chemical compound under study.
+- **MATERIAL** — A sample of a material or substance, such as a polymer or alloy.
+- **BIOLOGICAL** — Biological matter such as tissue, cells, blood or other fluid.
+- **CHEMICAL** — A chemical substance or mixture, such as a reagent or solvent.
+- **ENVIRONMENTAL** — Taken from the environment, such as water, soil or air.
+- **CONTROL** — A sample with a known result, used to check that a test is working.
+- **REFERENCE** — A certified standard that other samples are compared against.
+- **OTHER** — A sample that fits none of the other types.
+
+### Sample Status
+
+- **PLANNED** — Sample is expected but has not yet been collected or received.
+- **COLLECTED** — Sample has been collected and awaits normal receipt or availability controls.
+- **RECEIVED** — Sample has entered the governed laboratory or research custody process.
+- **AVAILABLE** — Sample is eligible for governed research use.
+- **IN USE** — Sample is currently participating in an active research activity.
+- **CONSUMED** — Usable sample quantity has been exhausted by governed activity.
+- **DISPOSED** — Sample was intentionally disposed of under an authorized process.
+- **LOST** — Sample can no longer be physically accounted for.
+- **QUARANTINED** — Sample is held from normal use pending review or resolution.
+- **ARCHIVED** — Sample is retained for historical or long-term controlled storage.
+
+### Study Status
+
+- **PLANNED** — The study is approved for planning but execution has not started.
+- **ACTIVE** — The study is being executed and experiments and observations are being collected.
+- **SUSPENDED** — Work is paused, for example for a protocol amendment, and may resume later.
+- **COMPLETED** — Execution has finished and results are final, awaiting archiving.
+- **CANCELLED** — The study was stopped before completion and will not resume. A final state.
+- **ARCHIVED** — The completed study is retained as a read-only record. A final state.
 
 ### Task Priority
 
@@ -953,9 +1155,92 @@ Moves:
 - ACTIVE → CANCELLED (Cancel)
 - SUSPENDED → CANCELLED (Cancel)
 
+### Protocol — Protocol Lifecycle
+
+Starts at **DRAFT**.
+Final: **RETIRED**.
+
+Moves:
+- DRAFT → APPROVED (Approve)
+- APPROVED → SUSPENDED (Suspend)
+- SUSPENDED → APPROVED (Resume)
+- DRAFT → RETIRED (Retire)
+- APPROVED → RETIRED (Retire)
+- SUSPENDED → RETIRED (Retire)
+
+### Study — Study Lifecycle
+
+Starts at **PLANNED**.
+Final: **CANCELLED**, **ARCHIVED**.
+
+Moves:
+- PLANNED → ACTIVE (Activate)
+- PLANNED → CANCELLED (Cancel)
+- ACTIVE → SUSPENDED (Suspend)
+- SUSPENDED → ACTIVE (Resume)
+- ACTIVE → COMPLETED (Complete)
+- SUSPENDED → CANCELLED (Cancel)
+- ACTIVE → CANCELLED (Cancel)
+- COMPLETED → ARCHIVED (Archive)
+
+### Assay — Assay Lifecycle
+
+Starts at **PLANNED**.
+Final: **COMPLETED**, **FAILED**, **CANCELLED**.
+
+Moves:
+- PLANNED → RUNNING (Start)
+- PLANNED → CANCELLED (Cancel)
+- RUNNING → COMPLETED (Complete)
+- RUNNING → FAILED (Fail)
+- RUNNING → CANCELLED (Cancel)
+
+### Observation — Observation Lifecycle
+
+Starts at **RECORDED**.
+Final: **VERIFIED**, **INVALIDATED**.
+
+Moves:
+- RECORDED → VERIFIED (Verify)
+- RECORDED → INVALIDATED (Invalidate)
+
+### Result — Result Lifecycle
+
+Starts at **DRAFT**.
+Final: **FINAL**, **INVALIDATED**.
+
+Moves:
+- DRAFT → FINAL (Finalize)
+- DRAFT → INVALIDATED (Invalidate)
+
+### Sample — Sample Lifecycle
+
+Starts at **PLANNED**.
+Final: **CONSUMED**, **DISPOSED**, **LOST**.
+
+Moves:
+- PLANNED → COLLECTED (Collect)
+- COLLECTED → RECEIVED (Receive)
+- RECEIVED → AVAILABLE (Release)
+- AVAILABLE → IN USE (Issue)
+- IN USE → AVAILABLE (Return)
+- IN USE → CONSUMED (Consume)
+- AVAILABLE → CONSUMED (Consume)
+- AVAILABLE → DISPOSED (Dispose)
+- QUARANTINED → DISPOSED (Dispose)
+- AVAILABLE → LOST (Lose)
+- IN USE → LOST (Lose)
+- COLLECTED → QUARANTINED (Quarantine)
+- RECEIVED → QUARANTINED (Quarantine)
+- AVAILABLE → QUARANTINED (Quarantine)
+- QUARANTINED → AVAILABLE (Release)
+- AVAILABLE → ARCHIVED (Archive)
+- ARCHIVED → AVAILABLE (Restore)
+- ARCHIVED → DISPOSED (Dispose)
+
 ## Roles
 
-- **User** — reads 45 of 45 record types
+- **User** — reads 58 of 58 record types
 - **Administrator** — reads and changes everything the lifecycles allow
 
 A refusal means the person's role does not allow it. Say which role does, from this list, and suggest their administrator.

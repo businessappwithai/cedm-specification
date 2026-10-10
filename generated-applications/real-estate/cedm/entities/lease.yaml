@@ -126,6 +126,7 @@ entity:
     - id: LEASE-001
       rule: endDate must not precede startDate.
     - {id: LEASE-EXE-001, rule: "Periodic Amount cannot be negative.", violatedWhen: "periodic_amount != null and periodic_amount < 0", message: "Periodic Amount cannot be negative."}
+    - {id: LEASE-EXE-002, rule: "End Date must not be earlier than start date.", violatedWhen: "start_date != null and end_date != null and end_date < start_date", message: "End Date cannot be earlier than start date."}
   lifecycle:
     title: Lease Lifecycle
     attribute: status

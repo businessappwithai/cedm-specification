@@ -183,6 +183,122 @@ ON CONFLICT (name) DO UPDATE SET
 
 INSERT INTO sys_workflow_definitions
   (name, entity_name, operation, trigger_type, bpmn_xml, description, is_active, is_model_managed, created_at, updated_at)
+VALUES ('CoverageFollowUpRequired', 'bus_coverage', 'UPDATE',
+        'rule', '<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+  xmlns:appwithai="http://appwithai.io/schema/1.0"
+  id="Definitions_CoverageFollowUpRequired"
+  targetNamespace="http://appwithai.io/bpmn">
+  <bpmn:process id="Process_CoverageFollowUpRequired" isExecutable="true">
+    <bpmn:startEvent id="Process_CoverageFollowUpRequired_start"/>
+    <bpmn:serviceTask id="Process_CoverageFollowUpRequired_S1" name="Raise a task: follow up on">
+      <bpmn:extensionElements>
+        <appwithai:properties>
+        <appwithai:property name="nodeType" value="CreateEntity"/>
+        <appwithai:property name="entity" value="bus_task"/>
+        <appwithai:property name="as" value="taskId"/>
+        <appwithai:property name="fields" value="{&quot;code&quot;:&quot;COVERAGE-FOLLOW-UP-{{id}}&quot;,&quot;name&quot;:&quot;Follow up on coverage {{id}}&quot;,&quot;description&quot;:&quot;Coverage {{id}} is now {{status}}. Check the records that depended on it and tell the people affected.&quot;,&quot;task_type&quot;:&quot;USER&quot;,&quot;status&quot;:&quot;CREATED&quot;,&quot;priority&quot;:&quot;NORMAL&quot;}"/>
+        </appwithai:properties>
+      </bpmn:extensionElements>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="Process_CoverageFollowUpRequired_end"/>
+    <bpmn:sequenceFlow id="Process_CoverageFollowUpRequired_flow_0" sourceRef="Process_CoverageFollowUpRequired_start" targetRef="Process_CoverageFollowUpRequired_S1"/>
+    <bpmn:sequenceFlow id="Process_CoverageFollowUpRequired_flow_1" sourceRef="Process_CoverageFollowUpRequired_S1" targetRef="Process_CoverageFollowUpRequired_end"/>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Process_CoverageFollowUpRequired">
+    <bpmndi:BPMNPlane id="BPMNPlane_Process_CoverageFollowUpRequired" bpmnElement="Process_CoverageFollowUpRequired">
+      <bpmndi:BPMNShape id="Process_CoverageFollowUpRequired_start_di" bpmnElement="Process_CoverageFollowUpRequired_start">
+        <dc:Bounds x="160" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_CoverageFollowUpRequired_S1_di" bpmnElement="Process_CoverageFollowUpRequired_S1">
+        <dc:Bounds x="256" y="100" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_CoverageFollowUpRequired_end_di" bpmnElement="Process_CoverageFollowUpRequired_end">
+        <dc:Bounds x="456" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Process_CoverageFollowUpRequired_flow_0_di" bpmnElement="Process_CoverageFollowUpRequired_flow_0">
+        <di:waypoint x="196" y="140"/>
+        <di:waypoint x="256" y="140"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Process_CoverageFollowUpRequired_flow_1_di" bpmnElement="Process_CoverageFollowUpRequired_flow_1">
+        <di:waypoint x="396" y="140"/>
+        <di:waypoint x="456" y="140"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>', 'When a coverage is cancelled, a task asks someone to settle what depended on it.', TRUE, TRUE, NOW(), NOW())
+ON CONFLICT (name) DO UPDATE SET
+  entity_name      = EXCLUDED.entity_name,
+  operation        = EXCLUDED.operation,
+  trigger_type     = EXCLUDED.trigger_type,
+  bpmn_xml         = EXCLUDED.bpmn_xml,
+  description      = EXCLUDED.description,
+  is_model_managed = TRUE,
+  updated_at       = NOW();
+
+INSERT INTO sys_workflow_definitions
+  (name, entity_name, operation, trigger_type, bpmn_xml, description, is_active, is_model_managed, created_at, updated_at)
+VALUES ('PremiumFollowUpRequired', 'bus_premium', 'UPDATE',
+        'rule', '<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+  xmlns:appwithai="http://appwithai.io/schema/1.0"
+  id="Definitions_PremiumFollowUpRequired"
+  targetNamespace="http://appwithai.io/bpmn">
+  <bpmn:process id="Process_PremiumFollowUpRequired" isExecutable="true">
+    <bpmn:startEvent id="Process_PremiumFollowUpRequired_start"/>
+    <bpmn:serviceTask id="Process_PremiumFollowUpRequired_S1" name="Raise a task: follow up on">
+      <bpmn:extensionElements>
+        <appwithai:properties>
+        <appwithai:property name="nodeType" value="CreateEntity"/>
+        <appwithai:property name="entity" value="bus_task"/>
+        <appwithai:property name="as" value="taskId"/>
+        <appwithai:property name="fields" value="{&quot;code&quot;:&quot;PREMIUM-FOLLOW-UP-{{id}}&quot;,&quot;name&quot;:&quot;Follow up on premium {{premium_number}}&quot;,&quot;description&quot;:&quot;Premium {{premium_number}} is now {{status}}. Check the records that depended on it and tell the people affected.&quot;,&quot;task_type&quot;:&quot;USER&quot;,&quot;status&quot;:&quot;CREATED&quot;,&quot;priority&quot;:&quot;NORMAL&quot;}"/>
+        </appwithai:properties>
+      </bpmn:extensionElements>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="Process_PremiumFollowUpRequired_end"/>
+    <bpmn:sequenceFlow id="Process_PremiumFollowUpRequired_flow_0" sourceRef="Process_PremiumFollowUpRequired_start" targetRef="Process_PremiumFollowUpRequired_S1"/>
+    <bpmn:sequenceFlow id="Process_PremiumFollowUpRequired_flow_1" sourceRef="Process_PremiumFollowUpRequired_S1" targetRef="Process_PremiumFollowUpRequired_end"/>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Process_PremiumFollowUpRequired">
+    <bpmndi:BPMNPlane id="BPMNPlane_Process_PremiumFollowUpRequired" bpmnElement="Process_PremiumFollowUpRequired">
+      <bpmndi:BPMNShape id="Process_PremiumFollowUpRequired_start_di" bpmnElement="Process_PremiumFollowUpRequired_start">
+        <dc:Bounds x="160" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_PremiumFollowUpRequired_S1_di" bpmnElement="Process_PremiumFollowUpRequired_S1">
+        <dc:Bounds x="256" y="100" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_PremiumFollowUpRequired_end_di" bpmnElement="Process_PremiumFollowUpRequired_end">
+        <dc:Bounds x="456" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Process_PremiumFollowUpRequired_flow_0_di" bpmnElement="Process_PremiumFollowUpRequired_flow_0">
+        <di:waypoint x="196" y="140"/>
+        <di:waypoint x="256" y="140"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Process_PremiumFollowUpRequired_flow_1_di" bpmnElement="Process_PremiumFollowUpRequired_flow_1">
+        <di:waypoint x="396" y="140"/>
+        <di:waypoint x="456" y="140"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>', 'When a premium is cancelled, a task asks someone to settle what depended on it.', TRUE, TRUE, NOW(), NOW())
+ON CONFLICT (name) DO UPDATE SET
+  entity_name      = EXCLUDED.entity_name,
+  operation        = EXCLUDED.operation,
+  trigger_type     = EXCLUDED.trigger_type,
+  bpmn_xml         = EXCLUDED.bpmn_xml,
+  description      = EXCLUDED.description,
+  is_model_managed = TRUE,
+  updated_at       = NOW();
+
+INSERT INTO sys_workflow_definitions
+  (name, entity_name, operation, trigger_type, bpmn_xml, description, is_active, is_model_managed, created_at, updated_at)
 VALUES ('InsuranceClaimApprovalRequested', 'bus_insurance_claim', 'UPDATE',
         'rule', '<?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
@@ -288,6 +404,180 @@ VALUES ('InsuranceClaimFollowUpRequired', 'bus_insurance_claim', 'UPDATE',
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
 </bpmn:definitions>', 'When a insurance claim is denied, a task asks someone to settle what depended on it.', TRUE, TRUE, NOW(), NOW())
+ON CONFLICT (name) DO UPDATE SET
+  entity_name      = EXCLUDED.entity_name,
+  operation        = EXCLUDED.operation,
+  trigger_type     = EXCLUDED.trigger_type,
+  bpmn_xml         = EXCLUDED.bpmn_xml,
+  description      = EXCLUDED.description,
+  is_model_managed = TRUE,
+  updated_at       = NOW();
+
+INSERT INTO sys_workflow_definitions
+  (name, entity_name, operation, trigger_type, bpmn_xml, description, is_active, is_model_managed, created_at, updated_at)
+VALUES ('ClaimLineApprovalRequested', 'bus_claim_line', 'UPDATE',
+        'rule', '<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+  xmlns:appwithai="http://appwithai.io/schema/1.0"
+  id="Definitions_ClaimLineApprovalRequested"
+  targetNamespace="http://appwithai.io/bpmn">
+  <bpmn:process id="Process_ClaimLineApprovalRequested" isExecutable="true">
+    <bpmn:startEvent id="Process_ClaimLineApprovalRequested_start"/>
+    <bpmn:serviceTask id="Process_ClaimLineApprovalRequested_S1" name="Raise a task: decide on">
+      <bpmn:extensionElements>
+        <appwithai:properties>
+        <appwithai:property name="nodeType" value="CreateEntity"/>
+        <appwithai:property name="entity" value="bus_task"/>
+        <appwithai:property name="as" value="taskId"/>
+        <appwithai:property name="fields" value="{&quot;code&quot;:&quot;CLAIM-LINE-APPROVAL-{{id}}&quot;,&quot;name&quot;:&quot;Decide on claim line {{id}}&quot;,&quot;description&quot;:&quot;Claim line {{id}} is now {{status}}. Approve it, return it for change or reject it; the move you make is recorded on the record.&quot;,&quot;task_type&quot;:&quot;APPROVAL&quot;,&quot;status&quot;:&quot;CREATED&quot;,&quot;priority&quot;:&quot;NORMAL&quot;}"/>
+        </appwithai:properties>
+      </bpmn:extensionElements>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="Process_ClaimLineApprovalRequested_end"/>
+    <bpmn:sequenceFlow id="Process_ClaimLineApprovalRequested_flow_0" sourceRef="Process_ClaimLineApprovalRequested_start" targetRef="Process_ClaimLineApprovalRequested_S1"/>
+    <bpmn:sequenceFlow id="Process_ClaimLineApprovalRequested_flow_1" sourceRef="Process_ClaimLineApprovalRequested_S1" targetRef="Process_ClaimLineApprovalRequested_end"/>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Process_ClaimLineApprovalRequested">
+    <bpmndi:BPMNPlane id="BPMNPlane_Process_ClaimLineApprovalRequested" bpmnElement="Process_ClaimLineApprovalRequested">
+      <bpmndi:BPMNShape id="Process_ClaimLineApprovalRequested_start_di" bpmnElement="Process_ClaimLineApprovalRequested_start">
+        <dc:Bounds x="160" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_ClaimLineApprovalRequested_S1_di" bpmnElement="Process_ClaimLineApprovalRequested_S1">
+        <dc:Bounds x="256" y="100" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_ClaimLineApprovalRequested_end_di" bpmnElement="Process_ClaimLineApprovalRequested_end">
+        <dc:Bounds x="456" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Process_ClaimLineApprovalRequested_flow_0_di" bpmnElement="Process_ClaimLineApprovalRequested_flow_0">
+        <di:waypoint x="196" y="140"/>
+        <di:waypoint x="256" y="140"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Process_ClaimLineApprovalRequested_flow_1_di" bpmnElement="Process_ClaimLineApprovalRequested_flow_1">
+        <di:waypoint x="396" y="140"/>
+        <di:waypoint x="456" y="140"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>', 'When a claim line is submitted, a task asks someone to decide on it.', TRUE, TRUE, NOW(), NOW())
+ON CONFLICT (name) DO UPDATE SET
+  entity_name      = EXCLUDED.entity_name,
+  operation        = EXCLUDED.operation,
+  trigger_type     = EXCLUDED.trigger_type,
+  bpmn_xml         = EXCLUDED.bpmn_xml,
+  description      = EXCLUDED.description,
+  is_model_managed = TRUE,
+  updated_at       = NOW();
+
+INSERT INTO sys_workflow_definitions
+  (name, entity_name, operation, trigger_type, bpmn_xml, description, is_active, is_model_managed, created_at, updated_at)
+VALUES ('ClaimLineFollowUpRequired', 'bus_claim_line', 'UPDATE',
+        'rule', '<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+  xmlns:appwithai="http://appwithai.io/schema/1.0"
+  id="Definitions_ClaimLineFollowUpRequired"
+  targetNamespace="http://appwithai.io/bpmn">
+  <bpmn:process id="Process_ClaimLineFollowUpRequired" isExecutable="true">
+    <bpmn:startEvent id="Process_ClaimLineFollowUpRequired_start"/>
+    <bpmn:serviceTask id="Process_ClaimLineFollowUpRequired_S1" name="Raise a task: follow up on">
+      <bpmn:extensionElements>
+        <appwithai:properties>
+        <appwithai:property name="nodeType" value="CreateEntity"/>
+        <appwithai:property name="entity" value="bus_task"/>
+        <appwithai:property name="as" value="taskId"/>
+        <appwithai:property name="fields" value="{&quot;code&quot;:&quot;CLAIM-LINE-FOLLOW-UP-{{id}}&quot;,&quot;name&quot;:&quot;Follow up on claim line {{id}}&quot;,&quot;description&quot;:&quot;Claim line {{id}} is now {{status}}. Check the records that depended on it and tell the people affected.&quot;,&quot;task_type&quot;:&quot;USER&quot;,&quot;status&quot;:&quot;CREATED&quot;,&quot;priority&quot;:&quot;NORMAL&quot;}"/>
+        </appwithai:properties>
+      </bpmn:extensionElements>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="Process_ClaimLineFollowUpRequired_end"/>
+    <bpmn:sequenceFlow id="Process_ClaimLineFollowUpRequired_flow_0" sourceRef="Process_ClaimLineFollowUpRequired_start" targetRef="Process_ClaimLineFollowUpRequired_S1"/>
+    <bpmn:sequenceFlow id="Process_ClaimLineFollowUpRequired_flow_1" sourceRef="Process_ClaimLineFollowUpRequired_S1" targetRef="Process_ClaimLineFollowUpRequired_end"/>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Process_ClaimLineFollowUpRequired">
+    <bpmndi:BPMNPlane id="BPMNPlane_Process_ClaimLineFollowUpRequired" bpmnElement="Process_ClaimLineFollowUpRequired">
+      <bpmndi:BPMNShape id="Process_ClaimLineFollowUpRequired_start_di" bpmnElement="Process_ClaimLineFollowUpRequired_start">
+        <dc:Bounds x="160" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_ClaimLineFollowUpRequired_S1_di" bpmnElement="Process_ClaimLineFollowUpRequired_S1">
+        <dc:Bounds x="256" y="100" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_ClaimLineFollowUpRequired_end_di" bpmnElement="Process_ClaimLineFollowUpRequired_end">
+        <dc:Bounds x="456" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Process_ClaimLineFollowUpRequired_flow_0_di" bpmnElement="Process_ClaimLineFollowUpRequired_flow_0">
+        <di:waypoint x="196" y="140"/>
+        <di:waypoint x="256" y="140"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Process_ClaimLineFollowUpRequired_flow_1_di" bpmnElement="Process_ClaimLineFollowUpRequired_flow_1">
+        <di:waypoint x="396" y="140"/>
+        <di:waypoint x="456" y="140"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>', 'When a claim line is cancelled or denied, a task asks someone to settle what depended on it.', TRUE, TRUE, NOW(), NOW())
+ON CONFLICT (name) DO UPDATE SET
+  entity_name      = EXCLUDED.entity_name,
+  operation        = EXCLUDED.operation,
+  trigger_type     = EXCLUDED.trigger_type,
+  bpmn_xml         = EXCLUDED.bpmn_xml,
+  description      = EXCLUDED.description,
+  is_model_managed = TRUE,
+  updated_at       = NOW();
+
+INSERT INTO sys_workflow_definitions
+  (name, entity_name, operation, trigger_type, bpmn_xml, description, is_active, is_model_managed, created_at, updated_at)
+VALUES ('SettlementFollowUpRequired', 'bus_settlement', 'UPDATE',
+        'rule', '<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+  xmlns:appwithai="http://appwithai.io/schema/1.0"
+  id="Definitions_SettlementFollowUpRequired"
+  targetNamespace="http://appwithai.io/bpmn">
+  <bpmn:process id="Process_SettlementFollowUpRequired" isExecutable="true">
+    <bpmn:startEvent id="Process_SettlementFollowUpRequired_start"/>
+    <bpmn:serviceTask id="Process_SettlementFollowUpRequired_S1" name="Raise a task: follow up on">
+      <bpmn:extensionElements>
+        <appwithai:properties>
+        <appwithai:property name="nodeType" value="CreateEntity"/>
+        <appwithai:property name="entity" value="bus_task"/>
+        <appwithai:property name="as" value="taskId"/>
+        <appwithai:property name="fields" value="{&quot;code&quot;:&quot;SETTLEMENT-FOLLOW-UP-{{id}}&quot;,&quot;name&quot;:&quot;Follow up on settlement {{settlement_number}}&quot;,&quot;description&quot;:&quot;Settlement {{settlement_number}} is now {{status}}. Check the records that depended on it and tell the people affected.&quot;,&quot;task_type&quot;:&quot;USER&quot;,&quot;status&quot;:&quot;CREATED&quot;,&quot;priority&quot;:&quot;NORMAL&quot;}"/>
+        </appwithai:properties>
+      </bpmn:extensionElements>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="Process_SettlementFollowUpRequired_end"/>
+    <bpmn:sequenceFlow id="Process_SettlementFollowUpRequired_flow_0" sourceRef="Process_SettlementFollowUpRequired_start" targetRef="Process_SettlementFollowUpRequired_S1"/>
+    <bpmn:sequenceFlow id="Process_SettlementFollowUpRequired_flow_1" sourceRef="Process_SettlementFollowUpRequired_S1" targetRef="Process_SettlementFollowUpRequired_end"/>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Process_SettlementFollowUpRequired">
+    <bpmndi:BPMNPlane id="BPMNPlane_Process_SettlementFollowUpRequired" bpmnElement="Process_SettlementFollowUpRequired">
+      <bpmndi:BPMNShape id="Process_SettlementFollowUpRequired_start_di" bpmnElement="Process_SettlementFollowUpRequired_start">
+        <dc:Bounds x="160" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_SettlementFollowUpRequired_S1_di" bpmnElement="Process_SettlementFollowUpRequired_S1">
+        <dc:Bounds x="256" y="100" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_SettlementFollowUpRequired_end_di" bpmnElement="Process_SettlementFollowUpRequired_end">
+        <dc:Bounds x="456" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Process_SettlementFollowUpRequired_flow_0_di" bpmnElement="Process_SettlementFollowUpRequired_flow_0">
+        <di:waypoint x="196" y="140"/>
+        <di:waypoint x="256" y="140"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Process_SettlementFollowUpRequired_flow_1_di" bpmnElement="Process_SettlementFollowUpRequired_flow_1">
+        <di:waypoint x="396" y="140"/>
+        <di:waypoint x="456" y="140"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>', 'When a settlement is void, a task asks someone to settle what depended on it.', TRUE, TRUE, NOW(), NOW())
 ON CONFLICT (name) DO UPDATE SET
   entity_name      = EXCLUDED.entity_name,
   operation        = EXCLUDED.operation,

@@ -97,6 +97,50 @@ ON CONFLICT (entity_name, operation, rule_name) DO UPDATE
       updated_at  = NOW()
   WHERE current_setting('appwithai.rules_overwrite', true) = 'on';
 
+-- serviceContractInvariantsBeforeCreate — ServiceContract.beforeCreate (priority 100)
+INSERT INTO sys_rule_definitions (id, entity_name, rule_name, operation, jdm_content, version, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('f3179c7e-d39f-5c5d-805b-260b7f21228b', 'bus_service_contract', 'serviceContractInvariantsBeforeCreate', 'CREATE', '{"nodes":[{"id":"input","name":"Input","type":"inputNode"},{"id":"serviceContractInvariantsBeforeCreate-table","name":"serviceContractInvariantsBeforeCreate","type":"decisionTableNode","content":{"hitPolicy":"collect","inputs":[{"id":"i1","name":"Record","field":""}],"outputs":[{"id":"o1","name":"Action","field":"action"},{"id":"o2","name":"Message","field":"message"},{"id":"o3","name":"Rule ID","field":"ruleId"},{"id":"o4","name":"Workflow Name","field":"workflowName"},{"id":"o5","name":"Target Entity","field":"targetEntity"},{"id":"o6","name":"Link Field","field":"linkField"},{"id":"o7","name":"Update Data","field":"updateData"},{"id":"o8","name":"Create Data","field":"createData"},{"id":"o9","name":"Transform Data","field":"transformData"}],"rules":[{"_id":"serviceContractInvariantsBeforeCreate-SERVICE-CONTRACT-EXE-001","i1":"effective_from != null and effective_to != null and effective_to < effective_from","o1":"''prevent''","o2":"''Effective To cannot be earlier than effective from.''","o3":"''serviceContractInvariantsBeforeCreate''","o4":"''''","o5":"''''","o6":"''''","o7":"''''","o8":"''''","o9":"''''"}]}},{"id":"output","name":"Output","type":"outputNode"}],"edges":[{"id":"edge-1","sourceId":"input","targetId":"serviceContractInvariantsBeforeCreate-table"},{"id":"edge-2","sourceId":"serviceContractInvariantsBeforeCreate-table","targetId":"output"}]}', 1, TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT (entity_name, operation, rule_name) DO UPDATE
+  SET jdm_content = EXCLUDED.jdm_content,
+      version     = sys_rule_definitions.version + 1,
+      is_active   = TRUE,
+      updated_by  = EXCLUDED.updated_by,
+      updated_at  = NOW()
+  WHERE current_setting('appwithai.rules_overwrite', true) = 'on';
+
+-- serviceContractInvariantsBeforeUpdate — ServiceContract.beforeUpdate (priority 100)
+INSERT INTO sys_rule_definitions (id, entity_name, rule_name, operation, jdm_content, version, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('0acaf292-7560-59a8-8561-522d230b3892', 'bus_service_contract', 'serviceContractInvariantsBeforeUpdate', 'UPDATE', '{"nodes":[{"id":"input","name":"Input","type":"inputNode"},{"id":"serviceContractInvariantsBeforeUpdate-table","name":"serviceContractInvariantsBeforeUpdate","type":"decisionTableNode","content":{"hitPolicy":"collect","inputs":[{"id":"i1","name":"Record","field":""}],"outputs":[{"id":"o1","name":"Action","field":"action"},{"id":"o2","name":"Message","field":"message"},{"id":"o3","name":"Rule ID","field":"ruleId"},{"id":"o4","name":"Workflow Name","field":"workflowName"},{"id":"o5","name":"Target Entity","field":"targetEntity"},{"id":"o6","name":"Link Field","field":"linkField"},{"id":"o7","name":"Update Data","field":"updateData"},{"id":"o8","name":"Create Data","field":"createData"},{"id":"o9","name":"Transform Data","field":"transformData"}],"rules":[{"_id":"serviceContractInvariantsBeforeUpdate-SERVICE-CONTRACT-EXE-001","i1":"effective_from != null and effective_to != null and effective_to < effective_from","o1":"''prevent''","o2":"''Effective To cannot be earlier than effective from.''","o3":"''serviceContractInvariantsBeforeUpdate''","o4":"''''","o5":"''''","o6":"''''","o7":"''''","o8":"''''","o9":"''''"}]}},{"id":"output","name":"Output","type":"outputNode"}],"edges":[{"id":"edge-1","sourceId":"input","targetId":"serviceContractInvariantsBeforeUpdate-table"},{"id":"edge-2","sourceId":"serviceContractInvariantsBeforeUpdate-table","targetId":"output"}]}', 1, TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT (entity_name, operation, rule_name) DO UPDATE
+  SET jdm_content = EXCLUDED.jdm_content,
+      version     = sys_rule_definitions.version + 1,
+      is_active   = TRUE,
+      updated_by  = EXCLUDED.updated_by,
+      updated_at  = NOW()
+  WHERE current_setting('appwithai.rules_overwrite', true) = 'on';
+
+-- entitlementInvariantsBeforeCreate — Entitlement.beforeCreate (priority 100)
+INSERT INTO sys_rule_definitions (id, entity_name, rule_name, operation, jdm_content, version, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('62b62218-af16-5417-95ef-a16a53e5311d', 'bus_entitlement', 'entitlementInvariantsBeforeCreate', 'CREATE', '{"nodes":[{"id":"input","name":"Input","type":"inputNode"},{"id":"entitlementInvariantsBeforeCreate-table","name":"entitlementInvariantsBeforeCreate","type":"decisionTableNode","content":{"hitPolicy":"collect","inputs":[{"id":"i1","name":"Record","field":""}],"outputs":[{"id":"o1","name":"Action","field":"action"},{"id":"o2","name":"Message","field":"message"},{"id":"o3","name":"Rule ID","field":"ruleId"},{"id":"o4","name":"Workflow Name","field":"workflowName"},{"id":"o5","name":"Target Entity","field":"targetEntity"},{"id":"o6","name":"Link Field","field":"linkField"},{"id":"o7","name":"Update Data","field":"updateData"},{"id":"o8","name":"Create Data","field":"createData"},{"id":"o9","name":"Transform Data","field":"transformData"}],"rules":[{"_id":"entitlementInvariantsBeforeCreate-ENTITLEMENT-EXE-001","i1":"effective_from != null and effective_to != null and effective_to < effective_from","o1":"''prevent''","o2":"''Effective To cannot be earlier than effective from.''","o3":"''entitlementInvariantsBeforeCreate''","o4":"''''","o5":"''''","o6":"''''","o7":"''''","o8":"''''","o9":"''''"}]}},{"id":"output","name":"Output","type":"outputNode"}],"edges":[{"id":"edge-1","sourceId":"input","targetId":"entitlementInvariantsBeforeCreate-table"},{"id":"edge-2","sourceId":"entitlementInvariantsBeforeCreate-table","targetId":"output"}]}', 1, TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT (entity_name, operation, rule_name) DO UPDATE
+  SET jdm_content = EXCLUDED.jdm_content,
+      version     = sys_rule_definitions.version + 1,
+      is_active   = TRUE,
+      updated_by  = EXCLUDED.updated_by,
+      updated_at  = NOW()
+  WHERE current_setting('appwithai.rules_overwrite', true) = 'on';
+
+-- entitlementInvariantsBeforeUpdate — Entitlement.beforeUpdate (priority 100)
+INSERT INTO sys_rule_definitions (id, entity_name, rule_name, operation, jdm_content, version, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('9c760570-e19f-5a40-b3a1-00866844683d', 'bus_entitlement', 'entitlementInvariantsBeforeUpdate', 'UPDATE', '{"nodes":[{"id":"input","name":"Input","type":"inputNode"},{"id":"entitlementInvariantsBeforeUpdate-table","name":"entitlementInvariantsBeforeUpdate","type":"decisionTableNode","content":{"hitPolicy":"collect","inputs":[{"id":"i1","name":"Record","field":""}],"outputs":[{"id":"o1","name":"Action","field":"action"},{"id":"o2","name":"Message","field":"message"},{"id":"o3","name":"Rule ID","field":"ruleId"},{"id":"o4","name":"Workflow Name","field":"workflowName"},{"id":"o5","name":"Target Entity","field":"targetEntity"},{"id":"o6","name":"Link Field","field":"linkField"},{"id":"o7","name":"Update Data","field":"updateData"},{"id":"o8","name":"Create Data","field":"createData"},{"id":"o9","name":"Transform Data","field":"transformData"}],"rules":[{"_id":"entitlementInvariantsBeforeUpdate-ENTITLEMENT-EXE-001","i1":"effective_from != null and effective_to != null and effective_to < effective_from","o1":"''prevent''","o2":"''Effective To cannot be earlier than effective from.''","o3":"''entitlementInvariantsBeforeUpdate''","o4":"''''","o5":"''''","o6":"''''","o7":"''''","o8":"''''","o9":"''''"}]}},{"id":"output","name":"Output","type":"outputNode"}],"edges":[{"id":"edge-1","sourceId":"input","targetId":"entitlementInvariantsBeforeUpdate-table"},{"id":"edge-2","sourceId":"entitlementInvariantsBeforeUpdate-table","targetId":"output"}]}', 1, TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT (entity_name, operation, rule_name) DO UPDATE
+  SET jdm_content = EXCLUDED.jdm_content,
+      version     = sys_rule_definitions.version + 1,
+      is_active   = TRUE,
+      updated_by  = EXCLUDED.updated_by,
+      updated_at  = NOW()
+  WHERE current_setting('appwithai.rules_overwrite', true) = 'on';
+
 -- contractInvariantsBeforeCreate — Contract.beforeCreate (priority 100)
 INSERT INTO sys_rule_definitions (id, entity_name, rule_name, operation, jdm_content, version, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('8a6834eb-e5a8-5a93-bf44-2d61c8379723', 'bus_contract', 'contractInvariantsBeforeCreate', 'CREATE', '{"nodes":[{"id":"input","name":"Input","type":"inputNode"},{"id":"contractInvariantsBeforeCreate-table","name":"contractInvariantsBeforeCreate","type":"decisionTableNode","content":{"hitPolicy":"collect","inputs":[{"id":"i1","name":"Record","field":""}],"outputs":[{"id":"o1","name":"Action","field":"action"},{"id":"o2","name":"Message","field":"message"},{"id":"o3","name":"Rule ID","field":"ruleId"},{"id":"o4","name":"Workflow Name","field":"workflowName"},{"id":"o5","name":"Target Entity","field":"targetEntity"},{"id":"o6","name":"Link Field","field":"linkField"},{"id":"o7","name":"Update Data","field":"updateData"},{"id":"o8","name":"Create Data","field":"createData"},{"id":"o9","name":"Transform Data","field":"transformData"}],"rules":[{"_id":"contractInvariantsBeforeCreate-CONTRACT-EXE-001","i1":"effective_from != null and effective_to != null and effective_to < effective_from","o1":"''prevent''","o2":"''Effective To cannot be earlier than effective from.''","o3":"''contractInvariantsBeforeCreate''","o4":"''''","o5":"''''","o6":"''''","o7":"''''","o8":"''''","o9":"''''"}]}},{"id":"output","name":"Output","type":"outputNode"}],"edges":[{"id":"edge-1","sourceId":"input","targetId":"contractInvariantsBeforeCreate-table"},{"id":"edge-2","sourceId":"contractInvariantsBeforeCreate-table","targetId":"output"}]}', 1, TRUE, 'system', 'system', NOW(), NOW())
@@ -152,9 +196,42 @@ ON CONFLICT (entity_name, operation, rule_name) DO UPDATE
       updated_at  = NOW()
   WHERE current_setting('appwithai.rules_overwrite', true) = 'on';
 
+-- serviceCaseWorkflowsAfterUpdate — ServiceCase.afterUpdate (priority 100)
+INSERT INTO sys_rule_definitions (id, entity_name, rule_name, operation, jdm_content, version, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('c8205eb7-b0f4-5052-b82b-2ec3088a0c29', 'bus_service_case', 'serviceCaseWorkflowsAfterUpdate', 'UPDATE', '{"nodes":[{"id":"input","name":"Input","type":"inputNode"},{"id":"serviceCaseWorkflowsAfterUpdate-table","name":"serviceCaseWorkflowsAfterUpdate","type":"decisionTableNode","content":{"hitPolicy":"collect","inputs":[{"id":"i1","name":"Record","field":""}],"outputs":[{"id":"o1","name":"Action","field":"action"},{"id":"o2","name":"Message","field":"message"},{"id":"o3","name":"Rule ID","field":"ruleId"},{"id":"o4","name":"Workflow Name","field":"workflowName"},{"id":"o5","name":"Target Entity","field":"targetEntity"},{"id":"o6","name":"Link Field","field":"linkField"},{"id":"o7","name":"Update Data","field":"updateData"},{"id":"o8","name":"Create Data","field":"createData"},{"id":"o9","name":"Transform Data","field":"transformData"}],"rules":[{"_id":"serviceCaseWorkflowsAfterUpdate-FollowUpRequired","i1":"status == \"CANCELLED\" and status != _previous_status","o1":"''trigger-workflow''","o2":"''serviceCaseWorkflowsAfterUpdate: FollowUpRequired''","o3":"''serviceCaseWorkflowsAfterUpdate''","o4":"''ServiceCaseFollowUpRequired''","o5":"''''","o6":"''''","o7":"''''","o8":"''''","o9":"''''"}]}},{"id":"output","name":"Output","type":"outputNode"}],"edges":[{"id":"edge-1","sourceId":"input","targetId":"serviceCaseWorkflowsAfterUpdate-table"},{"id":"edge-2","sourceId":"serviceCaseWorkflowsAfterUpdate-table","targetId":"output"}]}', 1, TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT (entity_name, operation, rule_name) DO UPDATE
+  SET jdm_content = EXCLUDED.jdm_content,
+      version     = sys_rule_definitions.version + 1,
+      is_active   = TRUE,
+      updated_by  = EXCLUDED.updated_by,
+      updated_at  = NOW()
+  WHERE current_setting('appwithai.rules_overwrite', true) = 'on';
+
 -- serviceRequestWorkflowsAfterUpdate — ServiceRequest.afterUpdate (priority 100)
 INSERT INTO sys_rule_definitions (id, entity_name, rule_name, operation, jdm_content, version, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('0141e64c-be2d-5e0c-89f6-432df3543461', 'bus_service_request', 'serviceRequestWorkflowsAfterUpdate', 'UPDATE', '{"nodes":[{"id":"input","name":"Input","type":"inputNode"},{"id":"serviceRequestWorkflowsAfterUpdate-table","name":"serviceRequestWorkflowsAfterUpdate","type":"decisionTableNode","content":{"hitPolicy":"collect","inputs":[{"id":"i1","name":"Record","field":""}],"outputs":[{"id":"o1","name":"Action","field":"action"},{"id":"o2","name":"Message","field":"message"},{"id":"o3","name":"Rule ID","field":"ruleId"},{"id":"o4","name":"Workflow Name","field":"workflowName"},{"id":"o5","name":"Target Entity","field":"targetEntity"},{"id":"o6","name":"Link Field","field":"linkField"},{"id":"o7","name":"Update Data","field":"updateData"},{"id":"o8","name":"Create Data","field":"createData"},{"id":"o9","name":"Transform Data","field":"transformData"}],"rules":[{"_id":"serviceRequestWorkflowsAfterUpdate-FollowUpRequired","i1":"status == \"CANCELLED\" and status != _previous_status","o1":"''trigger-workflow''","o2":"''serviceRequestWorkflowsAfterUpdate: FollowUpRequired''","o3":"''serviceRequestWorkflowsAfterUpdate''","o4":"''ServiceRequestFollowUpRequired''","o5":"''''","o6":"''''","o7":"''''","o8":"''''","o9":"''''"}]}},{"id":"output","name":"Output","type":"outputNode"}],"edges":[{"id":"edge-1","sourceId":"input","targetId":"serviceRequestWorkflowsAfterUpdate-table"},{"id":"edge-2","sourceId":"serviceRequestWorkflowsAfterUpdate-table","targetId":"output"}]}', 1, TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT (entity_name, operation, rule_name) DO UPDATE
+  SET jdm_content = EXCLUDED.jdm_content,
+      version     = sys_rule_definitions.version + 1,
+      is_active   = TRUE,
+      updated_by  = EXCLUDED.updated_by,
+      updated_at  = NOW()
+  WHERE current_setting('appwithai.rules_overwrite', true) = 'on';
+
+-- ticketWorkflowsAfterUpdate — Ticket.afterUpdate (priority 100)
+INSERT INTO sys_rule_definitions (id, entity_name, rule_name, operation, jdm_content, version, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('d4ad7553-9196-5fa8-acf0-b7516f652d09', 'bus_ticket', 'ticketWorkflowsAfterUpdate', 'UPDATE', '{"nodes":[{"id":"input","name":"Input","type":"inputNode"},{"id":"ticketWorkflowsAfterUpdate-table","name":"ticketWorkflowsAfterUpdate","type":"decisionTableNode","content":{"hitPolicy":"collect","inputs":[{"id":"i1","name":"Record","field":""}],"outputs":[{"id":"o1","name":"Action","field":"action"},{"id":"o2","name":"Message","field":"message"},{"id":"o3","name":"Rule ID","field":"ruleId"},{"id":"o4","name":"Workflow Name","field":"workflowName"},{"id":"o5","name":"Target Entity","field":"targetEntity"},{"id":"o6","name":"Link Field","field":"linkField"},{"id":"o7","name":"Update Data","field":"updateData"},{"id":"o8","name":"Create Data","field":"createData"},{"id":"o9","name":"Transform Data","field":"transformData"}],"rules":[{"_id":"ticketWorkflowsAfterUpdate-FollowUpRequired","i1":"status == \"CANCELLED\" and status != _previous_status","o1":"''trigger-workflow''","o2":"''ticketWorkflowsAfterUpdate: FollowUpRequired''","o3":"''ticketWorkflowsAfterUpdate''","o4":"''TicketFollowUpRequired''","o5":"''''","o6":"''''","o7":"''''","o8":"''''","o9":"''''"}]}},{"id":"output","name":"Output","type":"outputNode"}],"edges":[{"id":"edge-1","sourceId":"input","targetId":"ticketWorkflowsAfterUpdate-table"},{"id":"edge-2","sourceId":"ticketWorkflowsAfterUpdate-table","targetId":"output"}]}', 1, TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT (entity_name, operation, rule_name) DO UPDATE
+  SET jdm_content = EXCLUDED.jdm_content,
+      version     = sys_rule_definitions.version + 1,
+      is_active   = TRUE,
+      updated_by  = EXCLUDED.updated_by,
+      updated_at  = NOW()
+  WHERE current_setting('appwithai.rules_overwrite', true) = 'on';
+
+-- serviceOrderWorkflowsAfterUpdate — ServiceOrder.afterUpdate (priority 100)
+INSERT INTO sys_rule_definitions (id, entity_name, rule_name, operation, jdm_content, version, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('7c19f4e6-c9b8-5248-ac51-78e1ba6fbffe', 'bus_service_order', 'serviceOrderWorkflowsAfterUpdate', 'UPDATE', '{"nodes":[{"id":"input","name":"Input","type":"inputNode"},{"id":"serviceOrderWorkflowsAfterUpdate-table","name":"serviceOrderWorkflowsAfterUpdate","type":"decisionTableNode","content":{"hitPolicy":"collect","inputs":[{"id":"i1","name":"Record","field":""}],"outputs":[{"id":"o1","name":"Action","field":"action"},{"id":"o2","name":"Message","field":"message"},{"id":"o3","name":"Rule ID","field":"ruleId"},{"id":"o4","name":"Workflow Name","field":"workflowName"},{"id":"o5","name":"Target Entity","field":"targetEntity"},{"id":"o6","name":"Link Field","field":"linkField"},{"id":"o7","name":"Update Data","field":"updateData"},{"id":"o8","name":"Create Data","field":"createData"},{"id":"o9","name":"Transform Data","field":"transformData"}],"rules":[{"_id":"serviceOrderWorkflowsAfterUpdate-FollowUpRequired","i1":"status == \"CANCELLED\" and status != _previous_status","o1":"''trigger-workflow''","o2":"''serviceOrderWorkflowsAfterUpdate: FollowUpRequired''","o3":"''serviceOrderWorkflowsAfterUpdate''","o4":"''ServiceOrderFollowUpRequired''","o5":"''''","o6":"''''","o7":"''''","o8":"''''","o9":"''''"}]}},{"id":"output","name":"Output","type":"outputNode"}],"edges":[{"id":"edge-1","sourceId":"input","targetId":"serviceOrderWorkflowsAfterUpdate-table"},{"id":"edge-2","sourceId":"serviceOrderWorkflowsAfterUpdate-table","targetId":"output"}]}', 1, TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT (entity_name, operation, rule_name) DO UPDATE
   SET jdm_content = EXCLUDED.jdm_content,
       version     = sys_rule_definitions.version + 1,

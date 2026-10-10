@@ -81,6 +81,26 @@ entity:
     - {id: AUDIT-CASE-001, rule: Finalized historical evidence must not be silently rewritten; corrections or supersession require explicit governed records.}
     - id: AUDIT-CASE-002
       rule: closedOn must not precede openedOn.
+    - {id: AUDIT-CASE-EXE-001, rule: "A audit case that is closed states when (closed on).", violatedWhen: "status == \"CLOSED\" and closed_on == null", message: "Record closed on when the audit case is closed."}
+  workflows:
+    - name: FollowUpRequired
+      title: "Follow up when a audit case is ended"
+      description: "When a audit case is cancelled, a task asks someone to settle what depended on it."
+      when: "status == \"CANCELLED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "AUDIT-CASE-FOLLOW-UP-{{id}}"
+              name: "Follow up on audit case {{title}}"
+              description: "Audit case {{title}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
   help:
     summary: An audit investigation or review that groups its scope, evidence, findings, actions and conclusions in one place.
     businessMeaning: An audit case is the container for one piece of assurance work. It keeps everything an auditor gathered and concluded together, so the outcome can be defended later and follow-up actions can be traced to their source.

@@ -1,6 +1,6 @@
 //! The state machines the *model* drew, and whether the API enforces them.
 //!
-//! Generated: 2026-10-09T15:29:24.952Z
+//! Generated: 2026-10-10T02:40:47.664Z
 //! Project: logistics
 //!
 //! `requests/rbac.rs` proves the topology guard works by seeding an edge of its
@@ -128,6 +128,17 @@ const MODEL_EDGES: &[(&str, &str, &str, &str)] = &[
     ("bus_trip_segment", "status", "PLANNED", "CANCELLED"),
     ("bus_trip_segment", "status", "BOOKED", "CANCELLED"),
     ("bus_trip_segment", "status", "IN_PROGRESS", "CANCELLED"),
+    ("bus_driver", "status", "DRAFT", "ACTIVE"),
+    ("bus_driver", "status", "ACTIVE", "SUSPENDED"),
+    ("bus_driver", "status", "SUSPENDED", "ACTIVE"),
+    ("bus_driver", "status", "ACTIVE", "INACTIVE"),
+    ("bus_driver", "status", "INACTIVE", "ACTIVE"),
+    ("bus_driver", "status", "DRAFT", "RETIRED"),
+    ("bus_driver", "status", "ACTIVE", "RETIRED"),
+    ("bus_driver", "status", "SUSPENDED", "RETIRED"),
+    ("bus_driver", "status", "INACTIVE", "RETIRED"),
+    ("bus_fuel_transaction", "status", "RECORDED", "VERIFIED"),
+    ("bus_fuel_transaction", "status", "RECORDED", "REVERSED"),
     ("bus_customer", "status", "ACTIVE", "INACTIVE"),
     ("bus_customer", "status", "INACTIVE", "ACTIVE"),
     ("bus_customer", "status", "ACTIVE", "BLOCKED"),

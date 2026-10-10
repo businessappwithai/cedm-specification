@@ -1,6 +1,6 @@
 //! Two people, one record: optimistic locking and closed transactions.
 //!
-//! Generated: 2026-10-09T15:28:53.533Z
+//! Generated: 2026-10-10T02:40:11.837Z
 //! Project: healthcare
 //!
 //! Every entity is optimistic unless the model says `concurrency:
@@ -44,6 +44,8 @@ const FINAL_STATES: &[(&str, &str, &str)] = &[
     ("Task", "status", "COMPLETED"),
     ("HealthcarePatient", "status", "DECEASED"),
     ("HealthcareProvider", "status", "RETIRED"),
+    ("Practitioner", "status", "RETIRED"),
+    ("Appointment", "status", "COMPLETED"),
     ("HealthcareEncounter", "status", "COMPLETED"),
     ("HealthcareOrder", "status", "COMPLETED"),
     ("Procedure", "status", "COMPLETED"),
@@ -85,6 +87,13 @@ const FIRST_MOVES: &[(&str, &str, &str, &[&str])] = &[
         "status",
         "ACTIVE",
         &["INACTIVE", "SUSPENDED", "RETIRED"],
+    ),
+    ("Practitioner", "status", "DRAFT", &["ACTIVE", "RETIRED"]),
+    (
+        "Appointment",
+        "status",
+        "SCHEDULED",
+        &["CONFIRMED", "CHECKED_IN", "CANCELLED", "NO_SHOW"],
     ),
     (
         "HealthcareEncounter",

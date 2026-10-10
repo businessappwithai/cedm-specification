@@ -91,7 +91,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
          the WASM overlay's footprint, blanking ISO timestamps first. A
          "2026-08-22" would survive that blanking and make the two copies differ
          whenever the pair of runs straddles midnight. -->
-    <div class="stamp">Manual for version 1.0.0 &middot; generated <time datetime="2026-10-09T15:29:18.365Z">2026-10-09T15:29:18.365Z</time></div>
+    <div class="stamp">Manual for version 1.0.0 &middot; generated <time datetime="2026-10-10T02:40:39.205Z">2026-10-10T02:40:39.205Z</time></div>
   </header>
 
       <nav class="toc" aria-label="Contents">
@@ -821,6 +821,14 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <ul class="plain">
           <li>Each <b>Agreement</b> has many <a href="#entity-party">Party</a> records.</li>
       </ul>
+      <h4>What happens when it is written</h4>
+      <table>
+        <thead><tr><th>Rule</th><th>Runs on</th><th>Order</th></tr></thead>
+        <tbody>
+          <tr><td><code>agreementInvariantsBeforeCreate</code></td><td>beforeCreate (CREATE)</td><td>100</td></tr>
+          <tr><td><code>agreementInvariantsBeforeUpdate</code></td><td>beforeUpdate (UPDATE)</td><td>100</td></tr>
+        </tbody>
+      </table>
       <p class="back"><a href="#top">Back to contents</a></p>
     </section>
 
@@ -6908,6 +6916,8 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
         <tr><td><code>taskInvariantsBeforeUpdate</code></td><td><a href="#entity-task">Task</a></td><td>beforeUpdate</td></tr>
         <tr><td><code>contractInvariantsBeforeCreate</code></td><td><a href="#entity-contract">Contract</a></td><td>beforeCreate</td></tr>
         <tr><td><code>contractInvariantsBeforeUpdate</code></td><td><a href="#entity-contract">Contract</a></td><td>beforeUpdate</td></tr>
+        <tr><td><code>agreementInvariantsBeforeCreate</code></td><td><a href="#entity-agreement">Agreement</a></td><td>beforeCreate</td></tr>
+        <tr><td><code>agreementInvariantsBeforeUpdate</code></td><td><a href="#entity-agreement">Agreement</a></td><td>beforeUpdate</td></tr>
         <tr><td><code>partyWorkflowsAfterUpdate</code></td><td><a href="#entity-party">Party</a></td><td>afterUpdate</td></tr>
         <tr><td><code>exchangeRateWorkflowsAfterUpdate</code></td><td><a href="#entity-exchange-rate">Exchange Rate</a></td><td>afterUpdate</td></tr>
         <tr><td><code>contractWorkflowsAfterUpdate</code></td><td><a href="#entity-contract">Contract</a></td><td>afterUpdate</td></tr>
@@ -6975,7 +6985,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
   </section>
 
   <footer>
-    legal 1.0.0 &middot; 59 record types &middot; 15 rules &middot; 18 processes
+    legal 1.0.0 &middot; 59 record types &middot; 17 rules &middot; 18 processes
   </footer>
 </div>
 </body>

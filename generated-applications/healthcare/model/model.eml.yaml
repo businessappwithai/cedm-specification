@@ -233,6 +233,25 @@ enums:
       INACTIVE: Not currently providing services; can return.
       SUSPENDED: Barred while a licence, credential or conduct issue is reviewed.
       RETIRED: No longer a provider; kept for history. A final state.
+  - name: PractitionerStatus
+    values: [DRAFT, ACTIVE, SUSPENDED, INACTIVE, RETIRED]
+    table: true
+    descriptions:
+      DRAFT: Being credentialed; licence and affiliation checks are not complete, so no clinical work yet.
+      ACTIVE: Cleared to practise here; can be scheduled, appointed and place orders.
+      SUSPENDED: Barred while a licence or conduct matter is reviewed.
+      INACTIVE: Not currently practising here but may return.
+      RETIRED: No longer a practitioner here. A final state.
+  - name: AppointmentStatus
+    values: [SCHEDULED, CONFIRMED, CHECKED_IN, COMPLETED, CANCELLED, NO_SHOW]
+    table: true
+    descriptions:
+      SCHEDULED: Appointment is booked but not yet confirmed by the patient or provider.
+      CONFIRMED: Patient or provider confirmation has been recorded.
+      CHECKED_IN: Patient arrival or equivalent readiness has been recorded.
+      COMPLETED: Scheduled service concluded and any required encounter evidence is reconciled. A final state.
+      CANCELLED: The appointment was cancelled by the patient or provider before it took place. A final state.
+      NO_SHOW: Patient did not attend according to policy. A final state.
   - name: HealthcareEncounterEncounterType
     values: [OUTPATIENT, INPATIENT, EMERGENCY, VIRTUAL, HOME_CARE, OTHER]
     table: true
@@ -316,10 +335,10 @@ categories:
     entities: [Party, Person, Organization, PartyRole, PartyRelationship, LegalEntity, BusinessUnit, Department, Address, ContactPoint, Location, Country, StateProvince, City, Language, Currency, ExchangeRate, UnitOfMeasure, Calendar, Attachment, Task]
   - name: Healthcare
     icon: stethoscope
-    entities: [HealthcarePatient, HealthcareProvider, HealthcareEncounter, Medication, Prescription, CarePlan]
+    entities: [HealthcarePatient, HealthcareProvider, Practitioner, Appointment, HealthcareEncounter, Medication, Prescription, CarePlan]
   - name: Reference Data
     icon: list
-    entities: [PartyPartyType, PartyStatus, PersonGender, PersonPartyType, PersonStatus, OrganizationOrganizationType, OrganizationStatus, OrganizationPartyType, PartyRoleRoleType, PartyRoleStatus, AddressAddressType, AddressStatus, LocationLocationType, LocationStatus, CurrencyStatus, ExchangeRateRateType, ExchangeRateStatus, UnitOfMeasureCategory, UnitOfMeasureStatus, TaskTaskType, TaskStatus, TaskPriority, HealthcarePatientStatus, HealthcareProviderProviderType, HealthcareProviderStatus, HealthcareEncounterEncounterType, HealthcareEncounterStatus, HealthcareOrderStatus, DiagnosisDiagnosisType, ProcedureStatus, MedicationStatus, PrescriptionStatus, AllergyStatus, CarePlanStatus]
+    entities: [PartyPartyType, PartyStatus, PersonGender, PersonPartyType, PersonStatus, OrganizationOrganizationType, OrganizationStatus, OrganizationPartyType, PartyRoleRoleType, PartyRoleStatus, AddressAddressType, AddressStatus, LocationLocationType, LocationStatus, CurrencyStatus, ExchangeRateRateType, ExchangeRateStatus, UnitOfMeasureCategory, UnitOfMeasureStatus, TaskTaskType, TaskStatus, TaskPriority, HealthcarePatientStatus, HealthcareProviderProviderType, HealthcareProviderStatus, PractitionerStatus, AppointmentStatus, HealthcareEncounterEncounterType, HealthcareEncounterStatus, HealthcareOrderStatus, DiagnosisDiagnosisType, ProcedureStatus, MedicationStatus, PrescriptionStatus, AllergyStatus, CarePlanStatus]
 entities:
   - name: Party
     help: The foundational CEDM business concept for an identifiable person or organization participating in business. Party separates who an actor is from the roles that actor performs. The same party can be a customer, supplier, employee, owner, provider, or contract party without creating duplicate identities. Used as the identity foundation for onboarding, customer management, procurement, sales, finance, logistics, HR, healthcare, contracts, compliance, and audit. Party connects to Person or Organization for intrinsic identity details and to PartyRole for business roles. Transactions and domain entities should reference the appropriate role when role-specific behavior matters. Party identity is long-lived. Operational eligibility is controlled by status, while historical relationships and transactions remain referentially valid. One organization may be represented by a single Party and simultaneously participate as Customer and Supplier in different business relationships.
@@ -14548,6 +14567,89 @@ entities:
         fk: true
         optional: true
         help: The organisation the provider belongs to or works through. Set where the provider is part of a larger body, such as a hospital group. At most one organisation; an independent practitioner has none. Places the provider in a reporting and billing structure.
+  - name: Practitioner
+    help: Represents the professional healthcare role of a Person. Practitioner identifies who is professionally authorized to deliver care; HealthcareProvider supplies organizational context; Appointment schedules intended care and HealthcareEncounter records actual care. Healthcare scheduling, provider directories, encounters, credentialing, reporting and audit. Person is mandatory, provider affiliations define care settings, appointments represent scheduled commitments and encounters preserve actual participation. Practitioner roles become active after setup, may suspend or become inactive, and eventually retire while historical care evidence remains attributable. A physician Person holds one Practitioner record, is affiliated with two HealthcareProviders, has scheduled Appointments and is later referenced by completed HealthcareEncounters.
+    icon: stethoscope
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: The identity of the practitioner role, independent of the person's other roles. Generated on registration; orders, appointments and encounters refer to it. Identifies one governed professional healthcare role independently of the underlying Person identity. Person supplies human identity while Practitioner supplies professional service role.
+      - name: practitioner_code
+        type: string(120)
+        unique: true
+        help: The code by which the practitioner is known in the healthcare organisation. Assigned at credentialing; unique; used on orders, schedules and prescriptions. Operational identifier used by healthcare workflows and integrations. Distinct from professional license numbers and Person identity.
+      - name: license_number
+        type: string(200)
+        optional: true
+        help: The professional licence number issued by the licensing body. Entered at credentialing from the licence; checked against its expiry before the practitioner is scheduled. Supports evidence that the practitioner is authorized under an external credentialing regime. Jurisdiction and credential type may require additional governed context outside this baseline entity.
+      - name: specialty
+        type: string(200)
+        optional: true
+        help: The practitioner's clinical specialty, such as cardiology or paediatrics. Entered at credentialing; used to route referrals and choose the right clinician for an appointment. Describes the practitioner's service domain for scheduling and routing. Does not replace formal credential or privilege evidence.
+      - name: status
+        type: string
+        enum: PractitionerStatus
+        help: Whether the practitioner is cleared to work in this organisation. Set by credentialing staff; only ACTIVE practitioners can be scheduled or place orders. Being credentialed; licence and affiliation checks are not complete, so no clinical work yet. Cleared to practise here; can be scheduled, appointed and place orders. Barred while a licence or conduct matter is reviewed. Not currently practising here but may return. No longer a practitioner here. A final state. Distinguishes preparation, active practice, temporary restriction, inactivity and retirement. Historical encounters remain attributable after status changes.
+        default: DRAFT
+      - name: person_id
+        type: string
+        fk: true
+        help: "The individual who holds the practitioner role. Set at credentialing and not changed. Exactly one person: the professional role is held by a specific individual. Keeps the person's identity in one place across all their roles. Separates common human identity from healthcare professional role."
+  - name: Appointment
+    help: Represents scheduled healthcare intent independently of actual care delivery. Appointment answers when care is planned; HealthcareEncounter records what actually occurred. Keeping them separate supports cancellations, no-shows, rescheduling and audit. Patient scheduling, provider capacity, reminders, check-in, operational planning, reporting and integration. HealthcarePatient is mandatory; Practitioner, HealthcareProvider and Location define planned resources; HealthcareEncounter supplies actual-care reconciliation. Appointments are scheduled, may be confirmed and checked in, and finish as completed, cancelled or no-show. A patient schedules a cardiology visit with a Practitioner; after check-in, an Encounter is created and linked when the visit occurs.
+    icon: calendar-clock
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: The identity of the booking itself, separate from the encounter that records the care when the patient is seen. Identifies one scheduled healthcare commitment independently of encounter execution. Scheduling, reminders, patient service, reporting and audit. HealthcareEncounter may later record actual care but does not replace Appointment identity.
+      - name: appointment_number
+        type: string(120)
+        unique: true
+        help: The scheduling reference given to the appointment, used in reminders and check-in. Operational identifier for scheduling and communication. Search, reminders, check-in and integration. Distinct from patient and encounter identifiers.
+      - name: appointment_type
+        type: string(120)
+        help: The kind of healthcare service the visit is booked for, such as a follow-up consultation, vaccination or imaging slot. Chosen by the scheduler when booking; drives how long a slot is held, which resources it needs and how capacity is reported. Supports routing, duration, resource and preparation policies. Does not itself prove what service was actually delivered.
+      - name: scheduled_start_at
+        type: datetime
+        help: The date and time at which the patient is expected to be seen, in the clinic's planning calendar. Entered when the appointment is booked and changed on rescheduling; reminders fire from it and lateness is measured against it. Establishes when the scheduled service is intended to begin. Must precede scheduledEndAt when an end is supplied.
+      - name: scheduled_end_at
+        type: datetime
+        optional: true
+        help: The planned end of the slot, giving the time the practitioner and room are held. Optional; when given it must fall after the start. Capacity planning uses it to detect overlapping bookings for the same resource. Supports resource-capacity and duration planning. Must follow scheduledStartAt.
+      - name: status
+        type: string
+        enum: AppointmentStatus
+        help: Where the booking stands, from being scheduled through attendance to closure as completed, cancelled or missed. Moved by front-desk staff and clinicians as the patient confirms, arrives and is seen; reminders and capacity reports filter on it. Appointment is booked but not yet confirmed by the patient or provider. Patient or provider confirmation has been recorded. Patient arrival or equivalent readiness has been recorded. Scheduled service concluded and any required encounter evidence is reconciled. A final state. The appointment was cancelled by the patient or provider before it took place. A final state. Patient did not attend according to policy. A final state. Distinguishes planned, confirmed, arrived and final scheduling outcomes. COMPLETED normally reconciles to encounter evidence when care occurred.
+        default: SCHEDULED
+      - name: patient_id
+        type: string
+        fk: true
+        references: HealthcarePatient
+        help: Exactly one patient; an appointment cannot exist without the person it is for. Patient for whom the appointment is scheduled. Establishes the recipient of intended care. Scheduling, reminders and patient history. Patient status and scheduling policy constrain new appointments.
+      - name: provider_id
+        type: string
+        fk: true
+        references: HealthcareProvider
+        optional: true
+        help: Healthcare provider organization or service context for the appointment. Supplies organizational delivery context. Scheduling, reporting and operational routing. Optional where practitioner or location fully determines context. Provider eligibility must agree with assigned practitioner where applicable.
+      - name: practitioner_id
+        type: string
+        fk: true
+        optional: true
+        help: Practitioner scheduled to deliver or supervise care. Supplies professional resource commitment. Scheduling, capacity and reporting. Optional before assignment or for resource-pool appointments. Practitioner must be eligible when assigned.
+      - name: location_id
+        type: string
+        fk: true
+        optional: true
+        help: Planned physical or virtual service location. Defines where scheduled care is expected to occur. Scheduling, navigation and resource planning. Optional for unsited or virtual appointments represented elsewhere. Location availability must be validated under scheduling policy.
+      - name: encounter_id
+        type: string
+        fk: true
+        references: HealthcareEncounter
+        optional: true
+        help: Actual healthcare encounter arising from this appointment. Separates scheduled intent from delivered care evidence. Scheduling reconciliation, clinical operations and audit. Optional before care or for cancelled/no-show appointments. COMPLETED should reconcile to applicable encounter evidence when care was delivered.
   - name: HealthcareEncounter
     help: A recorded interaction between a patient and a healthcare provider or facility for evaluation, treatment or service. The encounter is the unit of care. Diagnoses, procedures and orders are made within an encounter, and billing and quality reporting follow from it. Created when care is planned or begins; completed when it ends; read by clinicians, coders and billing. An encounter is for a HealthcarePatient, may be with a HealthcareProvider and Practitioners, may arise from an Appointment, and contains Diagnoses, Procedures and HealthcareOrders. An encounter is planned, in progress while care is delivered, and completed when finished; it can be cancelled if care does not take place. A 30-minute outpatient visit to a cardiology clinic on 4 March.
     icon: file-text
@@ -15441,6 +15543,56 @@ entities:
         type: boolean
         help: Whether the value is offered on new records.
         default: "true"
+  - name: PractitionerStatus
+    help: "The values of practitioner status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows."
+    icon: list
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string(100)
+        unique: true
+        help: The value stored on every record that uses this list. Fixed once created.
+      - name: name
+        type: string(200)
+        help: What a person reads in the dropdown and on a record.
+      - name: description
+        type: text
+        optional: true
+        help: What the value means to the business.
+      - name: sequence
+        type: integer
+        help: The position of the value in a dropdown, lowest first.
+      - name: is_active
+        type: boolean
+        help: Whether the value is offered on new records.
+        default: "true"
+  - name: AppointmentStatus
+    help: "The values of appointment status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows."
+    icon: list
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string(100)
+        unique: true
+        help: The value stored on every record that uses this list. Fixed once created.
+      - name: name
+        type: string(200)
+        help: What a person reads in the dropdown and on a record.
+      - name: description
+        type: text
+        optional: true
+        help: What the value means to the business.
+      - name: sequence
+        type: integer
+        help: The position of the value in a dropdown, lowest first.
+      - name: is_active
+        type: boolean
+        help: Whether the value is offered on new records.
+        default: "true"
   - name: HealthcareEncounterEncounterType
     help: "The values of healthcare encounter encounter type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows."
     icon: list
@@ -15825,6 +15977,11 @@ relationships:
     to: Allergy
     toCardinality: zero-or-more
     label: allergies
+  - from: HealthcarePatient
+    fromCardinality: exactly-one
+    to: Appointment
+    toCardinality: zero-or-more
+    label: appointments
   - from: Party
     fromCardinality: exactly-one
     to: HealthcareProvider
@@ -15838,6 +15995,39 @@ relationships:
     to: HealthcareEncounter
     toCardinality: zero-or-more
     label: encounters
+  - from: HealthcareProvider
+    fromCardinality: zero-or-more
+    to: Practitioner
+    toCardinality: zero-or-more
+    label: practitioners
+  - from: HealthcareProvider
+    fromCardinality: exactly-one
+    to: Appointment
+    toCardinality: zero-or-more
+    label: appointments
+  - from: Person
+    fromCardinality: exactly-one
+    to: Practitioner
+    toCardinality: zero-or-more
+  - from: Practitioner
+    fromCardinality: exactly-one
+    to: Appointment
+    toCardinality: zero-or-more
+    label: appointments
+  - from: Practitioner
+    fromCardinality: zero-or-more
+    to: HealthcareEncounter
+    toCardinality: zero-or-more
+    label: encounters
+  - from: Location
+    fromCardinality: exactly-one
+    to: Appointment
+    toCardinality: zero-or-more
+  - from: HealthcareEncounter
+    fromCardinality: zero-or-one
+    to: Appointment
+    toCardinality: zero-or-one
+    label: encounter
   - from: HealthcareEncounter
     fromCardinality: exactly-one
     to: Diagnosis
@@ -16044,6 +16234,126 @@ rules:
         when: status == "COMPLETED" and completed_at == null
         props:
           message: Record completed at when the task is completed.
+  - name: appointmentInvariantsBeforeCreate
+    title: Appointment invariants (beforeCreate)
+    entity: Appointment
+    event: beforeCreate
+    nodes:
+      - id: S
+        label: "Start: Appointment beforeCreate"
+        type: start
+      - id: E
+        label: "End: invariants hold"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: APPOINTMENT-EXE-001
+        type: validation-error
+        when: scheduled_start_at != null and scheduled_end_at != null and scheduled_end_at < scheduled_start_at
+        props:
+          message: Scheduled End At cannot be earlier than scheduled start at.
+  - name: appointmentInvariantsBeforeUpdate
+    title: Appointment invariants (beforeUpdate)
+    entity: Appointment
+    event: beforeUpdate
+    nodes:
+      - id: S
+        label: "Start: Appointment beforeUpdate"
+        type: start
+      - id: E
+        label: "End: invariants hold"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: APPOINTMENT-EXE-001
+        type: validation-error
+        when: scheduled_start_at != null and scheduled_end_at != null and scheduled_end_at < scheduled_start_at
+        props:
+          message: Scheduled End At cannot be earlier than scheduled start at.
+  - name: healthcareEncounterInvariantsBeforeCreate
+    title: HealthcareEncounter invariants (beforeCreate)
+    entity: HealthcareEncounter
+    event: beforeCreate
+    nodes:
+      - id: S
+        label: "Start: HealthcareEncounter beforeCreate"
+        type: start
+      - id: E
+        label: "End: invariants hold"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: HEALTHCARE-ENCOUNTER-EXE-001
+        type: validation-error
+        when: start_at != null and end_at != null and end_at < start_at
+        props:
+          message: End At cannot be earlier than start at.
+  - name: healthcareEncounterInvariantsBeforeUpdate
+    title: HealthcareEncounter invariants (beforeUpdate)
+    entity: HealthcareEncounter
+    event: beforeUpdate
+    nodes:
+      - id: S
+        label: "Start: HealthcareEncounter beforeUpdate"
+        type: start
+      - id: E
+        label: "End: invariants hold"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: HEALTHCARE-ENCOUNTER-EXE-001
+        type: validation-error
+        when: start_at != null and end_at != null and end_at < start_at
+        props:
+          message: End At cannot be earlier than start at.
+  - name: prescriptionInvariantsBeforeCreate
+    title: Prescription invariants (beforeCreate)
+    entity: Prescription
+    event: beforeCreate
+    nodes:
+      - id: S
+        label: "Start: Prescription beforeCreate"
+        type: start
+      - id: E
+        label: "End: invariants hold"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: PRESCRIPTION-EXE-001
+        type: validation-error
+        when: start_date != null and end_date != null and end_date < start_date
+        props:
+          message: End Date cannot be earlier than start date.
+  - name: prescriptionInvariantsBeforeUpdate
+    title: Prescription invariants (beforeUpdate)
+    entity: Prescription
+    event: beforeUpdate
+    nodes:
+      - id: S
+        label: "Start: Prescription beforeUpdate"
+        type: start
+      - id: E
+        label: "End: invariants hold"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: PRESCRIPTION-EXE-001
+        type: validation-error
+        when: start_date != null and end_date != null and end_date < start_date
+        props:
+          message: End Date cannot be earlier than start date.
   - name: partyWorkflowsAfterUpdate
     title: Party workflows (afterUpdate)
     entity: Party
@@ -16084,6 +16394,26 @@ rules:
         when: status == "CANCELLED" and status != _previous_status
         props:
           workflow: ExchangeRateFollowUpRequired
+  - name: appointmentWorkflowsAfterUpdate
+    title: Appointment workflows (afterUpdate)
+    entity: Appointment
+    event: afterUpdate
+    nodes:
+      - id: S
+        label: "Start: Appointment afterUpdate"
+        type: start
+      - id: E
+        label: "End: workflows started"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: FollowUpRequired
+        type: trigger-workflow
+        when: status == "CANCELLED" and status != _previous_status
+        props:
+          workflow: AppointmentFollowUpRequired
   - name: healthcareEncounterWorkflowsAfterUpdate
     title: HealthcareEncounter workflows (afterUpdate)
     entity: HealthcareEncounter
@@ -16513,6 +16843,71 @@ stateMachines:
       - from: SUSPENDED
         to: RETIRED
         trigger: retire
+  - name: PractitionerLifecycle
+    title: Practitioner Lifecycle
+    entity: Practitioner
+    states: [DRAFT, ACTIVE, SUSPENDED, INACTIVE, RETIRED]
+    initial: DRAFT
+    final: [RETIRED]
+    transitions:
+      - from: DRAFT
+        to: ACTIVE
+        trigger: activate
+      - from: ACTIVE
+        to: SUSPENDED
+        trigger: suspend
+      - from: SUSPENDED
+        to: ACTIVE
+        trigger: resume
+      - from: ACTIVE
+        to: INACTIVE
+        trigger: deactivate
+      - from: INACTIVE
+        to: ACTIVE
+        trigger: reactivate
+      - from: DRAFT
+        to: RETIRED
+        trigger: retire
+      - from: ACTIVE
+        to: RETIRED
+        trigger: retire
+      - from: SUSPENDED
+        to: RETIRED
+        trigger: retire
+      - from: INACTIVE
+        to: RETIRED
+        trigger: retire
+  - name: AppointmentLifecycle
+    title: Appointment Lifecycle
+    entity: Appointment
+    states: [SCHEDULED, CONFIRMED, CHECKED_IN, COMPLETED, CANCELLED, NO_SHOW]
+    initial: SCHEDULED
+    final: [COMPLETED, CANCELLED, NO_SHOW]
+    transitions:
+      - from: SCHEDULED
+        to: CONFIRMED
+        trigger: confirm
+      - from: SCHEDULED
+        to: CHECKED_IN
+        trigger: check_in
+      - from: CONFIRMED
+        to: CHECKED_IN
+        trigger: check_in
+      - from: CHECKED_IN
+        to: COMPLETED
+        trigger: complete
+      - from: SCHEDULED
+        to: CANCELLED
+        trigger: cancel
+      - from: CONFIRMED
+        to: CANCELLED
+        trigger: cancel
+      - from: SCHEDULED
+        to: NO_SHOW
+        trigger: mark_no_show
+      - from: CONFIRMED
+        to: NO_SHOW
+        trigger: mark_no_show
   - name: HealthcareEncounterLifecycle
     title: Healthcare Encounter Lifecycle
     entity: HealthcareEncounter
@@ -16681,6 +17076,20 @@ sagas:
           entity: bus_task
           as: taskId
           fields: '{"code":"EXCHANGE-RATE-FOLLOW-UP-{{id}}","name":"Follow up on exchange rate {{id}}","description":"Exchange rate {{id}} is now {{status}}. Check the records that depended on it and tell the people affected.","task_type":"USER","status":"CREATED","priority":"NORMAL"}'
+  - name: AppointmentFollowUpRequired
+    title: Follow up when a appointment is ended
+    entity: Appointment
+    operation: UPDATE
+    trigger: rule
+    description: When a appointment is cancelled, a task asks someone to settle what depended on it.
+    steps:
+      - id: S1
+        type: CreateEntity
+        label: "Raise a task: follow up on"
+        properties:
+          entity: bus_task
+          as: taskId
+          fields: '{"code":"APPOINTMENT-FOLLOW-UP-{{id}}","name":"Follow up on appointment {{appointment_number}}","description":"Appointment {{appointment_number}} is now {{status}}. Check the records that depended on it and tell the people affected.","task_type":"USER","status":"CREATED","priority":"NORMAL"}'
   - name: HealthcareEncounterFollowUpRequired
     title: Follow up when a healthcare encounter is ended
     entity: HealthcareEncounter

@@ -91,7 +91,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
          the WASM overlay's footprint, blanking ISO timestamps first. A
          "2026-08-22" would survive that blanking and make the two copies differ
          whenever the pair of runs straddles midnight. -->
-    <div class="stamp">Manual for version 1.0.0 &middot; generated <time datetime="2026-10-09T15:28:16.664Z">2026-10-09T15:28:16.664Z</time></div>
+    <div class="stamp">Manual for version 1.0.0 &middot; generated <time datetime="2026-10-10T02:39:33.579Z">2026-10-10T02:39:33.579Z</time></div>
   </header>
 
       <nav class="toc" aria-label="Contents">
@@ -2743,6 +2743,14 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <tr><td><code>SUSPENDED</code></td><td><code>EXPIRED</code></td><td><code>expire</code></td></tr>
           <tr><td><code>ACTIVE</code></td><td><code>TERMINATED</code></td><td><code>terminate</code></td></tr>
           <tr><td><code>SUSPENDED</code></td><td><code>TERMINATED</code></td><td><code>terminate</code></td></tr>
+        </tbody>
+      </table>
+      <h4>What happens when it is written</h4>
+      <table>
+        <thead><tr><th>Rule</th><th>Runs on</th><th>Order</th></tr></thead>
+        <tbody>
+          <tr><td><code>entitlementInvariantsBeforeCreate</code></td><td>beforeCreate (CREATE)</td><td>100</td></tr>
+          <tr><td><code>entitlementInvariantsBeforeUpdate</code></td><td>beforeUpdate (UPDATE)</td><td>100</td></tr>
         </tbody>
       </table>
       <p class="back"><a href="#top">Back to contents</a></p>
@@ -6034,6 +6042,14 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <tr><td><code>PENDING</code></td><td><code>CANCELLED</code></td><td><code>cancel</code></td></tr>
         </tbody>
       </table>
+      <h4>What happens when it is written</h4>
+      <table>
+        <thead><tr><th>Rule</th><th>Runs on</th><th>Order</th></tr></thead>
+        <tbody>
+          <tr><td><code>serviceCaseWorkflowsAfterUpdate</code></td><td>afterUpdate (UPDATE)</td><td>100</td></tr>
+        </tbody>
+      </table>
+      <p><b>Processes:</b> <a href="#process-service-case-follow-up-required">ServiceCaseFollowUpRequired</a></p>
       <p class="back"><a href="#top">Back to contents</a></p>
     </section>
 
@@ -6384,6 +6400,14 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <tr><td><code>SUSPENDED</code></td><td><code>EXPIRED</code></td><td><code>expire</code></td></tr>
           <tr><td><code>ACTIVE</code></td><td><code>TERMINATED</code></td><td><code>terminate</code></td></tr>
           <tr><td><code>SUSPENDED</code></td><td><code>TERMINATED</code></td><td><code>terminate</code></td></tr>
+        </tbody>
+      </table>
+      <h4>What happens when it is written</h4>
+      <table>
+        <thead><tr><th>Rule</th><th>Runs on</th><th>Order</th></tr></thead>
+        <tbody>
+          <tr><td><code>serviceContractInvariantsBeforeCreate</code></td><td>beforeCreate (CREATE)</td><td>100</td></tr>
+          <tr><td><code>serviceContractInvariantsBeforeUpdate</code></td><td>beforeUpdate (UPDATE)</td><td>100</td></tr>
         </tbody>
       </table>
       <p class="back"><a href="#top">Back to contents</a></p>
@@ -6924,6 +6948,14 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <tr><td><code>IN_PROGRESS</code></td><td><code>CANCELLED</code></td><td><code>cancel</code></td></tr>
         </tbody>
       </table>
+      <h4>What happens when it is written</h4>
+      <table>
+        <thead><tr><th>Rule</th><th>Runs on</th><th>Order</th></tr></thead>
+        <tbody>
+          <tr><td><code>serviceOrderWorkflowsAfterUpdate</code></td><td>afterUpdate (UPDATE)</td><td>100</td></tr>
+        </tbody>
+      </table>
+      <p><b>Processes:</b> <a href="#process-service-order-follow-up-required">ServiceOrderFollowUpRequired</a></p>
       <p class="back"><a href="#top">Back to contents</a></p>
     </section>
 
@@ -8306,6 +8338,14 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <tr><td><code>PENDING</code></td><td><code>CANCELLED</code></td><td><code>cancel</code></td></tr>
         </tbody>
       </table>
+      <h4>What happens when it is written</h4>
+      <table>
+        <thead><tr><th>Rule</th><th>Runs on</th><th>Order</th></tr></thead>
+        <tbody>
+          <tr><td><code>ticketWorkflowsAfterUpdate</code></td><td>afterUpdate (UPDATE)</td><td>100</td></tr>
+        </tbody>
+      </table>
+      <p><b>Processes:</b> <a href="#process-ticket-follow-up-required">TicketFollowUpRequired</a></p>
       <p class="back"><a href="#top">Back to contents</a></p>
     </section>
 
@@ -8893,12 +8933,19 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
         <tr><td><code>exchangeRateInvariantsBeforeUpdate</code></td><td><a href="#entity-exchange-rate">Exchange Rate</a></td><td>beforeUpdate</td></tr>
         <tr><td><code>taskInvariantsBeforeCreate</code></td><td><a href="#entity-task">Task</a></td><td>beforeCreate</td></tr>
         <tr><td><code>taskInvariantsBeforeUpdate</code></td><td><a href="#entity-task">Task</a></td><td>beforeUpdate</td></tr>
+        <tr><td><code>serviceContractInvariantsBeforeCreate</code></td><td><a href="#entity-service-contract">Service Contract</a></td><td>beforeCreate</td></tr>
+        <tr><td><code>serviceContractInvariantsBeforeUpdate</code></td><td><a href="#entity-service-contract">Service Contract</a></td><td>beforeUpdate</td></tr>
+        <tr><td><code>entitlementInvariantsBeforeCreate</code></td><td><a href="#entity-entitlement">Entitlement</a></td><td>beforeCreate</td></tr>
+        <tr><td><code>entitlementInvariantsBeforeUpdate</code></td><td><a href="#entity-entitlement">Entitlement</a></td><td>beforeUpdate</td></tr>
         <tr><td><code>contractInvariantsBeforeCreate</code></td><td><a href="#entity-contract">Contract</a></td><td>beforeCreate</td></tr>
         <tr><td><code>contractInvariantsBeforeUpdate</code></td><td><a href="#entity-contract">Contract</a></td><td>beforeUpdate</td></tr>
         <tr><td><code>partyWorkflowsAfterUpdate</code></td><td><a href="#entity-party">Party</a></td><td>afterUpdate</td></tr>
         <tr><td><code>exchangeRateWorkflowsAfterUpdate</code></td><td><a href="#entity-exchange-rate">Exchange Rate</a></td><td>afterUpdate</td></tr>
         <tr><td><code>customerWorkflowsAfterUpdate</code></td><td><a href="#entity-customer">Customer</a></td><td>afterUpdate</td></tr>
+        <tr><td><code>serviceCaseWorkflowsAfterUpdate</code></td><td><a href="#entity-service-case">Service Case</a></td><td>afterUpdate</td></tr>
         <tr><td><code>serviceRequestWorkflowsAfterUpdate</code></td><td><a href="#entity-service-request">Service Request</a></td><td>afterUpdate</td></tr>
+        <tr><td><code>ticketWorkflowsAfterUpdate</code></td><td><a href="#entity-ticket">Ticket</a></td><td>afterUpdate</td></tr>
+        <tr><td><code>serviceOrderWorkflowsAfterUpdate</code></td><td><a href="#entity-service-order">Service Order</a></td><td>afterUpdate</td></tr>
         <tr><td><code>escalationWorkflowsAfterUpdate</code></td><td><a href="#entity-escalation">Escalation</a></td><td>afterUpdate</td></tr>
         <tr><td><code>contractWorkflowsAfterUpdate</code></td><td><a href="#entity-contract">Contract</a></td><td>afterUpdate</td></tr>
       </tbody>
@@ -8930,9 +8977,30 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
         <li>Raise a task: resolve <span class="tag">CreateEntity</span></li>
       </ol>
     </div>
+    <div id="process-service-case-follow-up-required" class="process">
+      <h3>ServiceCaseFollowUpRequired</h3>
+      <p class="meta">On <a href="#entity-service-case">Service Case</a>, rule on UPDATE.</p>
+      <ol>
+        <li>Raise a task: follow up on <span class="tag">CreateEntity</span></li>
+      </ol>
+    </div>
     <div id="process-service-request-follow-up-required" class="process">
       <h3>ServiceRequestFollowUpRequired</h3>
       <p class="meta">On <a href="#entity-service-request">Service Request</a>, rule on UPDATE.</p>
+      <ol>
+        <li>Raise a task: follow up on <span class="tag">CreateEntity</span></li>
+      </ol>
+    </div>
+    <div id="process-ticket-follow-up-required" class="process">
+      <h3>TicketFollowUpRequired</h3>
+      <p class="meta">On <a href="#entity-ticket">Ticket</a>, rule on UPDATE.</p>
+      <ol>
+        <li>Raise a task: follow up on <span class="tag">CreateEntity</span></li>
+      </ol>
+    </div>
+    <div id="process-service-order-follow-up-required" class="process">
+      <h3>ServiceOrderFollowUpRequired</h3>
+      <p class="meta">On <a href="#entity-service-order">Service Order</a>, rule on UPDATE.</p>
       <ol>
         <li>Raise a task: follow up on <span class="tag">CreateEntity</span></li>
       </ol>
@@ -8963,7 +9031,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
   </section>
 
   <footer>
-    customer-service 1.0.0 &middot; 70 record types &middot; 16 rules &middot; 25 processes
+    customer-service 1.0.0 &middot; 70 record types &middot; 23 rules &middot; 28 processes
   </footer>
 </div>
 </body>

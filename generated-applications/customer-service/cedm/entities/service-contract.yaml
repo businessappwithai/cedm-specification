@@ -36,6 +36,7 @@ entity:
     - {id: SERVICE-CONTRACT-001, rule: effectiveTo must not precede effectiveFrom.}
     - {id: SERVICE-CONTRACT-002, rule: ACTIVE service coverage requires an eligible governing Contract and consistent Customer party.}
     - {id: SERVICE-CONTRACT-003, rule: "Historical service decisions retain the ServiceContract, Entitlement and SLA terms applied at authorization time."}
+    - {id: SERVICE-CONTRACT-EXE-001, rule: "Effective To must not be earlier than effective from.", violatedWhen: "effective_from != null and effective_to != null and effective_to < effective_from", message: "Effective To cannot be earlier than effective from."}
   lifecycle:
     title: Service Contract Lifecycle
     attribute: status

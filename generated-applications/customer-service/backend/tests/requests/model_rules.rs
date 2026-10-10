@@ -1,6 +1,6 @@
 //! The rules the *model* declared, and whether they reached the application.
 //!
-//! Generated: 2026-10-09T15:28:13.827Z
+//! Generated: 2026-10-10T02:39:31.006Z
 //! Project: customer-service
 //!
 //! Every other rules suite creates a rule through the API and then checks that
@@ -47,6 +47,26 @@ const MODEL_RULES: &[(&str, &str, &str)] = &[
     ),
     ("taskInvariantsBeforeCreate", "bus_task", "CREATE"),
     ("taskInvariantsBeforeUpdate", "bus_task", "UPDATE"),
+    (
+        "serviceContractInvariantsBeforeCreate",
+        "bus_service_contract",
+        "CREATE",
+    ),
+    (
+        "serviceContractInvariantsBeforeUpdate",
+        "bus_service_contract",
+        "UPDATE",
+    ),
+    (
+        "entitlementInvariantsBeforeCreate",
+        "bus_entitlement",
+        "CREATE",
+    ),
+    (
+        "entitlementInvariantsBeforeUpdate",
+        "bus_entitlement",
+        "UPDATE",
+    ),
     ("contractInvariantsBeforeCreate", "bus_contract", "CREATE"),
     ("contractInvariantsBeforeUpdate", "bus_contract", "UPDATE"),
     ("partyWorkflowsAfterUpdate", "bus_party", "UPDATE"),
@@ -57,8 +77,19 @@ const MODEL_RULES: &[(&str, &str, &str)] = &[
     ),
     ("customerWorkflowsAfterUpdate", "bus_customer", "UPDATE"),
     (
+        "serviceCaseWorkflowsAfterUpdate",
+        "bus_service_case",
+        "UPDATE",
+    ),
+    (
         "serviceRequestWorkflowsAfterUpdate",
         "bus_service_request",
+        "UPDATE",
+    ),
+    ("ticketWorkflowsAfterUpdate", "bus_ticket", "UPDATE"),
+    (
+        "serviceOrderWorkflowsAfterUpdate",
+        "bus_service_order",
         "UPDATE",
     ),
     ("escalationWorkflowsAfterUpdate", "bus_escalation", "UPDATE"),

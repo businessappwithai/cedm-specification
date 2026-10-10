@@ -91,7 +91,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
          the WASM overlay's footprint, blanking ISO timestamps first. A
          "2026-08-22" would survive that blanking and make the two copies differ
          whenever the pair of runs straddles midnight. -->
-    <div class="stamp">Manual for version 1.0.0 &middot; generated <time datetime="2026-10-09T15:28:46.607Z">2026-10-09T15:28:46.607Z</time></div>
+    <div class="stamp">Manual for version 1.0.0 &middot; generated <time datetime="2026-10-10T02:40:04.530Z">2026-10-10T02:40:04.530Z</time></div>
   </header>
 
       <nav class="toc" aria-label="Contents">
@@ -3383,6 +3383,8 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <table>
         <thead><tr><th>Rule</th><th>Runs on</th><th>Order</th></tr></thead>
         <tbody>
+          <tr><td><code>chargeInvariantsBeforeCreate</code></td><td>beforeCreate (CREATE)</td><td>100</td></tr>
+          <tr><td><code>chargeInvariantsBeforeUpdate</code></td><td>beforeUpdate (UPDATE)</td><td>100</td></tr>
           <tr><td><code>chargeWorkflowsAfterUpdate</code></td><td>afterUpdate (UPDATE)</td><td>100</td></tr>
         </tbody>
       </table>
@@ -6396,6 +6398,14 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <tr><td><code>SOFT_CLOSED</code></td><td><code>CLOSED</code></td><td><code>close</code></td></tr>
           <tr><td><code>OPEN</code></td><td><code>LOCKED</code></td><td><code>lock</code></td></tr>
           <tr><td><code>LOCKED</code></td><td><code>OPEN</code></td><td><code>unlock</code></td></tr>
+        </tbody>
+      </table>
+      <h4>What happens when it is written</h4>
+      <table>
+        <thead><tr><th>Rule</th><th>Runs on</th><th>Order</th></tr></thead>
+        <tbody>
+          <tr><td><code>fiscalPeriodInvariantsBeforeCreate</code></td><td>beforeCreate (CREATE)</td><td>100</td></tr>
+          <tr><td><code>fiscalPeriodInvariantsBeforeUpdate</code></td><td>beforeUpdate (UPDATE)</td><td>100</td></tr>
         </tbody>
       </table>
       <p class="back"><a href="#top">Back to contents</a></p>
@@ -15988,6 +15998,8 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <table>
         <thead><tr><th>Rule</th><th>Runs on</th><th>Order</th></tr></thead>
         <tbody>
+          <tr><td><code>taxRateInvariantsBeforeCreate</code></td><td>beforeCreate (CREATE)</td><td>100</td></tr>
+          <tr><td><code>taxRateInvariantsBeforeUpdate</code></td><td>beforeUpdate (UPDATE)</td><td>100</td></tr>
           <tr><td><code>taxRateWorkflowsAfterUpdate</code></td><td>afterUpdate (UPDATE)</td><td>100</td></tr>
         </tbody>
       </table>
@@ -17748,6 +17760,14 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <li>Each <b>Variance</b> belongs to one <a href="#entity-budget">Budget</a>.</li>
           <li>Each <b>Variance</b> belongs to one <a href="#entity-forecast">Forecast</a>.</li>
       </ul>
+      <h4>What happens when it is written</h4>
+      <table>
+        <thead><tr><th>Rule</th><th>Runs on</th><th>Order</th></tr></thead>
+        <tbody>
+          <tr><td><code>varianceInvariantsBeforeCreate</code></td><td>beforeCreate (CREATE)</td><td>100</td></tr>
+          <tr><td><code>varianceInvariantsBeforeUpdate</code></td><td>beforeUpdate (UPDATE)</td><td>100</td></tr>
+        </tbody>
+      </table>
       <p class="back"><a href="#top">Back to contents</a></p>
     </section>
 
@@ -17881,6 +17901,10 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
         <tr><td><code>salesOrderInvariantsBeforeUpdate</code></td><td><a href="#entity-sales-order">Sales Order</a></td><td>beforeUpdate</td></tr>
         <tr><td><code>budgetLineInvariantsBeforeCreate</code></td><td><a href="#entity-budget-line">Budget Line</a></td><td>beforeCreate</td></tr>
         <tr><td><code>budgetLineInvariantsBeforeUpdate</code></td><td><a href="#entity-budget-line">Budget Line</a></td><td>beforeUpdate</td></tr>
+        <tr><td><code>varianceInvariantsBeforeCreate</code></td><td><a href="#entity-variance">Variance</a></td><td>beforeCreate</td></tr>
+        <tr><td><code>varianceInvariantsBeforeUpdate</code></td><td><a href="#entity-variance">Variance</a></td><td>beforeUpdate</td></tr>
+        <tr><td><code>fiscalPeriodInvariantsBeforeCreate</code></td><td><a href="#entity-fiscal-period">Fiscal Period</a></td><td>beforeCreate</td></tr>
+        <tr><td><code>fiscalPeriodInvariantsBeforeUpdate</code></td><td><a href="#entity-fiscal-period">Fiscal Period</a></td><td>beforeUpdate</td></tr>
         <tr><td><code>invoiceLineInvariantsBeforeCreate</code></td><td><a href="#entity-invoice-line">Invoice Line</a></td><td>beforeCreate</td></tr>
         <tr><td><code>invoiceLineInvariantsBeforeUpdate</code></td><td><a href="#entity-invoice-line">Invoice Line</a></td><td>beforeUpdate</td></tr>
         <tr><td><code>paymentAllocationInvariantsBeforeCreate</code></td><td><a href="#entity-payment-allocation">Payment Allocation</a></td><td>beforeCreate</td></tr>
@@ -17891,8 +17915,12 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
         <tr><td><code>creditNoteLineInvariantsBeforeUpdate</code></td><td><a href="#entity-credit-note-line">Credit Note Line</a></td><td>beforeUpdate</td></tr>
         <tr><td><code>creditNoteApplicationInvariantsBeforeCreate</code></td><td><a href="#entity-credit-note-application">Credit Note Application</a></td><td>beforeCreate</td></tr>
         <tr><td><code>creditNoteApplicationInvariantsBeforeUpdate</code></td><td><a href="#entity-credit-note-application">Credit Note Application</a></td><td>beforeUpdate</td></tr>
+        <tr><td><code>taxRateInvariantsBeforeCreate</code></td><td><a href="#entity-tax-rate">Tax Rate</a></td><td>beforeCreate</td></tr>
+        <tr><td><code>taxRateInvariantsBeforeUpdate</code></td><td><a href="#entity-tax-rate">Tax Rate</a></td><td>beforeUpdate</td></tr>
         <tr><td><code>taxRuleInvariantsBeforeCreate</code></td><td><a href="#entity-tax-rule">Tax Rule</a></td><td>beforeCreate</td></tr>
         <tr><td><code>taxRuleInvariantsBeforeUpdate</code></td><td><a href="#entity-tax-rule">Tax Rule</a></td><td>beforeUpdate</td></tr>
+        <tr><td><code>chargeInvariantsBeforeCreate</code></td><td><a href="#entity-charge">Charge</a></td><td>beforeCreate</td></tr>
+        <tr><td><code>chargeInvariantsBeforeUpdate</code></td><td><a href="#entity-charge">Charge</a></td><td>beforeUpdate</td></tr>
         <tr><td><code>assetDepreciationInvariantsBeforeCreate</code></td><td><a href="#entity-asset-depreciation">Asset Depreciation</a></td><td>beforeCreate</td></tr>
         <tr><td><code>assetDepreciationInvariantsBeforeUpdate</code></td><td><a href="#entity-asset-depreciation">Asset Depreciation</a></td><td>beforeUpdate</td></tr>
         <tr><td><code>purchaseOrderLineInvariantsBeforeCreate</code></td><td><a href="#entity-purchase-order-line">Purchase Order Line</a></td><td>beforeCreate</td></tr>
@@ -18196,7 +18224,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
   </section>
 
   <footer>
-    finance 1.0.0 &middot; 141 record types &middot; 68 rules &middot; 74 processes
+    finance 1.0.0 &middot; 141 record types &middot; 76 rules &middot; 74 processes
   </footer>
 </div>
 </body>
