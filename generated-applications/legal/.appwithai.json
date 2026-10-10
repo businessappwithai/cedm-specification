@@ -112,6 +112,21 @@
     "ContractObligationFollowUpRequired on ContractObligation (1 steps, rule)",
     "RenewalFollowUpRequired on Renewal (1 steps, rule)"
   ],
+  "lastWriteWins": [],
+  "finalStates": [
+    "Party: RETIRED",
+    "Organization: RETIRED",
+    "PartyRole: EXPIRED",
+    "Address: RETIRED",
+    "Location: CLOSED, RETIRED",
+    "Currency: RETIRED",
+    "ExchangeRate: EXPIRED, CANCELLED",
+    "UnitOfMeasure: RETIRED",
+    "Task: COMPLETED, CANCELLED, FAILED",
+    "Contract: EXPIRED, TERMINATED, CANCELLED",
+    "ContractObligation: FULFILLED, BREACHED, WAIVED, CANCELLED",
+    "Renewal: COMPLETED, CANCELLED"
+  ],
   "packageManager": "bun",
-  "generatedAt": "2026-10-09T15:29:18.383Z"
+  "generatedAt": "2026-10-10T08:30:42.296Z"
 }

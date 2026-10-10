@@ -113,6 +113,22 @@
     "CreditFollowUpRequired on Credit (1 steps, rule)",
     "CreditCompletionConfirmed on Credit (1 steps, rule)"
   ],
+  "lastWriteWins": [],
+  "finalStates": [
+    "Party: RETIRED",
+    "Organization: RETIRED",
+    "PartyRole: EXPIRED",
+    "Address: RETIRED",
+    "Location: CLOSED, RETIRED",
+    "Currency: RETIRED",
+    "ExchangeRate: EXPIRED, CANCELLED",
+    "UnitOfMeasure: RETIRED",
+    "Task: COMPLETED, CANCELLED, FAILED",
+    "BankAccount: CLOSED",
+    "BankTransaction: REVERSED, FAILED",
+    "BankLoan: PAID_OFF, DEFAULTED, CANCELLED",
+    "Credit: COMPLETED, CANCELLED"
+  ],
   "packageManager": "bun",
-  "generatedAt": "2026-10-09T15:27:57.935Z"
+  "generatedAt": "2026-10-10T08:29:15.938Z"
 }

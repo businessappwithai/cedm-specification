@@ -97,6 +97,20 @@
     "HotelReservationApprovalRequested on HotelReservation (1 steps, rule)",
     "HotelReservationFollowUpRequired on HotelReservation (1 steps, rule)"
   ],
+  "lastWriteWins": [],
+  "finalStates": [
+    "Party: RETIRED",
+    "Organization: RETIRED",
+    "PartyRole: EXPIRED",
+    "Address: RETIRED",
+    "Location: CLOSED, RETIRED",
+    "Currency: RETIRED",
+    "ExchangeRate: EXPIRED, CANCELLED",
+    "UnitOfMeasure: RETIRED",
+    "Task: COMPLETED, CANCELLED, FAILED",
+    "Hotel: CLOSED, RETIRED",
+    "HotelReservation: CHECKED_OUT, CANCELLED, NO_SHOW"
+  ],
   "packageManager": "bun",
-  "generatedAt": "2026-10-09T15:28:59.833Z"
+  "generatedAt": "2026-10-10T08:30:21.931Z"
 }

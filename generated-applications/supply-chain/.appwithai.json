@@ -100,6 +100,21 @@
     "SupplyPlanLineFollowUpRequired on SupplyPlanLine (1 steps, rule)",
     "ProductExceptionRaised on Product (1 steps, rule)"
   ],
+  "lastWriteWins": [],
+  "finalStates": [
+    "Party: RETIRED",
+    "Organization: RETIRED",
+    "PartyRole: EXPIRED",
+    "Address: RETIRED",
+    "Location: CLOSED, RETIRED",
+    "Currency: RETIRED",
+    "ExchangeRate: EXPIRED, CANCELLED",
+    "UnitOfMeasure: RETIRED",
+    "Task: COMPLETED, CANCELLED, FAILED",
+    "SupplyPlan: CLOSED, CANCELLED",
+    "SupplyPlanLine: FULFILLED, CANCELLED",
+    "Product: DISCONTINUED, RETIRED"
+  ],
   "packageManager": "bun",
-  "generatedAt": "2026-10-09T15:30:48.980Z"
+  "generatedAt": "2026-10-10T08:32:15.603Z"
 }

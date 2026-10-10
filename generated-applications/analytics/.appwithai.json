@@ -95,6 +95,20 @@
     "ExchangeRateFollowUpRequired on ExchangeRate (1 steps, rule)",
     "DataQualityAssessmentFollowUpRequired on DataQualityAssessment (1 steps, rule)"
   ],
+  "lastWriteWins": [],
+  "finalStates": [
+    "Party: RETIRED",
+    "Organization: RETIRED",
+    "PartyRole: EXPIRED",
+    "Address: RETIRED",
+    "Location: CLOSED, RETIRED",
+    "Currency: RETIRED",
+    "ExchangeRate: EXPIRED, CANCELLED",
+    "UnitOfMeasure: RETIRED",
+    "Task: COMPLETED, CANCELLED, FAILED",
+    "Dataset: ARCHIVED, RETIRED",
+    "DataQualityAssessment: COMPLETED, CANCELLED"
+  ],
   "packageManager": "bun",
-  "generatedAt": "2026-10-09T15:27:44.203Z"
+  "generatedAt": "2026-10-10T08:29:01.518Z"
 }

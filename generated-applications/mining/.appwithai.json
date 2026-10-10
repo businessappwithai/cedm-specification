@@ -89,6 +89,19 @@
     "PartyExceptionRaised on Party (1 steps, rule)",
     "ExchangeRateFollowUpRequired on ExchangeRate (1 steps, rule)"
   ],
+  "lastWriteWins": [],
+  "finalStates": [
+    "Party: RETIRED",
+    "Organization: RETIRED",
+    "PartyRole: EXPIRED",
+    "Address: RETIRED",
+    "Location: CLOSED, RETIRED",
+    "Currency: RETIRED",
+    "ExchangeRate: EXPIRED, CANCELLED",
+    "UnitOfMeasure: RETIRED",
+    "Task: COMPLETED, CANCELLED, FAILED",
+    "MiningSite: CLOSED"
+  ],
   "packageManager": "bun",
-  "generatedAt": "2026-10-09T15:29:46.000Z"
+  "generatedAt": "2026-10-10T08:31:11.858Z"
 }
