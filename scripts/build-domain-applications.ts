@@ -22,7 +22,8 @@ import path from "node:path";
 // Bun parses YAML itself; the repository root declares no yaml dependency.
 const parse = (text: string): any => Bun.YAML.parse(text);
 import { serializeCedmDocument } from "../packages/generator/src/model-cedm/canonical";
-import type { CedmModelDocument } from "../language/cedm";
+import { type CedmLibrary, type CedmModelDocument, resolveCedmImports } from "../language/cedm";
+import { createFileLibrary } from "../packages/generator/src/model-cedm/library";
 
 const ROOT = path.resolve(import.meta.dir, "..");
 const check = process.argv.includes("--check");
@@ -59,6 +60,8 @@ const domains = new Map<string, { name: string; capabilities?: string[] }>(
 );
 
 const library = new Set<string>();
+/** Value objects are embedded in the entities that hold them, never imported on their own. */
+const valueObjects = new Set<string>();
 /** member → its aggregate root, from the roots' `ownership: aggregate` collections. */
 const aggregateRoots = new Map<string, string[]>();
 for (const file of readdirSync(path.join(ROOT, "domain/entities"))) {
@@ -66,6 +69,7 @@ for (const file of readdirSync(path.join(ROOT, "domain/entities"))) {
   const entity = parse(readFileSync(path.join(ROOT, "domain/entities", file), "utf-8"))?.entity;
   if (!entity?.name) continue;
   library.add(entity.name);
+  if (entity.kind === "value_object") valueObjects.add(entity.name);
   for (const relationship of entity.relationships ?? []) {
     const many = /\.\.\*$/.test(String(relationship.cardinality));
     if (relationship.ownership === "aggregate" && many && relationship.target !== entity.name) {
@@ -88,8 +92,10 @@ const isLineItem = (name: string, contained: Set<string>) =>
 const FOUNDATION = "Foundation";
 const header = (lines: string[]) => ` ${lines.join("\n ")}`;
 const stale: string[] = [];
+const built = new Map<string, CedmModelDocument>();
 
 function write(file: string, document: CedmModelDocument, lines: string[]): void {
+  built.set(file.replace(/\.cedm\.yaml$/, ""), document);
   const text = serializeCedmDocument(document, header(lines));
   const target = path.join(ROOT, "applications", file);
   if (check) {
@@ -199,6 +205,34 @@ for (const application of catalog.applications) {
     },
     lines
   );
+}
+
+/* ---- every library entity reaches an application ------------------------- */
+// An entity no application imports is never generated, never tested and never
+// seen: Guardian, Coverage and the port and research entities sat in the
+// library unreachable. The imports are resolved exactly as the generators
+// resolve them, so the closure over required references counts.
+const files = createFileLibrary({ root: ROOT });
+const resolver: CedmLibrary = {
+  entity: (name) => files.entity(name),
+  module: (name) => built.get(name),
+};
+const reached = new Set<string>();
+for (const [name, document] of built) {
+  const resolved = resolveCedmImports(document, resolver);
+  const errors = resolved.notes.filter((note) => note.severity === "error");
+  if (errors.length) {
+    throw new Error(`${name}: ${errors.map((note) => `${note.code} ${note.message}`).join("; ")}`);
+  }
+  for (const entity of resolved.libraryEntities) reached.add(entity);
+}
+const unreached = [...library].filter((name) => !reached.has(name) && !valueObjects.has(name));
+if (unreached.length) {
+  console.error(
+    `Library entities no application reaches: ${unreached.sort().join(", ")}.\n` +
+      "List each under its domain in domains/application-catalog.yaml."
+  );
+  process.exit(1);
 }
 
 if (check) {

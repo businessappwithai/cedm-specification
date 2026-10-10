@@ -152,6 +152,7 @@ entity:
     - id: PROJECT-001
       rule: endDate must not precede startDate.
     - {id: PROJECT-EXE-001, rule: "Budget Amount cannot be negative.", violatedWhen: "budget_amount != null and budget_amount < 0", message: "Budget Amount cannot be negative."}
+    - {id: PROJECT-EXE-002, rule: "End Date must not be earlier than start date.", violatedWhen: "start_date != null and end_date != null and end_date < start_date", message: "End Date cannot be earlier than start date."}
   lifecycle:
     title: Project Lifecycle
     attribute: status

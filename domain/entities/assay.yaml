@@ -46,6 +46,43 @@ entity:
       - {from: RUNNING, to: COMPLETED, action: complete}
       - {from: RUNNING, to: FAILED, action: fail}
       - {from: RUNNING, to: CANCELLED, action: cancel}
+  workflows:
+    - name: ExceptionRaised
+      title: "Raise a task when a assay is stopped"
+      description: "When a assay is failed, a high-priority task asks someone to resolve it."
+      when: "status == \"FAILED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: resolve"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "ASSAY-EXCEPTION-{{id}}"
+              name: "Resolve assay {{id}}"
+              description: "Assay {{id}} is now {{status}}. Find out why it stopped and move it on or close it."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "HIGH"
+    - name: FollowUpRequired
+      title: "Follow up when a assay is ended"
+      description: "When a assay is cancelled, a task asks someone to settle what depended on it."
+      when: "status == \"CANCELLED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "ASSAY-FOLLOW-UP-{{id}}"
+              name: "Follow up on assay {{id}}"
+              description: "Assay {{id}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
   help:
     summary: Represents one analytical laboratory execution with sample and evidence provenance.
     businessMeaning: Protocol defines method; Assay executes it; Observation records primary evidence; Result captures derived interpretation.

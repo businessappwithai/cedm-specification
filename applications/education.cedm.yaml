@@ -13,10 +13,15 @@ imports:
   - module: common
   - entity: EducationProgram
   - entity: EducationCourse
+  - entity: Class
   - entity: EducationStudent
+  - entity: Guardian
   - entity: Enrollment
+  - entity: Assessment
+  - entity: Grade
+  - entity: Fee
 ui:
   categories:
     - name: Education
       icon: graduation-cap
-      entities: [EducationProgram, EducationCourse, EducationStudent]
+      entities: [EducationProgram, EducationCourse, EducationStudent, Guardian, Fee]

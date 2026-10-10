@@ -38,6 +38,8 @@ entity:
     - {id: FUEL-002, rule: totalAmount must be non-negative when supplied.}
     - {id: FUEL-003, rule: VERIFIED transaction is immutable evidence; corrections use reversal or follow-up transaction.}
     - {id: FUEL-004, rule: Import retries must be idempotent for the same external fuel-card or station transaction identity.}
+    - {id: FUEL-TRANSACTION-EXE-001, rule: "Quantity cannot be negative.", violatedWhen: "quantity != null and quantity < 0", message: "Quantity cannot be negative."}
+    - {id: FUEL-TRANSACTION-EXE-002, rule: "Total Amount cannot be negative.", violatedWhen: "total_amount != null and total_amount < 0", message: "Total Amount cannot be negative."}
   lifecycle:
     title: Fuel Transaction Lifecycle
     attribute: status
@@ -47,6 +49,25 @@ entity:
     transitions:
       - {from: RECORDED, to: VERIFIED, action: verify}
       - {from: RECORDED, to: REVERSED, action: reverse}
+  workflows:
+    - name: FollowUpRequired
+      title: "Follow up when a fuel transaction is ended"
+      description: "When a fuel transaction is reversed, a task asks someone to settle what depended on it."
+      when: "status == \"REVERSED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "FUEL-TRANSACTION-FOLLOW-UP-{{id}}"
+              name: "Follow up on fuel transaction {{transaction_number}}"
+              description: "Fuel transaction {{transaction_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
   help:
     summary: Preserves vehicle fuel/energy consumption and cost evidence.
     businessMeaning: FuelTransaction records the fleet event; Payment records settlement; Vehicle/Driver/Location provide operational attribution.

@@ -39,6 +39,7 @@ entity:
     - {id: APPOINTMENT-002, rule: Assigned Practitioner and HealthcareProvider must be mutually eligible under applicable affiliation and credential policy.}
     - {id: APPOINTMENT-003, rule: CANCELLED and NO_SHOW appointments do not imply a completed HealthcareEncounter.}
     - {id: APPOINTMENT-004, rule: Historical scheduling outcomes are not destructively rewritten; rescheduling or corrections preserve auditable chronology.}
+    - {id: APPOINTMENT-EXE-001, rule: "Scheduled End At must not be earlier than scheduled start at.", violatedWhen: "scheduled_start_at != null and scheduled_end_at != null and scheduled_end_at < scheduled_start_at", message: "Scheduled End At cannot be earlier than scheduled start at."}
   lifecycle:
     title: Appointment Lifecycle
     attribute: status
@@ -54,6 +55,25 @@ entity:
       - {from: CONFIRMED, to: CANCELLED, action: cancel}
       - {from: SCHEDULED, to: NO_SHOW, action: mark_no_show}
       - {from: CONFIRMED, to: NO_SHOW, action: mark_no_show}
+  workflows:
+    - name: FollowUpRequired
+      title: "Follow up when a appointment is ended"
+      description: "When a appointment is cancelled, a task asks someone to settle what depended on it."
+      when: "status == \"CANCELLED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "APPOINTMENT-FOLLOW-UP-{{id}}"
+              name: "Follow up on appointment {{appointment_number}}"
+              description: "Appointment {{appointment_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
   help:
     summary: Represents scheduled healthcare intent independently of actual care delivery.
     businessMeaning: Appointment answers when care is planned; HealthcareEncounter records what actually occurred. Keeping them separate supports cancellations, no-shows, rescheduling and audit.

@@ -36,6 +36,7 @@ entity:
   invariants:
     - {id: CLASS-001, rule: endDate must not precede startDate when both are supplied.}
     - {id: CLASS-002, rule: COMPLETED or CANCELLED Class records are historical delivery evidence and must not be destructively rewritten.}
+    - {id: CLASS-EXE-001, rule: "End Date must not be earlier than start date.", violatedWhen: "start_date != null and end_date != null and end_date < start_date", message: "End Date cannot be earlier than start date."}
   lifecycle:
     title: Class Lifecycle
     attribute: status
@@ -49,6 +50,25 @@ entity:
       - {from: OPEN, to: CANCELLED, action: cancel}
       - {from: IN_PROGRESS, to: COMPLETED, action: complete}
       - {from: IN_PROGRESS, to: CANCELLED, action: cancel}
+  workflows:
+    - name: FollowUpRequired
+      title: "Follow up when a class is ended"
+      description: "When a class is cancelled, a task asks someone to settle what depended on it."
+      when: "status == \"CANCELLED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "CLASS-FOLLOW-UP-{{id}}"
+              name: "Follow up on class {{name}}"
+              description: "Class {{name}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
   help:
     summary: Represents one scheduled delivery instance of an EducationCourse.
     businessMeaning: EducationCourse defines what is taught; Class defines when and to whom one offering is delivered.

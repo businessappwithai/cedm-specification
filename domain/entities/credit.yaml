@@ -89,6 +89,8 @@ entity:
       rule: amount must not be negative.
     - id: CREDIT-003
       rule: remainingAmount must not exceed amount.
+    - {id: CREDIT-EXE-001, rule: "Amount cannot be negative.", violatedWhen: "amount != null and amount < 0", message: "Amount cannot be negative."}
+    - {id: CREDIT-EXE-002, rule: "Remaining Amount cannot be negative.", violatedWhen: "remaining_amount != null and remaining_amount < 0", message: "Remaining Amount cannot be negative."}
   lifecycle:
     title: Credit Lifecycle
     attribute: status

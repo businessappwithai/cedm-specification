@@ -62,6 +62,25 @@ entity:
       - {from: DRAFT, to: CANCELLED, action: cancel}
       - {from: PUBLISHED, to: CLOSED, action: close}
       - {from: PUBLISHED, to: CANCELLED, action: cancel}
+  workflows:
+    - name: FollowUpRequired
+      title: "Follow up when a assessment is ended"
+      description: "When a assessment is cancelled, a task asks someone to settle what depended on it."
+      when: "status == \"CANCELLED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "ASSESSMENT-FOLLOW-UP-{{id}}"
+              name: "Follow up on assessment {{title}}"
+              description: "Assessment {{title}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
   help:
     summary: Defines an education evaluation activity separately from student-specific results.
     businessMeaning: Assessment says what is evaluated; Grade records how one EducationStudent performed.

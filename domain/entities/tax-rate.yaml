@@ -85,6 +85,8 @@ entity:
       rule: rate must not be negative.
     - id: TAX-RATE-003
       rule: effectiveTo must not precede effectiveFrom.
+    - {id: TAX-RATE-EXE-001, rule: "Effective To must not be earlier than effective from.", violatedWhen: "effective_from != null and effective_to != null and effective_to < effective_from", message: "Effective To cannot be earlier than effective from."}
+    - {id: TAX-RATE-EXE-002, rule: "Rate cannot be negative.", violatedWhen: "rate != null and rate < 0", message: "Rate cannot be negative."}
   lifecycle:
     title: Tax Rate Lifecycle
     attribute: status

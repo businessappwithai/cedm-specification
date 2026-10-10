@@ -37,6 +37,7 @@ entity:
     - {id: FEE-002, rule: Enrollment must belong to the same EducationStudent when supplied.}
     - {id: FEE-003, rule: PAID status must reconcile to settled financial evidence under the organization's billing policy.}
     - {id: FEE-004, rule: Assessed or invoiced fee history is not destructively rewritten; waivers and corrections remain explicit evidence.}
+    - {id: FEE-EXE-001, rule: "Amount cannot be negative.", violatedWhen: "amount != null and amount < 0", message: "Amount cannot be negative."}
   lifecycle:
     title: Education Fee Lifecycle
     attribute: status
@@ -51,6 +52,25 @@ entity:
       - {from: ASSESSED, to: CANCELLED, action: cancel}
       - {from: INVOICED, to: PAID, action: mark_paid}
       - {from: INVOICED, to: WAIVED, action: waive}
+  workflows:
+    - name: FollowUpRequired
+      title: "Follow up when a fee is ended"
+      description: "When a fee is cancelled, a task asks someone to settle what depended on it."
+      when: "status == \"CANCELLED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "FEE-FOLLOW-UP-{{id}}"
+              name: "Follow up on fee {{id}}"
+              description: "Fee {{id}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
   help:
     summary: Represents an education-specific charge while keeping receivable and settlement evidence in finance entities.
     businessMeaning: Fee explains why a student is charged; Invoice records the financial claim; Payment records settlement.

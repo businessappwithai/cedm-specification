@@ -49,6 +49,7 @@ entity:
     - {id: SETTLEMENT-002, rule: All ClaimLines must belong to the referenced InsuranceClaim.}
     - {id: SETTLEMENT-003, rule: EXECUTED settlement is immutable historical evidence; corrections use reversal or follow-up settlement/payment evidence.}
     - {id: SETTLEMENT-004, rule: Execution retries must be idempotent to prevent duplicate claim payment.}
+    - {id: SETTLEMENT-EXE-001, rule: "Amount cannot be negative.", violatedWhen: "amount != null and amount < 0", message: "Amount cannot be negative."}
   lifecycle:
     title: Settlement Lifecycle
     attribute: status
@@ -60,6 +61,25 @@ entity:
       - {from: DRAFT, to: VOID, action: void}
       - {from: APPROVED, to: EXECUTED, action: execute}
       - {from: APPROVED, to: VOID, action: void}
+  workflows:
+    - name: FollowUpRequired
+      title: "Follow up when a settlement is ended"
+      description: "When a settlement is void, a task asks someone to settle what depended on it."
+      when: "status == \"VOID\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "SETTLEMENT-FOLLOW-UP-{{id}}"
+              name: "Follow up on settlement {{settlement_number}}"
+              description: "Settlement {{settlement_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
   help:
     summary: Records the governed discharge of approved insurance claim liability.
     businessMeaning: ClaimLine determines approved liability; Settlement allocates/discharges it; Payment records cash movement when applicable.

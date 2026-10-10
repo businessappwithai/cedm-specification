@@ -71,6 +71,7 @@ entity:
     - {id: VARIANCE-001, rule: The record must not directly create or rewrite actual JournalEntry evidence.}
     - id: VARIANCE-002
       rule: periodEnd must not precede periodStart.
+    - {id: VARIANCE-EXE-001, rule: "Period End must not be earlier than period start.", violatedWhen: "period_start != null and period_end != null and period_end < period_start", message: "Period End cannot be earlier than period start."}
   help:
     summary: A comparison between planned, forecast or actual financial measures for a period and dimension.
     businessMeaning: A variance shows how far reality is from the plan and in which direction. It lets managers see where budget is overspent or revenue falls short, without altering the accounting entries it is derived from.

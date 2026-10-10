@@ -55,6 +55,25 @@ entity:
     transitions:
       - {from: RECORDED, to: VERIFIED, action: verify}
       - {from: RECORDED, to: REVERSED, action: reverse}
+  workflows:
+    - name: FollowUpRequired
+      title: "Follow up when a gate event is ended"
+      description: "When a gate event is reversed, a task asks someone to settle what depended on it."
+      when: "status == \"REVERSED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "GATE-EVENT-FOLLOW-UP-{{id}}"
+              name: "Follow up on gate event {{id}}"
+              description: "Gate event {{id}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
   help:
     summary: Preserves immutable terminal gate entry/exit evidence.
     businessMeaning: Gate is checkpoint master data; GateEvent records what happened; ContainerVisit and Movement summarize broader operational state/history.

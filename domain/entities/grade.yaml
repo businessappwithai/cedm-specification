@@ -40,6 +40,25 @@ entity:
     transitions:
       - {from: DRAFT, to: FINAL, action: finalize}
       - {from: DRAFT, to: VOID, action: void}
+  workflows:
+    - name: FollowUpRequired
+      title: "Follow up when a grade is ended"
+      description: "When a grade is void, a task asks someone to settle what depended on it."
+      when: "status == \"VOID\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "GRADE-FOLLOW-UP-{{id}}"
+              name: "Follow up on grade {{id}}"
+              description: "Grade {{id}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
   help:
     summary: Records one learner's result for one Assessment.
     businessMeaning: Assessment defines the evaluated activity; Grade is the student-specific outcome retained for academic evidence.

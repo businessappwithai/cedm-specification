@@ -37,6 +37,8 @@ entity:
     - {id: CLAIM-LINE-002, rule: claimedAmount and approvedAmount must be non-negative when supplied.}
     - {id: CLAIM-LINE-003, rule: Coverage must belong to the same InsurancePolicy as the parent claim.}
     - {id: CLAIM-LINE-004, rule: SETTLED line must reconcile to attributable Settlement evidence.}
+    - {id: CLAIM-LINE-EXE-001, rule: "Claimed Amount cannot be negative.", violatedWhen: "claimed_amount != null and claimed_amount < 0", message: "Claimed Amount cannot be negative."}
+    - {id: CLAIM-LINE-EXE-002, rule: "Approved Amount cannot be negative.", violatedWhen: "approved_amount != null and approved_amount < 0", message: "Approved Amount cannot be negative."}
   lifecycle:
     title: Claim Line Lifecycle
     attribute: status
@@ -50,6 +52,43 @@ entity:
       - {from: ASSESSED, to: DENIED, action: deny}
       - {from: ASSESSED, to: CANCELLED, action: cancel}
       - {from: APPROVED, to: SETTLED, action: settle}
+  workflows:
+    - name: ApprovalRequested
+      title: "Ask for a decision when a claim line is put forward"
+      description: "When a claim line is submitted, a task asks someone to decide on it."
+      when: "status == \"SUBMITTED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: decide on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "CLAIM-LINE-APPROVAL-{{id}}"
+              name: "Decide on claim line {{id}}"
+              description: "Claim line {{id}} is now {{status}}. Approve it, return it for change or reject it; the move you make is recorded on the record."
+              task_type: "APPROVAL"
+              status: "CREATED"
+              priority: "NORMAL"
+    - name: FollowUpRequired
+      title: "Follow up when a claim line is ended"
+      description: "When a claim line is cancelled or denied, a task asks someone to settle what depended on it."
+      when: "(status == \"CANCELLED\" or status == \"DENIED\") and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "CLAIM-LINE-FOLLOW-UP-{{id}}"
+              name: "Follow up on claim line {{id}}"
+              description: "Claim line {{id}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
   help:
     summary: Provides line-level insurance claim adjudication and settlement traceability.
     businessMeaning: InsuranceClaim is the claim aggregate; ClaimLine evaluates a particular benefit/loss against Coverage; Settlement records actual discharge of approved liability.

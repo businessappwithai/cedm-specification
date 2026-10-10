@@ -45,6 +45,25 @@ entity:
       - {from: PLANNED, to: CANCELLED, action: cancel}
       - {from: ACTIVE, to: COMPLETED, action: complete}
       - {from: ACTIVE, to: CANCELLED, action: cancel}
+  workflows:
+    - name: FollowUpRequired
+      title: "Follow up when a voyage is ended"
+      description: "When a voyage is cancelled, a task asks someone to settle what depended on it."
+      when: "status == \"CANCELLED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "VOYAGE-FOLLOW-UP-{{id}}"
+              name: "Follow up on voyage {{voyage_number}}"
+              description: "Voyage {{voyage_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
   help:
     summary: Represents one maritime journey used by shipping and terminal operations.
     businessMeaning: Vessel is the resource; Voyage is the journey; Port/Berth provide terminal context; ContainerVisit ties cargo presence to the journey.

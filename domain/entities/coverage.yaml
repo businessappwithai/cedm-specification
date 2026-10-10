@@ -36,6 +36,8 @@ entity:
     - {id: COVERAGE-001, rule: limitAmount and deductibleAmount must be non-negative when supplied.}
     - {id: COVERAGE-002, rule: ACTIVE Coverage must be compatible with the governing InsurancePolicy lifecycle and effective period.}
     - {id: COVERAGE-003, rule: Policy or Coverage changes must not rewrite the terms historically applied to completed claim decisions.}
+    - {id: COVERAGE-EXE-001, rule: "Limit Amount cannot be negative.", violatedWhen: "limit_amount != null and limit_amount < 0", message: "Limit Amount cannot be negative."}
+    - {id: COVERAGE-EXE-002, rule: "Deductible Amount cannot be negative.", violatedWhen: "deductible_amount != null and deductible_amount < 0", message: "Deductible Amount cannot be negative."}
   lifecycle:
     title: Coverage Lifecycle
     attribute: status
@@ -51,6 +53,25 @@ entity:
       - {from: SUSPENDED, to: EXPIRED, action: expire}
       - {from: ACTIVE, to: CANCELLED, action: cancel}
       - {from: SUSPENDED, to: CANCELLED, action: cancel}
+  workflows:
+    - name: FollowUpRequired
+      title: "Follow up when a coverage is ended"
+      description: "When a coverage is cancelled, a task asks someone to settle what depended on it."
+      when: "status == \"CANCELLED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "COVERAGE-FOLLOW-UP-{{id}}"
+              name: "Follow up on coverage {{id}}"
+              description: "Coverage {{id}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
   help:
     summary: Represents one governed insured benefit or risk component of a policy.
     businessMeaning: InsurancePolicy is the contract-level aggregate; Coverage states the specific protection and limits applied to claims.
