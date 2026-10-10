@@ -1591,40 +1591,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "117240f60069e65410b3ae1bb213295bd828f707b5bec6596a1afc8793ce0cbc"
 
 [[package]]
-name = "nonprofit"
-version = "1.0.0"
-dependencies = [
- "anyhow",
- "async-trait",
- "axum",
- "chrono",
- "loco-rs",
- "migration",
- "moka",
- "quick-xml 0.37.5",
- "reqwest 0.12.28",
- "rust_decimal",
- "sea-orm",
- "sea-query",
- "sea-query-sqlx",
- "serde",
- "serde_json",
- "serde_yaml",
- "serial_test",
- "sha2 0.10.9",
- "sqlx",
- "thiserror 2.0.20",
- "tokio",
- "tower",
- "tracing",
- "utoipa",
- "utoipa-redoc",
- "utoipa-scalar",
- "uuid",
- "zen-engine",
-]
-
-[[package]]
 name = "dtoa"
 version = "1.0.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3314,6 +3280,40 @@ name = "nonempty"
 version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e9e591e719385e6ebaeb5ce5d3887f7d5676fceca6411d1925ccc95745f3d6f7"
+
+[[package]]
+name = "nonprofit"
+version = "1.0.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "axum",
+ "chrono",
+ "loco-rs",
+ "migration",
+ "moka",
+ "quick-xml 0.37.5",
+ "reqwest 0.12.28",
+ "rust_decimal",
+ "sea-orm",
+ "sea-query",
+ "sea-query-sqlx",
+ "serde",
+ "serde_json",
+ "serde_yaml",
+ "serial_test",
+ "sha2 0.10.9",
+ "sqlx",
+ "thiserror 2.0.20",
+ "tokio",
+ "tower",
+ "tracing",
+ "utoipa",
+ "utoipa-redoc",
+ "utoipa-scalar",
+ "uuid",
+ "zen-engine",
+]
 
 [[package]]
 name = "notify"

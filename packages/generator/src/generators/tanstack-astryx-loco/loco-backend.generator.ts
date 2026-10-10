@@ -192,6 +192,28 @@ pub mod rate_limit;
 `;
 
 /** Template → output path pairs rendered with the full entity context. */
+/**
+ * The lock's packages in cargo's own order, by name. The template holds every
+ * entry in that order except the project's, whose name is the project's; left
+ * where the template puts it, the first `cargo build` of a generated app
+ * re-sorts it and the project's committed lock file shows as changed. The sort
+ * is stable, so two versions of one crate keep the template's order.
+ * `crates/appwithai-gen/src/backend.rs` (`sort_cargo_lock`) does the same.
+ */
+export function sortCargoLock(text: string): string {
+  const marker = "\n[[package]]\n";
+  const [head = "", ...blocks] = text.split(marker);
+  const nameOf = (block: string) => /^name = "([^"]*)"/.exec(block)?.[1] ?? "";
+  const sorted = blocks
+    .map((block, index) => ({ block, index, name: nameOf(block) }))
+    .sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : a.index - b.index));
+  // Every block but the last ends with the blank line that separated it; the last
+  // ends with the file's own ending. Rebuild both from the blocks' bodies.
+  const bodies = sorted.map(({ block }) => block.replace(/\n+$/, ""));
+  const ending = text.endsWith("\n") ? "\n" : "";
+  return `${head}${bodies.map((body) => `${marker}${body}`).join("\n")}${ending}`;
+}
+
 const RENDERED_FILES: Array<{ tpl: string; out: string }> = [
   { tpl: "Cargo.toml.hbs", out: "Cargo.toml" },
   // Shipped so a generated app resolves the graph it was tested against rather
@@ -414,7 +436,10 @@ export class LocoBackendGenerator extends BaseGenerator {
 
     for (const { tpl, out } of RENDERED_FILES) {
       const content = await this.renderTemplate(tpl, context);
-      await fs.writeFile(path.join(outputDir, out), content);
+      await fs.writeFile(
+        path.join(outputDir, out),
+        out === "Cargo.lock" ? sortCargoLock(content) : content
+      );
     }
 
     // The static `sys_*` DDL is copied byte for byte rather than rendered —
