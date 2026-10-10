@@ -1,0 +1,51 @@
+entity:
+  name: Observation
+  namespace: cedm.domain
+  kind: research_observation
+  description: A governed primary scientific observation or measurement captured from a Sample, Assay, Experiment or Study before or alongside downstream interpretation.
+  ui: {icon: eye}
+  identity: {key: observationId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: observationId, type: uuid, required: true, immutable: true, help: {summary: The identity of the observation., usage: Generated on recording; results and verifications refer to it., businessMeaning: Identifies one primary evidence item independently of later interpretation., relationshipContext: Result may derive from one or more Observations.}}
+    - {name: observedAt, type: datetime, required: true, help: {summary: The date and time at which the measurement was actually made or the phenomenon seen., usage: 'Entered with the value and may differ from when it was recorded; used in time series, reproducibility checks and audit.', businessMeaning: Establishes scientific chronology., relationshipContext: May differ from record-entry time.}}
+    - {name: observationType, type: string, required: true, maxLength: 160, help: {summary: 'Names the characteristic observed, such as pH, absorbance or colony count, and fixes how the value is read.', usage: Chosen by the scientist when recording; analysis and validation use it to select the unit and expected range of values., businessMeaning: Defines what property or phenomenon the value represents., relationshipContext: Unit and value semantics depend on observation type.}}
+    - {name: value, type: string, required: true, maxLength: 2000, help: {summary: 'The measured or qualitative result exactly as captured, held as text so numbers and descriptions both fit.', usage: 'Entered or imported with the observation; numeric values are read with the unit of measure, and it is never overwritten.', businessMeaning: Primary scientific evidence as captured under applicable method., relationshipContext: Numeric interpretation may require UnitOfMeasure and method context.}}
+    - name: status
+      type: enum
+      required: true
+      default: RECORDED
+      values: [RECORDED, VERIFIED, INVALIDATED]
+      help:
+        summary: Whether the observation has been checked.
+        usage: Set by the scientist or reviewer; only verified observations feed final results.
+        valueSemantics:
+          RECORDED: Captured but not yet checked.
+          VERIFIED: Checked and accepted as primary evidence. A final state.
+          INVALIDATED: Found to be invalid, for example from a faulty instrument; kept for audit but not used. A final state.
+        businessMeaning: "Distinguishes captured evidence, verified evidence and explicitly invalidated evidence."
+        relationshipContext: Invalidation preserves original evidence rather than deleting it.
+  relationships:
+    - {name: sample, target: Sample, cardinality: "0..1", ownership: reference, help: {summary: Sample from which the Observation originates., businessMeaning: Preserves specimen provenance., usage: "Traceability and interpretation.", cardinalityMeaning: Optional for non-sample observations., workflowRole: Sample lineage remains intact.}}
+    - {name: assay, target: Assay, cardinality: "0..1", ownership: reference, help: {summary: Assay execution producing the Observation., businessMeaning: Preserves method/execution provenance., usage: "Laboratory analysis and audit.", cardinalityMeaning: Optional when captured outside an Assay., workflowRole: Completed Assay evidence retains observation identity.}}
+    - {name: experiment, target: Experiment, cardinality: "0..1", ownership: reference, help: {summary: Experiment context producing the Observation., businessMeaning: Connects evidence to experimental execution., usage: "Research traceability and reproducibility.", cardinalityMeaning: Optional when Assay or Study is sufficient., workflowRole: Evidence remains historical after experiment closure.}}
+    - {name: unitOfMeasure, target: UnitOfMeasure, cardinality: "0..1", ownership: reference, help: {summary: Unit for quantitative observations., businessMeaning: Makes numerical evidence interpretable., usage: "Validation, analysis and integration.", cardinalityMeaning: Optional for qualitative/categorical values., workflowRole: Unit changes do not reinterpret historical values.}}
+    - {name: results, target: Result, cardinality: "0..*", ownership: reference, help: {cardinalityMeaning: 'Any number of results, since several results can be derived from the same primary observation.', summary: Results derived partly or wholly from this Observation., businessMeaning: Preserves evidence-to-interpretation lineage., usage: "Analysis, reporting and audit.", workflowRole: Result validity depends on its source observation status and method.}}
+  invariants:
+    - {id: OBSERVATION-001, rule: "Observation must have at least one governed scientific context such as Sample, Assay or Experiment."}
+    - {id: OBSERVATION-002, rule: Verified evidence is not destructively rewritten; corrections or invalidations remain explicit records or states.}
+  lifecycle:
+    title: Observation Lifecycle
+    attribute: status
+    states: [RECORDED, VERIFIED, INVALIDATED]
+    initial: RECORDED
+    terminal: [VERIFIED, INVALIDATED]
+    transitions:
+      - {from: RECORDED, to: VERIFIED, action: verify}
+      - {from: RECORDED, to: INVALIDATED, action: invalidate}
+  help:
+    summary: Captures primary scientific evidence with provenance and QC state.
+    businessMeaning: Observation is raw or primary evidence; Result is a derived interpretation or summarized output.
+    usage: Research, laboratories, life sciences, quality testing, analytics and audit.
+    relationshipContext: Sample/Assay/Experiment provide provenance, UnitOfMeasure provides quantitative semantics, Results preserve downstream derivation.
+    lifecycle: Observation is recorded, then verified or invalidated without destructive deletion.
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-OBSERVATION}

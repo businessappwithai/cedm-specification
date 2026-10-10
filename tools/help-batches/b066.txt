@@ -1,0 +1,116 @@
+@ Stop
+r route
+s: The route the stop is part of.
+n: Exactly one route; a stop belongs to the route it sequences.
+r location
+n: Each stop is at one location, so the vehicle's destination is unambiguous.
+
+@ Store
+s: A retail location through which the business sells products or services to customers.
+b: A store is where sales happen and stock is held. Recording it lets sales, takings and stock be reported by outlet and lets the business open, close and retire locations in an orderly way.
+u: Set up by retail operations; chosen on sales and stock records; read by store management and finance.
+c: A store stands at one location, may belong to an organisation and ranges products.
+l: A store is planned, becomes active when it opens and is closed or retired when it stops trading. Closed and retired are final.
+x: The "Central" store, code ST-001, opens in March and trades from the high street premises.
+a storeId
+s: The identity of the store, constant when it is renamed.
+u: Generated on creation; sales and stock refer to it.
+a storeCode
+s: The short code of the store, such as ST-001.
+u: Unique; shown on receipts and reports.
+a name
+s: The name of the store as customers and staff know it.
+u: Shown in lists and on receipts.
+a status
+s: Whether the store is trading.
+u: Starts as PLANNED; moved by retail operations.
+v PLANNED: Intended; not yet open.
+v ACTIVE: Open and trading.
+v CLOSED: Stopped trading. A final state.
+v RETIRED: Removed from the network. A final state.
+r location
+s: The place where the store stands.
+u: Chosen when it is created.
+n: Exactly one location.
+t: Gives the address.
+r organization
+s: The company that runs the store.
+u: Chosen when several companies trade.
+n: At most one organisation.
+t: Decides whose accounts record the sales.
+r products
+s: The products the store offers.
+u: Maintained as the range changes.
+n: Any number of products.
+t: Decides what can be sold there.
+
+@ Study
+a studyId
+s: The identity of the study, constant for its life.
+a studyCode
+s: The code of the study, such as ST-2026-04.
+a title
+s: The title of the study.
+a status
+s: Where the study is.
+v PLANNED: Approved to run but not started.
+v ACTIVE: Experiments are being run.
+v SUSPENDED: Paused; can be resumed.
+v COMPLETED: All work is done; reporting remains.
+v CANCELLED: Stopped before completion. A final state.
+v ARCHIVED: Closed out and kept for record. A final state.
+r project
+s: The research project the study is part of.
+n: A study belongs to exactly one research project.
+r protocol
+n: A study follows exactly one approved protocol.
+r experiments
+n: Any number of experiments are run within the study.
+r assays
+n: Any number of assays are carried out for the study.
+r observations
+n: Any number of observations are recorded for the study.
+r results
+n: Any number of results are drawn from the study.
+
+@ Subscription
+s: A customer's subscription to a plan, product, service or entitlement over a defined life.
+b: A subscription is the ongoing agreement to supply something for a period. It records who subscribes and its state, while billing, usage and entitlement are recorded in their own records so none is duplicated.
+u: Created when a customer signs up; read by billing, support and account management.
+c: A subscription belongs to a customer and follows a plan.
+l: A subscription is drafted, active while it runs, and completes at the end of its term or is cancelled. Completed and cancelled are final.
+x: A customer subscribes to the Premium plan for twelve months from 1 March.
+a subscriptionId
+s: The identity of the subscription, constant for its life.
+u: Generated on creation; billing and entitlements refer to it.
+c: Referenced by invoices and usage records.
+a status
+s: Where the subscription is.
+u: Starts as DRAFT; moved by account management.
+v DRAFT: Being set up; no service yet.
+v ACTIVE: Running; the customer is entitled to the service.
+v COMPLETED: The term ended normally. A final state.
+v CANCELLED: Ended early. A final state.
+r customer
+s: The customer who subscribes.
+u: Chosen when created.
+n: At most one customer; empty until identified.
+w: Decides who is billed and served.
+
+@ SubscriptionPlan
+s: A reusable commercial plan that sets the recurring charges, usage, entitlements and billing terms of subscriptions.
+b: A plan is the product definition of a subscription. Defining it once lets many subscriptions share the same price and terms, and changing the plan leaves existing subscriptions on the terms they signed.
+u: Defined by product or pricing managers; chosen when a subscription is made.
+c: A plan is followed by subscriptions.
+l: A plan is drafted, active while offered, and completed when no longer offered. It may be cancelled before use. Completed and cancelled are final.
+x: The "Premium annual" plan charges 480 a year and includes five users.
+a subscriptionPlanId
+s: The identity of the plan, constant when renamed.
+u: Generated on creation; subscriptions refer to it.
+a status
+s: Whether the plan can be sold.
+u: Starts as DRAFT; set by pricing managers.
+v DRAFT: Being defined; cannot be sold.
+v ACTIVE: Offered to customers.
+v COMPLETED: No longer offered; existing subscriptions continue. A final state.
+v CANCELLED: Withdrawn before use. A final state.

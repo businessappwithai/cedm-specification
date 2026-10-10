@@ -11,138 +11,110 @@ entity:
     generated: true
     immutable: true
   attributes:
-  - name: flightId
-    type: uuid
-    required: true
-    immutable: true
-    help:
-      summary: Identifies the flight record associated with this Flight. The identifier connects this record to the corresponding
-        CEDM entity so related processes can resolve the correct business object.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Flight records, where applicable.
-      relationshipContext: Its meaning is specific to Flight; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: flightNumber
-    type: string
-    required: true
-    maxLength: 30
-    help:
-      summary: Captures the business meaning of flight number for the Flight. It is interpreted together with the entity's
-        other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Flight records, where applicable.
-      relationshipContext: Its meaning is specific to Flight; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: departureAt
-    type: datetime
-    required: true
-    help:
-      summary: Records when the departure event occurred. It establishes chronology, supports auditability, and helps coordinate
-        related lifecycle and process activities.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Flight records, where applicable.
-      relationshipContext: Its meaning is specific to Flight; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: arrivalAt
-    type: datetime
-    required: true
-    help:
-      summary: Records when the arrival event occurred. It establishes chronology, supports auditability, and helps coordinate
-        related lifecycle and process activities.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Flight records, where applicable.
-      relationshipContext: Its meaning is specific to Flight; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: status
-    type: enum
-    required: true
-    default: SCHEDULED
-    values:
-    - SCHEDULED
-    - BOARDING
-    - DEPARTED
-    - ARRIVED
-    - DELAYED
-    - CANCELLED
-    help:
-      summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record
-        is treated by related processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Flight records, where applicable.
-      relationshipContext: Its meaning is specific to Flight; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      valueSemantics:
-        SCHEDULED: Represents the scheduled state or classification in the context of Flight.
-        BOARDING: Represents the boarding state or classification in the context of Flight.
-        DEPARTED: Represents the departed state or classification in the context of Flight.
-        ARRIVED: Represents the arrived state or classification in the context of Flight.
-        DELAYED: Represents the delayed state or classification in the context of Flight.
-        CANCELLED: Represents the cancelled state or classification in the context of Flight.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+    - name: flightId
+      type: uuid
+      required: true
+      immutable: true
+      help:
+        summary: The identity of the flight record.
+        usage: Generated on creation; bookings and crew assignments refer to it.
+    - name: flightNumber
+      type: string
+      required: true
+      maxLength: 30
+      help:
+        summary: The public flight number, such as LH400.
+        usage: Assigned by the carrier; shown on tickets and boards. The same number is reused on different days.
+    - name: departureAt
+      type: datetime
+      required: true
+      help:
+        summary: The scheduled or actual time of departure.
+        usage: Set from the schedule and updated on delay; arrival must be later than it.
+    - name: arrivalAt
+      type: datetime
+      required: true
+      help:
+        summary: The scheduled or actual time of arrival.
+        usage: Set from the schedule and updated on delay.
+    - name: status
+      type: enum
+      required: true
+      default: SCHEDULED
+      values:
+        - SCHEDULED
+        - BOARDING
+        - DEPARTED
+        - ARRIVED
+        - DELAYED
+        - CANCELLED
+      help:
+        summary: Where the flight stands in its operation, from scheduling through boarding and departure to arrival or cancellation.
+        usage: Updated by flight operations as the flight progresses; booking and passenger information read it to show delays and cancellations.
+        valueSemantics:
+          SCHEDULED: Planned on the published schedule and open for booking.
+          BOARDING: Boarding has started and passengers are being loaded.
+          DEPARTED: The aircraft has left the origin and is in the air.
+          ARRIVED: Landed at the destination. A final state.
+          DELAYED: Departure is later than scheduled.
+          CANCELLED: Will not operate. A final state.
   relationships:
-  - name: origin
-    target: Location
-    cardinality: '1'
-    ownership: reference
-    help:
-      summary: Connects Flight to Location so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Location records associated with a Flight.
-      cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
-  - name: destination
-    target: Location
-    cardinality: '1'
-    ownership: reference
-    help:
-      summary: Connects Flight to Location so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Location records associated with a Flight.
-      cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
-  - name: carrier
-    target: Organization
-    cardinality: '1'
-    ownership: reference
-    help:
-      summary: Connects Flight to Organization so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Organization records associated with a Flight.
-      cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
-  - name: vehicle
-    target: Aircraft
-    cardinality: 0..1
-    ownership: reference
-    help:
-      summary: Connects Flight to Aircraft so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Aircraft records associated with a Flight.
-      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+    - name: origin
+      target: Location
+      cardinality: '1'
+      ownership: reference
+      help:
+        summary: The place the flight departs from.
+        usage: Chosen when scheduled.
+        cardinalityMeaning: 'Exactly one origin: a flight leaves from a single airport.'
+        workflowRole: Determines departure handling and time zone.
+    - name: destination
+      target: Location
+      cardinality: '1'
+      ownership: reference
+      help:
+        cardinalityMeaning: 'Exactly one destination: a flight is a single leg that ends at one airport.'
+        summary: The place the flight arrives at.
+        usage: Chosen when scheduled.
+        workflowRole: Determines arrival handling and connections.
+    - name: carrier
+      target: Organization
+      cardinality: '1'
+      ownership: reference
+      help:
+        summary: The airline that operates the flight.
+        usage: Set when scheduled.
+        cardinalityMeaning: 'Exactly one carrier: the operator is responsible for the flight.'
+        workflowRole: Establishes who sells and flies it.
+    - name: vehicle
+      target: Aircraft
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The aircraft assigned to fly it.
+        usage: Assigned by operations; changed if the aircraft is swapped.
+        cardinalityMeaning: At most one aircraft; the assignment may not yet be made.
+        workflowRole: Links the flight to aircraft availability and maintenance.
   invariants:
-  - id: FLIGHT-001
-    rule: arrivalAt must be later than departureAt.
+    - id: FLIGHT-001
+      rule: arrivalAt must be later than departureAt.
   lifecycle:
     title: Flight Lifecycle
     attribute: status
     states: [SCHEDULED, BOARDING, DEPARTED, ARRIVED, DELAYED, CANCELLED]
     initial: SCHEDULED
-    terminal: [CANCELLED]
+    terminal:
+      - ARRIVED
+      - CANCELLED
     transitions:
-      - {from: SCHEDULED, to: BOARDING, action: mark_boarding}
-      - {from: BOARDING, to: DEPARTED, action: mark_departed}
-      - {from: DEPARTED, to: ARRIVED, action: mark_arrived}
-      - {from: ARRIVED, to: DELAYED, action: mark_delayed}
+      - {from: SCHEDULED, to: BOARDING, action: start_boarding}
+      - {from: BOARDING, to: DEPARTED, action: depart}
+      - {from: DEPARTED, to: ARRIVED, action: arrive}
+      - {from: SCHEDULED, to: DELAYED, action: delay}
+      - {from: DELAYED, to: BOARDING, action: start_boarding}
+      - {from: DELAYED, to: CANCELLED, action: cancel}
       - {from: SCHEDULED, to: CANCELLED, action: cancel}
       - {from: BOARDING, to: CANCELLED, action: cancel}
-      - {from: DEPARTED, to: CANCELLED, action: cancel}
-      - {from: ARRIVED, to: CANCELLED, action: cancel}
-      - {from: DELAYED, to: CANCELLED, action: cancel}
   workflows:
     - name: FollowUpRequired
       title: "Follow up when a flight is ended"
@@ -163,18 +135,12 @@ entity:
               status: "CREATED"
               priority: "NORMAL"
   help:
-    summary: Represents a travel transport entity called Flight within the CEDM business model.
-    businessMeaning: Flight is a business concept with its own identity and lifecycle. It captures information that must remain
-      understandable independently of a database, API, or user interface.
-    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
-      change, or relate Flight records.
-    relationshipContext: The entity participates in a wider business graph through relationships with Location, Location,
-      Organization, Aircraft. These relationships provide the context needed to interpret the record rather than treating
-      its fields as isolated database columns.
-    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must
-      preserve the declared business meaning and relationships.
-    example: A typical Flight record represents one identifiable business occurrence or master-data object that can be referenced
-      by related CEDM processes.
+    summary: A scheduled or operated air transport service between two locations.
+    businessMeaning: A flight is the unit of air travel that bookings, crews and aircraft are assigned to. It states what flies when, between which places, for which carrier, and where it stands.
+    usage: Created when a schedule is published; updated with delays and changes; read by booking, operations and passengers.
+    relationshipContext: A flight runs between an origin and destination Location, is operated by a carrier Organization and may be flown by a specific Aircraft.
+    lifecycle: A flight is scheduled, may be delayed, boards, departs and arrives. It can be cancelled before departure.
+    example: Flight LH400 from Frankfurt to New York, scheduled for 10:25 and flown by an Airbus A340.
 specification:
   version: 0.1.0
   status: draft

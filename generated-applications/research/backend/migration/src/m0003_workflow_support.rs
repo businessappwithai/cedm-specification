@@ -209,6 +209,54 @@ ALTER TABLE bus_research_project
 
 CREATE INDEX IF NOT EXISTS idx_bus_research_project_doc_status ON bus_research_project (doc_status);
 
+ALTER TABLE bus_protocol
+  ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
+  ADD COLUMN IF NOT EXISTS workflow_run_id UUID,
+  ADD COLUMN IF NOT EXISTS doc_status VARCHAR(20) NOT NULL DEFAULT 'draft',
+  ADD COLUMN IF NOT EXISTS doc_status_message TEXT;
+
+CREATE INDEX IF NOT EXISTS idx_bus_protocol_doc_status ON bus_protocol (doc_status);
+
+ALTER TABLE bus_study
+  ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
+  ADD COLUMN IF NOT EXISTS workflow_run_id UUID,
+  ADD COLUMN IF NOT EXISTS doc_status VARCHAR(20) NOT NULL DEFAULT 'draft',
+  ADD COLUMN IF NOT EXISTS doc_status_message TEXT;
+
+CREATE INDEX IF NOT EXISTS idx_bus_study_doc_status ON bus_study (doc_status);
+
+ALTER TABLE bus_assay
+  ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
+  ADD COLUMN IF NOT EXISTS workflow_run_id UUID,
+  ADD COLUMN IF NOT EXISTS doc_status VARCHAR(20) NOT NULL DEFAULT 'draft',
+  ADD COLUMN IF NOT EXISTS doc_status_message TEXT;
+
+CREATE INDEX IF NOT EXISTS idx_bus_assay_doc_status ON bus_assay (doc_status);
+
+ALTER TABLE bus_observation
+  ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
+  ADD COLUMN IF NOT EXISTS workflow_run_id UUID,
+  ADD COLUMN IF NOT EXISTS doc_status VARCHAR(20) NOT NULL DEFAULT 'draft',
+  ADD COLUMN IF NOT EXISTS doc_status_message TEXT;
+
+CREATE INDEX IF NOT EXISTS idx_bus_observation_doc_status ON bus_observation (doc_status);
+
+ALTER TABLE bus_result
+  ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
+  ADD COLUMN IF NOT EXISTS workflow_run_id UUID,
+  ADD COLUMN IF NOT EXISTS doc_status VARCHAR(20) NOT NULL DEFAULT 'draft',
+  ADD COLUMN IF NOT EXISTS doc_status_message TEXT;
+
+CREATE INDEX IF NOT EXISTS idx_bus_result_doc_status ON bus_result (doc_status);
+
+ALTER TABLE bus_sample
+  ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
+  ADD COLUMN IF NOT EXISTS workflow_run_id UUID,
+  ADD COLUMN IF NOT EXISTS doc_status VARCHAR(20) NOT NULL DEFAULT 'draft',
+  ADD COLUMN IF NOT EXISTS doc_status_message TEXT;
+
+CREATE INDEX IF NOT EXISTS idx_bus_sample_doc_status ON bus_sample (doc_status);
+
 ALTER TABLE bus_party_party_type
   ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
   ADD COLUMN IF NOT EXISTS workflow_run_id UUID,
@@ -393,6 +441,62 @@ ALTER TABLE bus_research_project_status
 
 CREATE INDEX IF NOT EXISTS idx_bus_research_project_status_doc_status ON bus_research_project_status (doc_status);
 
+ALTER TABLE bus_protocol_status
+  ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
+  ADD COLUMN IF NOT EXISTS workflow_run_id UUID,
+  ADD COLUMN IF NOT EXISTS doc_status VARCHAR(20) NOT NULL DEFAULT 'draft',
+  ADD COLUMN IF NOT EXISTS doc_status_message TEXT;
+
+CREATE INDEX IF NOT EXISTS idx_bus_protocol_status_doc_status ON bus_protocol_status (doc_status);
+
+ALTER TABLE bus_study_status
+  ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
+  ADD COLUMN IF NOT EXISTS workflow_run_id UUID,
+  ADD COLUMN IF NOT EXISTS doc_status VARCHAR(20) NOT NULL DEFAULT 'draft',
+  ADD COLUMN IF NOT EXISTS doc_status_message TEXT;
+
+CREATE INDEX IF NOT EXISTS idx_bus_study_status_doc_status ON bus_study_status (doc_status);
+
+ALTER TABLE bus_assay_status
+  ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
+  ADD COLUMN IF NOT EXISTS workflow_run_id UUID,
+  ADD COLUMN IF NOT EXISTS doc_status VARCHAR(20) NOT NULL DEFAULT 'draft',
+  ADD COLUMN IF NOT EXISTS doc_status_message TEXT;
+
+CREATE INDEX IF NOT EXISTS idx_bus_assay_status_doc_status ON bus_assay_status (doc_status);
+
+ALTER TABLE bus_observation_status
+  ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
+  ADD COLUMN IF NOT EXISTS workflow_run_id UUID,
+  ADD COLUMN IF NOT EXISTS doc_status VARCHAR(20) NOT NULL DEFAULT 'draft',
+  ADD COLUMN IF NOT EXISTS doc_status_message TEXT;
+
+CREATE INDEX IF NOT EXISTS idx_bus_observation_status_doc_status ON bus_observation_status (doc_status);
+
+ALTER TABLE bus_result_status
+  ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
+  ADD COLUMN IF NOT EXISTS workflow_run_id UUID,
+  ADD COLUMN IF NOT EXISTS doc_status VARCHAR(20) NOT NULL DEFAULT 'draft',
+  ADD COLUMN IF NOT EXISTS doc_status_message TEXT;
+
+CREATE INDEX IF NOT EXISTS idx_bus_result_status_doc_status ON bus_result_status (doc_status);
+
+ALTER TABLE bus_sample_sample_type
+  ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
+  ADD COLUMN IF NOT EXISTS workflow_run_id UUID,
+  ADD COLUMN IF NOT EXISTS doc_status VARCHAR(20) NOT NULL DEFAULT 'draft',
+  ADD COLUMN IF NOT EXISTS doc_status_message TEXT;
+
+CREATE INDEX IF NOT EXISTS idx_bus_sample_sample_type_doc_status ON bus_sample_sample_type (doc_status);
+
+ALTER TABLE bus_sample_status
+  ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
+  ADD COLUMN IF NOT EXISTS workflow_run_id UUID,
+  ADD COLUMN IF NOT EXISTS doc_status VARCHAR(20) NOT NULL DEFAULT 'draft',
+  ADD COLUMN IF NOT EXISTS doc_status_message TEXT;
+
+CREATE INDEX IF NOT EXISTS idx_bus_sample_status_doc_status ON bus_sample_status (doc_status);
+
 "#;
 
 const DOWN_SQL: &str = r#"
@@ -567,6 +671,54 @@ ALTER TABLE bus_task
 DROP INDEX IF EXISTS idx_bus_research_project_doc_status;
 
 ALTER TABLE bus_research_project
+  DROP COLUMN IF EXISTS workflow_status,
+  DROP COLUMN IF EXISTS workflow_run_id,
+  DROP COLUMN IF EXISTS doc_status,
+  DROP COLUMN IF EXISTS doc_status_message;
+
+DROP INDEX IF EXISTS idx_bus_protocol_doc_status;
+
+ALTER TABLE bus_protocol
+  DROP COLUMN IF EXISTS workflow_status,
+  DROP COLUMN IF EXISTS workflow_run_id,
+  DROP COLUMN IF EXISTS doc_status,
+  DROP COLUMN IF EXISTS doc_status_message;
+
+DROP INDEX IF EXISTS idx_bus_study_doc_status;
+
+ALTER TABLE bus_study
+  DROP COLUMN IF EXISTS workflow_status,
+  DROP COLUMN IF EXISTS workflow_run_id,
+  DROP COLUMN IF EXISTS doc_status,
+  DROP COLUMN IF EXISTS doc_status_message;
+
+DROP INDEX IF EXISTS idx_bus_assay_doc_status;
+
+ALTER TABLE bus_assay
+  DROP COLUMN IF EXISTS workflow_status,
+  DROP COLUMN IF EXISTS workflow_run_id,
+  DROP COLUMN IF EXISTS doc_status,
+  DROP COLUMN IF EXISTS doc_status_message;
+
+DROP INDEX IF EXISTS idx_bus_observation_doc_status;
+
+ALTER TABLE bus_observation
+  DROP COLUMN IF EXISTS workflow_status,
+  DROP COLUMN IF EXISTS workflow_run_id,
+  DROP COLUMN IF EXISTS doc_status,
+  DROP COLUMN IF EXISTS doc_status_message;
+
+DROP INDEX IF EXISTS idx_bus_result_doc_status;
+
+ALTER TABLE bus_result
+  DROP COLUMN IF EXISTS workflow_status,
+  DROP COLUMN IF EXISTS workflow_run_id,
+  DROP COLUMN IF EXISTS doc_status,
+  DROP COLUMN IF EXISTS doc_status_message;
+
+DROP INDEX IF EXISTS idx_bus_sample_doc_status;
+
+ALTER TABLE bus_sample
   DROP COLUMN IF EXISTS workflow_status,
   DROP COLUMN IF EXISTS workflow_run_id,
   DROP COLUMN IF EXISTS doc_status,
@@ -751,6 +903,62 @@ ALTER TABLE bus_task_priority
 DROP INDEX IF EXISTS idx_bus_research_project_status_doc_status;
 
 ALTER TABLE bus_research_project_status
+  DROP COLUMN IF EXISTS workflow_status,
+  DROP COLUMN IF EXISTS workflow_run_id,
+  DROP COLUMN IF EXISTS doc_status,
+  DROP COLUMN IF EXISTS doc_status_message;
+
+DROP INDEX IF EXISTS idx_bus_protocol_status_doc_status;
+
+ALTER TABLE bus_protocol_status
+  DROP COLUMN IF EXISTS workflow_status,
+  DROP COLUMN IF EXISTS workflow_run_id,
+  DROP COLUMN IF EXISTS doc_status,
+  DROP COLUMN IF EXISTS doc_status_message;
+
+DROP INDEX IF EXISTS idx_bus_study_status_doc_status;
+
+ALTER TABLE bus_study_status
+  DROP COLUMN IF EXISTS workflow_status,
+  DROP COLUMN IF EXISTS workflow_run_id,
+  DROP COLUMN IF EXISTS doc_status,
+  DROP COLUMN IF EXISTS doc_status_message;
+
+DROP INDEX IF EXISTS idx_bus_assay_status_doc_status;
+
+ALTER TABLE bus_assay_status
+  DROP COLUMN IF EXISTS workflow_status,
+  DROP COLUMN IF EXISTS workflow_run_id,
+  DROP COLUMN IF EXISTS doc_status,
+  DROP COLUMN IF EXISTS doc_status_message;
+
+DROP INDEX IF EXISTS idx_bus_observation_status_doc_status;
+
+ALTER TABLE bus_observation_status
+  DROP COLUMN IF EXISTS workflow_status,
+  DROP COLUMN IF EXISTS workflow_run_id,
+  DROP COLUMN IF EXISTS doc_status,
+  DROP COLUMN IF EXISTS doc_status_message;
+
+DROP INDEX IF EXISTS idx_bus_result_status_doc_status;
+
+ALTER TABLE bus_result_status
+  DROP COLUMN IF EXISTS workflow_status,
+  DROP COLUMN IF EXISTS workflow_run_id,
+  DROP COLUMN IF EXISTS doc_status,
+  DROP COLUMN IF EXISTS doc_status_message;
+
+DROP INDEX IF EXISTS idx_bus_sample_sample_type_doc_status;
+
+ALTER TABLE bus_sample_sample_type
+  DROP COLUMN IF EXISTS workflow_status,
+  DROP COLUMN IF EXISTS workflow_run_id,
+  DROP COLUMN IF EXISTS doc_status,
+  DROP COLUMN IF EXISTS doc_status_message;
+
+DROP INDEX IF EXISTS idx_bus_sample_status_doc_status;
+
+ALTER TABLE bus_sample_status
   DROP COLUMN IF EXISTS workflow_status,
   DROP COLUMN IF EXISTS workflow_run_id,
   DROP COLUMN IF EXISTS doc_status,

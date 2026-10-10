@@ -1,0 +1,152 @@
+@ Medication
+s: A medicinal product or therapeutic substance that can be prescribed or given to a patient.
+b: Safe prescribing needs an exact definition of the drug: what it is, how strong it is and in what form. The medication record is that definition, shared by every prescription, so a dose cannot be mistaken for a different product.
+u: Maintained by pharmacy; chosen by prescribers when writing prescriptions; read by pharmacists and nurses at dispensing and administration.
+c: A medication may be linked to a catalogue Product for purchasing and stock, and is prescribed through Prescriptions.
+l: A medication is active while it can be prescribed, inactive while temporarily withheld, and retired when withdrawn from use. Past prescriptions keep their reference.
+x: Amoxicillin 500 mg capsules, an antibiotic stocked by the hospital pharmacy.
+a medicationId
+s: The identity of the medication record.
+u: Generated on creation; prescriptions refer to it.
+a productId
+s: The catalogue product that supplies this medication.
+u: Set where the pharmacy stocks and buys the medication as a product.
+a code
+s: The formulary code of the medication.
+u: Assigned by pharmacy; may be a national drug code; used in prescribing and dispensing systems.
+a name
+s: The name of the medication, normally its generic name.
+u: Shown to prescribers and on labels.
+a strength
+s: The amount of active substance per unit, for example 500 mg.
+u: Entered from the product label; prescribers choose a dose relative to it.
+a form
+s: The physical form of the medication, such as tablet, capsule, solution or injection.
+u: Entered from the product label; decides how it can be administered.
+a status
+s: Whether the medication can be prescribed.
+u: Set by pharmacy; only ACTIVE medications appear in prescribing lists.
+v ACTIVE: Available for prescribing.
+v INACTIVE: Temporarily withheld, for example during a shortage; it can return.
+v RETIRED: Withdrawn from use. A final state.
+r product
+s: The catalogue product that corresponds to the medication.
+u: Linked to connect prescribing to purchasing and stock.
+n: At most one product; a medication that is compounded on demand has no stock product.
+w: Lets stock and cost follow the prescription.
+r prescriptions
+s: The prescriptions that name this medication.
+u: Read to analyse use and check for safety alerts.
+n: Any number, accumulating as the drug is prescribed.
+w: Shows how the medication is used.
+
+@ Message
+s: An integration message envelope that keeps the payload identity, direction, correlation, processing state and delivery evidence of a message exchanged with another system.
+b: Systems exchange messages, and things go wrong. Keeping each message as a record lets operators see what was sent or received, whether it was processed and what happened on delivery, and replay it safely.
+u: Written when a message is sent or received; updated as it is processed; read by integration operators and in incident reviews.
+c: A message is delivered to IntegrationEndpoints through DeliveryAttempts.
+l: Delivery retries and corrections keep auditable evidence and never duplicate downstream business effects.
+x: An order-confirmation message received from a partner's system and processed once.
+a messageId
+s: The identity of the message, used to detect duplicates.
+u: Generated or taken from the sender; processing uses it to be idempotent.
+a occurredAt
+s: When the message was created or received.
+u: Set by the integration layer; used to order messages and to measure latency.
+
+@ Meter
+s: A physical or logical measuring point on an asset or at a location, used to drive condition, usage, billing, maintenance or operational decisions.
+b: Many decisions depend on a measured quantity such as running hours or temperature. A meter defines what is measured, in which unit and on what, and keeps the latest reading so maintenance and billing can act on it.
+u: Defined when measurement starts; updated by readings; read by maintenance planning and operations.
+c: A meter is attached to an Asset or Location, is expressed in a UnitOfMeasure and may trigger MaintenancePlans.
+l: A meter is drafted, active while it is read, out of service when faulty, and retired when removed.
+x: The hour meter on forklift FL-07, last read at 4,812 hours.
+a meterId
+s: The identity of the meter.
+u: Generated on creation; readings and plans refer to it.
+a meterCode
+s: The code of the meter, such as FL-07-HRS.
+u: Unique; used in readings and imports.
+a meterType
+s: What the meter measures.
+u: Chosen at creation; determines the expected unit and behaviour.
+v HOURS: Operating time.
+v DISTANCE: Distance travelled.
+v CYCLES: Operating cycles, such as lifts or starts.
+v ENERGY: Energy used.
+v VOLUME: Volume consumed or produced.
+v COUNT: A simple count.
+v PRESSURE: Pressure.
+v TEMPERATURE: Temperature.
+v OTHER: Any other measure.
+a status
+s: Whether the meter is in use.
+u: Set by maintenance engineering.
+v DRAFT: Being defined; not yet read.
+v ACTIVE: In use and being read.
+v OUT_OF_SERVICE: Faulty or removed temporarily.
+v RETIRED: No longer used. A final state.
+a lastReadingValue
+s: The most recent reading.
+u: Updated from readings; maintenance plans compare it with thresholds.
+a lastReadingAt
+s: When the most recent reading was taken.
+u: Updated with each reading; shows how current the value is.
+r asset
+s: The asset that the meter measures.
+u: Linked where the quantity belongs to equipment.
+n: At most one asset; a meter may instead measure a location.
+w: Lets usage trigger maintenance for the asset.
+r location
+s: The place that the meter measures.
+u: Linked where the quantity belongs to a place, such as a room temperature.
+n: At most one location.
+w: Ties the measurement to the site.
+r unitOfMeasure
+s: The unit in which the meter's values are expressed.
+u: Chosen at creation; readings must use it.
+n: Exactly one unit, so every reading is comparable.
+w: Prevents readings being mixed across units.
+r maintenancePlans
+s: The maintenance plans that use this meter.
+u: Linked when a plan is triggered by usage.
+n: Any number of plans.
+w: Readings trigger work according to these plans.
+
+@ MeterReading
+s: A measured value recorded from a utility meter at a point in time.
+b: Bills and consumption figures are computed from readings. Each reading records the value, when it was taken, how it was obtained and whether it can be trusted.
+u: Entered by meter readers, imported from smart meters, or estimated; read by billing and analysis.
+c: A reading belongs to one EnergyMeter and uses a UnitOfMeasure.
+x: The electricity meter at a customer's premises reads 48,213.4 kWh on 1 April at 08:00.
+a meterReadingId
+s: The identity of the reading.
+u: Generated on creation; billing lines refer to it.
+a readingAt
+s: When the reading was taken.
+u: Entered or imported with the value; consumption is the difference between successive readings.
+a readingValue
+s: The value shown on the meter.
+u: Entered or imported; not negative unless the meter is configured for signed values.
+a readingType
+s: How the reading was obtained.
+u: Set at entry; billing prefers actual readings.
+v ACTUAL: Taken from the meter.
+v ESTIMATED: Calculated because no actual reading was available.
+v CORRECTED: Replaces an earlier reading found to be wrong.
+a quality
+s: How far the reading can be trusted.
+u: Set by validation checks or the reader.
+v GOOD: Passed checks.
+v SUSPECT: Looks unusual and needs review.
+v INVALID: Failed checks and must not be used.
+r meter
+s: The meter the reading was taken from.
+u: Set at entry.
+n: Exactly one meter: a reading is a measurement from a particular device.
+w: Builds the meter's history.
+r unitOfMeasure
+s: The unit of the value.
+u: Taken from the meter; entered if the reading arrives with its own unit.
+n: Exactly one unit.
+w: Lets values be converted and compared.

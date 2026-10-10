@@ -5,9 +5,10 @@
 //! every business suite depends on — then the per-entity CRUD and rules
 //! modules, which are generated one per entity in the model.
 //!
-//! Generated: 2026-10-04T08:29:15.212Z
+//! Generated: 2026-10-09T15:27:55.569Z
 //! Project: banking
 
+mod accounts;
 mod ai;
 mod auth;
 mod concurrency;
@@ -48,6 +49,7 @@ mod crud_collateral;
 mod crud_contact_point;
 mod crud_country;
 mod crud_credit;
+mod crud_credit_reason;
 mod crud_credit_status;
 mod crud_currency;
 mod crud_currency_status;
@@ -105,6 +107,7 @@ mod rules_collateral;
 mod rules_contact_point;
 mod rules_country;
 mod rules_credit;
+mod rules_credit_reason;
 mod rules_credit_status;
 mod rules_currency;
 mod rules_currency_status;

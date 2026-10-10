@@ -1,6 +1,6 @@
 //! The rules the *model* declared, and whether they reached the application.
 //!
-//! Generated: 2026-10-04T01:12:31.169Z
+//! Generated: 2026-10-10T02:41:24.781Z
 //! Project: professional-services
 //!
 //! Every other rules suite creates a rule through the API and then checks that
@@ -47,6 +47,16 @@ const MODEL_RULES: &[(&str, &str, &str)] = &[
     ),
     ("taskInvariantsBeforeCreate", "bus_task", "CREATE"),
     ("taskInvariantsBeforeUpdate", "bus_task", "UPDATE"),
+    (
+        "professionalEngagementInvariantsBeforeCreate",
+        "bus_professional_engagement",
+        "CREATE",
+    ),
+    (
+        "professionalEngagementInvariantsBeforeUpdate",
+        "bus_professional_engagement",
+        "UPDATE",
+    ),
     ("partyWorkflowsAfterUpdate", "bus_party", "UPDATE"),
     (
         "exchangeRateWorkflowsAfterUpdate",

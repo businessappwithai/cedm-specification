@@ -7,15 +7,22 @@ entity:
     icon: repeat
   identity: {key: subscriptionPlanId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: subscriptionPlanId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of SubscriptionPlan., businessMeaning: Identifies one governed SubscriptionPlan record., usage: "Enterprise processing, integration, reporting and audit.", relationshipContext: Referenced by compatible domain workflows., requiredMeaning: Required.}}
-  - name: status
-    type: enum
-    required: true
-    values: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
-    help: {summary: Governed lifecycle state., businessMeaning: Indicates usability/execution state of SubscriptionPlan., usage: Workflow and controls., relationshipContext: Historical terminal evidence is retained., valueSemantics: {DRAFT: Being prepared., ACTIVE: Effective or executing., COMPLETED: Concluded successfully., CANCELLED: Terminated without normal completion.}, requiredMeaning: Required.}
+    - {name: subscriptionPlanId, type: uuid, required: true, immutable: true, help: {summary: 'The identity of the plan, constant when renamed.', usage: Generated on creation; subscriptions refer to it.}}
+    - name: status
+      type: enum
+      required: true
+      values: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
+      help:
+        summary: Whether the plan is still being defined, on sale, retired after its run, or withdrawn.
+        usage: Starts as DRAFT; pricing managers activate it to offer it, and only an active plan can be chosen for new subscriptions.
+        valueSemantics:
+          DRAFT: The plan is being defined and cannot yet be sold.
+          ACTIVE: The plan is on offer and customers can subscribe to it.
+          COMPLETED: The plan has run its course and is no longer offered, though existing subscriptions keep their terms. A final state.
+          CANCELLED: The plan was withdrawn without ever being fully offered. A final state.
   relationships: []
   invariants:
-  - {id: SUBSCRIPTION-PLAN-001, rule: "This record must not silently duplicate or rewrite authoritative cash, accounting, tax, usage, entitlement, or billing evidence in another CEDM entity."}
+    - {id: SUBSCRIPTION-PLAN-001, rule: "This record must not silently duplicate or rewrite authoritative cash, accounting, tax, usage, entitlement, or billing evidence in another CEDM entity."}
   lifecycle:
     title: Subscription Plan Lifecycle
     attribute: status
@@ -47,12 +54,10 @@ entity:
               status: "CREATED"
               priority: "NORMAL"
   help:
-    summary: A governed reusable commercial plan defining recurring, usage, entitlement, pricing, and billing terms for subscriptions.
-    purpose: Provide canonical enterprise semantics for SubscriptionPlan while keeping planning, operational, financial and evidential responsibilities separated.
-    businessMeaning: A governed reusable commercial plan defining recurring, usage, entitlement, pricing, and billing terms for subscriptions.
-    whenUsed: Used by applicable finance, treasury, tax, subscription, billing, reporting and integration workflows.
-    howItRelates: References canonical parties and transactions; downstream accounting and cash effects remain explicit through JournalEntry, Payment and BankTransaction where applicable.
-    lifecycleUsage: Created under governed workflow, progressed through explicit states, and retained historically after completion/cancellation.
-    commonProcesses: Financial control, tax, billing, subscription management, settlement, reconciliation and audit.
-    commonExamples: Enterprise finance and recurring-revenue operations.
+    summary: A reusable commercial plan that sets the recurring charges, usage, entitlements and billing terms of subscriptions.
+    businessMeaning: A plan is the product definition of a subscription. Defining it once lets many subscriptions share the same price and terms, and changing the plan leaves existing subscriptions on the terms they signed.
+    usage: Defined by product or pricing managers; chosen when a subscription is made.
+    relationshipContext: A plan is followed by subscriptions.
+    lifecycle: A plan is drafted, active while offered, and completed when no longer offered. It may be cancelled before use. Completed and cancelled are final.
+    example: The "Premium annual" plan charges 480 a year and includes five users.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-SUBSCRIPTION-PLAN}

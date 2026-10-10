@@ -13,7 +13,7 @@
  * word, so a dropdown that lost an option or a state machine that lost an edge
  * fails a test instead of quietly shipping.
  *
- * Generated: 2026-10-04T01:12:12.403Z
+ * Generated: 2026-10-10T02:40:50.111Z
  * Project: logistics
  */
 
@@ -85,158 +85,173 @@ export const modelEnums: ModelEnum[] = [
     values: ["ACTIVE", "INACTIVE", "BLOCKED", "RETIRED"],
   },
   {
-    name: "ExchangeRateRateType",
+    name: "DriverStatus",
     referenceId: 1007,
+    values: ["DRAFT", "ACTIVE", "SUSPENDED", "INACTIVE", "RETIRED"],
+  },
+  {
+    name: "ExchangeRateRateType",
+    referenceId: 1008,
     values: ["SPOT", "CONTRACT", "DAILY", "MONTHLY", "ACCOUNTING", "CUSTOM"],
   },
   {
     name: "ExchangeRateStatus",
-    referenceId: 1008,
+    referenceId: 1009,
     values: ["DRAFT", "ACTIVE", "EXPIRED", "CANCELLED"],
   },
   {
+    name: "FuelTransactionStatus",
+    referenceId: 1010,
+    values: ["RECORDED", "VERIFIED", "REVERSED"],
+  },
+  {
     name: "InventoryMovementMovementType",
-    referenceId: 1009,
+    referenceId: 1011,
     values: ["RECEIPT", "ISSUE", "TRANSFER", "ADJUSTMENT", "RETURN", "RESERVATION", "RELEASE"],
   },
   {
     name: "LocationLocationType",
-    referenceId: 1010,
+    referenceId: 1012,
     values: ["SITE", "WAREHOUSE", "STORE", "OFFICE", "FACTORY", "YARD", "PORT", "DEPOT", "VIRTUAL", "OTHER"],
   },
   {
     name: "LocationStatus",
-    referenceId: 1011,
+    referenceId: 1013,
     values: ["PLANNED", "ACTIVE", "INACTIVE", "CLOSED", "RETIRED"],
   },
   {
     name: "OrganizationOrganizationType",
-    referenceId: 1012,
+    referenceId: 1014,
     values: ["ENTERPRISE", "COMPANY", "BUSINESS_UNIT", "DIVISION", "DEPARTMENT", "BRANCH", "SUBSIDIARY", "OTHER"],
   },
   {
     name: "OrganizationPartyType",
-    referenceId: 1013,
-    values: ["PERSON", "ORGANIZATION"],
-  },
-  {
-    name: "OrganizationStatus",
-    referenceId: 1014,
-    values: ["DRAFT", "ACTIVE", "INACTIVE", "RETIRED"],
-  },
-  {
-    name: "PartyPartyType",
     referenceId: 1015,
     values: ["PERSON", "ORGANIZATION"],
   },
   {
-    name: "PartyRoleRoleType",
+    name: "OrganizationStatus",
     referenceId: 1016,
+    values: ["DRAFT", "ACTIVE", "INACTIVE", "RETIRED"],
+  },
+  {
+    name: "PartyPartyType",
+    referenceId: 1017,
+    values: ["PERSON", "ORGANIZATION"],
+  },
+  {
+    name: "PartyRoleRoleType",
+    referenceId: 1018,
     values: ["CUSTOMER", "SUPPLIER", "EMPLOYEE", "PARTNER", "CARRIER", "AGENT", "CONTRACTOR", "OWNER", "INVESTOR", "OTHER"],
   },
   {
     name: "PartyRoleStatus",
-    referenceId: 1017,
+    referenceId: 1019,
     values: ["ACTIVE", "INACTIVE", "EXPIRED"],
   },
   {
     name: "PartyStatus",
-    referenceId: 1018,
+    referenceId: 1020,
     values: ["ACTIVE", "INACTIVE", "BLOCKED", "RETIRED"],
   },
   {
     name: "PersonGender",
-    referenceId: 1019,
+    referenceId: 1021,
     values: ["FEMALE", "MALE", "NON_BINARY", "OTHER", "UNSPECIFIED"],
   },
   {
     name: "PersonPartyType",
-    referenceId: 1020,
+    referenceId: 1022,
     values: ["PERSON", "ORGANIZATION"],
   },
   {
     name: "PersonStatus",
-    referenceId: 1021,
+    referenceId: 1023,
     values: ["ACTIVE", "INACTIVE", "BLOCKED", "RETIRED"],
   },
   {
     name: "ProductProductType",
-    referenceId: 1022,
+    referenceId: 1024,
     values: ["GOOD", "MATERIAL", "SERVICE", "SUBSCRIPTION", "ASSET", "BUNDLE", "OTHER"],
   },
   {
     name: "ProductStatus",
-    referenceId: 1023,
+    referenceId: 1025,
     values: ["DRAFT", "ACTIVE", "DISCONTINUED", "BLOCKED", "RETIRED"],
   },
   {
     name: "SalesOrderLinePriceSource",
-    referenceId: 1024,
+    referenceId: 1026,
     values: ["PRICE_LIST", "CONTRACT", "CUSTOMER_AGREEMENT", "QUOTATION", "MANUAL", "PROMOTION", "OTHER"],
   },
   {
     name: "SalesOrderStatus",
-    referenceId: 1025,
+    referenceId: 1027,
     values: ["DRAFT", "CONFIRMED", "ALLOCATED", "PARTIALLY_FULFILLED", "FULFILLED", "CANCELLED"],
   },
   {
     name: "ShipmentShipmentType",
-    referenceId: 1026,
+    referenceId: 1028,
     values: ["INBOUND", "OUTBOUND", "TRANSFER", "RETURN"],
   },
   {
     name: "ShipmentStatus",
-    referenceId: 1027,
+    referenceId: 1029,
     values: ["PLANNED", "BOOKED", "IN_TRANSIT", "DELIVERED", "CANCELLED", "EXCEPTION"],
   },
   {
+    name: "StopStopType",
+    referenceId: 1030,
+    values: ["ORIGIN", "PICKUP", "DELIVERY", "SERVICE", "WAYPOINT", "FUEL", "BREAK", "DESTINATION", "OTHER"],
+  },
+  {
     name: "TaskPriority",
-    referenceId: 1028,
+    referenceId: 1031,
     values: ["LOW", "NORMAL", "HIGH", "CRITICAL"],
   },
   {
     name: "TaskStatus",
-    referenceId: 1029,
+    referenceId: 1032,
     values: ["CREATED", "READY", "ASSIGNED", "IN_PROGRESS", "BLOCKED", "COMPLETED", "CANCELLED", "FAILED"],
   },
   {
     name: "TaskTaskType",
-    referenceId: 1030,
+    referenceId: 1033,
     values: ["USER", "SYSTEM", "APPROVAL", "DECISION", "NOTIFICATION", "SCRIPT", "OTHER"],
   },
   {
     name: "TripSegmentMode",
-    referenceId: 1031,
+    referenceId: 1034,
     values: ["AIR", "RAIL", "ROAD", "SEA", "BUS", "WALK", "OTHER"],
   },
   {
     name: "TripSegmentStatus",
-    referenceId: 1032,
+    referenceId: 1035,
     values: ["PLANNED", "BOOKED", "IN_PROGRESS", "COMPLETED", "CANCELLED"],
   },
   {
     name: "TripStatus",
-    referenceId: 1033,
+    referenceId: 1036,
     values: ["PLANNED", "BOOKED", "IN_PROGRESS", "COMPLETED", "CANCELLED"],
   },
   {
     name: "UnitOfMeasureCategory",
-    referenceId: 1034,
+    referenceId: 1037,
     values: ["QUANTITY", "LENGTH", "AREA", "VOLUME", "MASS", "TIME", "COUNT", "CURRENCY", "OTHER"],
   },
   {
     name: "UnitOfMeasureStatus",
-    referenceId: 1035,
+    referenceId: 1038,
     values: ["ACTIVE", "INACTIVE", "RETIRED"],
   },
   {
     name: "VehicleStatus",
-    referenceId: 1036,
+    referenceId: 1039,
     values: ["ACTIVE", "MAINTENANCE", "OUT_OF_SERVICE", "RETIRED"],
   },
   {
     name: "VehicleVehicleType",
-    referenceId: 1037,
+    referenceId: 1040,
     values: ["TRUCK", "TRACTOR", "TRAILER", "FORKLIFT", "CRANE", "OTHER"],
   },
 ];
@@ -463,6 +478,35 @@ export const stateMachines: StateMachine[] = [
       { from: "PLANNED", to: "CANCELLED", trigger: "cancel" },
       { from: "BOOKED", to: "CANCELLED", trigger: "cancel" },
       { from: "IN_PROGRESS", to: "CANCELLED", trigger: "cancel" },
+    ],
+  },
+  {
+    entity: "Driver",
+    tableName: "bus_driver",
+    statusField: "status",
+    initial: "DRAFT",
+    terminal: ["RETIRED"],
+    edges: [
+      { from: "DRAFT", to: "ACTIVE", trigger: "activate" },
+      { from: "ACTIVE", to: "SUSPENDED", trigger: "suspend" },
+      { from: "SUSPENDED", to: "ACTIVE", trigger: "resume" },
+      { from: "ACTIVE", to: "INACTIVE", trigger: "deactivate" },
+      { from: "INACTIVE", to: "ACTIVE", trigger: "reactivate" },
+      { from: "DRAFT", to: "RETIRED", trigger: "retire" },
+      { from: "ACTIVE", to: "RETIRED", trigger: "retire" },
+      { from: "SUSPENDED", to: "RETIRED", trigger: "retire" },
+      { from: "INACTIVE", to: "RETIRED", trigger: "retire" },
+    ],
+  },
+  {
+    entity: "FuelTransaction",
+    tableName: "bus_fuel_transaction",
+    statusField: "status",
+    initial: "RECORDED",
+    terminal: ["VERIFIED", "REVERSED"],
+    edges: [
+      { from: "RECORDED", to: "VERIFIED", trigger: "verify" },
+      { from: "RECORDED", to: "REVERSED", trigger: "reverse" },
     ],
   },
   {

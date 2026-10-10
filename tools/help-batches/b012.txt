@@ -1,0 +1,158 @@
+@ Coverage
+a limitAmount
+s: The most the insurer will pay under this coverage for a covered loss.
+u: Set when the policy is written; claim assessment caps the approved amount at it. Not negative.
+c: Expressed in the coverage's currency; a deductible, if any, is applied before the limit.
+a deductibleAmount
+s: The portion of a covered loss the insured bears before the insurer pays.
+u: Set when the policy is written; claim assessment subtracts it from the covered amount. Not negative.
+c: Expressed in the coverage's currency and applied before the limit.
+a status
+v DRAFT: Being written into the policy; not yet in force.
+v ACTIVE: In force; claims may be assessed against it.
+v SUSPENDED: Temporarily not in force, for example for non-payment of premium; new claims are not assessed against it.
+v EXPIRED: Its period has ended; historical claims remain valid.
+v CANCELLED: Withdrawn before or during its term; kept for history.
+r policy
+s: The insurance policy of which this coverage is a part.
+n: Exactly one policy: a coverage is a section of a single policy and cannot exist alone.
+r claimLines
+n: Any number of claim lines, one for each claimed item assessed against this coverage.
+
+@ Credit
+s: A monetary credit that reduces an amount owed or can be applied to charges, without being a cash payment.
+b: Customers are sometimes owed value that is not money in the bank: a goodwill gesture, a promotion, a correction. A credit holds that value so it can be applied to what the customer owes, with a clear trail.
+u: Issued by billing staff or rules; applied to charges or invoices; read when a customer asks why a bill was reduced.
+c: A credit belongs to a Customer. It does not itself change cash, accounting, tax or billing records; those follow from how it is applied.
+l: A credit is drafted, becomes active when issued, completes when it has been used up and is cancelled if withdrawn.
+x: A 20.00 service credit issued after an outage and applied automatically to the next invoice.
+a creditId
+s: The identity of the credit.
+u: Generated on creation; applications to charges refer to it.
+a status
+s: Whether the credit is being prepared, available, used up, or withdrawn.
+u: Moved by billing; only ACTIVE credits can be applied.
+v DRAFT: Being prepared; cannot yet be applied.
+v ACTIVE: Issued and available to apply.
+v COMPLETED: Fully applied or expired; nothing remains.
+v CANCELLED: Withdrawn before use.
+r customer
+s: The customer to whom the credit is owed.
+u: Set when the credit is issued; it can be applied only to that customer's charges.
+n: At most one customer; an unassigned credit is a draft not yet attached to anyone.
+w: Decides whose charges the credit can reduce.
+
+@ CreditNote
+a creditNoteId
+s: The identity of the credit note.
+a status
+v DRAFT: Being prepared; has no financial effect.
+v APPROVED: Authorised but not yet posted to the ledger.
+v POSTED: Recorded in the books; it now reduces what the customer owes.
+v PARTIALLY_APPLIED: Part of its value has been set against invoices; some remains.
+v FULLY_APPLIED: All of its value has been set against invoices.
+v REFUND_DUE: The remaining value is to be paid back to the customer in cash.
+v REFUNDED: The remaining value has been refunded.
+v CANCELLED: Withdrawn before it was posted.
+v REVERSED: Cancelled after posting by a compensating entry; the original stays on record.
+
+@ CreditNoteApplication
+a creditNoteApplicationId
+s: The identity of this application of credit.
+a status
+v DRAFT: Prepared but not yet in effect.
+v ACTIVE: In effect; it reduces the invoice's outstanding amount.
+v REVERSED: Undone by a compensating record; no longer reduces the invoice.
+v CANCELLED: Withdrawn before it took effect.
+
+@ Crop
+s: A crop or category of cultivated plant that an agricultural operation grows.
+b: Planning, agronomy and sales all depend on knowing what is grown. A crop record is the shared reference for farms, fields and the products that come from them.
+u: Maintained by agronomy staff; chosen when planning plantings and recording harvests; read in yield and market reports.
+c: A crop is grown on Farms and in FarmFields, and is sold as Products.
+l: A crop is active while grown, can be made inactive between seasons, and is retired when the operation stops growing it. History stays.
+x: Winter wheat, grown on three farms in the autumn and sold as milling wheat.
+a cropId
+s: The identity of the crop record.
+u: Generated on creation; plantings, harvests and products refer to it.
+a code
+s: The short code by which the crop is known in plans and reports, such as WHT-W.
+u: Unique; assigned when the crop is defined.
+a name
+s: The common name of the crop.
+u: Shown on planting plans and harvest records.
+a cropType
+s: The general group the crop belongs to, such as cereal, oilseed or vegetable.
+u: Chosen at definition; used for rotation planning and reporting by group.
+a status
+s: Whether the crop is currently grown.
+u: Set by agronomy staff.
+v ACTIVE: Currently grown or available for planting.
+v INACTIVE: Not grown at present, for example out of season; it can be reactivated.
+v RETIRED: No longer grown; kept for history.
+r farms
+s: The farms that grow this crop.
+n: Any number of farms.
+r fields
+s: The fields in which this crop is planted.
+n: Any number of fields, one per planting.
+r products
+s: The products that come from this crop.
+n: Any number of products, such as grain, flour or seed.
+
+@ Currency
+a name
+s: The name of the currency, such as Euro or US Dollar.
+a status
+v ACTIVE: Available for use on new prices, documents and payments.
+v INACTIVE: Temporarily not offered, for example while a market is closed; it can be reactivated.
+v RETIRED: No longer in use, such as a replaced national currency; historical amounts keep it.
+
+@ Customer
+a customerType
+v INDIVIDUAL: A private consumer.
+v BUSINESS: A company or other commercial organisation.
+v GOVERNMENT: A public authority or agency.
+v INTERNAL: Another unit of the organisation itself, supplied through internal sales.
+v OTHER: A customer that fits none of the above.
+a creditStatus
+v NOT_REVIEWED: Credit has not been assessed; trading is on the default terms.
+v APPROVED: Credit has been assessed and approved up to the credit limit.
+v ON_HOLD: Credit is paused pending review; new credit-bearing orders need approval.
+v BLOCKED: Credit is refused; no new credit-bearing orders.
+a status
+v ACTIVE: A customer the organisation can sell to.
+v INACTIVE: Dormant, with no new business expected; can be reactivated.
+v BLOCKED: Held back from new business, for example for non-payment or compliance reasons.
+v RETIRED: Closed for good; history is kept.
+r entitlements
+n: Any number of entitlements over the customer's life.
+r serviceOrders
+n: Any number of service orders over the customer's life.
+
+@ CustomerReturn
+a customerReturnId
+s: The identity of the return.
+a returnNumber
+s: The number the customer and warehouse quote for the return, often called an RMA number.
+a status
+v DRAFT: Being prepared; not yet authorised.
+v AUTHORIZED: Approved by the seller; the customer may send the goods back.
+v IN_TRANSIT: The goods are on their way back.
+v RECEIVED: The goods have arrived at the returns location.
+v INSPECTION_PENDING: Waiting for the returned goods to be inspected.
+v DISPOSITIONED: Each line has a decision: restock, quarantine, repair or scrap.
+v COMPLETED: All physical and financial effects are done.
+v CANCELLED: Withdrawn before completion; no effects remain.
+v EXCEPTION: Held because something went wrong, such as damage or a missing item, and needs a decision.
+
+@ CustomerReturnLine
+a customerReturnLineId
+s: The identity of the return line.
+a disposition
+v PENDING: No decision has been made yet.
+v RESTOCK: The goods are put back into saleable stock.
+v QUARANTINE: The goods are held apart pending a quality decision.
+v REPAIR: The goods are sent for repair.
+v SCRAP: The goods are written off and disposed of.
+v MIXED: Different quantities of the line have different decisions.

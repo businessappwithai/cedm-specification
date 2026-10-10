@@ -125,6 +125,64 @@ ON CONFLICT (name) DO UPDATE SET
 
 INSERT INTO sys_workflow_definitions
   (name, entity_name, operation, trigger_type, bpmn_xml, description, is_active, is_model_managed, created_at, updated_at)
+VALUES ('AppointmentFollowUpRequired', 'bus_appointment', 'UPDATE',
+        'rule', '<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+  xmlns:appwithai="http://appwithai.io/schema/1.0"
+  id="Definitions_AppointmentFollowUpRequired"
+  targetNamespace="http://appwithai.io/bpmn">
+  <bpmn:process id="Process_AppointmentFollowUpRequired" isExecutable="true">
+    <bpmn:startEvent id="Process_AppointmentFollowUpRequired_start"/>
+    <bpmn:serviceTask id="Process_AppointmentFollowUpRequired_S1" name="Raise a task: follow up on">
+      <bpmn:extensionElements>
+        <appwithai:properties>
+        <appwithai:property name="nodeType" value="CreateEntity"/>
+        <appwithai:property name="entity" value="bus_task"/>
+        <appwithai:property name="as" value="taskId"/>
+        <appwithai:property name="fields" value="{&quot;code&quot;:&quot;APPOINTMENT-FOLLOW-UP-{{id}}&quot;,&quot;name&quot;:&quot;Follow up on appointment {{appointment_number}}&quot;,&quot;description&quot;:&quot;Appointment {{appointment_number}} is now {{status}}. Check the records that depended on it and tell the people affected.&quot;,&quot;task_type&quot;:&quot;USER&quot;,&quot;status&quot;:&quot;CREATED&quot;,&quot;priority&quot;:&quot;NORMAL&quot;}"/>
+        </appwithai:properties>
+      </bpmn:extensionElements>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="Process_AppointmentFollowUpRequired_end"/>
+    <bpmn:sequenceFlow id="Process_AppointmentFollowUpRequired_flow_0" sourceRef="Process_AppointmentFollowUpRequired_start" targetRef="Process_AppointmentFollowUpRequired_S1"/>
+    <bpmn:sequenceFlow id="Process_AppointmentFollowUpRequired_flow_1" sourceRef="Process_AppointmentFollowUpRequired_S1" targetRef="Process_AppointmentFollowUpRequired_end"/>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Process_AppointmentFollowUpRequired">
+    <bpmndi:BPMNPlane id="BPMNPlane_Process_AppointmentFollowUpRequired" bpmnElement="Process_AppointmentFollowUpRequired">
+      <bpmndi:BPMNShape id="Process_AppointmentFollowUpRequired_start_di" bpmnElement="Process_AppointmentFollowUpRequired_start">
+        <dc:Bounds x="160" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_AppointmentFollowUpRequired_S1_di" bpmnElement="Process_AppointmentFollowUpRequired_S1">
+        <dc:Bounds x="256" y="100" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_AppointmentFollowUpRequired_end_di" bpmnElement="Process_AppointmentFollowUpRequired_end">
+        <dc:Bounds x="456" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Process_AppointmentFollowUpRequired_flow_0_di" bpmnElement="Process_AppointmentFollowUpRequired_flow_0">
+        <di:waypoint x="196" y="140"/>
+        <di:waypoint x="256" y="140"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Process_AppointmentFollowUpRequired_flow_1_di" bpmnElement="Process_AppointmentFollowUpRequired_flow_1">
+        <di:waypoint x="396" y="140"/>
+        <di:waypoint x="456" y="140"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>', 'When a appointment is cancelled, a task asks someone to settle what depended on it.', TRUE, TRUE, NOW(), NOW())
+ON CONFLICT (name) DO UPDATE SET
+  entity_name      = EXCLUDED.entity_name,
+  operation        = EXCLUDED.operation,
+  trigger_type     = EXCLUDED.trigger_type,
+  bpmn_xml         = EXCLUDED.bpmn_xml,
+  description      = EXCLUDED.description,
+  is_model_managed = TRUE,
+  updated_at       = NOW();
+
+INSERT INTO sys_workflow_definitions
+  (name, entity_name, operation, trigger_type, bpmn_xml, description, is_active, is_model_managed, created_at, updated_at)
 VALUES ('HealthcareEncounterFollowUpRequired', 'bus_healthcare_encounter', 'UPDATE',
         'rule', '<?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"

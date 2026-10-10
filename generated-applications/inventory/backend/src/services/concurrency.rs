@@ -75,7 +75,10 @@ pub async fn refusal(
     sent: &Map<String, Value>,
     kind: Refusal,
 ) -> AppError {
-    let id = current.get("id").and_then(Value::as_str).unwrap_or_default();
+    let id = current
+        .get("id")
+        .and_then(Value::as_str)
+        .unwrap_or_default();
     let current_version = current.get("version").and_then(Value::as_i64);
     let (changed_by, changed_fields) =
         what_changed(pool, meta, id, current, your_version, sent).await;
@@ -161,7 +164,10 @@ pub async fn transaction_status(pool: &PgPool, meta: &TableMeta, row: &Value) ->
     let Some(lifecycle) = meta.lifecycle.as_ref() else {
         return Value::Null;
     };
-    let value = row.get(&lifecycle.status_field).cloned().unwrap_or(Value::Null);
+    let value = row
+        .get(&lifecycle.status_field)
+        .cloned()
+        .unwrap_or(Value::Null);
     let label = match value.as_str() {
         Some(state) => Value::String(state_label(pool, meta, lifecycle, state).await),
         None => Value::Null,
@@ -176,7 +182,12 @@ pub async fn transaction_status(pool: &PgPool, meta: &TableMeta, row: &Value) ->
 
 /// A state's label: the name the dictionary gives that value of the status
 /// column's list, or the state itself made readable.
-async fn state_label(pool: &PgPool, meta: &TableMeta, lifecycle: &Lifecycle, state: &str) -> String {
+async fn state_label(
+    pool: &PgPool,
+    meta: &TableMeta,
+    lifecycle: &Lifecycle,
+    state: &str,
+) -> String {
     let named: Option<String> = sqlx::query_scalar(
         r"SELECT rl.name
             FROM sys_column c

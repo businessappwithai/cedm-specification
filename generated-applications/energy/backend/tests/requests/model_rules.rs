@@ -1,6 +1,6 @@
 //! The rules the *model* declared, and whether they reached the application.
 //!
-//! Generated: 2026-10-04T01:11:38.449Z
+//! Generated: 2026-10-10T02:39:50.430Z
 //! Project: energy
 //!
 //! Every other rules suite creates a rule through the API and then checks that
@@ -71,6 +71,16 @@ const MODEL_RULES: &[(&str, &str, &str)] = &[
     (
         "exchangeRateWorkflowsAfterUpdate",
         "bus_exchange_rate",
+        "UPDATE",
+    ),
+    (
+        "meterReadingWorkflowsAfterCreate",
+        "bus_meter_reading",
+        "CREATE",
+    ),
+    (
+        "meterReadingWorkflowsAfterUpdate",
+        "bus_meter_reading",
         "UPDATE",
     ),
 ];

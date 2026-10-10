@@ -268,19 +268,19 @@ VALUES ('0b596b53-86e0-5d8c-b341-46c789d80016', 'Location 5', 'Location 5', 'FAC
 ON CONFLICT DO NOTHING;
 
 -- Exchange Rate (bus_exchange_rate)
-INSERT INTO bus_exchange_rate (id, from_currency, to_currency, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
+INSERT INTO bus_exchange_rate (id, from_currency_id, to_currency_id, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
 VALUES ('af425e7b-1314-528c-88a0-d13d31c0706d', '28623bfd-fd5c-5f04-9d72-827135c4e583', '28623bfd-fd5c-5f04-9d72-827135c4e583', 10.50, 'SPOT', '2026-01-15T09:00:00Z', NULL, 'Source 1', 'DRAFT', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_exchange_rate (id, from_currency, to_currency, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
+INSERT INTO bus_exchange_rate (id, from_currency_id, to_currency_id, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
 VALUES ('f78b575a-893a-5dd3-a66a-8e1f8153dace', 'cc012889-2b39-5a12-983d-dd44c2cd041a', 'cc012889-2b39-5a12-983d-dd44c2cd041a', 21.00, 'CONTRACT', '2026-02-15T09:00:00Z', NULL, 'Source 2', 'DRAFT', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_exchange_rate (id, from_currency, to_currency, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
+INSERT INTO bus_exchange_rate (id, from_currency_id, to_currency_id, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
 VALUES ('ea9efb6d-45e2-5214-a80a-c0e1b02af7d6', '3f1f2fe8-a327-55c8-a1d6-c7c27cc0f68f', '3f1f2fe8-a327-55c8-a1d6-c7c27cc0f68f', 31.50, 'DAILY', '2026-03-15T09:00:00Z', NULL, 'Source 3', 'DRAFT', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_exchange_rate (id, from_currency, to_currency, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
+INSERT INTO bus_exchange_rate (id, from_currency_id, to_currency_id, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
 VALUES ('8bbb631b-5ff7-502f-924b-a7f0efac4502', 'e9631cfb-5c99-59a1-b7de-6988a87fb33f', 'e9631cfb-5c99-59a1-b7de-6988a87fb33f', 42.00, 'MONTHLY', '2026-04-15T09:00:00Z', NULL, 'Source 4', 'DRAFT', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_exchange_rate (id, from_currency, to_currency, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
+INSERT INTO bus_exchange_rate (id, from_currency_id, to_currency_id, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
 VALUES ('01b09292-c5e4-51f5-a97e-bf33d21e210e', 'fdad7691-b8ac-5f34-b9b0-6dc27e682292', 'fdad7691-b8ac-5f34-b9b0-6dc27e682292', 52.50, 'ACCOUNTING', '2026-05-15T09:00:00Z', NULL, 'Source 5', 'DRAFT', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
@@ -607,6 +607,23 @@ INSERT INTO bus_route (id, code, doc_status, created_at, updated_at)
 VALUES ('be071eb5-9208-52ed-8257-242e23579ace', 'Route 5', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
+-- Stop (bus_stop)
+INSERT INTO bus_stop (id, sequence_number, stop_type, planned_arrival_at, planned_departure_at, route_id, location_id, doc_status, created_at, updated_at)
+VALUES ('f56a22aa-834b-5457-9e4c-de199a13e0e0', 1, 'ORIGIN', NULL, NULL, 'f4ea6f9c-9deb-50b8-ab7e-c755dc20c165', '1ebadfc2-98aa-594f-b622-8ad2c02c297b', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_stop (id, sequence_number, stop_type, planned_arrival_at, planned_departure_at, route_id, location_id, doc_status, created_at, updated_at)
+VALUES ('6245f90e-d5bb-509e-a5da-d59a82db48f0', 2, 'PICKUP', NULL, NULL, 'efb1656a-09cc-5a81-b08b-e914a239c47d', '141e907d-783f-5712-8fa7-f54467beba9f', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_stop (id, sequence_number, stop_type, planned_arrival_at, planned_departure_at, route_id, location_id, doc_status, created_at, updated_at)
+VALUES ('34eece00-287f-5923-9842-ad525b3207cd', 3, 'DELIVERY', NULL, NULL, 'f15f85ca-3217-5a63-9233-e84c243eded7', '32d3c0cc-90ce-5d4b-bc4f-13d25184c17d', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_stop (id, sequence_number, stop_type, planned_arrival_at, planned_departure_at, route_id, location_id, doc_status, created_at, updated_at)
+VALUES ('f67fbb05-211f-5619-a8a9-59f078e55f48', 4, 'SERVICE', NULL, NULL, 'ca56f635-8792-5e81-8f1e-ec0f9cd2e57d', '48d6f341-14c3-520e-99e2-6de6ba55abcb', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_stop (id, sequence_number, stop_type, planned_arrival_at, planned_departure_at, route_id, location_id, doc_status, created_at, updated_at)
+VALUES ('e51c4301-eaa1-51d9-993b-daf1c737581f', 5, 'WAYPOINT', NULL, NULL, 'be071eb5-9208-52ed-8257-242e23579ace', '0b596b53-86e0-5d8c-b341-46c789d80016', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+
 -- Tracking Event (bus_tracking_event)
 INSERT INTO bus_tracking_event (id, code, shipment_id, doc_status, created_at, updated_at)
 VALUES ('f5e7a12c-c803-502b-b335-5abda7d1b023', 'Tracking Event 1', 'bb3700b3-8b10-5c2e-bc27-9d5037d268e0', 'final', NOW(), NOW())
@@ -639,4 +656,38 @@ VALUES ('b90b94c8-7f8b-53fd-b351-22740ef69fd2', 4, 'SEA', '2026-04-15T09:00:00Z'
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_trip_segment (id, sequence, mode, departure_at, arrival_at, status, trip_id, origin_id, vehicle_id, doc_status, created_at, updated_at)
 VALUES ('d1a98fcf-428f-5fc2-947f-ff1e88c39b18', 5, 'BUS', '2026-05-15T09:00:00Z', NULL, 'PLANNED', '01d347f5-e649-52d7-b57e-ade74f61064e', '0b596b53-86e0-5d8c-b341-46c789d80016', '0e1d402b-feb8-5670-a379-3c285c57da7c', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+
+-- Driver (bus_driver)
+INSERT INTO bus_driver (id, driver_code, license_number, status, person_id, doc_status, created_at, updated_at)
+VALUES ('1c4099c1-317f-5584-a8f3-4e41308eb7ac', 'Driver 1', 'License Number 1', 'DRAFT', 'e29d633a-1336-574a-beb4-3e3dbb4ada40', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_driver (id, driver_code, license_number, status, person_id, doc_status, created_at, updated_at)
+VALUES ('58161be0-ac83-5bcf-9711-093ce06f85f7', 'Driver 2', 'License Number 2', 'DRAFT', '53bd2d36-39ee-59a4-9620-f2f50bfed66c', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_driver (id, driver_code, license_number, status, person_id, doc_status, created_at, updated_at)
+VALUES ('a1966cd3-b246-59bf-b817-72b9b562cee5', 'Driver 3', 'License Number 3', 'DRAFT', 'fecf1ed9-a500-5081-9cbb-ee61991c0cce', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_driver (id, driver_code, license_number, status, person_id, doc_status, created_at, updated_at)
+VALUES ('a9c4b855-9622-58eb-a698-061e2ef8296e', 'Driver 4', 'License Number 4', 'DRAFT', '1e1689c6-0cb4-50ba-b23e-b93fe4e18280', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_driver (id, driver_code, license_number, status, person_id, doc_status, created_at, updated_at)
+VALUES ('4c74ae32-5d40-5c1a-a041-4cc94010e081', 'Driver 5', 'License Number 5', 'DRAFT', 'd5bfa2d8-44f4-5016-978a-1522148e5d11', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+
+-- Fuel Transaction (bus_fuel_transaction)
+INSERT INTO bus_fuel_transaction (id, transaction_number, quantity, total_amount, occurred_at, odometer_or_meter_reading, status, vehicle_id, driver_id, location_id, unit_of_measure_id, currency_id, doc_status, created_at, updated_at)
+VALUES ('18bedb47-f496-5fb7-af7c-2ec7abcf4277', 'Fuel Transaction 1', 10.50, 10.50, '2026-01-15T09:00:00Z', 10.50, 'RECORDED', '59a2e519-6662-5824-ab1f-8b65e39bd8e6', '1c4099c1-317f-5584-a8f3-4e41308eb7ac', '1ebadfc2-98aa-594f-b622-8ad2c02c297b', 'ad8e58b2-fcf3-50a9-ada2-a8388b025d39', '28623bfd-fd5c-5f04-9d72-827135c4e583', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_fuel_transaction (id, transaction_number, quantity, total_amount, occurred_at, odometer_or_meter_reading, status, vehicle_id, driver_id, location_id, unit_of_measure_id, currency_id, doc_status, created_at, updated_at)
+VALUES ('bafb68d8-86fa-506c-b67a-31a2ff4066e4', 'Fuel Transaction 2', 21.00, 21.00, '2026-02-15T09:00:00Z', 21.00, 'RECORDED', 'bade224e-7e0f-5e31-8bb1-c596d50784e3', '58161be0-ac83-5bcf-9711-093ce06f85f7', '141e907d-783f-5712-8fa7-f54467beba9f', '81ec220a-2328-5232-af4e-3bbbad2c6261', 'cc012889-2b39-5a12-983d-dd44c2cd041a', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_fuel_transaction (id, transaction_number, quantity, total_amount, occurred_at, odometer_or_meter_reading, status, vehicle_id, driver_id, location_id, unit_of_measure_id, currency_id, doc_status, created_at, updated_at)
+VALUES ('7b6b14a7-b145-5f0a-9348-ced45c62637c', 'Fuel Transaction 3', 31.50, 31.50, '2026-03-15T09:00:00Z', 31.50, 'RECORDED', '98b74dd8-7c74-5d0d-b9fa-5d307888a8a6', 'a1966cd3-b246-59bf-b817-72b9b562cee5', '32d3c0cc-90ce-5d4b-bc4f-13d25184c17d', 'a1be00d0-d69c-50b2-87ec-a9ed7f79e3bd', '3f1f2fe8-a327-55c8-a1d6-c7c27cc0f68f', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_fuel_transaction (id, transaction_number, quantity, total_amount, occurred_at, odometer_or_meter_reading, status, vehicle_id, driver_id, location_id, unit_of_measure_id, currency_id, doc_status, created_at, updated_at)
+VALUES ('f9b4a38e-e162-51fa-a1a7-790379dc7c47', 'Fuel Transaction 4', 42.00, 42.00, '2026-04-15T09:00:00Z', 42.00, 'RECORDED', '72272931-59ae-5f2f-94f8-a32c834d9bd4', 'a9c4b855-9622-58eb-a698-061e2ef8296e', '48d6f341-14c3-520e-99e2-6de6ba55abcb', '3cd48ef4-1964-555f-81af-0691da742f4c', 'e9631cfb-5c99-59a1-b7de-6988a87fb33f', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_fuel_transaction (id, transaction_number, quantity, total_amount, occurred_at, odometer_or_meter_reading, status, vehicle_id, driver_id, location_id, unit_of_measure_id, currency_id, doc_status, created_at, updated_at)
+VALUES ('0b6ca184-ab2b-501a-ba1a-747324043b5b', 'Fuel Transaction 5', 52.50, 52.50, '2026-05-15T09:00:00Z', 52.50, 'RECORDED', '0e1d402b-feb8-5670-a379-3c285c57da7c', '4c74ae32-5d40-5c1a-a041-4cc94010e081', '0b596b53-86e0-5d8c-b341-46c789d80016', '872c88ff-f974-561d-8be0-7e87b9b061cd', 'fdad7691-b8ac-5f34-b9b0-6dc27e682292', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;

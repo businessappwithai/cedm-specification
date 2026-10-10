@@ -14,27 +14,27 @@ Everything below is the application's own description of itself, taken from the 
 
 ### Address
 
-Reusable address master data with explicit rules for ownership, primary selection, lifecycle, and historical transaction evidence. Address is reusable master data, but an address printed on an issued invoice, shipment, order, or other historical document is transaction evidence and must remain reproducible even if the master address changes. Supports Party, Organization, Customer, Supplier, Location, order, fulfillment, invoicing, taxation, shipping, reporting, and integration workflows. Party and Location may reuse an Address. Operational documents should resolve the effective address at tra…
+A structured postal or physical address for a party or location, held once so it can be reused wherever it is needed. Addresses are reusable master data, yet an address printed on an issued invoice or shipment is historical evidence. This entity therefore holds the current address while documents keep their own copy of what was printed. Created when a party or location needs an address, selected when documents are prepared, and retired when it is no longer valid; read by invoicing, shipping, tax and mailing processes. An address is placed through its Country, optional StateProvince and City,…
 
 Readable by every signed-in person.
 
 Fields:
-  - **Address Type** (required, one of the Address Address Type values) — The address type of the address: a value the business records on it. Entered or maintained when a address is created or changed; shown on its form and available to search and reports. Read together with the address's other fields and its r…
-  - **Line1** (required) — The line1 of the address: a value the business records on it. Entered or maintained when a address is created or changed; shown on its form and available to search and reports. Read together with the address's other fields and its relation…
-  - **Line2** — The line2 of the address: a value the business records on it. Entered or maintained when a address is created or changed; shown on its form and available to search and reports. Read together with the address's other fields and its relation…
-  - **Line3** — The line3 of the address: a value the business records on it. Entered or maintained when a address is created or changed; shown on its form and available to search and reports. Read together with the address's other fields and its relation…
+  - **Address Type** (required, one of the Address Address Type values) — The purpose for which the address is used. Chosen when the address is created and used to pick the right address for a document, such as BILLING for invoices and SHIPPING for deliveries. A private home address. A place of business or offic…
+  - **Line1** (required) — The first line of the street address, usually building number and street. Entered by the person maintaining the address; printed on labels and documents.
+  - **Line2** — An optional second address line, such as a suite, unit or floor. Filled when line 1 is not enough to find the exact delivery point.
+  - **Line3** — An optional third address line for additional delivery details. Rarely used; kept for countries and carriers whose formats need more than two lines.
   - **City Name** — The name of the town or locality when it is not in the list of cities. Filled only when no city can be chosen; leave it empty when the city is picked from the list. Stands in for the city relationship; an address states one or the other.
-  - **Postal Code** — The postal code of the address: a value the business records on it. Entered or maintained when a address is created or changed; shown on its form and available to search and reports. Read together with the address's other fields and its re…
-  - **Latitude** — The latitude of the address: a number the business records on it. Entered or maintained when a address is created or changed; shown on its form and available to search and reports. Read together with the address's other fields and its rela…
-  - **Longitude** — The longitude of the address: a number the business records on it. Entered or maintained when a address is created or changed; shown on its form and available to search and reports. Read together with the address's other fields and its rel…
-  - **Is Primary** (required) — The is primary of the address: a yes/no indicator the business records on it. Entered or maintained when a address is created or changed; shown on its form and available to search and reports. Read together with the address's other fields…
-  - **Status** (required, one of the Address Status values) — The status of the address: a value the business records on it. Entered or maintained when a address is created or changed; shown on its form and available to search and reports. Read together with the address's other fields and its relatio…
-  - **Party** (a Party) — Party that maintains or uses this reusable address. Provides party master-data context for address selection.
+  - **Postal Code** — The postal or ZIP code of the address. Entered according to the country's format; used for delivery, tax zones and distance calculation.
+  - **Latitude** — The north-south position of the address on the earth in decimal degrees, from -90 to 90. Optional; filled by geocoding for mapping and routing. Must stay within -90 to 90.
+  - **Longitude** — The east-west position of the address on the earth in decimal degrees, from -180 to 180. Optional; filled by geocoding for mapping and routing. Must stay within -180 to 180.
+  - **Is Primary** (required) — Marks the address a party or location uses by default for its address type. Set by the person maintaining addresses; at most one active primary address of each type applies per party or location, and it is the one documents pick unless tol…
+  - **Status** (required, one of the Address Status values) — Whether the address may still be used for new business. Changed by data stewards; selection lists offer only ACTIVE addresses. Valid and available for new documents. Temporarily not offered, for example while a move is being confirmed; it…
+  - **Party** (a Party) — The party that uses or maintains this address. Set when a party's address is added; used to find a party's addresses and pick the effective one. At most one party; an address being prepared may have none yet. Supplies the party context for…
   - **Person** (a Person) — The Person this Address belongs to.
   - **Organization** (a Organization) — The Organization this Address belongs to.
-  - **Country** (required, a Country) — The country the address is in. Chosen from the list of countries; the states and cities offered are narrowed by it. Exactly one country. Every address names its country, which settles the format, tax and trade rules that apply to it.
-  - **State Province** (a State Province) — The state, province or equivalent division the address is in. Chosen after the country, from the divisions of that country. At most one; some countries have no divisions in the list. Must be a division of the address's own country.
-  - **City** (a City) — The city the address is in, chosen from the list. Chosen after the state or province, from the cities of that division or country; use the city name field when the city is not listed. At most one. Must be a city of the address's own countr…
+  - **Country** (required, a Country) — The country the address is in. Chosen first; it sets the address format and narrows the states and cities offered. Exactly one country is required. Settles the format, tax and trade rules that apply to the address. Every address names its…
+  - **State Province** (a State Province) — The state, province or equivalent division the address is in. Chosen after the country, from that country's divisions. At most one; some countries have no divisions in the list. Must belong to the address's own country. Must be a division…
+  - **City** (a City) — The city the address is in, chosen from the list. Chosen after the state or province; use the city name field only when the city is not listed. At most one. Must belong to the address's own country, and to its state or province where one i…
 
 ### Address Address Type
 
@@ -75,46 +75,77 @@ Fields:
   - **Sequence** (required) — The position of the value in a dropdown, lowest first.
   - **Is Active** (required) — Whether the value is offered on new records.
 
-### Attachment
+### Appointment
 
-A governed file or content attachment associated with an enterprise record while preserving content identity and audit provenance. Provide durable, implementation-neutral governance semantics for Attachment. A governed file or content attachment associated with an enterprise record while preserving content identity and audit provenance. Used in contracts, documents, governance, compliance, risk, legal, service, finance, or audit workflows where applicable. Connects authoritative business records to controlled lifecycle, evidence, findings, and downstream remediation without replacing source t…
+Represents scheduled healthcare intent independently of actual care delivery. Appointment answers when care is planned; HealthcareEncounter records what actually occurred. Keeping them separate supports cancellations, no-shows, rescheduling and audit. Patient scheduling, provider capacity, reminders, check-in, operational planning, reporting and integration. HealthcarePatient is mandatory; Practitioner, HealthcareProvider and Location define planned resources; HealthcareEncounter supplies actual-care reconciliation. Appointments are scheduled, may be confirmed and checked in, and finish as co…
 
 Readable by every signed-in person.
 
 Fields:
-  - **Effective At** — Time at which this record becomes effective or evidentially applicable. Establishes temporal business meaning. Lifecycle, audit and reporting. Does not rewrite earlier effective evidence. Optional when lifecycle does not require a separate…
+  - **Appointment Number** (required) — The scheduling reference given to the appointment, used in reminders and check-in. Operational identifier for scheduling and communication. Search, reminders, check-in and integration. Distinct from patient and encounter identifiers.
+  - **Appointment Type** (required) — The kind of healthcare service the visit is booked for, such as a follow-up consultation, vaccination or imaging slot. Chosen by the scheduler when booking; drives how long a slot is held, which resources it needs and how capacity is repor…
+  - **Scheduled Start At** (required) — The date and time at which the patient is expected to be seen, in the clinic's planning calendar. Entered when the appointment is booked and changed on rescheduling; reminders fire from it and lateness is measured against it. Establishes w…
+  - **Scheduled End At** — The planned end of the slot, giving the time the practitioner and room are held. Optional; when given it must fall after the start. Capacity planning uses it to detect overlapping bookings for the same resource. Supports resource-capacity…
+  - **Status** (required, one of the Appointment Status values) — Where the booking stands, from being scheduled through attendance to closure as completed, cancelled or missed. Moved by front-desk staff and clinicians as the patient confirms, arrives and is seen; reminders and capacity reports filter on…
+  - **Patient** (required, a Healthcare Patient) — Exactly one patient; an appointment cannot exist without the person it is for. Patient for whom the appointment is scheduled. Establishes the recipient of intended care. Scheduling, reminders and patient history. Patient status and schedul…
+  - **Provider** (a Healthcare Provider) — Healthcare provider organization or service context for the appointment. Supplies organizational delivery context. Scheduling, reporting and operational routing. Optional where practitioner or location fully determines context. Provider el…
+  - **Practitioner** (a Practitioner) — Practitioner scheduled to deliver or supervise care. Supplies professional resource commitment. Scheduling, capacity and reporting. Optional before assignment or for resource-pool appointments. Practitioner must be eligible when assigned.
+  - **Location** (a Location) — Planned physical or virtual service location. Defines where scheduled care is expected to occur. Scheduling, navigation and resource planning. Optional for unsited or virtual appointments represented elsewhere. Location availability must b…
+  - **Encounter** (a Healthcare Encounter) — Actual healthcare encounter arising from this appointment. Separates scheduled intent from delivered care evidence. Scheduling reconciliation, clinical operations and audit. Optional before care or for cancelled/no-show appointments. COMPL…
+
+### Appointment Status
+
+The values of appointment status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Attachment
+
+A file or other content attached to an enterprise record, with its content identity and provenance kept for audit. Supporting documents, photos and scans back up decisions. Keeping them as governed records, rather than loose files, proves what was attached to what and when, and lets the same content be recognised if it is attached twice. Added when a user or system attaches evidence to a record; read when someone needs to see or verify the supporting document. An attachment is linked to the record it supports; the same file may be attached to more than one. Once attached, the content is evide…
+
+Readable by every signed-in person.
+
+Fields:
+  - **Effective At** — When the attachment became part of the record. Set when the file is attached; used to show what evidence existed at a given moment.
 
 ### Business Unit
 
-A governed organizational unit representing a major business, division, line, or operating segment within an Organization. Provide a canonical enterprise representation with stable identity and governed semantics. A governed organizational unit representing a major business, division, line, or operating segment within an Organization. Used whenever enterprise processes need this concept as controlled master or reference data. Referenced by compatible domain entities and workflows while preserving a single canonical identity. Created under governance, maintained through controlled changes, and…
+A major business, division, product line or operating segment within an organisation. Business units are how a large organisation divides its activity for management and reporting. They let results, budgets and responsibility be assigned to a meaningful segment rather than to the organisation as a whole. Defined by management and finance; assigned to people, transactions and budgets; read when reporting by segment. Each business unit belongs to one Organization and groups the work and results of one part of it. A business unit keeps its code and identity stable. Reorganisations are recorded e…
 
 Readable by every signed-in person.
 
 Fields:
-  - **Code** (required) — Governed business code for BusinessUnit. Human and integration-friendly identifier. Search, configuration, exchange and reporting. Unique within its governing context according to policy. Required.
-  - **Name** (required) — Human-readable name of BusinessUnit. Communicates the concept to business users. UI, documents and reports. Does not replace immutable identity. Required.
-  - **Organization** (required, a Organization) — Governing Organization context for this record. Establishes ownership and enterprise context. Authorization, reporting and workflow. Exactly one Organization. Referenced workflows must remain compatible with governing context.
+  - **Code** (required) — The short reference for the unit, such as CE or EMEA-RETAIL. Assigned by finance and used on reports and in postings; kept stable because history relies on it.
+  - **Name** (required) — The full name of the business unit, as it appears in the organisation's structure and management accounts. Entered by management or finance when the unit is created; shown in organisation charts, selectors and segment reports.
+  - **Organization** (required, a Organization) — The organisation to which the unit belongs. Set when the unit is created. Exactly one organisation; a unit cannot stand alone. Rolls the unit's results up into its parent organisation.
 
 ### Calendar
 
-A governed calendar defining business dates, working days, holidays, and time-control semantics for planning and operational processes. Provide a canonical enterprise representation with stable identity and governed semantics. A governed calendar defining business dates, working days, holidays, and time-control semantics for planning and operational processes. Used whenever enterprise processes need this concept as controlled master or reference data. Referenced by compatible domain entities and workflows while preserving a single canonical identity. Created under governance, maintained throu…
+A calendar that defines business dates, working days, holidays and time-control rules used for planning and operations. Whether a date counts as a working day is not obvious: it depends on region, industry and company. A calendar states that explicitly, so due dates, delivery promises and schedules all agree. Maintained by administrators; referenced by schedulers, service-level calculations and planning when they need to know which days count. Locations, teams, contracts and schedules point to the calendar that governs their working days. A calendar's code and identity stay stable. Changes to…
 
 Readable by every signed-in person.
 
 Fields:
-  - **Code** (required) — Governed business code for Calendar. Human and integration-friendly identifier. Search, configuration, exchange and reporting. Unique within its governing context according to policy. Required.
-  - **Name** (required) — Human-readable name of Calendar. Communicates the concept to business users. UI, documents and reports. Does not replace immutable identity. Required.
+  - **Code** (required) — The short reference for the calendar, such as DE-NAT. Assigned by the administrator; used in configuration and reports; kept stable.
+  - **Name** (required) — The descriptive name of the calendar, such as UK Working Days or Group Fiscal Calendar. Entered by the administrator who maintains it; shown wherever a schedule, service level or plan asks which calendar applies.
 
 ### Care Plan
 
-Represents CarePlan as a first-class governed CEDM business concept. A governed plan of care defining goals, interventions, responsibilities, and follow-up for a patient. Domain workflows, validation, reporting, audit, integration, and cross-entity traceability. HealthcarePatient supplies the primary governing context; dependent workflows consume this record without silently mutating historical evidence. Draft → active → completed, with controlled cancellation and correction paths. Material changes revalidate open dependent workflows and preserve completed historical evidence. A CarePlan is c…
+A plan of care that sets out a patient's goals, the interventions to reach them, who is responsible and when to follow up. A care plan turns a diagnosis into coordinated action. It lets everyone involved in a patient's care see the same goals and responsibilities, and lets progress be checked against them. Drawn up by the care team after assessment; reviewed at follow-up; consulted by everyone involved in the patient's care. Each plan belongs to one HealthcarePatient and ties together the interventions and follow-up for that person. A plan is drafted, becomes active when agreed, and completes…
 
 Readable by every signed-in person.
 
 Fields:
-  - **Care Plan Code** (required) — Human-readable business reference for the CarePlan. Provides an operational identifier for searching, documents, reports, and integrations. Creation, review, search, workflow, reporting, and audit. Distinct from the immutable UUID identity…
-  - **Status** (required, one of the Care Plan Status values) — Lifecycle state of the CarePlan. Controls whether the record is being prepared, operationally active, historically complete, or cancelled. Workflow gating, governance, reporting, and audit. Status changes can affect related HealthcarePatie…
-  - **Context** (required, a Healthcare Patient) — Governing HealthcarePatient associated with this CarePlan. Supplies the business context needed to interpret and validate the record. Workflow navigation, validation, traceability, reporting, and audit. Every CarePlan belongs to exactly on…
+  - **Care Plan Code** (required) — The reference by which the plan is cited in the record and in handovers. Assigned when the plan is created; unique.
+  - **Status** (required, one of the Care Plan Status values) — Whether the plan is being drafted, in force, or finished. Moved by the care team. Being prepared and not yet agreed with the patient or team. Agreed and in force; the team is delivering it. Goals met or care ended; the plan is closed but k…
+  - **Context** (required, a Healthcare Patient) — The patient the plan is for. Set when the plan is created and not changed. Exactly one patient; a patient may have several plans over time. Attaches the plan to the patient's record so every clinician sees it.
 
 ### Care Plan Status
 
@@ -131,44 +162,44 @@ Fields:
 
 ### City
 
-A city: every national capital and every city of 750 thousand or more, from GeoNames, linked to its country and, for the United States and Canada, to its state or province. Give every application the same governed list, so a place or code means one thing across the enterprise. A city: every national capital and every city of 750 thousand or more, from GeoNames, linked to its country and, for the United States and Canada, to its state or province. Chosen from the list wherever a record needs a place, code or currency; maintained by an administrator when a registry changes. Referenced by addres…
+Loaded from the GeoNames reference data rather than typed by users; chosen on addresses, locations and offices, and read to sort, filter and map records by place. A city: every national capital and every city of 750 thousand or more, from GeoNames, linked to its country and, for the United States and Canada, to its state or province. A city: every national capital and every city of 750 thousand or more, from GeoNames, linked to its country and, for the United States and Canada, to its state or province. Chosen from the list wherever a record needs a place, code or currency; maintained by an a…
 
 Readable by every signed-in person.
 
 Fields:
-  - **Code** (required) — The city's code: its country code and its name in capitals, such as FR-PARIS. Quoted beside the name in lists; integration with other systems. Unique; the country prefix keeps cities of one name in different countries apart. Required.
-  - **Name** (required) — The city's name in English. Shown in lists and on addresses. Not unique: two countries can have a city of one name. Required.
-  - **Population** — The registry's population figure. Ordering and sizing; not a current census count. Describes the city only.
-  - **Latitude** — Latitude in degrees, north positive. Maps and distance. Describes the city only.
-  - **Longitude** — Longitude in degrees, east positive. Maps and distance. Describes the city only.
+  - **Code** (required) — The city's code: its country code and its name in capitals, such as FR-PARIS. Quoted beside the name in lists; integration with other systems. Unique; the country prefix keeps cities of one name in different countries apart.
+  - **Name** (required) — The city's name in English, as it is written on addresses and in place lists. Loaded with the reference data; shown in lists, pickers and address lines, and narrowed by the country and state chosen. Not unique: two countries can have a cit…
+  - **Population** — The population figure recorded in the GeoNames registry when the data was loaded. Used to rank and size cities in lists and pickers; it is an approximate registry value, not a current census count. Describes the city only.
+  - **Latitude** — The city's north-south position in decimal degrees, with north positive and south negative. Loaded with the reference data; paired with longitude to place the city on maps and measure distances. Describes the city only.
+  - **Longitude** — The city's east-west position in decimal degrees, with east positive and west negative. Loaded with the reference data; paired with latitude to place the city on maps and measure distances. Describes the city only.
   - **Timezone** — The IANA time zone the city keeps, such as Europe/Paris. Showing local times for the city. Describes the city only.
-  - **Is Capital** — Whether the city is its country's capital. Highlighting the capital in lists. At most one capital per country in this list.
-  - **Country** (required, a Country) — The country the city is in. Chosen first; the cities offered are those of that country. Every city belongs to exactly one country. A city is narrowed by its country, and by its state where it has one.
+  - **Is Capital** — Marks the city as the capital of its country in the reference data. Loaded with the reference data; lists use it to highlight or sort capitals first when people choose a city. At most one capital per country in this list.
+  - **Country** (required, a Country) — Exactly one country; a city belongs to a single country. The country the city is in. Chosen first; the cities offered are those of that country. A city is narrowed by its country, and by its state where it has one.
   - **State Province** (a State Province) — The state or province the city is in, where the registry says which. Chosen after the country; narrows the cities offered. A city has at most one state or province; outside the United States and Canada the list leaves it empty. The state o…
 
 ### Contact Point
 
-A governed communication endpoint such as email address, telephone number, web endpoint, or other contact channel associated with a Party. Provide a canonical enterprise representation with stable identity and governed semantics. A governed communication endpoint such as email address, telephone number, web endpoint, or other contact channel associated with a Party. Used whenever enterprise processes need this concept as controlled master or reference data. Referenced by compatible domain entities and workflows while preserving a single canonical identity. Created under governance, maintained…
+A communication endpoint for a party, such as an email address, telephone number, web address or other channel. Reaching someone requires a specific address. A contact point holds each one with its own status, so messages go to working endpoints and old ones are not lost. Added when a party gives an email, phone or other channel; read by communications, notifications and service processes. Each contact point belongs to one Party, which may have several. Code and identity stay stable, and an endpoint that is retired remains in history. The billing team's email address invoices@acme.example, re…
 
 Readable by every signed-in person.
 
 Fields:
-  - **Code** (required) — Governed business code for ContactPoint. Human and integration-friendly identifier. Search, configuration, exchange and reporting. Unique within its governing context according to policy. Required.
-  - **Name** (required) — Human-readable name of ContactPoint. Communicates the concept to business users. UI, documents and reports. Does not replace immutable identity. Required.
-  - **Party** (required, a Party) — Governing Party context for this record. Establishes ownership and enterprise context. Authorization, reporting and workflow. Exactly one Party. Referenced workflows must remain compatible with governing context.
+  - **Code** (required) — A short reference for the contact point. Assigned or imported; stays stable so integrations can match it.
+  - **Name** (required) — A descriptive label for the endpoint, such as Head office switchboard. Shown wherever contact points are listed.
+  - **Party** (required, a Party) — The party the endpoint belongs to. Set when the endpoint is added. Exactly one party; each endpoint has one owner. Lets communications find the right channel for a party.
 
 ### Country
 
-A country or territory from the ISO 3166-1 registry, used consistently for addresses, tax, trade, localization, compliance and reporting. Give every application the same governed list, so a place or code means one thing across the enterprise. A country or territory from the ISO 3166-1 registry, used consistently for addresses, tax, trade, localization, compliance and reporting. Chosen from the list wherever a record needs a place, code or currency; maintained by an administrator when a registry changes. Referenced by addresses, parties, products and documents; related entities narrow each oth…
+Read by address forms, tax and trade rules, localization and reports; changed only by an administrator when the ISO registry changes. A country or territory from the ISO 3166-1 registry, used consistently for addresses, tax, trade, localization, compliance and reporting. A country or territory from the ISO 3166-1 registry, used consistently for addresses, tax, trade, localization, compliance and reporting. Chosen from the list wherever a record needs a place, code or currency; maintained by an administrator when a registry changes.
 
 Readable by every signed-in person.
 
 Fields:
-  - **Code** (required) — The two-letter ISO 3166-1 code, such as US or DE. Search, integration and reporting; stored on nothing else, because records point at the country itself. Unique; a state or province and a city belong to a country through it. Required.
+  - **Code** (required) — The two-letter ISO 3166-1 code, such as US or DE. Search, integration and reporting; stored on nothing else, because records point at the country itself. Unique; a state or province and a city belong to a country through it.
   - **Alpha3** — The three-letter ISO 3166-1 code, such as USA or DEU. Trade and customs documents, which use the long form. Unique among countries.
   - **Numeric Code** — The three-digit ISO 3166-1 numeric code, such as 840. Banking and statistical exchange formats. Unique among countries.
-  - **Name** (required) — The country's short name in English. Shown in lists, on addresses and on reports. Does not replace the code as the stable key. Required.
-  - **Phone Code** — The international dialling prefix, without the plus sign. Validating and formatting telephone numbers. Belongs to the country; several countries can share a prefix.
+  - **Name** (required) — The country's short name in English. Shown in lists, on addresses and on reports. Does not replace the code as the stable key.
+  - **Phone Code** — The international dialling prefix for the country, held without the plus sign, such as 44 or 1. Used to validate and format telephone numbers entered against addresses and contacts, so the same number reads the same everywhere. Belongs to…
   - **Currency** (a Currency) — The currency the country mainly uses. Chosen from the currency list; used to suggest a currency on records for the country. A country has at most one main currency; a currency can be the main one of many countries. Lets a default currency…
 
 ### Currency
@@ -179,10 +210,10 @@ Readable by every signed-in person.
 
 Fields:
   - **Code** (required) — Three-letter business currency code, normally an ISO 4217 code where one exists. Used in documents, APIs, integrations, reports, pricing, banking, and accounting. Code identifies the denomination and is not an exchange rate or amount. Prov…
-  - **Name** (required) — Human-readable currency name. Used in user interfaces, documents, reports, master-data management, and integrations. Describes the currency identified by code and currencyId. Provides understandable monetary context to business users. Requ…
+  - **Name** (required) — The name of the currency, such as Euro or US Dollar. Used in user interfaces, documents, reports, master-data management, and integrations. Describes the currency identified by code and currencyId. Provides understandable monetary context…
   - **Symbol** — Common display symbol for the currency. Used in user interfaces, customer documents, reports, and formatted amounts. Presentation metadata; it must not be used as the canonical currency identity. Improves human-readable display without aff…
   - **Decimal Places** (required) — Standard number of decimal places normally used when representing amounts in this currency. Used for amount formatting, rounding, validation, invoicing, payment processing, and accounting presentation. Transaction-specific precision or fin…
-  - **Status** (required, one of the Currency Status values) — Controls whether the currency is available for new monetary transactions. Used by pricing, order, invoicing, payment, banking, and accounting validation. Retiring a currency must not invalidate historical transactions expressed in that cur…
+  - **Status** (required, one of the Currency Status values) — Available for use on new prices, documents and payments. Temporarily not offered, for example while a market is closed; it can be reactivated. No longer in use, such as a replaced national currency; historical amounts keep it. Controls whe…
 
 ### Currency Status
 
@@ -199,14 +230,14 @@ Fields:
 
 ### Department
 
-A governed organizational unit grouping people, positions, responsibilities, and work within an Organization or BusinessUnit. Provide a canonical enterprise representation with stable identity and governed semantics. A governed organizational unit grouping people, positions, responsibilities, and work within an Organization or BusinessUnit. Used whenever enterprise processes need this concept as controlled master or reference data. Referenced by compatible domain entities and workflows while preserving a single canonical identity. Created under governance, maintained through controlled change…
+A unit of an organisation that groups people, positions, responsibilities and work. Departments are how people are organised day to day. They define reporting lines, budgets and responsibilities. Defined by HR and management; assigned to people and positions; used in reporting and approvals. A department belongs to an Organization (or one of its business units). Code and identity stay stable. Reorganisations are recorded explicitly so earlier reports do not change. The Accounts Payable department of the finance function.
 
 Readable by every signed-in person.
 
 Fields:
-  - **Code** (required) — Governed business code for Department. Human and integration-friendly identifier. Search, configuration, exchange and reporting. Unique within its governing context according to policy. Required.
-  - **Name** (required) — Human-readable name of Department. Communicates the concept to business users. UI, documents and reports. Does not replace immutable identity. Required.
-  - **Organization** (required, a Organization) — Governing Organization context for this record. Establishes ownership and enterprise context. Authorization, reporting and workflow. Exactly one Organization. Referenced workflows must remain compatible with governing context.
+  - **Code** (required) — The short code of the department, such as FIN-AP. Used in postings and reports; kept stable.
+  - **Name** (required) — The name of the department as the organisation calls it, such as Finance or Field Operations. Entered by an administrator; shown in organisation charts, on documents and in reports that group people and costs by department.
+  - **Organization** (required, a Organization) — Chosen when the department is created; reporting lines, headcount and budgets roll up through the organisation it belongs to. The organisation the department belongs to. Exactly one organisation: a department is part of a single organisati…
 
 ### Diagnosis Diagnosis Type
 
@@ -231,11 +262,11 @@ Fields:
   - **From Currency** (required, a Currency) — Currency from which an amount is converted. Identifies the source denomination of the monetary amount being converted. Must differ from toCurrency for a meaningful exchange-rate conversion. Identifies the currency of the source Money value…
   - **To Currency** (required, a Currency) — Currency into which an amount is converted. Identifies the target denomination of the converted monetary amount. Conversion direction is from fromCurrency to toCurrency; reversing the direction requires an appropriate inverse rate rather t…
   - **Rate** (required) — Positive conversion factor that expresses how much target currency corresponds to one unit of source currency under this rate convention. Used to calculate converted monetary amounts while preserving the declared direction. Must always be…
-  - **Rate Type** (required, one of the Exchange Rate Rate Type values) — Classifies the business purpose and provenance context of the exchange rate. Used to select an appropriate rate according to transaction and accounting policy. Different workflows may require different rate types; a spot rate must not auto…
+  - **Rate Type** (required, one of the Exchange Rate Rate Type values) — The market rate at a moment in time. A rate fixed by agreement with a counterparty. The rate published for a business day. An average or closing rate for a month. A rate set by the finance team for ledger translation. Any other rate define…
   - **Effective At** (required) — Date and time from which the exchange rate is applicable under its rate policy. Used to select the correct rate for a transaction, settlement, or accounting event. A rate without an effective time cannot be reliably reproduced when rates c…
-  - **Expires At** — Optional end of the period during which the rate is valid. Used to prevent application of expired rates. When supplied, expiresAt must be later than effectiveAt. Defines the rate's validity window for transaction and reporting calculations…
+  - **Expires At** — Optional end of the period during which the rate is valid. Used to prevent application of expired rates. When supplied, expiresAt must be later than effectiveAt. Defines the rate's validity window for transaction and reporting calculations.
   - **Source** (required) — Identifies the provider or business authority from which the rate was obtained. Used for audit, reconciliation, regulatory reporting, and rate governance. Source identifies provenance; it does not by itself determine which rate is applicab…
-  - **Status** (required, one of the Exchange Rate Status values) — Lifecycle state of the exchange-rate record. Used by conversion services to determine whether a rate may be applied. Historical calculations retain the rate record even after it expires. Prevents use of draft, cancelled, or expired rates w…
+  - **Status** (required, one of the Exchange Rate Status values) — Being prepared; not yet used. In force and usable for conversion. Its validity period has ended; kept for past conversions. Withdrawn; must not be used. Lifecycle state of the exchange-rate record. Used by conversion services to determine…
 
 ### Exchange Rate Rate Type
 
@@ -265,24 +296,24 @@ Fields:
 
 ### Healthcare Encounter
 
-Represents a healthcare transaction called HealthcareEncounter within the CEDM business model. HealthcareEncounter is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface. Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find, change, or relate HealthcareEncounter records. The entity participates in a wider business graph through relationships with HealthcarePatient, HealthcareProvider, Diagnosis, Procedure, HealthcareOrder.…
+A recorded interaction between a patient and a healthcare provider or facility for evaluation, treatment or service. The encounter is the unit of care. Diagnoses, procedures and orders are made within an encounter, and billing and quality reporting follow from it. Created when care is planned or begins; completed when it ends; read by clinicians, coders and billing. An encounter is for a HealthcarePatient, may be with a HealthcareProvider and Practitioners, may arise from an Appointment, and contains Diagnoses, Procedures and HealthcareOrders. An encounter is planned, in progress while care i…
 
 Readable by every signed-in person.
 
 Fields:
-  - **Encounter Type** (required, one of the Healthcare Encounter Encounter Type values) — Captures the business meaning of encounter type for the HealthcareEncounter. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record. Used when creating, reviewing, s…
-  - **Status** (required, one of the Healthcare Encounter Status values) — The lifecycle state of the record. It controls which business actions are normally permitted and how the record is treated by related processes. Used when creating, reviewing, searching, validating, reporting on, or integrating HealthcareE…
-  - **Start At** (required) — Records when the start event occurred. It establishes chronology, supports auditability, and helps coordinate related lifecycle and process activities. Used when creating, reviewing, searching, validating, reporting on, or integrating Heal…
-  - **End At** — Records when the end event occurred. It establishes chronology, supports auditability, and helps coordinate related lifecycle and process activities. Used when creating, reviewing, searching, validating, reporting on, or integrating Health…
-  - **Reason** — Captures the business meaning of reason for the HealthcareEncounter. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record. Used when creating, reviewing, searching…
-  - **Patient** (required, a Healthcare Patient) — Connects HealthcareEncounter to HealthcarePatient so related business context can be navigated and enforced. Used when processes need to find or reason about HealthcarePatient records associated with a HealthcareEncounter. The declared car…
-  - **Provider** (a Healthcare Provider) — Connects HealthcareEncounter to HealthcareProvider so related business context can be navigated and enforced. Used when processes need to find or reason about HealthcareProvider records associated with a HealthcareEncounter. The declared c…
+  - **Encounter Type** (required, one of the Healthcare Encounter Encounter Type values) — A visit without an overnight stay. Care with admission to a ward and an overnight stay. Unplanned urgent care given to a patient arriving with an acute problem. Care delivered remotely by video or telephone. Care delivered at the patient's…
+  - **Status** (required, one of the Healthcare Encounter Status values) — Where the encounter is in its course, from planned through care being delivered to completion. Updated by the provider as care starts and ends; billing and coding act only on completed encounters. Expected but not started. Care is being de…
+  - **Start At** (required) — The date and time at which the encounter began and care started. Recorded at check-in or when care begins; lengths of stay, scheduling analysis and billing periods run from it.
+  - **End At** — When the encounter ended. Recorded at discharge or end; must not be before the start.
+  - **Reason** — Why the patient was seen, in the patient's or clinician's words. Written at registration; read by the care team.
+  - **Patient** (required, a Healthcare Patient) — The patient who received care. Set at registration. Exactly one patient: an encounter is a particular person's episode of care. Adds the encounter to the patient's record.
+  - **Provider** (a Healthcare Provider) — The provider organisation delivering the care. Set at registration. At most one provider; some encounters are recorded before the provider is allocated. Identifies who is responsible for the care and billing.
 
-Line items — **Healthcare Order**: kept inside each Healthcare Encounter and reached by opening it, never on their own. Represents HealthcareOrder as a first-class governed CEDM business concept. A clinical or operational order issued within healthcare for a test, medication, procedure, service, or other governed action. Domain workflows, validation, reporting, audit, integration, and cross-entity traceability. Heal…
+Line items — **Healthcare Order**: kept inside each Healthcare Encounter and reached by opening it, never on their own. A clinical or operational order for a test, medication, procedure, service or other governed action within healthcare. Care is delivered through orders. An order states what is requested, when and by whom, so that laboratories, pharmacies and wards act on the same instruction. Raised by a clinician…
 
-Line items — **Diagnosis**: kept inside each Healthcare Encounter and reached by opening it, never on their own. Represents a healthcare clinical entity called Diagnosis within the CEDM business model. Diagnosis is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface. Used by business processes, tran…
+Line items — **Diagnosis**: kept inside each Healthcare Encounter and reached by opening it, never on their own. A clinical finding or condition identified during a healthcare assessment. A diagnosis is the clinical conclusion that explains a patient's problem. It drives treatment, coding for billing, and the patient's history. Recorded by clinicians during an encounter; read by the care team, coders and late…
 
-Line items — **Procedure**: kept inside each Healthcare Encounter and reached by opening it, never on their own. Represents a healthcare clinical entity called Procedure within the CEDM business model. Procedure is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface. Used by business processes, tran…
+Line items — **Procedure**: kept inside each Healthcare Encounter and reached by opening it, never on their own. A clinical procedure that is planned or performed as part of healthcare delivery. Procedures are the interventions that change a patient's condition, from a blood draw to an operation. Recording them, with codes and times, supports care continuity, billing and quality review. Planned during an enco…
 
 ### Healthcare Encounter Encounter Type
 
@@ -325,17 +356,17 @@ Fields:
 
 ### Healthcare Patient
 
-Represents a industry specialization called HealthcarePatient within the CEDM business model. HealthcarePatient is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface. Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find, change, or relate HealthcarePatient records. The entity participates in a wider business graph through relationships with Party, HealthcareEncounter, CarePlan, Allergy. These relationships provide the con…
+A person who receives, or is eligible to receive, healthcare services. The patient record is the healthcare view of a person: their medical record number and standing. It is kept separate from the party so that clinical and administrative identity can be managed and protected separately. Created at first registration; updated as the person's standing changes; read by every clinical and administrative process. A patient is a Party and has Encounters, CarePlans, Allergies and Appointments. A patient is active, may become inactive when no longer under care, and ends deceased, or merged into anot…
 
 Readable by every signed-in person.
 
 Fields:
-  - **Party** (required, a Party) — Identifies the related Party associated with this HealthcarePatient. It provides the link needed to navigate from this record to the related business object. Used when creating, reviewing, searching, validating, reporting on, or integratin…
-  - **Medical Record Number** (required) — Captures the business meaning of medical record number for the HealthcarePatient. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record. Used when creating, reviewi…
-  - **Status** (required, one of the Healthcare Patient Status values) — The lifecycle state of the record. It controls which business actions are normally permitted and how the record is treated by related processes. Used when creating, reviewing, searching, validating, reporting on, or integrating HealthcareP…
-  - **Preferred Language** — Captures the business meaning of preferred language for the HealthcarePatient. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record. Used when creating, reviewing,…
+  - **Party** (required, a Party) — The party record that this patient is. Set at registration so the same person is one party across all roles.
+  - **Medical Record Number** (required) — The number by which the patient's record is known inside the healthcare organisation. Allocated at first registration; unique; printed on wristbands and documents and used to find the record.
+  - **Status** (required, one of the Healthcare Patient Status values) — A current patient who receives or is eligible for care. Not currently receiving care; the record is kept and can be reactivated. The patient has died; no new care is planned. A final state. A duplicate record that has been merged into anot…
+  - **Preferred Language** — The language in which the patient prefers to communicate with the care team. Asked at registration; interpreters, letters and portal content follow it.
 
-Line items — **Allergy**: kept inside each Healthcare Patient and reached by opening it, never on their own. Represents Allergy as a first-class governed CEDM business concept. A governed patient allergy or intolerance record used to support clinical safety and treatment decisions. Domain workflows, validation, reporting, audit, integration, and cross-entity traceability. HealthcarePatient supplies the pr…
+Line items — **Allergy**: kept inside each Healthcare Patient and reached by opening it, never on their own. A recorded allergy or intolerance of a patient, kept to support clinical safety and treatment decisions. Allergies are one of the most important safety facts about a patient. Prescribing, procedures and diet all check them, so the record must be findable, accurate and never silently lost. Entered b…
 
 ### Healthcare Patient Status
 
@@ -352,16 +383,16 @@ Fields:
 
 ### Healthcare Provider
 
-Represents a healthcare party role called HealthcareProvider within the CEDM business model. HealthcareProvider is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface. Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find, change, or relate HealthcareProvider records. The entity participates in a wider business graph through relationships with Party, Organization, HealthcareEncounter. These relationships provide the context…
+A person or organisation that is authorised to provide healthcare services. Care is given by providers who must be licensed and credentialed. This record identifies each provider and its type, so that encounters, referrals and claims can name who gave care. Registered when a provider joins or contracts with the organisation; read by scheduling, billing and quality processes. A provider is a Party, may belong to an Organization, delivers Encounters and works with Practitioners and Appointments. A provider is active while authorised, can be made inactive or suspended while a licence or contract…
 
 Readable by every signed-in person.
 
 Fields:
-  - **Party** (required, a Party) — Identifies the related Party associated with this HealthcareProvider. It provides the link needed to navigate from this record to the related business object. Used when creating, reviewing, searching, validating, reporting on, or integrati…
-  - **Provider Number** (required) — Captures the business meaning of provider number for the HealthcareProvider. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record. Used when creating, reviewing, s…
-  - **Provider Type** (required, one of the Healthcare Provider Provider Type values) — Captures the business meaning of provider type for the HealthcareProvider. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record. Used when creating, reviewing, sea…
-  - **Status** (required, one of the Healthcare Provider Status values) — The lifecycle state of the record. It controls which business actions are normally permitted and how the record is treated by related processes. Used when creating, reviewing, searching, validating, reporting on, or integrating HealthcareP…
-  - **Organization** (a Organization) — Connects HealthcareProvider to Organization so related business context can be navigated and enforced. Used when processes need to find or reason about Organization records associated with a HealthcareProvider. The declared cardinality 0..…
+  - **Party** (required, a Party) — The party that is the provider. Set at registration so the provider shares one identity with its other roles.
+  - **Provider Number** (required) — The unique number that identifies the provider to payers and authorities. Entered at registration from the licence or payer contract; printed on claims.
+  - **Provider Type** (required, one of the Healthcare Provider Provider Type values) — A doctor in independent practice. A nurse or nurse practitioner providing care. An outpatient clinic or practice. A hospital or inpatient facility. A diagnostic laboratory that performs tests and reports results. A pharmacy dispensing medi…
+  - **Status** (required, one of the Healthcare Provider Status values) — Whether the provider is currently authorised to give care. Set by credentialing staff; only ACTIVE providers can be scheduled. Authorised and available for scheduling. Not currently providing services; can return. Barred while a licence, c…
+  - **Organization** (a Organization) — The organisation the provider belongs to or works through. Set where the provider is part of a larger body, such as a hospital group. At most one organisation; an independent practitioner has none. Places the provider in a reporting and bi…
 
 ### Healthcare Provider Provider Type
 
@@ -391,37 +422,37 @@ Fields:
 
 ### Language
 
-A governed language reference used for localization, communication preferences, content, and reporting. Provide a canonical enterprise representation with stable identity and governed semantics. A governed language reference used for localization, communication preferences, content, and reporting. Used whenever enterprise processes need this concept as controlled master or reference data. Referenced by compatible domain entities and workflows while preserving a single canonical identity. Created under governance, maintained through controlled changes, and retired or superseded without rewriti…
+A language used for localisation, communication preferences, content and reporting. People read and write in different languages. A language record lets the application offer translations, remember preferences and tag content with the language it is written in. Loaded from the standard language registry; chosen on user profiles, documents and messages. Parties, users and content refer to a language; the language itself depends on nothing. Code and identity stay stable, and history is never silently rewritten. English, with code en.
 
 Readable by every signed-in person.
 
 Fields:
-  - **Code** (required) — Governed business code for Language. Human and integration-friendly identifier. Search, configuration, exchange and reporting. Unique within its governing context according to policy. Required.
-  - **Name** (required) — Human-readable name of Language. Communicates the concept to business users. UI, documents and reports. Does not replace immutable identity. Required.
+  - **Code** (required) — The two-letter ISO 639-1 code of the language, such as en or de. Taken from the standard; unique; used in locale settings and APIs.
+  - **Name** (required) — The English name of the language, such as French or Portuguese. Loaded from the language reference data; it is shown in language pick-lists and reports, while the code remains the identifier.
 
 ### Legal Entity
 
-A legally recognized organization or person capable of holding rights, obligations, registrations, contracts, assets, liabilities, or filings. Provide canonical governance semantics for LegalEntity. A legally recognized organization or person capable of holding rights, obligations, registrations, contracts, assets, liabilities, or filings. Used in enterprise risk, legal, compliance, audit, contract, incident, and remediation processes where applicable. Connects risks, controls, parties, legal matters, agreements, obligations, evidence and outcomes without replacing their authoritative histori…
+A legally recognised organisation or person that can hold rights and obligations, registrations, contracts, assets, liabilities or filings. Contracts are signed and taxes are paid by legal entities, not by business units. Knowing exactly which entity is involved determines liability, reporting and registration duties. Registered when an entity is formed or acquired; referenced by contracts, filings and ledgers. Contracts, filings and accounting books refer to the legal entity. Finalised evidence and effective history are preserved; changes such as name changes or mergers are recorded explicit…
 
 Readable by every signed-in person.
 
 Fields:
-  - **Occurred At** — Effective occurrence or assessment time where applicable. Anchors temporal evidence. Chronology, reporting and audit. Historical timing is not silently rewritten. Optional when the concept is a standing master or future obligation.
+  - **Occurred At** — When the entity was formed, or its record took effect. Set from the registration data.
 
 ### Location
 
-Core location master with hierarchical, geographic, organizational, and lifecycle context. Location identifies where business activity or resources occur. It is distinct from Address: Location is the business place; Address describes its geographic/contact representation. Supports inventory, warehousing, yard/port operations, shipping, purchasing, sales, tax jurisdiction, service, logistics, and organizational processes. Organization provides operating ownership/context. Address provides geographic representation. Parent/child locations provide operational hierarchy. Dependent entities must r…
+A physical or logical place where resources, activities, stock, services or organisational operations are situated. Almost everything in a business happens somewhere. The location is the shared reference for that: sites, warehouses, stores, offices, ports and even virtual places, arranged in a hierarchy so addresses, stock and assets can all point to the same place. Created when a place becomes relevant; arranged under parent locations; referenced by assets, stock, facilities and addresses; read by logistics, facilities and reporting. A location may sit within a parent Location with children…
 
 Readable by every signed-in person.
 
 Fields:
-  - **Code** (required) — The code of the location: a value the business records on it. Entered or maintained when a location is created or changed; shown on its form and available to search and reports. Read together with the location's other fields and its relati…
-  - **Name** (required) — The name of the location: a value the business records on it. Entered or maintained when a location is created or changed; shown on its form and available to search and reports. Read together with the location's other fields and its relati…
-  - **Location Type** (required, one of the Location Location Type values) — The location type of the location: a value the business records on it. Entered or maintained when a location is created or changed; shown on its form and available to search and reports. Read together with the location's other fields and i…
-  - **Status** (required, one of the Location Status values) — The status of the location: a value the business records on it. Entered or maintained when a location is created or changed; shown on its form and available to search and reports. Read together with the location's other fields and its rela…
-  - **Address** (a Address) — The address id of the location: a link to another record the business records on it. Entered or maintained when a location is created or changed; shown on its form and available to search and reports. Read together with the location's othe…
-  - **Parent Location** (a Location) — The parent location id of the location: a link to another record the business records on it. Entered or maintained when a location is created or changed; shown on its form and available to search and reports. Read together with the locatio…
-  - **Organization** (a Organization) — Links a location to organization, the organization it relates to. Chosen from the existing organization records when the location is created or edited. A location has at most one organization in this role. Lets the location be found from,…
+  - **Code** (required) — The code of the place in the organisation's site list, such as NL-RTM-DC1. Unique; assigned by the administrator and used in integrations and labels.
+  - **Name** (required) — The name by which people refer to the place, such as Rotterdam Depot. Entered by the administrator when the location is created; shown in lists, maps and documents, and may be changed without breaking references.
+  - **Location Type** (required, one of the Location Location Type values) — A geographic site that may contain several buildings. A building or area for storing goods. A retail outlet where goods are sold to customers. A place where office work is done. A place where goods are made. An open area for storing or sta…
+  - **Status** (required, one of the Location Status values) — Expected but not yet in use. In use and offered for new assignments. Temporarily not used but expected to return to service. Closed down, with no new assignments but history kept. Removed from use altogether. A final state. Whether the pla…
+  - **Address** (a Address) — The postal address of the location. Chosen from the address list; used for deliveries, mapping and tax.
+  - **Parent Location** (a Location) — The place that contains this one, such as the site that holds a warehouse. Set to build the hierarchy; a top-level place has none.
+  - **Organization** (a Organization) — The organisation that operates the place. Set where operation is clear. At most one operating organisation. Determines responsibility and reporting.
 
 ### Location Location Type
 
@@ -451,17 +482,17 @@ Fields:
 
 ### Medication
 
-Represents a healthcare pharmaceutical entity called Medication within the CEDM business model. Medication is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface. Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find, change, or relate Medication records. The entity participates in a wider business graph through relationships with Product, Prescription. These relationships provide the context needed to interpret the record…
+A medicinal product or therapeutic substance that can be prescribed or given to a patient. Safe prescribing needs an exact definition of the drug: what it is, how strong it is and in what form. The medication record is that definition, shared by every prescription, so a dose cannot be mistaken for a different product. Maintained by pharmacy; chosen by prescribers when writing prescriptions; read by pharmacists and nurses at dispensing and administration. A medication may be linked to a catalogue Product for purchasing and stock, and is prescribed through Prescriptions. A medication is active…
 
 Readable by every signed-in person.
 
 Fields:
-  - **Product** — Identifies the related Product associated with this Medication. It provides the link needed to navigate from this record to the related business object. Used when creating, reviewing, searching, validating, reporting on, or integrating Med…
-  - **Code** (required) — A human-readable business code used to identify or reference the record in operational processes and integrations. Used when creating, reviewing, searching, validating, reporting on, or integrating Medication records, where applicable. Its…
-  - **Name** (required) — The human-readable name used by people, reports, searches, and related business processes. Used when creating, reviewing, searching, validating, reporting on, or integrating Medication records, where applicable. Its meaning is specific to…
-  - **Strength** — Captures the business meaning of strength for the Medication. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record. Used when creating, reviewing, searching, valid…
-  - **Form** — Captures the business meaning of form for the Medication. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record. Used when creating, reviewing, searching, validatin…
-  - **Status** (required, one of the Medication Status values) — The lifecycle state of the record. It controls which business actions are normally permitted and how the record is treated by related processes. Used when creating, reviewing, searching, validating, reporting on, or integrating Medication…
+  - **Product** — The catalogue product that supplies this medication. Set where the pharmacy stocks and buys the medication as a product.
+  - **Code** (required) — The formulary code of the medication. Assigned by pharmacy; may be a national drug code; used in prescribing and dispensing systems.
+  - **Name** (required) — The name of the medication, normally its generic name. Shown to prescribers and on labels.
+  - **Strength** — The amount of active substance per unit, for example 500 mg. Entered from the product label; prescribers choose a dose relative to it.
+  - **Form** — The physical form of the medication, such as tablet, capsule, solution or injection. Entered from the product label; decides how it can be administered.
+  - **Status** (required, one of the Medication Status values) — Whether the medication is currently available to be prescribed from the formulary. Set by pharmacy when a drug is added, suspended or withdrawn; prescribing lists offer only medications that are active. The medication is on the formulary a…
 
 ### Medication Status
 
@@ -485,10 +516,10 @@ Readable by every signed-in person.
 Fields:
   - **Party** (required, a Party) — Canonical Party identity represented by this Organization specialization. Connects organizational details to the shared Party identity used by all roles and transactions. One Party may have exactly one Organization specialization when part…
   - **Code** (required) — Business code for the organization within its governed business context. Used for operations, reporting, integrations, and organizational selection. Code is not the canonical Party identity and uniqueness is governed by organization scope.…
-  - **Name** (required) — Common organizational name used in business operations. Used in search, forms, reports, documents, and transactions. LegalName may differ and provides formal legal identity. Provides human-readable organizational identification. Required f…
-  - **Organization Type** (required, one of the Organization Organization Type values) — Classifies the organizational structure represented by the specialization. Used for hierarchy, authorization, reporting, transaction scope, and organizational configuration. Organization type describes structure, not commercial role. Custo…
-  - **Status** (required, one of the Organization Status values) — Lifecycle of the organizational specialization. Controls whether the organization can normally be selected as an organizational context. Organization status does not replace Party.status or PartyRole.status; all applicable states must perm…
-  - **Legal Name** — Formal legal name of the organization. Used for contracts, invoices, tax, regulatory reporting, and legal documentation. LegalName is distinct from the operational name. Supplies legal presentation and compliance context. Optional when the…
+  - **Name** (required) — Common organizational name used in business operations. Used in search, forms, reports, documents, and transactions. LegalName may differ and provides formal legal identity. Provides human-readable organizational identification.
+  - **Organization Type** (required, one of the Organization Organization Type values) — Classifies the organizational structure represented by the specialization, from whole enterprise down to department or branch. Used for hierarchy, authorization, reporting, transaction scope, and organizational selection; chosen when the u…
+  - **Status** (required, one of the Organization Status values) — Lifecycle of the organizational specialization, deciding whether the unit may be selected in new transactions. Controls whether the organization can normally be selected as an organizational scope; set by master-data staff. The organizatio…
+  - **Legal Name** — Formal legal name of the organization. Used for contracts, invoices, tax, regulatory reporting, and legal documentation. LegalName is distinct from the operational name. Supplies legal presentation and compliance context.
   - **Registration Number** — Registration identifier assigned by a competent authority. Used for legal verification, compliance, tax, and integrations. Registration number identifies the organization in an external legal system, not in CEDM. Supports identity verifica…
   - **Tax Identifier** — Tax identifier applicable to the organization in a relevant jurisdiction. Used for tax determination, invoices, reporting, and compliance. Tax identity may vary by jurisdiction and should not replace Party identity. Supports tax-rule appli…
   - **Party Type** (required, one of the Organization Party Type values) — Identifies whether the party is a person or an organization. Determines which party specialization is applicable and prevents business processes from interpreting an organization as an individual or vice versa. Used to select Person or Org…
@@ -563,14 +594,14 @@ Fields:
 
 ### Party Relationship
 
-A governed time-bounded relationship between two Parties describing a business, organizational, legal, household, customer, supplier, employment, or other role relationship. Provide a canonical enterprise representation with stable identity and governed semantics. A governed time-bounded relationship between two Parties describing a business, organizational, legal, household, customer, supplier, employment, or other role relationship. Used whenever enterprise processes need this concept as controlled master or reference data. Referenced by compatible domain entities and workflows while preser…
+A time-bound relationship between two parties that describes how they stand to each other in business, legal, household, employment or another way. Parties are connected to each other: a company to its subsidiary, a person to their employer, one household member to another. Recording the relationship, with its dates, lets the organisation see who is connected to whom and since when. Created when a relationship is established; ended when it stops; read by sales, compliance and customer service. A relationship runs from one Party to another. Code and identity stay stable, and the relationship's…
 
 Readable by every signed-in person.
 
 Fields:
-  - **Code** (required) — Governed business code for PartyRelationship. Human and integration-friendly identifier. Search, configuration, exchange and reporting. Unique within its governing context according to policy. Required.
-  - **Name** (required) — Human-readable name of PartyRelationship. Communicates the concept to business users. UI, documents and reports. Does not replace immutable identity. Required.
-  - **From Party** (required, a Party) — Governing Party context for this record. Establishes ownership and enterprise context. Authorization, reporting and workflow. Exactly one Party. Referenced workflows must remain compatible with governing context.
+  - **Code** (required) — The code of the relationship type or instance, such as SUBSIDIARY_OF. Chosen from the relationship list; used in queries and rules.
+  - **Name** (required) — A readable description of the relationship, such as Acme Ltd is subsidiary of Acme Group. Entered when the relationship is created; shown in party views and lists so users can understand the link at a glance.
+  - **From Party** (required, a Party) — The party at the origin of the relationship. Chosen when the relationship is created. Exactly one origin party: a relationship always starts at a particular party. Together with the other party it identifies the relationship.
 
 ### Party Role
 
@@ -579,12 +610,12 @@ The bridge between stable Party identity and contextual business participation. 
 Readable by every signed-in person.
 
 Fields:
-  - **Party** (required, a Party) — Identifies the underlying person or organization performing this role. Provides common identity without duplicating Party data. One Party may have multiple PartyRoles simultaneously or historically. Connects role-specific processing back t…
-  - **Role Type** (required, one of the Party Role Role Type values) — Defines the business capacity in which the Party participates. Determines specialized capabilities, policies, workflows, and validations. Separate from Party.partyType, which describes whether the participant is a person or organization. S…
-  - **Code** — Optional business-context identifier for this role instance. Supports operational search, integrations, reports, and legacy references. Identifies the role instance and must not replace Party or specialized role identifiers. Optional when…
-  - **Valid From** — Date from which this role is eligible for ordinary business processing. Used by eligibility and transaction validation. Works with validTo and status; ending a role does not delete Party identity or other roles. Prevents premature use of a…
-  - **Valid To** — Date after which the role is no longer normally eligible for new business processing. Used by eligibility, renewal, reporting, and expiry workflows. Historical transactions may continue referencing the role after validTo. Prevents new use…
-  - **Status** (required, one of the Party Role Status values) — Operational lifecycle of the PartyRole relationship. Controls whether the role can normally participate in new transactions, assignments, or authorizations. Role status is independent of Party.status and other PartyRole statuses. ACTIVE pe…
+  - **Party** (required, a Party) — The party that holds the role. Set when the role is assigned and not changed. One Party may have multiple PartyRoles simultaneously or historically. Connects role-specific processing back to the canonical identity.
+  - **Role Type** (required, one of the Party Role Role Type values) — The kind of role the party plays, such as customer, supplier, employee or partner. Chosen when the role is assigned; decides which specialised record (customer, supplier and so on) carries its detail. The party buys goods or services from…
+  - **Code** — An optional code for the role. Used by integrations that identify the role separately from the party. Identifies the role instance and must not replace Party or specialized role identifiers.
+  - **Valid From** — The first date on which the role applies. Set when the role is assigned. Works with validTo and status; ending a role does not delete Party identity or other roles. Prevents premature use of a newly established role.
+  - **Valid To** — The last date on which the role still applies to the party. Set when the role ends, such as a contract expiry; empty while open-ended, and later use of the role is refused. Historical transactions may continue referencing the role after va…
+  - **Status** (required, one of the Party Role Status values) — Whether the party currently holds the role and may be used in it. Set by master-data staff; only active roles are offered in selections, and expired is reached when the validity ends. The party currently holds the role. Dormant but may res…
   - **Person** (a Person) — The Person this PartyRole belongs to.
   - **Organization** (a Organization) — Optional organizational scope in which the role is recognized. Supports multi-enterprise, subsidiary, business-unit, and operating-context scenarios. Zero means global/context-independent; one means explicitly scoped to one organization. D…
 
@@ -635,14 +666,14 @@ Readable by every signed-in person.
 
 Fields:
   - **Party** (required, a Party) — Canonical Party identity represented by this Person specialization. Connects person-specific data to common Party identity and all PartyRoles. Exactly one Person specialization may represent a Party classified as PERSON. Ensures transactio…
-  - **Title** — Personal title. documents and presentation. presentation attribute. supports person display. optional.
-  - **Given Name** (required) — Given name. identity and documents. intrinsic person identity. identification. required.
-  - **Middle Name** — Middle name. identity and documents. intrinsic person identity. identification. optional.
-  - **Family Name** (required) — Family name. identity and documents. intrinsic person identity. identification. required.
-  - **Preferred Name** — Preferred display name. communication and UI. presentation not canonical identity. human interaction. optional.
-  - **Date Of Birth** — Date of birth. processes requiring verified individual identity. sensitive person attribute subject to access policy. eligibility/verification where applicable. optional.
-  - **Gender** (one of the Person Gender values) — Gender classification where required by the business process. permitted business processes only. person attribute and not role. process-specific. optional. The gender of the person is female; set it when that is what the business means for…
-  - **Nationality** (a Country) — The country whose nationality the person holds. Chosen from the list of countries; used by identity and compliance processes. Not Party identity; process-specific. Optional.
+  - **Title** — The honorific or personal title used before the person's name, such as Dr, Prof or Ms. Entered when known and optional; printed in letters, documents and formal presentation of the name. presentation attribute. supports person display.
+  - **Given Name** (required) — The person's first or given name, as it appears on their identity documents. Required; entered at registration and used with the family name for identity matching, documents and correspondence. intrinsic person identity. identification.
+  - **Middle Name** — Any middle or additional given names the person carries, when they are used officially. Optional; entered only when needed to tell people apart or to match identity documents and legal records. intrinsic person identity. identification.
+  - **Family Name** (required) — The person's family name or surname, as it appears on their identity documents. Required; entered at registration and used with the given name for identity matching, documents and correspondence. intrinsic person identity. identification.
+  - **Preferred Name** — The name the person likes to be called, which may differ from their legal given name. Optional; chosen by the person and used for greetings, display in screens and informal communication, never for legal documents. presentation not canonic…
+  - **Date Of Birth** — The person's date of birth, recorded where age or verified identity matters to a process. Optional and sensitive; collected only where needed, for example for age checks, payroll or identity verification. sensitive person attribute subject…
+  - **Gender** (one of the Person Gender values) — The person's gender as recorded for the organisation's lawful purposes. Entered only where there is a need and a lawful basis, normally by the person; never used to decide eligibility. The person identifies and is recorded as female. The p…
+  - **Nationality** (a Country) — The country whose nationality the person holds. Chosen from the list of countries; used by identity and compliance processes. Not Party identity; process-specific.
   - **Party Type** (required, one of the Person Party Type values) — Identifies whether the party is a person or an organization. Determines which party specialization is applicable and prevents business processes from interpreting an organization as an individual or vice versa. Used to select Person or Org…
   - **Display Name** (required) — The business-facing name by which the party is normally displayed and recognized. Provides a consistent human-readable representation independent of whether the party is a person or organization. Used in forms, search results, documents, t…
   - **Status** (required, one of the Person Status values) — Controls whether the party may participate in new business activity. Represents the operational lifecycle of the party relationship with the enterprise, not the party's legal existence. Used by onboarding, transaction validation, account m…
@@ -687,23 +718,49 @@ Fields:
   - **Sequence** (required) — The position of the value in a dropdown, lowest first.
   - **Is Active** (required) — Whether the value is offered on new records.
 
-### Prescription
+### Practitioner
 
-Represents a healthcare transaction called Prescription within the CEDM business model. Prescription is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface. Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find, change, or relate Prescription records. The entity participates in a wider business graph through relationships with HealthcarePatient, Medication, HealthcareProvider. These relationships provide the context needed…
+Represents the professional healthcare role of a Person. Practitioner identifies who is professionally authorized to deliver care; HealthcareProvider supplies organizational context; Appointment schedules intended care and HealthcareEncounter records actual care. Healthcare scheduling, provider directories, encounters, credentialing, reporting and audit. Person is mandatory, provider affiliations define care settings, appointments represent scheduled commitments and encounters preserve actual participation. Practitioner roles become active after setup, may suspend or become inactive, and even…
 
 Readable by every signed-in person.
 
 Fields:
-  - **Prescription Number** (required) — Captures the business meaning of prescription number for the Prescription. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record. Used when creating, reviewing, sea…
-  - **Dosage** — Captures the business meaning of dosage for the Prescription. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record. Used when creating, reviewing, searching, valid…
-  - **Frequency** — Captures the business meaning of frequency for the Prescription. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record. Used when creating, reviewing, searching, va…
-  - **Route** — Captures the business meaning of route for the Prescription. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record. Used when creating, reviewing, searching, valida…
-  - **Start Date** — The date on which the applicable business period, agreement, service, or lifecycle begins. Related end dates must follow the business chronology. Used when creating, reviewing, searching, validating, reporting on, or integrating Prescripti…
-  - **End Date** — The date on which the applicable business period, agreement, service, or lifecycle ends. It is interpreted together with the corresponding start date. Used when creating, reviewing, searching, validating, reporting on, or integrating Presc…
-  - **Status** (required, one of the Prescription Status values) — The lifecycle state of the record. It controls which business actions are normally permitted and how the record is treated by related processes. Used when creating, reviewing, searching, validating, reporting on, or integrating Prescriptio…
-  - **Medication** (required, a Medication) — Connects Prescription to Medication so related business context can be navigated and enforced. Used when processes need to find or reason about Medication records associated with a Prescription. The declared cardinality 1 expresses how man…
-  - **Patient** (required, a Healthcare Patient) — Connects Prescription to HealthcarePatient so related business context can be navigated and enforced. Used when processes need to find or reason about HealthcarePatient records associated with a Prescription. The declared cardinality 1 exp…
-  - **Prescriber** (required, a Healthcare Provider) — Connects Prescription to HealthcareProvider so related business context can be navigated and enforced. Used when processes need to find or reason about HealthcareProvider records associated with a Prescription. The declared cardinality 1 e…
+  - **Practitioner Code** (required) — The code by which the practitioner is known in the healthcare organisation. Assigned at credentialing; unique; used on orders, schedules and prescriptions. Operational identifier used by healthcare workflows and integrations. Distinct from…
+  - **License Number** — The professional licence number issued by the licensing body. Entered at credentialing from the licence; checked against its expiry before the practitioner is scheduled. Supports evidence that the practitioner is authorized under an extern…
+  - **Specialty** — The practitioner's clinical specialty, such as cardiology or paediatrics. Entered at credentialing; used to route referrals and choose the right clinician for an appointment. Describes the practitioner's service domain for scheduling and r…
+  - **Status** (required, one of the Practitioner Status values) — Whether the practitioner is cleared to work in this organisation. Set by credentialing staff; only ACTIVE practitioners can be scheduled or place orders. Being credentialed; licence and affiliation checks are not complete, so no clinical w…
+  - **Person** (required, a Person) — The individual who holds the practitioner role. Set at credentialing and not changed. Exactly one person: the professional role is held by a specific individual. Keeps the person's identity in one place across all their roles. Separates co…
+
+### Practitioner Status
+
+The values of practitioner status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Prescription
+
+An authorised instruction for a patient to receive or use a medication or therapy. The prescription turns a clinical decision into an instruction that pharmacists and nurses can follow safely: who gets what, how much, how often and for how long. Written by a prescriber after assessment; dispensed and administered; read by pharmacy, nursing and the patient. A prescription is for a HealthcarePatient, names a Medication and is issued by a HealthcareProvider. A prescription is drafted, becomes active when signed, and ends completed when the course is finished, discontinued by the prescriber, or c…
+
+Readable by every signed-in person.
+
+Fields:
+  - **Prescription Number** (required) — The number printed on the prescription. Allocated on signing; unique; presented at the pharmacy.
+  - **Dosage** — How much medication is given each time, such as 500 mg. Entered by the prescriber; checked against safe ranges.
+  - **Frequency** — How often the dose is given, such as three times daily. Entered by the prescriber; drives the administration schedule.
+  - **Route** — How the medication is given, such as oral, intravenous or topical. Chosen by the prescriber; must suit the medication's form.
+  - **Start Date** — The first day on which the patient is to begin the prescribed medication or therapy. Set by the prescriber and defaulting to today; the end date must not precede it, and pharmacy uses it to plan dispensing.
+  - **End Date** — The last day of treatment. Set by the prescriber; must not be before the start date.
+  - **Status** (required, one of the Prescription Status values) — Where the prescription stands from being drafted to being in force or ended. Moved by the prescriber and pharmacy; only ACTIVE prescriptions can be dispensed, and the three closing states are final. Being written; not yet valid. Signed and…
+  - **Medication** (required, a Medication) — Exactly one medication: a prescription orders a single drug, and a multi-drug treatment is several prescriptions. The medication prescribed. Chosen from the formulary. Defines the product to be dispensed.
+  - **Patient** (required, a Healthcare Patient) — The patient who is to receive the medication. Set at creation. Exactly one patient: a prescription is for a specific person. Adds the prescription to the patient's record for interaction and allergy checks.
+  - **Prescriber** (required, a Healthcare Provider) — The provider who issued the prescription. Set when signed. Exactly one prescriber, who is responsible for the instruction. Identifies who to contact about it.
 
 ### Prescription Status
 
@@ -733,34 +790,34 @@ Fields:
 
 ### State Province
 
-A first-level division of a country — a state, province, region, territory or equivalent — from the ISO 3166-2 registry. Give every application the same governed list, so a place or code means one thing across the enterprise. A first-level division of a country — a state, province, region, territory or equivalent — from the ISO 3166-2 registry. Chosen from the list wherever a record needs a place, code or currency; maintained by an administrator when a registry changes. Referenced by addresses, parties, products and documents; related entities narrow each other (a city belongs to a state or p…
+A first-level division of a country, such as a state, province or region, from the ISO 3166-2 registry. States and provinces give addresses a standard, checkable subdivision. Choosing from this list avoids misspelt regions and lets reports group by region. Maintained as reference data; chosen in addresses; read by tax, shipping and reports. A state or province belongs to one country and contains cities. Entries are loaded from the standard and rarely change; when a division is abolished it is withdrawn without deleting history. "California" belongs to the United States and contains cities suc…
 
 Readable by every signed-in person.
 
 Fields:
-  - **Code** (required) — The ISO 3166-2 code, the country code and the division's own, such as US-CA. Search, integration and reporting. Unique; begins with the code of the country it belongs to. Required.
-  - **Name** (required) — The division's name in English. Shown in lists and on addresses. Does not replace the code as the stable key. Required.
+  - **Code** (required) — The ISO 3166-2 code, the country code and the division's own, such as US-CA. Search, integration and reporting. Unique; begins with the code of the country it belongs to.
+  - **Name** (required) — The English name of the division, such as California or Bavaria. Shown in lists and on addresses; it is a label only, so integrations should use the ISO code as the stable key. Does not replace the code as the stable key.
   - **Subdivision Type** — What the registry calls the division in its country: State, Province, Region, Territory and so on. Labelling the field for users of that country. Describes this division only.
   - **Country** (required, a Country) — The country the division belongs to. Chosen first; the divisions offered are those of that country. Every state or province belongs to exactly one country. A city and an address are narrowed by the country before the state.
 
 ### Task
 
-Represents a process runtime entity called Task within the CEDM business model. Task is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface. Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find, change, or relate Task records. The entity participates in a wider business graph through relationships with Workflow, Party, Organization, Document. These relationships provide the context needed to interpret the record rather tha…
+A discrete unit of business work performed by a person, organisation, system or workflow participant. Tasks are how work is handed out and tracked, whether a person must act or a system step must run. Their type, status, owner and dates show what is waiting, what is stuck and what is done. Created by people or workflows; picked up by assignees; read by managers and reports. A task may belong to a workflow, an assignee, an organisation and a related document. A task is created, becomes ready, is assigned and worked, and ends completed, cancelled or failed. It may be blocked and resumed. All th…
 
 Readable by every signed-in person.
 
 Fields:
-  - **Code** (required) — A human-readable business code used to identify or reference the record in operational processes and integrations. Used when creating, reviewing, searching, validating, reporting on, or integrating Task records, where applicable. Its meani…
-  - **Name** (required) — The human-readable name used by people, reports, searches, and related business processes. Used when creating, reviewing, searching, validating, reporting on, or integrating Task records, where applicable. Its meaning is specific to Task;…
-  - **Description** — A business description that explains the purpose, scope, or meaning of the record to users and downstream processes. Used when creating, reviewing, searching, validating, reporting on, or integrating Task records, where applicable. Its mea…
-  - **Task Type** (required, one of the Task Task Type values) — Captures the business meaning of task type for the Task. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record. Used when creating, reviewing, searching, validating…
-  - **Status** (required, one of the Task Status values) — The lifecycle state of the record. It controls which business actions are normally permitted and how the record is treated by related processes. Used when creating, reviewing, searching, validating, reporting on, or integrating Task record…
-  - **Priority** (required, one of the Task Priority values) — Captures the business meaning of priority for the Task. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record. Used when creating, reviewing, searching, validating,…
-  - **Due At** — Records when the due event occurred. It establishes chronology, supports auditability, and helps coordinate related lifecycle and process activities. Used when creating, reviewing, searching, validating, reporting on, or integrating Task r…
-  - **Started At** — Records when the started event occurred. It establishes chronology, supports auditability, and helps coordinate related lifecycle and process activities. Used when creating, reviewing, searching, validating, reporting on, or integrating Ta…
-  - **Completed At** — Records when the completed event occurred. It establishes chronology, supports auditability, and helps coordinate related lifecycle and process activities. Used when creating, reviewing, searching, validating, reporting on, or integrating…
-  - **Assignee** (a Party) — Connects Task to Party so related business context can be navigated and enforced. Used when processes need to find or reason about Party records associated with a Task. The declared cardinality 0..1 expresses how many related records may p…
-  - **Organization** (a Organization) — Connects Task to Organization so related business context can be navigated and enforced. Used when processes need to find or reason about Organization records associated with a Task. The declared cardinality 0..1 expresses how many related…
+  - **Code** (required) — The short business code that identifies the task in work queues, such as TSK-10482. Assigned when the task is created; quoted in assignments, escalations and reports, and used to find the task without its full name.
+  - **Name** (required) — A short title stating what work the task asks someone or something to do. Entered by the creator or the workflow that spawned it; shown in queues and notifications, so it should read as an action.
+  - **Description** — Fuller instructions explaining what is to be done, why, and any details the performer needs. Written by the creator; read by the assignee before starting, and updated if scope changes while the task is open.
+  - **Task Type** (required, one of the Task Task Type values) — The kind of work the task is. Chosen when created; decides who or what performs it. Work done by a person. A step run automatically. A person must approve or refuse something. A choice that decides the path. A message to be sent. A script…
+  - **Status** (required, one of the Task Status values) — Where the task stands, from creation through assignment and execution to completion, cancellation or failure. Moved by the assignee, workflow or system as work proceeds; completed, cancelled and failed tasks are closed to further work. The…
+  - **Priority** (required, one of the Task Priority values) — How urgently the task should be worked relative to others in the same queue. Set by the creator or workflow rules; assignees and queue views sort by it, and it may raise escalations when overdue. Can wait behind other work without business…
+  - **Due At** — Set when created; overdue tasks are flagged. Compared with the completion time. Records when the due event occurred. It establishes chronology, supports auditability, and helps coordinate related lifecycle and process activities.
+  - **Started At** — Set when work starts. Not later than the completion time. Records when the started event occurred. It establishes chronology, supports auditability, and helps coordinate related lifecycle and process activities.
+  - **Completed At** — Set when the task is completed; required for a completed task. Gives the time taken. Records when the completed event occurred. It establishes chronology, supports auditability, and helps coordinate related lifecycle and process activities.
+  - **Assignee** (a Party) — The person responsible for the task. Chosen when assigned. At most one assignee. Decides whose list it is on.
+  - **Organization** (a Organization) — The organisation the task is for. Chosen when it concerns a unit. At most one organisation. Groups tasks by unit.
 
 ### Task Priority
 
@@ -811,10 +868,10 @@ Fields:
   - **Code** (required) — Standard business code for the unit, such as EACH, KG, L, HOUR, or DAY. Used in forms, integrations, documents, validation, and quantity display. Code identifies the unit definition; it does not represent a conversion or quantity itself. U…
   - **Name** (required) — Human-readable name of the measurement unit. Used in user interfaces, reports, documents, catalogs, and search. Describes the unit definition identified by code and unitOfMeasureId. Provides understandable measurement context to business u…
   - **Symbol** — Standard display symbol for the unit. Used for compact display in documents, labels, reports, and interfaces. Symbol is presentation metadata and does not replace the canonical unit code. Improves human-readable representation of quantitie…
-  - **Category** (required, one of the Unit Of Measure Category values) — Defines the dimensional family of the unit. Prevents invalid conversions and supports dimensional validation. Conversion is valid only between compatible dimensions under the applicable conversion model. Used when validating Product, Sales…
+  - **Category** (required, one of the Unit Of Measure Category values) — A general count or quantity of items. A distance, such as metres or inches. A surface, such as square metres. A capacity, such as litres. A weight, such as kilograms or tonnes. A duration, such as hours or days. A number of discrete things…
   - **Conversion Factor** — Default multiplicative factor relating this unit to its base unit when a simple linear conversion applies. Defines a master conversion used for future quantity interpretation. Used for quantity conversion when no context-specific conversio…
   - **Base Unit** (a Unit Of Measure) — Identifies the canonical base unit against which this derived unit is normally converted. Supports standardized quantity storage and conversion. A derived unit belongs to the same dimensional category as its base unit. Provides the common…
-  - **Status** (required, one of the Unit Of Measure Status values) — Controls whether the unit can be used for new transactions. Used by master-data validation and transaction entry. Retiring a unit must not invalidate historical quantities already recorded with that unit. New quantity-bearing transactions…
+  - **Status** (required, one of the Unit Of Measure Status values) — Available for use on products and documents. Not offered for now; can be reactivated. No longer used; kept for history. A final state. Controls whether the unit can be used for new transactions. Used by master-data validation and transacti…
 
 ### Unit Of Measure Category
 
@@ -846,148 +903,157 @@ Fields:
 
 ### Address Address Type
 
-- **RESIDENTIAL** — The address type of the address is residential; set it when that is what the business means for this record.
-- **BUSINESS** — The address type of the address is business; set it when that is what the business means for this record.
-- **BILLING** — The address type of the address is billing; set it when that is what the business means for this record.
-- **SHIPPING** — The address type of the address is shipping; set it when that is what the business means for this record.
-- **REGISTERED** — The address type of the address is registered; set it when that is what the business means for this record.
-- **POSTAL** — The address type of the address is postal; set it when that is what the business means for this record.
-- **OTHER** — The address type of the address is other; set it when that is what the business means for this record.
+- **RESIDENTIAL** — A private home address.
+- **BUSINESS** — A place of business or office.
+- **BILLING** — Where invoices and statements are sent.
+- **SHIPPING** — Where goods are delivered.
+- **REGISTERED** — The official registered address of a legal entity.
+- **POSTAL** — A mailing address such as a post office box.
+- **OTHER** — Any purpose not listed.
 
 ### Address Status
 
-- **ACTIVE** — The status of the address is active; set it when that is what the business means for this record.
-- **INACTIVE** — The status of the address is inactive; set it when that is what the business means for this record.
-- **RETIRED** — The status of the address is retired; set it when that is what the business means for this record.
+- **ACTIVE** — Valid and available for new documents.
+- **INACTIVE** — Temporarily not offered, for example while a move is being confirmed; it can be reactivated.
+- **RETIRED** — No longer valid; kept only as history and in past documents.
 
 ### Allergy Status
 
-- **DRAFT** — Record is being prepared and is not yet normally effective.
-- **ACTIVE** — Record is effective for its governed business purpose.
-- **COMPLETED** — Governed work or assessment is complete and retained as historical evidence.
-- **CANCELLED** — Record was cancelled through controlled workflow and remains auditable.
+- **DRAFT** — Recorded but not yet verified.
+- **ACTIVE** — Confirmed and in force; safety checks must take it into account.
+- **COMPLETED** — No longer applies, for example outgrown or disproved; kept for history.
+- **CANCELLED** — Entered in error and withdrawn; kept for audit.
+
+### Appointment Status
+
+- **SCHEDULED** — Appointment is booked but not yet confirmed by the patient or provider.
+- **CONFIRMED** — Patient or provider confirmation has been recorded.
+- **CHECKED IN** — Patient arrival or equivalent readiness has been recorded.
+- **COMPLETED** — Scheduled service concluded and any required encounter evidence is reconciled. A final state.
+- **CANCELLED** — The appointment was cancelled by the patient or provider before it took place. A final state.
+- **NO SHOW** — Patient did not attend according to policy. A final state.
 
 ### Care Plan Status
 
-- **DRAFT** — Record is being prepared and is not yet normally effective.
-- **ACTIVE** — Record is effective for its governed business purpose.
-- **COMPLETED** — Governed work or assessment is complete and retained as historical evidence.
-- **CANCELLED** — Record was cancelled through controlled workflow and remains auditable.
+- **DRAFT** — Being prepared and not yet agreed with the patient or team.
+- **ACTIVE** — Agreed and in force; the team is delivering it.
+- **COMPLETED** — Goals met or care ended; the plan is closed but kept on record.
+- **CANCELLED** — Withdrawn before it took effect.
 
 ### Currency Status
 
-- **ACTIVE** — Available for normal financial activity.
-- **INACTIVE** — Temporarily unavailable for new normal activity.
-- **RETIRED** — No longer available for new normal activity while historical financial records remain valid.
+- **ACTIVE** — Available for use on new prices, documents and payments.
+- **INACTIVE** — Temporarily not offered, for example while a market is closed; it can be reactivated.
+- **RETIRED** — No longer in use, such as a replaced national currency; historical amounts keep it.
 
 ### Diagnosis Diagnosis Type
 
-- **PRIMARY** — Represents the primary state or classification in the context of Diagnosis.
-- **SECONDARY** — Represents the secondary state or classification in the context of Diagnosis.
-- **SUSPECTED** — Represents the suspected state or classification in the context of Diagnosis.
-- **HISTORICAL** — Represents the historical state or classification in the context of Diagnosis.
-- **OTHER** — Represents the other state or classification in the context of Diagnosis.
+- **PRIMARY** — The main condition that occasioned the encounter.
+- **SECONDARY** — An additional condition that affects care.
+- **SUSPECTED** — A condition thought likely but not yet confirmed.
+- **HISTORICAL** — A past condition that is still relevant to the record.
+- **OTHER** — Any diagnosis that does not fit the above.
 
 ### Exchange Rate Rate Type
 
-- **SPOT** — Market or transaction-time conversion rate.
-- **CONTRACT** — Rate established by an agreement or commercial contract.
-- **DAILY** — Published daily rate for a defined business date.
-- **MONTHLY** — Published rate intended for a defined monthly reporting period.
-- **ACCOUNTING** — Rate designated by accounting policy for ledger translation or reporting.
-- **CUSTOM** — Controlled rate established for a specific business purpose.
+- **SPOT** — The market rate at a moment in time.
+- **CONTRACT** — A rate fixed by agreement with a counterparty.
+- **DAILY** — The rate published for a business day.
+- **MONTHLY** — An average or closing rate for a month.
+- **ACCOUNTING** — A rate set by the finance team for ledger translation.
+- **CUSTOM** — Any other rate defined by policy.
 
 ### Exchange Rate Status
 
-- **DRAFT** — The status of the exchange rate is draft; set it when that is what the business means for this record.
-- **ACTIVE** — The status of the exchange rate is active; set it when that is what the business means for this record.
-- **EXPIRED** — The status of the exchange rate is expired; set it when that is what the business means for this record.
-- **CANCELLED** — The status of the exchange rate is cancelled; set it when that is what the business means for this record.
+- **DRAFT** — Being prepared; not yet used.
+- **ACTIVE** — In force and usable for conversion.
+- **EXPIRED** — Its validity period has ended; kept for past conversions.
+- **CANCELLED** — Withdrawn; must not be used.
 
 ### Healthcare Encounter Encounter Type
 
-- **OUTPATIENT** — Represents the outpatient state or classification in the context of HealthcareEncounter.
-- **INPATIENT** — Represents the inpatient state or classification in the context of HealthcareEncounter.
-- **EMERGENCY** — Represents the emergency state or classification in the context of HealthcareEncounter.
-- **VIRTUAL** — Represents the virtual state or classification in the context of HealthcareEncounter.
-- **HOME CARE** — Represents the home care state or classification in the context of HealthcareEncounter.
-- **OTHER** — Represents the other state or classification in the context of HealthcareEncounter.
+- **OUTPATIENT** — A visit without an overnight stay.
+- **INPATIENT** — Care with admission to a ward and an overnight stay.
+- **EMERGENCY** — Unplanned urgent care given to a patient arriving with an acute problem.
+- **VIRTUAL** — Care delivered remotely by video or telephone.
+- **HOME CARE** — Care delivered at the patient's home.
+- **OTHER** — Care given in a setting that fits none of the listed ones.
 
 ### Healthcare Encounter Status
 
-- **PLANNED** — Represents the planned state or classification in the context of HealthcareEncounter.
-- **IN PROGRESS** — Represents the in progress state or classification in the context of HealthcareEncounter.
-- **COMPLETED** — Represents the completed state or classification in the context of HealthcareEncounter.
-- **CANCELLED** — Represents the cancelled state or classification in the context of HealthcareEncounter.
+- **PLANNED** — Expected but not started.
+- **IN PROGRESS** — Care is being delivered.
+- **COMPLETED** — Finished. A final state.
+- **CANCELLED** — Did not take place. A final state.
 
 ### Healthcare Order Status
 
-- **DRAFT** — Record is being prepared and is not yet normally effective.
-- **ACTIVE** — Record is effective for its governed business purpose.
-- **COMPLETED** — Governed work or assessment is complete and retained as historical evidence.
-- **CANCELLED** — Record was cancelled through controlled workflow and remains auditable.
+- **DRAFT** — Being prepared; not yet sent.
+- **ACTIVE** — Issued and awaiting action.
+- **COMPLETED** — Carried out. A final state.
+- **CANCELLED** — Withdrawn. A final state.
 
 ### Healthcare Patient Status
 
-- **ACTIVE** — Represents the active state or classification in the context of HealthcarePatient.
-- **INACTIVE** — Represents the inactive state or classification in the context of HealthcarePatient.
-- **DECEASED** — Represents the deceased state or classification in the context of HealthcarePatient.
-- **MERGED** — Represents the merged state or classification in the context of HealthcarePatient.
+- **ACTIVE** — A current patient who receives or is eligible for care.
+- **INACTIVE** — Not currently receiving care; the record is kept and can be reactivated.
+- **DECEASED** — The patient has died; no new care is planned. A final state.
+- **MERGED** — A duplicate record that has been merged into another; use the surviving record. A final state.
 
 ### Healthcare Provider Provider Type
 
-- **PHYSICIAN** — Represents the physician state or classification in the context of HealthcareProvider.
-- **NURSE** — Represents the nurse state or classification in the context of HealthcareProvider.
-- **CLINIC** — Represents the clinic state or classification in the context of HealthcareProvider.
-- **HOSPITAL** — Represents the hospital state or classification in the context of HealthcareProvider.
-- **LABORATORY** — Represents the laboratory state or classification in the context of HealthcareProvider.
-- **PHARMACY** — Represents the pharmacy state or classification in the context of HealthcareProvider.
-- **OTHER** — Represents the other state or classification in the context of HealthcareProvider.
+- **PHYSICIAN** — A doctor in independent practice.
+- **NURSE** — A nurse or nurse practitioner providing care.
+- **CLINIC** — An outpatient clinic or practice.
+- **HOSPITAL** — A hospital or inpatient facility.
+- **LABORATORY** — A diagnostic laboratory that performs tests and reports results.
+- **PHARMACY** — A pharmacy dispensing medicines.
+- **OTHER** — Any other kind of provider.
 
 ### Healthcare Provider Status
 
-- **ACTIVE** — Represents the active state or classification in the context of HealthcareProvider.
-- **INACTIVE** — Represents the inactive state or classification in the context of HealthcareProvider.
-- **SUSPENDED** — Represents the suspended state or classification in the context of HealthcareProvider.
-- **RETIRED** — Represents the retired state or classification in the context of HealthcareProvider.
+- **ACTIVE** — Authorised and available for scheduling.
+- **INACTIVE** — Not currently providing services; can return.
+- **SUSPENDED** — Barred while a licence, credential or conduct issue is reviewed.
+- **RETIRED** — No longer a provider; kept for history. A final state.
 
 ### Location Location Type
 
-- **SITE** — The location type of the location is site; set it when that is what the business means for this record.
-- **WAREHOUSE** — The location type of the location is warehouse; set it when that is what the business means for this record.
-- **STORE** — The location type of the location is store; set it when that is what the business means for this record.
-- **OFFICE** — The location type of the location is office; set it when that is what the business means for this record.
-- **FACTORY** — The location type of the location is factory; set it when that is what the business means for this record.
-- **YARD** — The location type of the location is yard; set it when that is what the business means for this record.
-- **PORT** — The location type of the location is port; set it when that is what the business means for this record.
-- **DEPOT** — The location type of the location is depot; set it when that is what the business means for this record.
-- **VIRTUAL** — The location type of the location is virtual; set it when that is what the business means for this record.
-- **OTHER** — The location type of the location is other; set it when that is what the business means for this record.
+- **SITE** — A geographic site that may contain several buildings.
+- **WAREHOUSE** — A building or area for storing goods.
+- **STORE** — A retail outlet where goods are sold to customers.
+- **OFFICE** — A place where office work is done.
+- **FACTORY** — A place where goods are made.
+- **YARD** — An open area for storing or staging equipment or containers.
+- **PORT** — A harbour or terminal.
+- **DEPOT** — A base for vehicles and equipment.
+- **VIRTUAL** — A logical place with no physical presence, such as an online store.
+- **OTHER** — Any other kind of place.
 
 ### Location Status
 
-- **PLANNED** — The status of the location is planned; set it when that is what the business means for this record.
-- **ACTIVE** — The status of the location is active; set it when that is what the business means for this record.
-- **INACTIVE** — The status of the location is inactive; set it when that is what the business means for this record.
-- **CLOSED** — The status of the location is closed; set it when that is what the business means for this record.
-- **RETIRED** — The status of the location is retired; set it when that is what the business means for this record.
+- **PLANNED** — Expected but not yet in use.
+- **ACTIVE** — In use and offered for new assignments.
+- **INACTIVE** — Temporarily not used but expected to return to service.
+- **CLOSED** — Closed down, with no new assignments but history kept.
+- **RETIRED** — Removed from use altogether. A final state.
 
 ### Medication Status
 
-- **ACTIVE** — Represents the active state or classification in the context of Medication.
-- **INACTIVE** — Represents the inactive state or classification in the context of Medication.
-- **RETIRED** — Represents the retired state or classification in the context of Medication.
+- **ACTIVE** — The medication is on the formulary and prescribers may choose it when writing new prescriptions.
+- **INACTIVE** — The medication is temporarily withheld from prescribing, for example during a supply shortage, and may return to use.
+- **RETIRED** — The medication has been permanently withdrawn from the formulary and cannot be prescribed again. A final state.
 
 ### Organization Organization Type
 
-- **ENTERPRISE** — The organization type of the organization is enterprise; set it when that is what the business means for this record.
-- **COMPANY** — The organization type of the organization is company; set it when that is what the business means for this record.
-- **BUSINESS UNIT** — The organization type of the organization is business unit; set it when that is what the business means for this record.
-- **DIVISION** — The organization type of the organization is division; set it when that is what the business means for this record.
-- **DEPARTMENT** — The organization type of the organization is department; set it when that is what the business means for this record.
-- **BRANCH** — The organization type of the organization is branch; set it when that is what the business means for this record.
-- **SUBSIDIARY** — The organization type of the organization is subsidiary; set it when that is what the business means for this record.
-- **OTHER** — The organization type of the organization is other; set it when that is what the business means for this record.
+- **ENTERPRISE** — The top-level group or enterprise that owns every other organizational unit beneath it.
+- **COMPANY** — A separate legal entity or operating company, usually with its own registrations, books and tax identifiers.
+- **BUSINESS UNIT** — A unit organized around a line of business or market, which may span several legal entities.
+- **DIVISION** — A large internal division grouping departments under a common head or function.
+- **DEPARTMENT** — A functional team within a company or division, such as finance or warehouse operations.
+- **BRANCH** — A geographically separate office, store or site operating under a parent organization.
+- **SUBSIDIARY** — A company controlled by a parent organization but trading as a separate legal entity.
+- **OTHER** — A structure that fits none of the other types and is explained in its name or description.
 
 ### Organization Party Type
 
@@ -996,10 +1062,10 @@ Fields:
 
 ### Organization Status
 
-- **DRAFT** — The status of the organization is draft; set it when that is what the business means for this record.
-- **ACTIVE** — The status of the organization is active; set it when that is what the business means for this record.
-- **INACTIVE** — The status of the organization is inactive; set it when that is what the business means for this record.
-- **RETIRED** — The status of the organization is retired; set it when that is what the business means for this record.
+- **DRAFT** — The organization is being set up and is not yet available for use in transactions.
+- **ACTIVE** — The organization is in use and can be selected as an organizational scope in new records.
+- **INACTIVE** — The organization is temporarily not selectable, for example while dormant, but its history is kept and it may return.
+- **RETIRED** — The organization has been permanently closed or merged away and cannot be selected again. A final state.
 
 ### Party Party Type
 
@@ -1008,22 +1074,22 @@ Fields:
 
 ### Party Role Role Type
 
-- **CUSTOMER** — The role type of the party role is customer; set it when that is what the business means for this record.
-- **SUPPLIER** — The role type of the party role is supplier; set it when that is what the business means for this record.
-- **EMPLOYEE** — The role type of the party role is employee; set it when that is what the business means for this record.
-- **PARTNER** — The role type of the party role is partner; set it when that is what the business means for this record.
-- **CARRIER** — The role type of the party role is carrier; set it when that is what the business means for this record.
-- **AGENT** — The role type of the party role is agent; set it when that is what the business means for this record.
-- **CONTRACTOR** — The role type of the party role is contractor; set it when that is what the business means for this record.
-- **OWNER** — The role type of the party role is owner; set it when that is what the business means for this record.
-- **INVESTOR** — The role type of the party role is investor; set it when that is what the business means for this record.
-- **OTHER** — The role type of the party role is other; set it when that is what the business means for this record.
+- **CUSTOMER** — The party buys goods or services from the organization and is handled in sales and receivables.
+- **SUPPLIER** — The party sells goods or services to the organization and is handled in procurement and payables.
+- **EMPLOYEE** — The party works for the organization under an employment relationship.
+- **PARTNER** — The party collaborates with the organization commercially, such as a reseller or alliance member.
+- **CARRIER** — The party transports goods or people for the organization.
+- **AGENT** — The party acts on behalf of the organization or of another party, usually for a commission.
+- **CONTRACTOR** — The party provides labour or services under a contract rather than as an employee.
+- **OWNER** — The party holds an ownership or beneficial interest in an asset or organization.
+- **INVESTOR** — The party provides capital to the organization in return for a financial return or equity stake.
+- **OTHER** — A role that fits none of the listed kinds and is explained in the role code or description.
 
 ### Party Role Status
 
-- **ACTIVE** — The status of the party role is active; set it when that is what the business means for this record.
-- **INACTIVE** — The status of the party role is inactive; set it when that is what the business means for this record.
-- **EXPIRED** — The status of the party role is expired; set it when that is what the business means for this record.
+- **ACTIVE** — The party currently holds the role.
+- **INACTIVE** — Dormant but may resume.
+- **EXPIRED** — Ended; kept for history. A final state.
 
 ### Party Status
 
@@ -1034,11 +1100,11 @@ Fields:
 
 ### Person Gender
 
-- **FEMALE** — The gender of the person is female; set it when that is what the business means for this record.
-- **MALE** — The gender of the person is male; set it when that is what the business means for this record.
-- **NON BINARY** — The gender of the person is non binary; set it when that is what the business means for this record.
-- **OTHER** — The gender of the person is other; set it when that is what the business means for this record.
-- **UNSPECIFIED** — The gender of the person is unspecified; set it when that is what the business means for this record.
+- **FEMALE** — The person identifies and is recorded as female.
+- **MALE** — The person identifies and is recorded as male.
+- **NON BINARY** — The person identifies as neither exclusively male nor exclusively female.
+- **OTHER** — The person identifies in a way not covered by the other values.
+- **UNSPECIFIED** — The gender is not recorded, because it was not needed or the person chose not to say.
 
 ### Person Party Type
 
@@ -1052,66 +1118,74 @@ Fields:
 - **BLOCKED** — Business activity is restricted pending resolution of a business, risk, compliance, or operational condition.
 - **RETIRED** — The party relationship is permanently ended for normal operational use while historical references remain valid.
 
+### Practitioner Status
+
+- **DRAFT** — Being credentialed; licence and affiliation checks are not complete, so no clinical work yet.
+- **ACTIVE** — Cleared to practise here; can be scheduled, appointed and place orders.
+- **SUSPENDED** — Barred while a licence or conduct matter is reviewed.
+- **INACTIVE** — Not currently practising here but may return.
+- **RETIRED** — No longer a practitioner here. A final state.
+
 ### Prescription Status
 
-- **DRAFT** — Represents the draft state or classification in the context of Prescription.
-- **ACTIVE** — Represents the active state or classification in the context of Prescription.
-- **COMPLETED** — Represents the completed state or classification in the context of Prescription.
-- **CANCELLED** — Represents the cancelled state or classification in the context of Prescription.
-- **DISCONTINUED** — Represents the discontinued state or classification in the context of Prescription.
+- **DRAFT** — Being written; not yet valid.
+- **ACTIVE** — Signed and in force.
+- **COMPLETED** — The course is finished. A final state.
+- **CANCELLED** — Withdrawn before use. A final state.
+- **DISCONTINUED** — Stopped by the prescriber during treatment. A final state.
 
 ### Procedure Status
 
-- **PLANNED** — Represents the planned state or classification in the context of Procedure.
-- **IN PROGRESS** — Represents the in progress state or classification in the context of Procedure.
-- **COMPLETED** — Represents the completed state or classification in the context of Procedure.
-- **CANCELLED** — Represents the cancelled state or classification in the context of Procedure.
+- **PLANNED** — Scheduled but not yet started; resources and consent may still be arranged.
+- **IN PROGRESS** — Currently being performed on the patient by the care team.
+- **COMPLETED** — Carried out and documented. A final state.
+- **CANCELLED** — Not carried out, whether withdrawn before or abandoned. A final state.
 
 ### Task Priority
 
-- **LOW** — Represents the low state or classification in the context of Task.
-- **NORMAL** — Represents the normal state or classification in the context of Task.
-- **HIGH** — Represents the high state or classification in the context of Task.
-- **CRITICAL** — Represents the critical state or classification in the context of Task.
+- **LOW** — Can wait behind other work without business impact.
+- **NORMAL** — Standard urgency, handled in the ordinary course of work.
+- **HIGH** — Needs prompt attention ahead of normal work.
+- **CRITICAL** — Needs immediate action because delay causes serious business impact.
 
 ### Task Status
 
-- **CREATED** — Represents the created state or classification in the context of Task.
-- **READY** — Represents the ready state or classification in the context of Task.
-- **ASSIGNED** — Represents the assigned state or classification in the context of Task.
-- **IN PROGRESS** — Represents the in progress state or classification in the context of Task.
-- **BLOCKED** — Represents the blocked state or classification in the context of Task.
-- **COMPLETED** — Represents the completed state or classification in the context of Task.
-- **CANCELLED** — Represents the cancelled state or classification in the context of Task.
-- **FAILED** — Represents the failed state or classification in the context of Task.
+- **CREATED** — The task exists but is not yet ready to be picked up.
+- **READY** — The task is released and waiting for someone to be assigned.
+- **ASSIGNED** — A person or party has been given the task but has not started it.
+- **IN PROGRESS** — The assignee is actively working on the task.
+- **BLOCKED** — Work is held up by a dependency, missing input or decision.
+- **COMPLETED** — The work was done as required. A final state.
+- **CANCELLED** — The task was withdrawn before completion. A final state.
+- **FAILED** — The task ended without achieving its result and needs follow-up elsewhere. A final state.
 
 ### Task Task Type
 
-- **USER** — Represents the user state or classification in the context of Task.
-- **SYSTEM** — Represents the system state or classification in the context of Task.
-- **APPROVAL** — Represents the approval state or classification in the context of Task.
-- **DECISION** — Represents the decision state or classification in the context of Task.
-- **NOTIFICATION** — Represents the notification state or classification in the context of Task.
-- **SCRIPT** — Represents the script state or classification in the context of Task.
-- **OTHER** — Represents the other state or classification in the context of Task.
+- **USER** — Work done by a person.
+- **SYSTEM** — A step run automatically.
+- **APPROVAL** — A person must approve or refuse something.
+- **DECISION** — A choice that decides the path.
+- **NOTIFICATION** — A message to be sent.
+- **SCRIPT** — A script run by the system.
+- **OTHER** — Work that fits no other type.
 
 ### Unit Of Measure Category
 
-- **QUANTITY** — The category of the unit of measure is quantity; set it when that is what the business means for this record.
-- **LENGTH** — The category of the unit of measure is length; set it when that is what the business means for this record.
-- **AREA** — The category of the unit of measure is area; set it when that is what the business means for this record.
-- **VOLUME** — The category of the unit of measure is volume; set it when that is what the business means for this record.
-- **MASS** — The category of the unit of measure is mass; set it when that is what the business means for this record.
-- **TIME** — The category of the unit of measure is time; set it when that is what the business means for this record.
-- **COUNT** — The category of the unit of measure is count; set it when that is what the business means for this record.
-- **CURRENCY** — The category of the unit of measure is currency; set it when that is what the business means for this record.
-- **OTHER** — The category of the unit of measure is other; set it when that is what the business means for this record.
+- **QUANTITY** — A general count or quantity of items.
+- **LENGTH** — A distance, such as metres or inches.
+- **AREA** — A surface, such as square metres.
+- **VOLUME** — A capacity, such as litres.
+- **MASS** — A weight, such as kilograms or tonnes.
+- **TIME** — A duration, such as hours or days.
+- **COUNT** — A number of discrete things, such as each or dozen.
+- **CURRENCY** — A monetary unit used as a measure.
+- **OTHER** — A unit that fits no other category.
 
 ### Unit Of Measure Status
 
-- **ACTIVE** — The status of the unit of measure is active; set it when that is what the business means for this record.
-- **INACTIVE** — The status of the unit of measure is inactive; set it when that is what the business means for this record.
-- **RETIRED** — The status of the unit of measure is retired; set it when that is what the business means for this record.
+- **ACTIVE** — Available for use on products and documents.
+- **INACTIVE** — Not offered for now; can be reactivated.
+- **RETIRED** — No longer used; kept for history. A final state.
 
 ## Lifecycles
 
@@ -1242,14 +1316,15 @@ Moves:
 ### Healthcare Patient — Healthcare Patient Lifecycle
 
 Starts at **ACTIVE**.
+Final: **DECEASED**, **MERGED**.
 
 Moves:
-- ACTIVE → DECEASED (Mark Deceased)
-- DECEASED → MERGED (Mark Merged)
-- DECEASED → INACTIVE (Deactivate)
-- INACTIVE → DECEASED (Reactivate)
-- MERGED → INACTIVE (Deactivate)
-- INACTIVE → MERGED (Reactivate)
+- ACTIVE → INACTIVE (Deactivate)
+- INACTIVE → ACTIVE (Reactivate)
+- ACTIVE → DECEASED (Record Death)
+- INACTIVE → DECEASED (Record Death)
+- ACTIVE → MERGED (Merge)
+- INACTIVE → MERGED (Merge)
 
 ### Healthcare Provider — Healthcare Provider Lifecycle
 
@@ -1264,6 +1339,37 @@ Moves:
 - ACTIVE → RETIRED (Retire)
 - INACTIVE → RETIRED (Retire)
 - SUSPENDED → RETIRED (Retire)
+
+### Practitioner — Practitioner Lifecycle
+
+Starts at **DRAFT**.
+Final: **RETIRED**.
+
+Moves:
+- DRAFT → ACTIVE (Activate)
+- ACTIVE → SUSPENDED (Suspend)
+- SUSPENDED → ACTIVE (Resume)
+- ACTIVE → INACTIVE (Deactivate)
+- INACTIVE → ACTIVE (Reactivate)
+- DRAFT → RETIRED (Retire)
+- ACTIVE → RETIRED (Retire)
+- SUSPENDED → RETIRED (Retire)
+- INACTIVE → RETIRED (Retire)
+
+### Appointment — Appointment Lifecycle
+
+Starts at **SCHEDULED**.
+Final: **COMPLETED**, **CANCELLED**, **NO SHOW**.
+
+Moves:
+- SCHEDULED → CONFIRMED (Confirm)
+- SCHEDULED → CHECKED IN (Check In)
+- CONFIRMED → CHECKED IN (Check In)
+- CHECKED IN → COMPLETED (Complete)
+- SCHEDULED → CANCELLED (Cancel)
+- CONFIRMED → CANCELLED (Cancel)
+- SCHEDULED → NO SHOW (Mark No Show)
+- CONFIRMED → NO SHOW (Mark No Show)
 
 ### Healthcare Encounter — Healthcare Encounter Lifecycle
 
@@ -1346,7 +1452,7 @@ Moves:
 
 ## Roles
 
-- **User** — reads 65 of 65 record types
+- **User** — reads 69 of 69 record types
 - **Administrator** — reads and changes everything the lifecycles allow
 
 A refusal means the person's role does not allow it. Say which role does, from this list, and suggest their administrator.

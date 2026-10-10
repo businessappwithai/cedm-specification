@@ -1,6 +1,6 @@
 //! The state machines the *model* drew, and whether the API enforces them.
 //!
-//! Generated: 2026-10-04T08:30:00.928Z
+//! Generated: 2026-10-09T15:29:01.997Z
 //! Project: human-resources
 //!
 //! `requests/rbac.rs` proves the topology guard works by seeding an edge of its
@@ -81,18 +81,34 @@ const MODEL_EDGES: &[(&str, &str, &str, &str)] = &[
     ("bus_employee", "status", "ON_LEAVE", "TERMINATED"),
     ("bus_employee", "status", "ACTIVE", "RETIRED"),
     ("bus_employee", "status", "ON_LEAVE", "RETIRED"),
-    ("bus_position", "status", "OPEN", "CLOSED"),
-    ("bus_position", "status", "CLOSED", "FILLED"),
+    ("bus_position", "status", "OPEN", "FILLED"),
+    ("bus_position", "status", "FILLED", "OPEN"),
     ("bus_position", "status", "OPEN", "FROZEN"),
     ("bus_position", "status", "FROZEN", "OPEN"),
+    ("bus_position", "status", "OPEN", "CLOSED"),
+    ("bus_position", "status", "CLOSED", "OPEN"),
     ("bus_position", "status", "OPEN", "RETIRED"),
     ("bus_position", "status", "FROZEN", "RETIRED"),
     ("bus_position", "status", "CLOSED", "RETIRED"),
+    ("bus_position", "status", "FILLED", "RETIRED"),
     ("bus_employment", "status", "PENDING", "ACTIVE"),
     ("bus_employment", "status", "ACTIVE", "SUSPENDED"),
     ("bus_employment", "status", "SUSPENDED", "ACTIVE"),
     ("bus_employment", "status", "ACTIVE", "TERMINATED"),
     ("bus_employment", "status", "SUSPENDED", "TERMINATED"),
+    ("bus_compensation", "status", "DRAFT", "ACTIVE"),
+    ("bus_compensation", "status", "DRAFT", "CANCELLED"),
+    ("bus_compensation", "status", "ACTIVE", "SUPERSEDED"),
+    ("bus_compensation", "status", "ACTIVE", "CANCELLED"),
+    ("bus_attendance", "status", "DRAFT", "RECORDED"),
+    ("bus_attendance", "status", "DRAFT", "CANCELLED"),
+    ("bus_attendance", "status", "RECORDED", "APPROVED"),
+    ("bus_attendance", "status", "RECORDED", "CANCELLED"),
+    ("bus_leave_request", "status", "DRAFT", "SUBMITTED"),
+    ("bus_leave_request", "status", "DRAFT", "CANCELLED"),
+    ("bus_leave_request", "status", "SUBMITTED", "APPROVED"),
+    ("bus_leave_request", "status", "SUBMITTED", "REJECTED"),
+    ("bus_leave_request", "status", "SUBMITTED", "CANCELLED"),
     ("bus_payroll", "status", "DRAFT", "CALCULATED"),
     ("bus_payroll", "status", "CALCULATED", "APPROVED"),
     ("bus_payroll", "status", "APPROVED", "POSTED"),

@@ -106,6 +106,7 @@ export const mockApiResponses = {
         status: 'Test Status 1',
         external_reference: 'Test External Reference 1',
         education_course_id: 'Test Education Course 1',
+        class_id: 'Test Class 1',
       },
       {
         id: 'test-id-2',
@@ -114,6 +115,7 @@ export const mockApiResponses = {
         status: 'Test Status 2',
         external_reference: 'Test External Reference 2',
         education_course_id: 'Test Education Course 2',
+        class_id: 'Test Class 2',
       },
     ],
     single: {
@@ -123,6 +125,7 @@ export const mockApiResponses = {
       status: 'Test Status',
       external_reference: 'Test External Reference',
       education_course_id: 'Test Education Course',
+      class_id: 'Test Class',
     },
   },
   person: {
@@ -612,8 +615,8 @@ export const mockApiResponses = {
     list: [
       {
         id: 'test-id-1',
-        from_currency: 'Test From Currency 1',
-        to_currency: 'Test To Currency 1',
+        from_currency_id: 'Test From Currency 1',
+        to_currency_id: 'Test To Currency 1',
         rate: 10.99,
         rate_type: 'Test Rate Type 1',
         effective_at: '2024-01-15T10:00:00Z',
@@ -623,8 +626,8 @@ export const mockApiResponses = {
       },
       {
         id: 'test-id-2',
-        from_currency: 'Test From Currency 2',
-        to_currency: 'Test To Currency 2',
+        from_currency_id: 'Test From Currency 2',
+        to_currency_id: 'Test To Currency 2',
         rate: 20.99,
         rate_type: 'Test Rate Type 2',
         effective_at: '2024-01-16T10:00:00Z',
@@ -635,8 +638,8 @@ export const mockApiResponses = {
     ],
     single: {
       id: 'test-id-1',
-      from_currency: 'Test From Currency',
-      to_currency: 'Test To Currency',
+      from_currency_id: 'Test From Currency',
+      to_currency_id: 'Test To Currency',
       rate: 10.99,
       rate_type: 'Test Rate Type',
       effective_at: '2024-01-15T10:00:00Z',
@@ -816,6 +819,40 @@ export const mockApiResponses = {
       program_id: 'Test Program',
     },
   },
+  class: {
+    list: [
+      {
+        id: 'test-id-1',
+        class_code: 'Test Class Code 1',
+        name: 'Test Name 1',
+        start_date: '2024-01-15',
+        end_date: '2024-01-15',
+        status: 'Test Status 1',
+        course_id: 'Test Course 1',
+        education_student_id: 'Test Education Student 1',
+      },
+      {
+        id: 'test-id-2',
+        class_code: 'Test Class Code 2',
+        name: 'Test Name 2',
+        start_date: '2024-01-16',
+        end_date: '2024-01-16',
+        status: 'Test Status 2',
+        course_id: 'Test Course 2',
+        education_student_id: 'Test Education Student 2',
+      },
+    ],
+    single: {
+      id: 'test-id-1',
+      class_code: 'Test Class Code',
+      name: 'Test Name',
+      start_date: '2024-01-15',
+      end_date: '2024-01-15',
+      status: 'Test Status',
+      course_id: 'Test Course',
+      education_student_id: 'Test Education Student',
+    },
+  },
   educationStudent: {
     list: [
       {
@@ -841,6 +878,31 @@ export const mockApiResponses = {
       institution_id: 'Test Institution',
     },
   },
+  guardian: {
+    list: [
+      {
+        id: 'test-id-1',
+        guardian_code: 'Test Guardian Code 1',
+        relationship_type: 'Test Relationship Type 1',
+        status: 'Test Status 1',
+        party_id: 'Test Party 1',
+      },
+      {
+        id: 'test-id-2',
+        guardian_code: 'Test Guardian Code 2',
+        relationship_type: 'Test Relationship Type 2',
+        status: 'Test Status 2',
+        party_id: 'Test Party 2',
+      },
+    ],
+    single: {
+      id: 'test-id-1',
+      guardian_code: 'Test Guardian Code',
+      relationship_type: 'Test Relationship Type',
+      status: 'Test Status',
+      party_id: 'Test Party',
+    },
+  },
   enrollment: {
     list: [
       {
@@ -849,7 +911,8 @@ export const mockApiResponses = {
         enrolled_at: '2024-01-15T10:00:00Z',
         status: 'Test Status 1',
         program_id: 'Test Program 1',
-        education_course_id: 'Test Education Course 1',
+        course_id: 'Test Course 1',
+        class_id: 'Test Class 1',
         student_id: 'Test Student 1',
       },
       {
@@ -858,7 +921,8 @@ export const mockApiResponses = {
         enrolled_at: '2024-01-16T10:00:00Z',
         status: 'Test Status 2',
         program_id: 'Test Program 2',
-        education_course_id: 'Test Education Course 2',
+        course_id: 'Test Course 2',
+        class_id: 'Test Class 2',
         student_id: 'Test Student 2',
       },
     ],
@@ -868,8 +932,111 @@ export const mockApiResponses = {
       enrolled_at: '2024-01-15T10:00:00Z',
       status: 'Test Status',
       program_id: 'Test Program',
-      education_course_id: 'Test Education Course',
+      course_id: 'Test Course',
+      class_id: 'Test Class',
       student_id: 'Test Student',
+    },
+  },
+  assessment: {
+    list: [
+      {
+        id: 'test-id-1',
+        assessment_code: 'Test Assessment Code 1',
+        title: 'Test Title 1',
+        assessment_type: 'Test Assessment Type 1',
+        max_score: 10.99,
+        due_at: '2024-01-15T10:00:00Z',
+        status: 'Test Status 1',
+        course_id: 'Test Course 1',
+        class_id: 'Test Class 1',
+      },
+      {
+        id: 'test-id-2',
+        assessment_code: 'Test Assessment Code 2',
+        title: 'Test Title 2',
+        assessment_type: 'Test Assessment Type 2',
+        max_score: 20.99,
+        due_at: '2024-01-16T10:00:00Z',
+        status: 'Test Status 2',
+        course_id: 'Test Course 2',
+        class_id: 'Test Class 2',
+      },
+    ],
+    single: {
+      id: 'test-id-1',
+      assessment_code: 'Test Assessment Code',
+      title: 'Test Title',
+      assessment_type: 'Test Assessment Type',
+      max_score: 10.99,
+      due_at: '2024-01-15T10:00:00Z',
+      status: 'Test Status',
+      course_id: 'Test Course',
+      class_id: 'Test Class',
+    },
+  },
+  grade: {
+    list: [
+      {
+        id: 'test-id-1',
+        score: 10.99,
+        grade_value: 'Test Grade Value 1',
+        status: 'Test Status 1',
+        student_id: 'Test Student 1',
+        enrollment_id: 'Test Enrollment 1',
+        assessment_id: 'Test Assessment 1',
+      },
+      {
+        id: 'test-id-2',
+        score: 20.99,
+        grade_value: 'Test Grade Value 2',
+        status: 'Test Status 2',
+        student_id: 'Test Student 2',
+        enrollment_id: 'Test Enrollment 2',
+        assessment_id: 'Test Assessment 2',
+      },
+    ],
+    single: {
+      id: 'test-id-1',
+      score: 10.99,
+      grade_value: 'Test Grade Value',
+      status: 'Test Status',
+      student_id: 'Test Student',
+      enrollment_id: 'Test Enrollment',
+      assessment_id: 'Test Assessment',
+    },
+  },
+  fee: {
+    list: [
+      {
+        id: 'test-id-1',
+        fee_code: 'Test Fee Code 1',
+        amount: 10.99,
+        due_date: '2024-01-15',
+        status: 'Test Status 1',
+        student_id: 'Test Student 1',
+        enrollment_id: 'Test Enrollment 1',
+        currency_id: 'Test Currency 1',
+      },
+      {
+        id: 'test-id-2',
+        fee_code: 'Test Fee Code 2',
+        amount: 20.99,
+        due_date: '2024-01-16',
+        status: 'Test Status 2',
+        student_id: 'Test Student 2',
+        enrollment_id: 'Test Enrollment 2',
+        currency_id: 'Test Currency 2',
+      },
+    ],
+    single: {
+      id: 'test-id-1',
+      fee_code: 'Test Fee Code',
+      amount: 10.99,
+      due_date: '2024-01-15',
+      status: 'Test Status',
+      student_id: 'Test Student',
+      enrollment_id: 'Test Enrollment',
+      currency_id: 'Test Currency',
     },
   },
   partyPartyType: {
@@ -1572,6 +1739,34 @@ export const mockApiResponses = {
       is_active: true,
     },
   },
+  classStatus: {
+    list: [
+      {
+        id: 'test-id-1',
+        code: 'Test Code 1',
+        name: 'Test Name 1',
+        description: 'Test text content',
+        sequence: 1,
+        is_active: true,
+      },
+      {
+        id: 'test-id-2',
+        code: 'Test Code 2',
+        name: 'Test Name 2',
+        description: 'Test text content 2',
+        sequence: 2,
+        is_active: false,
+      },
+    ],
+    single: {
+      id: 'test-id-1',
+      code: 'Test Code',
+      name: 'Test Name',
+      description: 'Test text content',
+      sequence: 1,
+      is_active: true,
+    },
+  },
   educationStudentStatus: {
     list: [
       {
@@ -1600,7 +1795,175 @@ export const mockApiResponses = {
       is_active: true,
     },
   },
+  guardianRelationshipType: {
+    list: [
+      {
+        id: 'test-id-1',
+        code: 'Test Code 1',
+        name: 'Test Name 1',
+        description: 'Test text content',
+        sequence: 1,
+        is_active: true,
+      },
+      {
+        id: 'test-id-2',
+        code: 'Test Code 2',
+        name: 'Test Name 2',
+        description: 'Test text content 2',
+        sequence: 2,
+        is_active: false,
+      },
+    ],
+    single: {
+      id: 'test-id-1',
+      code: 'Test Code',
+      name: 'Test Name',
+      description: 'Test text content',
+      sequence: 1,
+      is_active: true,
+    },
+  },
+  guardianStatus: {
+    list: [
+      {
+        id: 'test-id-1',
+        code: 'Test Code 1',
+        name: 'Test Name 1',
+        description: 'Test text content',
+        sequence: 1,
+        is_active: true,
+      },
+      {
+        id: 'test-id-2',
+        code: 'Test Code 2',
+        name: 'Test Name 2',
+        description: 'Test text content 2',
+        sequence: 2,
+        is_active: false,
+      },
+    ],
+    single: {
+      id: 'test-id-1',
+      code: 'Test Code',
+      name: 'Test Name',
+      description: 'Test text content',
+      sequence: 1,
+      is_active: true,
+    },
+  },
   enrollmentStatus: {
+    list: [
+      {
+        id: 'test-id-1',
+        code: 'Test Code 1',
+        name: 'Test Name 1',
+        description: 'Test text content',
+        sequence: 1,
+        is_active: true,
+      },
+      {
+        id: 'test-id-2',
+        code: 'Test Code 2',
+        name: 'Test Name 2',
+        description: 'Test text content 2',
+        sequence: 2,
+        is_active: false,
+      },
+    ],
+    single: {
+      id: 'test-id-1',
+      code: 'Test Code',
+      name: 'Test Name',
+      description: 'Test text content',
+      sequence: 1,
+      is_active: true,
+    },
+  },
+  assessmentAssessmentType: {
+    list: [
+      {
+        id: 'test-id-1',
+        code: 'Test Code 1',
+        name: 'Test Name 1',
+        description: 'Test text content',
+        sequence: 1,
+        is_active: true,
+      },
+      {
+        id: 'test-id-2',
+        code: 'Test Code 2',
+        name: 'Test Name 2',
+        description: 'Test text content 2',
+        sequence: 2,
+        is_active: false,
+      },
+    ],
+    single: {
+      id: 'test-id-1',
+      code: 'Test Code',
+      name: 'Test Name',
+      description: 'Test text content',
+      sequence: 1,
+      is_active: true,
+    },
+  },
+  assessmentStatus: {
+    list: [
+      {
+        id: 'test-id-1',
+        code: 'Test Code 1',
+        name: 'Test Name 1',
+        description: 'Test text content',
+        sequence: 1,
+        is_active: true,
+      },
+      {
+        id: 'test-id-2',
+        code: 'Test Code 2',
+        name: 'Test Name 2',
+        description: 'Test text content 2',
+        sequence: 2,
+        is_active: false,
+      },
+    ],
+    single: {
+      id: 'test-id-1',
+      code: 'Test Code',
+      name: 'Test Name',
+      description: 'Test text content',
+      sequence: 1,
+      is_active: true,
+    },
+  },
+  gradeStatus: {
+    list: [
+      {
+        id: 'test-id-1',
+        code: 'Test Code 1',
+        name: 'Test Name 1',
+        description: 'Test text content',
+        sequence: 1,
+        is_active: true,
+      },
+      {
+        id: 'test-id-2',
+        code: 'Test Code 2',
+        name: 'Test Name 2',
+        description: 'Test text content 2',
+        sequence: 2,
+        is_active: false,
+      },
+    ],
+    single: {
+      id: 'test-id-1',
+      code: 'Test Code',
+      name: 'Test Name',
+      description: 'Test text content',
+      sequence: 1,
+      is_active: true,
+    },
+  },
+  feeStatus: {
     list: [
       {
         id: 'test-id-1',

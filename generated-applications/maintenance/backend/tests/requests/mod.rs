@@ -5,9 +5,10 @@
 //! every business suite depends on — then the per-entity CRUD and rules
 //! modules, which are generated one per entity in the model.
 //!
-//! Generated: 2026-10-04T08:30:20.390Z
+//! Generated: 2026-10-09T15:29:30.115Z
 //! Project: maintenance
 
+mod accounts;
 mod ai;
 mod auth;
 mod concurrency;
@@ -62,6 +63,9 @@ mod crud_maintenance_work_order;
 mod crud_maintenance_work_order_priority;
 mod crud_maintenance_work_order_status;
 mod crud_maintenance_work_order_work_type;
+mod crud_meter;
+mod crud_meter_meter_type;
+mod crud_meter_status;
 mod crud_organization;
 mod crud_organization_organization_type;
 mod crud_organization_party_type;
@@ -129,6 +133,9 @@ mod rules_maintenance_work_order;
 mod rules_maintenance_work_order_priority;
 mod rules_maintenance_work_order_status;
 mod rules_maintenance_work_order_work_type;
+mod rules_meter;
+mod rules_meter_meter_type;
+mod rules_meter_status;
 mod rules_organization;
 mod rules_organization_organization_type;
 mod rules_organization_party_type;

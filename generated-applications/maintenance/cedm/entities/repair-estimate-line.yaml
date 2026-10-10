@@ -11,134 +11,123 @@ entity:
     generated: true
     immutable: true
   attributes:
-  - name: repairEstimateLineId
-    type: uuid
-    required: true
-    immutable: true
-    help:
-      summary: The immutable system identity of the estimate line.
-      usage: Used for traceability between the estimate, repair execution, material planning, analytics, and integrations.
-      relationshipContext: Identifies one detailed estimate item independently of its parent RepairEstimate, line number, damage, component, or material.
-      requiredMeaning: Required so every estimated repair requirement can be individually traced.
-  - name: lineNumber
-    type: integer
-    required: true
-    minimum: 1
-    help:
-      summary: The sequence number identifying the line within a particular RepairEstimate revision.
-      usage: Used by inspectors, repair estimators, approvers, work-order planners, documents, and reports to discuss a specific estimate item.
-      relationshipContext: It is unique within the parent estimate revision rather than globally; the stable identity remains repairEstimateLineId.
-      requiredMeaning: Required for human-readable estimate structure and traceability.
-  - name: repairCode
-    type: string
-    required: false
-    maxLength: 50
-    help:
-      summary: A standardized classification identifying the repair operation or repair action proposed for the line.
-      usage: Used for maintenance coding, labor standards, repair analytics, cost estimation, vendor instructions, and historical repair analysis.
-      relationshipContext: RepairCode describes the required action, while DamageCode describes the observed condition that caused the action and ComponentCode identifies the affected component.
-      optionalMeaning: Optional when the repair action is still being assessed or is represented by another controlled classification.
-  - name: damageCode
-    type: string
-    required: false
-    maxLength: 50
-    help:
-      summary: A standardized classification identifying the damage or defect observed on the asset.
-      usage: Used for inspection, repair estimation, damage trend analysis, customer recovery, warranty/lease assessment, and predictive maintenance models.
-      relationshipContext: DamageCode explains the condition; RepairCode explains the proposed response. Keeping them separate allows the same damage type to lead to different repair or disposition decisions.
-      optionalMeaning: Optional when no specific damage classification is available or the line represents a non-damage activity such as inspection or routine labor.
-  - name: componentCode
-    type: string
-    required: false
-    maxLength: 50
-    help:
-      summary: Identifies the component, structural area, or equipment part affected by the estimated work.
-      usage: Used to locate the work physically, select repair procedures, determine material requirements, analyze recurring failures, and calculate component-level costs.
-      relationshipContext: ComponentCode provides the 'where' or affected part of the repair; DamageCode provides the condition and RepairCode provides the proposed action.
-      optionalMeaning: Optional when the estimate line applies to the asset generally or the component is not yet identified.
-  - name: materialCode
-    type: string
-    required: false
-    maxLength: 100
-    help:
-      summary: Identifies a material or replacement item expected to be consumed or installed as part of the repair.
-      usage: Used for material planning, inventory reservation, purchasing, supplier sourcing, costing, and maintenance execution.
-      relationshipContext: MaterialCode identifies what is consumed or installed; quantity and materialAmount determine the estimated requirement and financial impact.
-      optionalMeaning: Optional for labor-only, inspection-only, adjustment, or repair methods that do not require a specific material.
-  - name: quantity
-    type: decimal
-    required: false
-    precision: 20
-    scale: 6
-    help:
-      summary: The estimated quantity of the material, replacement item, or measurable repair resource required for this line.
-      usage: Used to calculate material requirements, expected consumption, replacement cost, inventory demand, and repair scope.
-      relationshipContext: Quantity must be interpreted with MaterialCode and the applicable UnitOfMeasure; it is an estimate of required work/material, not necessarily actual consumption.
-      optionalMeaning: Optional for activities where quantity is not meaningful or is represented through labor or fixed-price estimation.
-  - name: materialAmount
-    type: decimal
-    required: false
-    precision: 20
-    scale: 4
-    help:
-      summary: The estimated cost attributable to materials consumed or installed for this repair line.
-      usage: Used for repair-cost calculation, approval, inventory valuation, supplier comparison, and actual-versus-estimated analysis.
-      relationshipContext: MaterialAmount belongs to the estimate and should not be interpreted as the actual inventory issue or supplier invoice amount.
-      optionalMeaning: Optional when the line has no material component.
-  - name: labourAmount
-    type: decimal
-    required: false
-    precision: 20
-    scale: 4
-    help:
-      summary: The estimated labor cost required to perform the repair activity represented by the line.
-      usage: Used for repair economics, approval thresholds, workforce planning, vendor quotation comparison, and variance analysis.
-      relationshipContext: LabourAmount is an estimate of execution cost; actual technician time and actual labor cost belong to maintenance execution records.
-      optionalMeaning: Optional for material-only or externally priced repair lines.
-  - name: replacementAmount
-    type: decimal
-    required: false
-    precision: 20
-    scale: 4
-    help:
-      summary: The estimated cost of replacing the affected component or asset element when replacement is the selected repair approach.
-      usage: Used to compare repair versus replacement economics and to support disposition decisions.
-      relationshipContext: ReplacementAmount may overlap with material cost depending on the organization's costing policy, so its relationship to MaterialAmount must be governed by the estimate's calculation rules.
-      optionalMeaning: Optional when replacement is not being considered.
-  - name: totalAmount
-    type: decimal
-    required: false
-    precision: 20
-    scale: 4
-    help:
-      summary: The estimated total financial impact of the repair requirement represented by this line.
-      usage: Used to aggregate RepairEstimate cost, support approval, compare alternatives, and feed repair/disposition analytics.
-      relationshipContext: It should reconcile to the applicable material, labor, replacement, discount, and other cost components according to the organization's estimate calculation policy.
-      optionalMeaning: Optional while the line is incomplete or not financially valued.
+    - name: repairEstimateLineId
+      type: uuid
+      required: true
+      immutable: true
+      help:
+        summary: The immutable system identity of the estimate line.
+        usage: Used for traceability between the estimate, repair execution, material planning, analytics, and integrations.
+        relationshipContext: Identifies one detailed estimate item independently of its parent RepairEstimate, line number, damage, component, or material.
+    - name: lineNumber
+      type: integer
+      required: true
+      minimum: 1
+      help:
+        summary: The sequence number identifying the line within a particular RepairEstimate revision.
+        usage: Used by inspectors, repair estimators, approvers, work-order planners, documents, and reports to discuss a specific estimate item.
+        relationshipContext: It is unique within the parent estimate revision rather than globally; the stable identity remains repairEstimateLineId.
+    - name: repairCode
+      type: string
+      required: false
+      maxLength: 50
+      help:
+        summary: A standardized classification identifying the repair operation or repair action proposed for the line.
+        usage: Used for maintenance coding, labor standards, repair analytics, cost estimation, vendor instructions, and historical repair analysis.
+        relationshipContext: RepairCode describes the required action, while DamageCode describes the observed condition that caused the action and ComponentCode identifies the affected component.
+    - name: damageCode
+      type: string
+      required: false
+      maxLength: 50
+      help:
+        summary: A standardized classification identifying the damage or defect observed on the asset.
+        usage: Used for inspection, repair estimation, damage trend analysis, customer recovery, warranty/lease assessment, and predictive maintenance models.
+        relationshipContext: DamageCode explains the condition; RepairCode explains the proposed response. Keeping them separate allows the same damage type to lead to different repair or disposition decisions.
+    - name: componentCode
+      type: string
+      required: false
+      maxLength: 50
+      help:
+        summary: Identifies the component, structural area, or equipment part affected by the estimated work.
+        usage: Used to locate the work physically, select repair procedures, determine material requirements, analyze recurring failures, and calculate component-level costs.
+        relationshipContext: ComponentCode provides the 'where' or affected part of the repair; DamageCode provides the condition and RepairCode provides the proposed action.
+    - name: materialCode
+      type: string
+      required: false
+      maxLength: 100
+      help:
+        summary: Identifies a material or replacement item expected to be consumed or installed as part of the repair.
+        usage: Used for material planning, inventory reservation, purchasing, supplier sourcing, costing, and maintenance execution.
+        relationshipContext: MaterialCode identifies what is consumed or installed; quantity and materialAmount determine the estimated requirement and financial impact.
+    - name: quantity
+      type: decimal
+      required: false
+      precision: 20
+      scale: 6
+      help:
+        summary: The estimated quantity of the material, replacement item, or measurable repair resource required for this line.
+        usage: Used to calculate material requirements, expected consumption, replacement cost, inventory demand, and repair scope.
+        relationshipContext: Quantity must be interpreted with MaterialCode and the applicable UnitOfMeasure; it is an estimate of required work/material, not necessarily actual consumption.
+    - name: materialAmount
+      type: decimal
+      required: false
+      precision: 20
+      scale: 4
+      help:
+        summary: The estimated cost attributable to materials consumed or installed for this repair line.
+        usage: Used for repair-cost calculation, approval, inventory valuation, supplier comparison, and actual-versus-estimated analysis.
+        relationshipContext: MaterialAmount belongs to the estimate and should not be interpreted as the actual inventory issue or supplier invoice amount.
+    - name: labourAmount
+      type: decimal
+      required: false
+      precision: 20
+      scale: 4
+      help:
+        summary: The estimated labor cost required to perform the repair activity represented by the line.
+        usage: Used for repair economics, approval thresholds, workforce planning, vendor quotation comparison, and variance analysis.
+        relationshipContext: LabourAmount is an estimate of execution cost; actual technician time and actual labor cost belong to maintenance execution records.
+    - name: replacementAmount
+      type: decimal
+      required: false
+      precision: 20
+      scale: 4
+      help:
+        summary: The estimated cost of replacing the affected component or asset element when replacement is the selected repair approach.
+        usage: Used to compare repair versus replacement economics and to support disposition decisions.
+        relationshipContext: ReplacementAmount may overlap with material cost depending on the organization's costing policy, so its relationship to MaterialAmount must be governed by the estimate's calculation rules.
+    - name: totalAmount
+      type: decimal
+      required: false
+      precision: 20
+      scale: 4
+      help:
+        summary: The estimated total financial impact of the repair requirement represented by this line.
+        usage: Used to aggregate RepairEstimate cost, support approval, compare alternatives, and feed repair/disposition analytics.
+        relationshipContext: It should reconcile to the applicable material, labor, replacement, discount, and other cost components according to the organization's estimate calculation policy.
   relationships:
-  - name: repairEstimate
-    target: RepairEstimate
-    cardinality: '1'
-    ownership: reference
-    help:
-      summary: Identifies the RepairEstimate revision to which this detailed repair requirement belongs.
-      usage: Supplies the container, estimate revision, status, disposition, currency, and approval context for the line.
-      cardinalityMeaning: Every RepairEstimateLine belongs to exactly one RepairEstimate.
-      context: The parent estimate provides decision context; the line provides the technical and cost detail supporting that decision.
+    - name: repairEstimate
+      target: RepairEstimate
+      cardinality: '1'
+      ownership: reference
+      help:
+        cardinalityMeaning: Each line belongs to exactly one estimate and is removed with it.
+        summary: Identifies the RepairEstimate revision to which this detailed repair requirement belongs.
+        usage: Supplies the container, estimate revision, status, disposition, currency, and approval context for the line.
+        context: The parent estimate provides decision context; the line provides the technical and cost detail supporting that decision.
   invariants:
-  - id: REPAIR-LINE-001
-    rule: lineNumber must be unique within its RepairEstimate revision.
-  - id: REPAIR-LINE-002
-    rule: quantity, materialAmount, labourAmount, replacementAmount, and totalAmount must not be negative.
-  - id: REPAIR-LINE-003
-    rule: totalAmount must reconcile with the applicable component amounts according to the estimate calculation policy.
-  - id: REPAIR-LINE-004
-    rule: A material quantity should identify a materialCode and applicable unit semantics when material consumption is expected.
-  - {id: REPAIR-ESTIMATE-LINE-EXE-001, rule: "Quantity cannot be negative.", violatedWhen: "quantity != null and quantity < 0", message: "Quantity cannot be negative."}
-  - {id: REPAIR-ESTIMATE-LINE-EXE-002, rule: "Material Amount cannot be negative.", violatedWhen: "material_amount != null and material_amount < 0", message: "Material Amount cannot be negative."}
-  - {id: REPAIR-ESTIMATE-LINE-EXE-003, rule: "Labour Amount cannot be negative.", violatedWhen: "labour_amount != null and labour_amount < 0", message: "Labour Amount cannot be negative."}
-  - {id: REPAIR-ESTIMATE-LINE-EXE-004, rule: "Replacement Amount cannot be negative.", violatedWhen: "replacement_amount != null and replacement_amount < 0", message: "Replacement Amount cannot be negative."}
-  - {id: REPAIR-ESTIMATE-LINE-EXE-005, rule: "Total Amount cannot be negative.", violatedWhen: "total_amount != null and total_amount < 0", message: "Total Amount cannot be negative."}
+    - id: REPAIR-LINE-001
+      rule: lineNumber must be unique within its RepairEstimate revision.
+    - id: REPAIR-LINE-002
+      rule: quantity, materialAmount, labourAmount, replacementAmount, and totalAmount must not be negative.
+    - id: REPAIR-LINE-003
+      rule: totalAmount must reconcile with the applicable component amounts according to the estimate calculation policy.
+    - id: REPAIR-LINE-004
+      rule: A material quantity should identify a materialCode and applicable unit semantics when material consumption is expected.
+    - {id: REPAIR-ESTIMATE-LINE-EXE-001, rule: "Quantity cannot be negative.", violatedWhen: "quantity != null and quantity < 0", message: "Quantity cannot be negative."}
+    - {id: REPAIR-ESTIMATE-LINE-EXE-002, rule: "Material Amount cannot be negative.", violatedWhen: "material_amount != null and material_amount < 0", message: "Material Amount cannot be negative."}
+    - {id: REPAIR-ESTIMATE-LINE-EXE-003, rule: "Labour Amount cannot be negative.", violatedWhen: "labour_amount != null and labour_amount < 0", message: "Labour Amount cannot be negative."}
+    - {id: REPAIR-ESTIMATE-LINE-EXE-004, rule: "Replacement Amount cannot be negative.", violatedWhen: "replacement_amount != null and replacement_amount < 0", message: "Replacement Amount cannot be negative."}
+    - {id: REPAIR-ESTIMATE-LINE-EXE-005, rule: "Total Amount cannot be negative.", violatedWhen: "total_amount != null and total_amount < 0", message: "Total Amount cannot be negative."}
   help:
     summary: Represents one actionable or evaluative item within a repair estimate, connecting observed asset condition to proposed repair work and estimated cost.
     businessMeaning: RepairEstimateLine is the detailed evidence behind the overall repair decision. It can identify what is damaged, where it is damaged, what repair is proposed, what material or replacement is required, and what labor and cost are expected.

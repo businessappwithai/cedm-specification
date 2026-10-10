@@ -1,0 +1,304 @@
+// Shapes the template generators stamped. Regenerate with --write-legacy only
+// from a checkout that still holds the template text.
+# affected by this lifecycle record.
+# containing this #.
+# governed by this record.
+# holding # role.
+# is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
+# is being prepared.
+# lifecycle and audit.
+# lifecycle, maintenance, treasury operations, bank reconciliation, lending, accounting, reporting, and audit.
+# management, document control, audit, compliance assessment, risk governance, approval, and remediation.
+# owning or economically affected by record.
+# supplies governance; financial transactions remain authoritative for actuals.
+# supplies the primary governing context; dependent workflows consume this record without silently mutating historical evidence.
+# to which tax record applies.
+# was @ through governed workflow.
+A # has any number of # in this role.
+A # has at most one # in this role.
+A # has exactly one # in this role.
+A # is created for a valid #, progresses through its governed lifecycle, and remains traceable after completion.
+A business @ that explains the purpose, scope, or meaning of the record to users and downstream processes.
+A human-readable business @ used to identify or reference the record in operational processes and integrations.
+A shipping address in a named #, state and #.
+A typical # record represents one identifiable business occurrence or master-data object that can be referenced by related CEDM processes.
+Address capture, party onboarding, tax and trade determination, reporting.
+Anchors integration evidence in chronology.
+Anchors temporal evidence.
+Asset lifecycle, maintenance, treasury operations, bank reconciliation, lending, accounting, reporting, and audit.
+Authorization, reporting and workflow.
+Authorized.
+Awaiting activation or decision.
+Balance reconciliation and audit.
+Being prepared.
+Billing and entitlement.
+Business @ identifying #.
+Business reference for #.
+Business-facing # reference.
+Captures the business meaning of # code for #. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
+Captures the business meaning of # number for #. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
+Captures the business meaning of # type for #. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
+Captures the business meaning of @ for #. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
+Carries or routes evidence derived from authoritative domain transactions without replacing those source records.
+Changes preserve prior executed evidence and apply according to effective terms.
+Changes to the governing record require revalidation of open dependent records while completed evidence remains historical.
+Chosen from the existing # records when # is created or edited.
+Chronology, reporting and audit.
+Closed to new use.
+Commercial management, fulfillment, logistics execution, reconciliation, reporting, and audit.
+Communicates the concept to business users.
+Concluded successfully.
+Connects # to # so related business context can be navigated and enforced.
+Connects authoritative business records to controlled lifecycle, evidence, findings, and downstream remediation without replacing source transactions.
+Connects operational or financial lifecycle evidence to canonical masters while keeping accounting, bank, and physical records authoritative in their own domains.
+Connects risks, controls, parties, legal matters, agreements, obligations, evidence and outcomes without replacing their authoritative histories.
+Connects to business objects and workflow participants without replacing their domain transaction history.
+Connects to canonical parties, commercial transactions, logistics execution, and downstream evidence without replacing their authoritative records.
+Contract management, document control, audit, compliance assessment, risk governance, approval, and remediation.
+Controls whether the record is being prepared, operationally active, historically complete, or cancelled.
+Created and processed through governed integration states; attempts and finalized evidence are retained.
+Created and progressed through governed business workflow; completed history is retained and corrections are explicit.
+Created under governance, maintained through controlled changes, and retired or superseded without rewriting history where applicable.
+Created under governance, reviewed or finalized where applicable, and retained or superseded with history preserved.
+Created under governed conditions, progressed or finalized with audit history, and corrected through explicit subsequent evidence.
+Created under governed workflow, progressed through explicit states, and retained historically after completion/cancellation.
+Created when identified or initiated, progressed through governed review/action, and retained after closure or supersession.
+Creation, review, search, workflow, reporting, and audit.
+Cross-domain enterprise process control.
+Cross-domain reference, integration and audit.
+Currency relationship defines denomination.
+Currently effective or executing.
+Defines management/reporting boundary.
+Distinct from the immutable UUID identity and scoped to the governed business context.
+Does not replace immutable identity.
+Does not replace source transaction timestamps.
+Does not rewrite earlier effective evidence.
+Domain workflows, validation, reporting, audit, integration, and cross-entity traceability.
+Draft → active → completed, with controlled cancellation and correction paths.
+Effective occurrence or assessment time where applicable.
+Effective or executing.
+Effective or occurrence time where applicable.
+Effective timestamp for the record.
+Entered or maintained when # is created or changed; shown on its form and available to search and reports.
+Enterprise agreements, controlled records, audit evidence, compliance findings, and lifecycle changes.
+Enterprise application integration and event-driven workflows.
+Enterprise configuration and cross-domain business workflows.
+Enterprise finance and recurring-revenue operations.
+Enterprise fixed assets, equipment reliability, bank close, FX, deposits, interest, and secured lending.
+Enterprise processing, integration, reporting and audit.
+Enterprise risk reviews, operational incidents, legal cases, obligations and regulatory/court submissions.
+Enterprise sales and supply-chain operations.
+Establishes ownership and enterprise context.
+Establishes taxpayer/reporting context.
+Establishes temporal applicability or evidence cutoff.
+Establishes temporal business meaning.
+Event changes lifecycle state without rewriting prior # evidence.
+Event publication, messaging, endpoint delivery, retry, dead-letter handling, reconciliation, and audit.
+Every # belongs to exactly one #.
+Every # belongs to exactly one governing # in this baseline model.
+Exactly one #.
+Exactly one @.
+Exactly one source.
+Execution and audit.
+Financial control, tax, billing, subscription management, settlement, reconciliation and audit.
+Financial settlement remains separate.
+Give every application the same governed list, so a place or code means one thing across the enterprise.
+Governance state of #.
+Governance, workflow, integration and audit.
+Governance, workflow, reporting and audit.
+Governed business @ for #.
+Governed business @.
+Governed lifecycle state of #.
+Governed lifecycle state.
+Governed work or assessment is complete and retained as historical evidence.
+Governing # associated with this #.
+Governing # context for this record.
+Governing #.
+Gradebook, transcript and analytics.
+Historical evidence before this time remains intact.
+Historical terminal evidence is retained.
+Historical timing is not silently rewritten.
+Human and integration-friendly identifier.
+Human or integration-friendly reference where applicable.
+Human-facing # reference.
+Human-readable # @.
+Human-readable @ of #.
+Human-readable business reference for #.
+Human/integration identifier.
+Identifies # in which monetary amounts on the record are expressed, allowing amounts to be interpreted and aggregated consistently.
+Identifies # record associated with this #. The identifier connects this record to the corresponding CEDM entity so related processes can resolve the correct business object.
+Identifies one governed # independently of related records and later lifecycle changes.
+Identifies one governed # record independently of mutable state.
+Identifies one governed # record independently of mutable status.
+Identifies one governed # record.
+Identifies one governed integration record.
+Identifies one governed record independently of mutable labels or state.
+Identifies the governed # concept independently of labels.
+Identifies the governed concept independently of mutable labels.
+Identifies the related # associated with this #. It provides the link needed to navigate from this record to the related business object.
+Immutable identity of #.
+Indicates current workflow/control usability.
+Indicates usability/execution state of #.
+Integration, event processing, reporting and audit.
+Its meaning is specific to #; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+Lets # be found from, and reported with, its #.
+Lifecycle closed.
+Lifecycle state of #.
+Lifecycle, audit and reporting.
+Lifecycle, reconciliation and reporting.
+Links # to #, # it relates to.
+Links # to #, the @ it relates to.
+Master-data governance, transaction validation, reporting, integration, and audit.
+Material changes revalidate open dependent workflows and preserve completed historical evidence.
+Must not precede startDate.
+One or more @.
+Operations, finance, integration, reporting and audit.
+Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+Optional for endpoint/master definitions.
+Optional for globally reusable ~ data.
+Optional for reusable definitions; required by applicable transaction policy.
+Optional when another transaction reference supplies business identity.
+Optional when currencies are identical.
+Optional when lifecycle does not require a separate effective timestamp.
+Optional when the concept is a standing master or future obligation.
+Optional where the concept uses another effective period.
+Optional.
+Parent #.
+Planning and analysis.
+Planning and reporting.
+Planning, control, management reporting and analysis.
+Planning, reporting and integration.
+Processing and audit.
+Progresses through governed states with immutable audit evidence for completed or cancelled work.
+Provide a canonical enterprise representation with stable identity and governed semantics.
+Provide canonical enterprise semantics for # while keeping planning, operational, financial and evidential responsibilities separated.
+Provide canonical enterprise semantics for #.
+Provide canonical governance semantics for #.
+Provide canonical implementation-neutral integration semantics for #.
+Provide canonical implementation-neutral semantics for # across enterprise applications.
+Provide durable, implementation-neutral governance semantics for #.
+Provide implementation-neutral workflow or authorization semantics reusable across CEDM domains.
+Provides an operational identifier for searching, documents, reports, and integrations.
+Provides planning/management semantics separately from actual accounting evidence.
+Read together with #'s other fields and its relationships; it is not meaningful on its own.
+Reconciliation and audit.
+Reconciliation.
+Record is being prepared and is not yet normally effective.
+Record is effective for its governed business purpose.
+Record was @ through controlled workflow and remains auditable.
+Referenced by addresses, parties, products and documents; related entities narrow each other (# belongs to a state or province, which belongs to #).
+Referenced by compatible cross-domain workflows.
+Referenced by compatible domain entities and workflows while preserving a single canonical identity.
+Referenced by compatible domain workflows.
+Referenced by compatible enterprise records.
+Referenced by compatible financial planning processes.
+Referenced by compatible integration workflows.
+Referenced by compatible lifecycle and transaction records.
+Referenced by related enterprise processes.
+Referenced by related enterprise records.
+Referenced workflows must remain compatible with governing context.
+References canonical parties and transactions; downstream accounting and cash effects remain explicit through JournalEntry, Payment and BankTransaction where applicable.
+References must use compatible # context.
+Referencing, workflow execution, reporting, audit, and integration.
+Represents # as a first-class governed CEDM business concept.
+Represents # management entity called # within the CEDM business model.
+Represents a ~ called # within the CEDM business model.
+Represents a ~ entity called # within the CEDM business model.
+Represents the @ state or classification in the context of #.
+Represents the in progress state or classification in the context of #.
+Represents the under review state or classification in the context of #.
+Required according to serialization policy.
+Required because the business model cannot reliably interpret the record for its declared purpose without this value.
+Required for lifecycle governance.
+Required for operational identification.
+Required for operational traceability.
+Required for stable traceability.
+Required for traceability.
+Required, including zero.
+Required.
+Required: # cannot be understood without its # id.
+Required: # cannot be understood without its # type.
+Required: # cannot be understood without its @.
+Requires resolution.
+Risk assessment, incident management, legal matter management, compliance, remediation, filing and audit.
+Search, configuration, exchange and reporting.
+Search, exchange and reporting.
+Seeded from the common CEDM specification; changed only by an administrator, and a retired value stays on the records that carry it.
+Stable # identity.
+Stable identity of # event.
+Stable identity of # record.
+Stable identity of # role.
+Stable identity of #.
+Successfully concluded.
+Supplies canonical # identity.
+Supplies commercial party context.
+Supplies legal/commercial agreement context.
+Supplies the business @ needed to interpret and validate the record.
+Tax determination and reporting.
+Temporarily restricted.
+Temporarily unavailable.
+Terminal history is retained.
+Terminated without normal completion.
+Terminated.
+The # id of #: an identifier the business records on it.
+The # of # is @; set it when that is what the @ means for this record.
+The # of # is @; set it when that is what the business means for this record.
+The # of # is fully applied; set it when that is what the business means for this record.
+The # of # is in progress; set it when that is what the business means for this record.
+The # of # is in transit; set it when that is what the business means for this record.
+The # of # is partially applied; set it when that is what the business means for this record.
+The # of # is price list; set it when that is what the business means for this record.
+The # of # is return to supplier; set it when that is what the business means for this record.
+The # type of #: a value the business records on it.
+The @ of #: a number the business records on it.
+The @ of #: a point in time the business records on it.
+The @ of #: a value the business records on it.
+The @ of #: a whole number the business records on it.
+The amount of the referenced item expressed in the applicable unit of measure. It is used by calculations, inventory, planning, fulfillment, or other @-based processes.
+The date on which the applicable business period, agreement, service, or lifecycle begins. Related end dates must follow the business chronology.
+The date on which the applicable business period, agreement, service, or lifecycle ends. It is interpreted together with the corresponding start date.
+The declared cardinality 0..* expresses how many related records may participate in the relationship.
+The declared cardinality 0..1 expresses how many related records may participate in the relationship.
+The declared cardinality 1 expresses how many related records may participate in the relationship.
+The declared cardinality 1..* expresses how many related records may participate in the relationship.
+The entity lifecycle is governed by its status, invariants, and related business processes. State changes must preserve the declared business meaning and relationships.
+The entity participates in a wider business graph through relationships with #, #, #, #, #. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
+The entity participates in a wider business graph through relationships with #, #, #, #. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
+The entity participates in a wider business graph through relationships with #, #, #. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
+The entity participates in a wider business graph through relationships with #, #. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
+The entity participates in a wider business graph through relationships with #. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
+The human-readable @ used by people, reports, searches, and related business processes.
+The immutable system identity of #.
+The lifecycle state of the record. It controls which business actions are normally permitted and how the record is treated by related processes.
+The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+The system-managed timestamp recording the latest modification of the record. It supports synchronization, audit, and change detection.
+The system-managed timestamp recording when the record was created. It supports auditability, chronology, and operational reporting.
+This field connects # to #. The reference establishes business context between the two entities and lets processes navigate from this record to the related #.
+Time at which this record becomes effective or evidentially applicable.
+Transactional tax evidence must use compatible registration/jurisdiction.
+Transactions, integration, reporting and audit.
+UI, documents and reports.
+Unique within governing context.
+Unique within its governing context according to policy.
+Used by applicable finance, treasury, tax, subscription, billing, reporting and integration workflows.
+Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find, change, or relate # records.
+Used in #, maintenance, treasury, banking, credit-risk, accounting, integration, and audit workflows where applicable.
+Used in CRM, sales, fulfillment, logistics, reporting, integration, or audit processes where this concept applies.
+Used in asset, maintenance, treasury, banking, credit-risk, accounting, integration, and audit workflows where applicable.
+Used in contracts, documents, governance, compliance, risk, legal, service, finance, or audit workflows where applicable.
+Used in enterprise risk, legal, compliance, audit, contract, incident, and remediation processes where applicable.
+Used when creating, reviewing, searching, validating, reporting on, or integrating # records, where applicable.
+Used when enterprise work requires explicit responsibility, state, authorization, or control evidence.
+Used when processes need to find or reason about # records associated with #.
+Used whenever enterprise processes need this concept as controlled master or reference data.
+Used whenever enterprise processes need this concept as controlled master or ~.
+Used wherever this # is referenced.
+Workflow and controls.
+Workflow gating, governance, reporting, and audit.
+Workflow navigation, validation, traceability, reporting, and audit.
+Workflow orchestration, approval, assignment, escalation, access governance, and audit.
+Workflow, authorization, integration and audit.
+Zero or many # records.
+Zero or many @.
+Zero or many orders.
+Zero or many transactions.

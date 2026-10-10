@@ -1,0 +1,58 @@
+@ RequestForQuotationLine
+a requestForQuotationLineId
+s: The permanent system identifier of one requirement line on a request for quotation.
+u: Generated on creation; supplier quotation lines, bid comparison, award and conversion to orders refer to the line through it.
+a lineNumber
+s: The position of the line within its request for quotation, as buyers and suppliers number it.
+u: Assigned by the buyer when building the RFQ; suppliers cite it when answering and buyers use it to match quotes line by line.
+a requestedQuantity
+s: The quantity of the item the buyer asks each supplier to price on this line.
+u: Copied from approved demand; every supplier quotes against the same figure so bids are comparable, and an award can split it.
+a description
+s: The text telling suppliers exactly what is being sourced, including specification and any special requirement.
+u: Written by the buyer or taken from the requisition; suppliers price against it, so it must be precise enough to compare offers.
+@ RequestForQuotation
+a requestForQuotationId
+s: The permanent system identifier of one request for quotation.
+u: Generated on creation and never changed; supplier invitations, quotations, comparison, award and integrations refer to the request through it.
+a rfqNumber
+s: The reference that buyers and suppliers quote when discussing this request, such as RFQ-2026-0142.
+u: Allocated by the buyer on creation and unique across requests; printed on the invitation and used to match replies.
+a issuedAt
+s: The date and time the request was formally sent to suppliers.
+u: Set when the status moves from DRAFT to ISSUED; the response window and sourcing timeline are measured from it.
+a responseDueAt
+s: The deadline by which suppliers must return their quotations.
+u: Set by the buyer before issue and stated to suppliers; replies after it are late and handled under the late-response policy.
+a status
+s: The stage the request has reached, from preparation through supplier responses to award.
+u: Starts as DRAFT and is moved by the buyer; it controls whether suppliers may respond and whether an award can be made.
+v DRAFT: Being prepared by the buyer; not yet sent to any supplier.
+v ISSUED: Sent to the invited suppliers, who may now submit quotations.
+v CLOSED: The response period has ended and the quotations received are being compared.
+v AWARDED: A supplier has been chosen and the request is complete. A final state.
+v CANCELLED: Withdrawn without an award being made. A final state.
+@ ResearchProject
+a title
+s: The name that describes the research initiative and its subject.
+u: Entered by the project lead when the project is proposed; shown in project lists, funding reports and publications.
+a status
+s: The stage of the research project, from approval through active work to closure.
+u: Starts as PLANNED and is moved by the project lead; it determines whether experiments and resources may be scheduled against the project.
+v PLANNED: Approved to proceed but work has not yet started.
+v ACTIVE: Work is under way and experiments are being run.
+v COMPLETED: The objective has been addressed; reporting and write-up remain.
+v SUSPENDED: Paused for a reason such as funding or resources; it can be resumed.
+v CANCELLED: Stopped before completion and will not resume. A final state.
+v ARCHIVED: Closed out and kept as a record. A final state.
+@ ResourceAssignment
+a resourceAssignmentCode
+s: The code that identifies one assignment of a person or resource to a project, such as RA-0231.
+u: Generated or entered when the assignment is made, unique, and quoted in resource plans and utilisation reports.
+a status
+s: The stage of the assignment, from proposal to the end of the commitment.
+u: Starts as DRAFT and is moved by the project manager; only ACTIVE assignments count toward a person's committed allocation.
+v DRAFT: Proposed and not yet committed; it does not count against availability.
+v ACTIVE: The person or resource is committed to the project for the stated period.
+v COMPLETED: The commitment has ended as planned. A final state.
+v CANCELLED: Withdrawn before or during the commitment. A final state.

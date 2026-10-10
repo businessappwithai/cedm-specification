@@ -1,0 +1,93 @@
+@ TelecomService
+r customer
+n: Every service is held by a single customer, who is billed and contacted about it.
+
+@ TelecomSubscription
+s: A customer's subscription to a telecommunications service or plan.
+b: The subscription is the agreement under which a service is provided for a period. It links the customer, the service and the plan, and drives recurring billing and the dates on which the arrangement starts, lapses or ends.
+u: Created when a customer signs up; read by billing, support and retention.
+c: A subscription is for one customer and one service, may follow a plan and may include a device.
+l: A subscription is pending until it starts, active while it runs, may be suspended and resumed, and ends cancelled or expired. Cancelled and expired are final.
+x: Subscription TS-00418 gives a customer a 5G data plan with a handset for 24 months from 1 March.
+a telecomSubscriptionId
+s: The identity of the subscription, constant for its life.
+u: Generated on creation; billing refers to it.
+c: Referenced by recurring charges and usage.
+a subscriptionNumber
+s: The number of the subscription, such as TS-00418.
+u: Unique; quoted on bills and support calls.
+c: Read with the service number.
+a status
+s: Where the subscription is.
+u: Starts as PENDING; moved by activation, billing and the customer.
+v PENDING: Ordered and not yet started.
+v ACTIVE: Running and billed.
+v SUSPENDED: Paused, for example for non-payment.
+v CANCELLED: Ended early at the customer's or provider's request. A final state.
+v EXPIRED: Ran to the end of its term. A final state.
+a startDate
+s: The date the subscription starts.
+u: Set at activation; billing starts from it.
+c: Not later than the end date.
+a endDate
+s: The date the subscription ends.
+u: Must not be before the start date; set for fixed terms.
+c: Gives the term.
+r customer
+s: The customer who holds the subscription.
+u: Chosen when it is created.
+n: Exactly one customer.
+t: Decides who is billed.
+r service
+s: The telecom service the subscription provides.
+u: Chosen when it is created.
+n: Exactly one service.
+t: Ties billing to the service delivered.
+r plan
+s: The plan or product the subscription follows.
+u: Chosen when it is created.
+n: At most one plan.
+t: Sets the price and allowances.
+r device
+s: The device supplied with the subscription.
+u: Chosen when a device is included.
+n: At most one device.
+t: Tracks equipment given to the customer.
+
+@ Ticket
+a ticketId
+s: The identity of the ticket, constant for its life.
+r serviceLevelAgreement
+n: At most one agreement, which sets the time targets for the ticket.
+
+@ Timesheet
+s: A record of time reported for work done by a person against an engagement or other accountable context.
+b: A timesheet is how worked time becomes billable and costed. It ties hours to an engagement, can be reviewed before it is accepted, and is the source of labour cost and billing.
+u: Entered by the person who did the work; approved by a manager; read by billing and project cost.
+c: A timesheet is booked against one engagement and gives rise to project costs.
+l: A timesheet is drafted, active once submitted for approval and completed once approved and used. It may be cancelled before that. Completed and cancelled are final.
+x: Timesheet TS-2026-0311 records 38 hours on engagement ENG-2026-014 for the week of 9 March.
+a timesheetId
+s: The identity of the timesheet, constant for its life.
+b: Lets costs and invoices point at the exact time record they came from.
+u: Generated on creation.
+c: Referenced by project costs.
+a timesheetCode
+s: The code of the timesheet, such as TS-2026-0311.
+b: Gives approvers and billing a reference to quote.
+u: Unique; used on approvals and invoices.
+c: Read with the engagement.
+a status
+s: Where the timesheet is in approval.
+b: Shows whether time can still be changed and whether it can be billed.
+u: Starts as DRAFT; moved by the person and the approver.
+c: Only completed timesheets feed billing.
+v DRAFT: Being entered; can be changed.
+v ACTIVE: Submitted and awaiting approval.
+v COMPLETED: Approved and used for billing and cost. A final state.
+v CANCELLED: Discarded. A final state.
+r context
+s: The engagement the time is booked against.
+u: Chosen when the timesheet is created.
+n: Exactly one engagement; time for two engagements is booked on two timesheets.
+t: Decides which client is billed and which budget carries the cost.

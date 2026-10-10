@@ -1,0 +1,58 @@
+@ SupplierDebitNote
+a supplierDebitNoteId
+s: The identity of the debit note, constant for its life.
+a status
+v DRAFT: Drafted by the buyer and not yet approved.
+v APPROVED: Accepted internally and ready to post.
+v POSTED: Recorded in the accounts; available to offset what the buyer owes.
+v PARTIALLY_APPLIED: Part of the debit has been offset against invoices.
+v FULLY_APPLIED: The whole debit has been used. A final state.
+v DISPUTED: The supplier disputes the debit.
+v CANCELLED: Withdrawn before posting. A final state.
+v REVERSED: A posted debit undone by a reversing entry. A final state.
+
+@ SupplierDebitNoteApplication
+a status
+v DRAFT: Prepared and not yet applied.
+v ACTIVE: Applied against the invoice, reducing what is payable.
+v REVERSED: Undone by a reversing application. A final state.
+v CANCELLED: Withdrawn before it was applied. A final state.
+
+@ SupplierPerformanceAssessment
+a supplierPerformanceAssessmentId
+s: The identity of the assessment, constant for its life.
+a status
+s: Where the assessment is in review and publication.
+v DRAFT: Scores and notes are still being compiled.
+v IN_REVIEW: Under review by procurement or quality.
+v APPROVED: Accepted and ready to publish.
+v PUBLISHED: Shared with the supplier and used in decisions.
+v SUPERSEDED: Replaced by a later assessment. A final state.
+v CANCELLED: Withdrawn. A final state.
+a rating
+v EXCELLENT: Consistently exceeds requirements.
+v GOOD: Meets requirements with few issues.
+v ACCEPTABLE: Meets the minimum required.
+v NEEDS_IMPROVEMENT: Falls short in places; a plan is needed.
+v UNSATISFACTORY: Fails requirements; action is required.
+
+@ SupplierReturn
+a returnNumber
+s: The number of the return, such as RTS-0219.
+a status
+s: Where the return is, from authorisation to completion.
+v DRAFT: Being prepared; not yet authorised.
+v AUTHORIZED: Approved to be sent back.
+v IN_TRANSIT: On its way to the supplier.
+v RECEIVED_BY_SUPPLIER: The supplier has taken delivery.
+v COMPLETED: Credit or replacement is settled. A final state.
+v CANCELLED: Withdrawn before it was sent. A final state.
+v EXCEPTION: Problem with the return needing a decision.
+
+@ SupplierReturnLine
+a supplierReturnLineId
+s: The identity of the return line, constant for its life.
+a disposition
+v RETURN_TO_SUPPLIER: The quantity is sent back for credit or replacement.
+v REJECTED: The quantity is refused and stays with the supplier.
+v EXCEPTION: The quantity is handled outside the normal return.

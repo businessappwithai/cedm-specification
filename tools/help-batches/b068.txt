@@ -1,0 +1,79 @@
+@ Supplier
+r partyRole
+n: A supplier is the supplier role of exactly one party role, which links it to the party's identity.
+
+@ SupplierClaim
+a supplierClaimId
+s: The identity of the claim, constant for its life.
+a claimNumber
+s: The number of the claim, such as SCL-0231.
+a status
+s: Where the claim is in review and settlement.
+v DRAFT: Being prepared; not yet sent to the supplier.
+v OPEN: Raised with the supplier and awaiting review.
+v UNDER_REVIEW: Being assessed by the supplier or the buyer.
+v ACCEPTED: The supplier accepts the claim in full.
+v PARTIALLY_ACCEPTED: The supplier accepts part of the claim.
+v REJECTED: The supplier refuses the claim. A final state.
+v RESOLVED: The agreed remedy has been carried out.
+v CLOSED: Finished and archived. A final state.
+v CANCELLED: Withdrawn by the buyer. A final state.
+v ESCALATED: Passed to a higher level because it is not agreed.
+a claimType
+s: What the claim is about.
+v QUALITY: Goods do not meet the quality required.
+v DAMAGE: Goods arrived damaged.
+v SHORTAGE: Less was delivered than ordered.
+v OVERAGE: More was delivered than ordered.
+v WRONG_ITEM: A different item was delivered.
+v WARRANTY: A fault covered by warranty.
+v SERVICE: A service was not performed as agreed.
+v COMMERCIAL: A dispute about price or terms.
+v DELIVERY: Late or failed delivery.
+v DOCUMENTATION: Missing or wrong paperwork.
+v OTHER: A claim that fits no other type.
+a resolutionCode
+s: The outcome agreed for the claim.
+v NO_ACTION: Nothing further is done.
+v REPLACEMENT: The supplier sends replacement goods.
+v REPAIR: The goods are repaired.
+v RETURN: The goods are returned to the supplier.
+v CREDIT: The supplier issues a credit.
+v DEBIT_ADJUSTMENT: The buyer raises a debit adjustment.
+v PRICE_ADJUSTMENT: The price is reduced.
+v ACCEPTED_EXCEPTION: The buyer accepts the goods as they are.
+v REJECTED: The claim was refused.
+
+@ SupplierClaimResolution
+a resolutionType
+s: The remedy agreed.
+v NO_ACTION: Nothing further is done.
+v REPLACEMENT: The supplier sends replacement goods.
+v REPAIR: The goods are repaired.
+v RETURN: The goods are returned to the supplier.
+v CREDIT: The supplier issues a credit.
+v DEBIT_ADJUSTMENT: The buyer raises a debit adjustment.
+v PRICE_ADJUSTMENT: The price is reduced.
+v CASH_RECOVERY: The supplier pays back in cash.
+v ACCEPTED_EXCEPTION: The buyer accepts the goods as they are.
+a status
+s: Where the resolution is in being carried out.
+v DRAFT: Proposed and not yet approved.
+v APPROVED: Agreed and ready to carry out.
+v IN_EXECUTION: Being carried out.
+v PARTIALLY_EXECUTED: Some of the remedy is done.
+v EXECUTED: The remedy is fully done. A final state.
+v FAILED: Could not be carried out. A final state.
+v CANCELLED: Withdrawn. A final state.
+
+@ SupplierCreditNote
+a supplierCreditNoteId
+s: The identity of the credit note, constant for its life.
+
+@ SupplierCreditNoteApplication
+a status
+s: Whether the application is in force.
+v DRAFT: Prepared and not yet applied.
+v ACTIVE: Applied against the invoice, reducing what is owed.
+v REVERSED: Undone by a reversing application. A final state.
+v CANCELLED: Withdrawn before it was applied. A final state.

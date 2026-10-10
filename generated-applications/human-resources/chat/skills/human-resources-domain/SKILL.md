@@ -14,27 +14,27 @@ Everything below is the application's own description of itself, taken from the 
 
 ### Address
 
-Reusable address master data with explicit rules for ownership, primary selection, lifecycle, and historical transaction evidence. Address is reusable master data, but an address printed on an issued invoice, shipment, order, or other historical document is transaction evidence and must remain reproducible even if the master address changes. Supports Party, Organization, Customer, Supplier, Location, order, fulfillment, invoicing, taxation, shipping, reporting, and integration workflows. Party and Location may reuse an Address. Operational documents should resolve the effective address at tra…
+A structured postal or physical address for a party or location, held once so it can be reused wherever it is needed. Addresses are reusable master data, yet an address printed on an issued invoice or shipment is historical evidence. This entity therefore holds the current address while documents keep their own copy of what was printed. Created when a party or location needs an address, selected when documents are prepared, and retired when it is no longer valid; read by invoicing, shipping, tax and mailing processes. An address is placed through its Country, optional StateProvince and City,…
 
 Readable by every signed-in person.
 
 Fields:
-  - **Address Type** (required, one of the Address Address Type values) — The address type of the address: a value the business records on it. Entered or maintained when a address is created or changed; shown on its form and available to search and reports. Read together with the address's other fields and its r…
-  - **Line1** (required) — The line1 of the address: a value the business records on it. Entered or maintained when a address is created or changed; shown on its form and available to search and reports. Read together with the address's other fields and its relation…
-  - **Line2** — The line2 of the address: a value the business records on it. Entered or maintained when a address is created or changed; shown on its form and available to search and reports. Read together with the address's other fields and its relation…
-  - **Line3** — The line3 of the address: a value the business records on it. Entered or maintained when a address is created or changed; shown on its form and available to search and reports. Read together with the address's other fields and its relation…
+  - **Address Type** (required, one of the Address Address Type values) — The purpose for which the address is used. Chosen when the address is created and used to pick the right address for a document, such as BILLING for invoices and SHIPPING for deliveries. A private home address. A place of business or offic…
+  - **Line1** (required) — The first line of the street address, usually building number and street. Entered by the person maintaining the address; printed on labels and documents.
+  - **Line2** — An optional second address line, such as a suite, unit or floor. Filled when line 1 is not enough to find the exact delivery point.
+  - **Line3** — An optional third address line for additional delivery details. Rarely used; kept for countries and carriers whose formats need more than two lines.
   - **City Name** — The name of the town or locality when it is not in the list of cities. Filled only when no city can be chosen; leave it empty when the city is picked from the list. Stands in for the city relationship; an address states one or the other.
-  - **Postal Code** — The postal code of the address: a value the business records on it. Entered or maintained when a address is created or changed; shown on its form and available to search and reports. Read together with the address's other fields and its re…
-  - **Latitude** — The latitude of the address: a number the business records on it. Entered or maintained when a address is created or changed; shown on its form and available to search and reports. Read together with the address's other fields and its rela…
-  - **Longitude** — The longitude of the address: a number the business records on it. Entered or maintained when a address is created or changed; shown on its form and available to search and reports. Read together with the address's other fields and its rel…
-  - **Is Primary** (required) — The is primary of the address: a yes/no indicator the business records on it. Entered or maintained when a address is created or changed; shown on its form and available to search and reports. Read together with the address's other fields…
-  - **Status** (required, one of the Address Status values) — The status of the address: a value the business records on it. Entered or maintained when a address is created or changed; shown on its form and available to search and reports. Read together with the address's other fields and its relatio…
-  - **Party** (a Party) — Party that maintains or uses this reusable address. Provides party master-data context for address selection.
+  - **Postal Code** — The postal or ZIP code of the address. Entered according to the country's format; used for delivery, tax zones and distance calculation.
+  - **Latitude** — The north-south position of the address on the earth in decimal degrees, from -90 to 90. Optional; filled by geocoding for mapping and routing. Must stay within -90 to 90.
+  - **Longitude** — The east-west position of the address on the earth in decimal degrees, from -180 to 180. Optional; filled by geocoding for mapping and routing. Must stay within -180 to 180.
+  - **Is Primary** (required) — Marks the address a party or location uses by default for its address type. Set by the person maintaining addresses; at most one active primary address of each type applies per party or location, and it is the one documents pick unless tol…
+  - **Status** (required, one of the Address Status values) — Whether the address may still be used for new business. Changed by data stewards; selection lists offer only ACTIVE addresses. Valid and available for new documents. Temporarily not offered, for example while a move is being confirmed; it…
+  - **Party** (a Party) — The party that uses or maintains this address. Set when a party's address is added; used to find a party's addresses and pick the effective one. At most one party; an address being prepared may have none yet. Supplies the party context for…
   - **Person** (a Person) — The Person this Address belongs to.
   - **Organization** (a Organization) — The Organization this Address belongs to.
-  - **Country** (required, a Country) — The country the address is in. Chosen from the list of countries; the states and cities offered are narrowed by it. Exactly one country. Every address names its country, which settles the format, tax and trade rules that apply to it.
-  - **State Province** (a State Province) — The state, province or equivalent division the address is in. Chosen after the country, from the divisions of that country. At most one; some countries have no divisions in the list. Must be a division of the address's own country.
-  - **City** (a City) — The city the address is in, chosen from the list. Chosen after the state or province, from the cities of that division or country; use the city name field when the city is not listed. At most one. Must be a city of the address's own countr…
+  - **Country** (required, a Country) — The country the address is in. Chosen first; it sets the address format and narrows the states and cities offered. Exactly one country is required. Settles the format, tax and trade rules that apply to the address. Every address names its…
+  - **State Province** (a State Province) — The state, province or equivalent division the address is in. Chosen after the country, from that country's divisions. At most one; some countries have no divisions in the list. Must belong to the address's own country. Must be a division…
+  - **City** (a City) — The city the address is in, chosen from the list. Chosen after the state or province; use the city name field only when the city is not listed. At most one. Must belong to the address's own country, and to its state or province where one i…
 
 ### Address Address Type
 
@@ -64,74 +64,143 @@ Fields:
 
 ### Attachment
 
-A governed file or content attachment associated with an enterprise record while preserving content identity and audit provenance. Provide durable, implementation-neutral governance semantics for Attachment. A governed file or content attachment associated with an enterprise record while preserving content identity and audit provenance. Used in contracts, documents, governance, compliance, risk, legal, service, finance, or audit workflows where applicable. Connects authoritative business records to controlled lifecycle, evidence, findings, and downstream remediation without replacing source t…
+A file or other content attached to an enterprise record, with its content identity and provenance kept for audit. Supporting documents, photos and scans back up decisions. Keeping them as governed records, rather than loose files, proves what was attached to what and when, and lets the same content be recognised if it is attached twice. Added when a user or system attaches evidence to a record; read when someone needs to see or verify the supporting document. An attachment is linked to the record it supports; the same file may be attached to more than one. Once attached, the content is evide…
 
 Readable by every signed-in person.
 
 Fields:
-  - **Effective At** — Time at which this record becomes effective or evidentially applicable. Establishes temporal business meaning. Lifecycle, audit and reporting. Does not rewrite earlier effective evidence. Optional when lifecycle does not require a separate…
+  - **Effective At** — When the attachment became part of the record. Set when the file is attached; used to show what evidence existed at a given moment.
+
+### Attendance
+
+Represents auditable evidence of presence, participation, work or absence across employment and education contexts. Attendance records what actually happened. In HCM, LeaveRequest authorizes absence and Payroll calculates financial consequences; in Education, Class and Enrollment context explain expected participation. HR/HCM, education, timekeeping, class registers, scheduling, payroll, workforce or learner analytics and audit. Employee or EducationStudent identifies the attendance subject. Employment and LeaveRequest provide HCM context; Class and Enrollment-related policy provide education…
+
+Readable by every signed-in person.
+
+Fields:
+  - **Attendance Date** (required) — The calendar date the presence, absence or work being recorded belongs to, regardless of when it was entered. Entered by the person, supervisor or timekeeping device; payroll periods, class registers and reports group records by it. Establ…
+  - **Attendance Type** (required, one of the Attendance Attendance Type values) — How the day is classified, such as present, absent, on leave, working remotely or a holiday. Set at recording; leave must match approved leave evidence, and payroll and scheduling read it to treat the day correctly. The attendance subject…
+  - **Clock In At** — The moment the person started work or arrived, as captured by a clock, device or manual entry. Optional; paired with the clock-out to derive worked hours, and compared with the schedule for lateness and overtime. Timekeeping evidence used…
+  - **Clock Out At** — The moment the person finished work or left, as captured by a clock, device or manual entry. Optional but never earlier than the clock-in; used with it to derive worked hours, overtime and early departure. Completes a captured work interva…
+  - **Worked Hours** — The number of hours counted as worked on the date, after breaks and rounding rules. Calculated from the clock times or entered by a supervisor; non-negative, and read by payroll, utilisation and workforce reports. Summarized hours attribut…
+  - **Status** (required, one of the Attendance Status values) — Whether the record is provisional, captured, or approved for payroll and other downstream use. Moved by the person and their supervisor; payroll only relies on approved records and later corrections need corrective evidence. Separates prov…
+  - **Employee** (a Employee) — Employee whose work or absence is recorded when Attendance is used in HCM. Establishes the employment subject without making Attendance HCM-only. Timekeeping, payroll and workforce reporting. Optional outside employment attendance. Employe…
+  - **Employment** (a Employment) — Employment relationship under which attendance occurred. Supplies employer and effective employment context. Payroll and policy validation. Optional only when the employee has a single unambiguous Employment. attendanceDate must fall withi…
+  - **Leave Request** (a Leave Request) — Approved leave authorization explaining an absence record. Connects authorization to actual attendance evidence. Leave reconciliation and payroll. Optional unless attendanceType is LEAVE and policy requires authorization. Leave dates and e…
+
+### Attendance Attendance Type
+
+The values of attendance attendance type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Attendance Status
+
+The values of attendance status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Business Unit
 
-A governed organizational unit representing a major business, division, line, or operating segment within an Organization. Provide a canonical enterprise representation with stable identity and governed semantics. A governed organizational unit representing a major business, division, line, or operating segment within an Organization. Used whenever enterprise processes need this concept as controlled master or reference data. Referenced by compatible domain entities and workflows while preserving a single canonical identity. Created under governance, maintained through controlled changes, and…
+A major business, division, product line or operating segment within an organisation. Business units are how a large organisation divides its activity for management and reporting. They let results, budgets and responsibility be assigned to a meaningful segment rather than to the organisation as a whole. Defined by management and finance; assigned to people, transactions and budgets; read when reporting by segment. Each business unit belongs to one Organization and groups the work and results of one part of it. A business unit keeps its code and identity stable. Reorganisations are recorded e…
 
 Readable by every signed-in person.
 
 Fields:
-  - **Code** (required) — Governed business code for BusinessUnit. Human and integration-friendly identifier. Search, configuration, exchange and reporting. Unique within its governing context according to policy. Required.
-  - **Name** (required) — Human-readable name of BusinessUnit. Communicates the concept to business users. UI, documents and reports. Does not replace immutable identity. Required.
-  - **Organization** (required, a Organization) — Governing Organization context for this record. Establishes ownership and enterprise context. Authorization, reporting and workflow. Exactly one Organization. Referenced workflows must remain compatible with governing context.
+  - **Code** (required) — The short reference for the unit, such as CE or EMEA-RETAIL. Assigned by finance and used on reports and in postings; kept stable because history relies on it.
+  - **Name** (required) — The full name of the business unit, as it appears in the organisation's structure and management accounts. Entered by management or finance when the unit is created; shown in organisation charts, selectors and segment reports.
+  - **Organization** (required, a Organization) — The organisation to which the unit belongs. Set when the unit is created. Exactly one organisation; a unit cannot stand alone. Rolls the unit's results up into its parent organisation.
 
 ### Calendar
 
-A governed calendar defining business dates, working days, holidays, and time-control semantics for planning and operational processes. Provide a canonical enterprise representation with stable identity and governed semantics. A governed calendar defining business dates, working days, holidays, and time-control semantics for planning and operational processes. Used whenever enterprise processes need this concept as controlled master or reference data. Referenced by compatible domain entities and workflows while preserving a single canonical identity. Created under governance, maintained throu…
+A calendar that defines business dates, working days, holidays and time-control rules used for planning and operations. Whether a date counts as a working day is not obvious: it depends on region, industry and company. A calendar states that explicitly, so due dates, delivery promises and schedules all agree. Maintained by administrators; referenced by schedulers, service-level calculations and planning when they need to know which days count. Locations, teams, contracts and schedules point to the calendar that governs their working days. A calendar's code and identity stay stable. Changes to…
 
 Readable by every signed-in person.
 
 Fields:
-  - **Code** (required) — Governed business code for Calendar. Human and integration-friendly identifier. Search, configuration, exchange and reporting. Unique within its governing context according to policy. Required.
-  - **Name** (required) — Human-readable name of Calendar. Communicates the concept to business users. UI, documents and reports. Does not replace immutable identity. Required.
+  - **Code** (required) — The short reference for the calendar, such as DE-NAT. Assigned by the administrator; used in configuration and reports; kept stable.
+  - **Name** (required) — The descriptive name of the calendar, such as UK Working Days or Group Fiscal Calendar. Entered by the administrator who maintains it; shown wherever a schedule, service level or plan asks which calendar applies.
 
 ### City
 
-A city: every national capital and every city of 750 thousand or more, from GeoNames, linked to its country and, for the United States and Canada, to its state or province. Give every application the same governed list, so a place or code means one thing across the enterprise. A city: every national capital and every city of 750 thousand or more, from GeoNames, linked to its country and, for the United States and Canada, to its state or province. Chosen from the list wherever a record needs a place, code or currency; maintained by an administrator when a registry changes. Referenced by addres…
+Loaded from the GeoNames reference data rather than typed by users; chosen on addresses, locations and offices, and read to sort, filter and map records by place. A city: every national capital and every city of 750 thousand or more, from GeoNames, linked to its country and, for the United States and Canada, to its state or province. A city: every national capital and every city of 750 thousand or more, from GeoNames, linked to its country and, for the United States and Canada, to its state or province. Chosen from the list wherever a record needs a place, code or currency; maintained by an a…
 
 Readable by every signed-in person.
 
 Fields:
-  - **Code** (required) — The city's code: its country code and its name in capitals, such as FR-PARIS. Quoted beside the name in lists; integration with other systems. Unique; the country prefix keeps cities of one name in different countries apart. Required.
-  - **Name** (required) — The city's name in English. Shown in lists and on addresses. Not unique: two countries can have a city of one name. Required.
-  - **Population** — The registry's population figure. Ordering and sizing; not a current census count. Describes the city only.
-  - **Latitude** — Latitude in degrees, north positive. Maps and distance. Describes the city only.
-  - **Longitude** — Longitude in degrees, east positive. Maps and distance. Describes the city only.
+  - **Code** (required) — The city's code: its country code and its name in capitals, such as FR-PARIS. Quoted beside the name in lists; integration with other systems. Unique; the country prefix keeps cities of one name in different countries apart.
+  - **Name** (required) — The city's name in English, as it is written on addresses and in place lists. Loaded with the reference data; shown in lists, pickers and address lines, and narrowed by the country and state chosen. Not unique: two countries can have a cit…
+  - **Population** — The population figure recorded in the GeoNames registry when the data was loaded. Used to rank and size cities in lists and pickers; it is an approximate registry value, not a current census count. Describes the city only.
+  - **Latitude** — The city's north-south position in decimal degrees, with north positive and south negative. Loaded with the reference data; paired with longitude to place the city on maps and measure distances. Describes the city only.
+  - **Longitude** — The city's east-west position in decimal degrees, with east positive and west negative. Loaded with the reference data; paired with latitude to place the city on maps and measure distances. Describes the city only.
   - **Timezone** — The IANA time zone the city keeps, such as Europe/Paris. Showing local times for the city. Describes the city only.
-  - **Is Capital** — Whether the city is its country's capital. Highlighting the capital in lists. At most one capital per country in this list.
-  - **Country** (required, a Country) — The country the city is in. Chosen first; the cities offered are those of that country. Every city belongs to exactly one country. A city is narrowed by its country, and by its state where it has one.
+  - **Is Capital** — Marks the city as the capital of its country in the reference data. Loaded with the reference data; lists use it to highlight or sort capitals first when people choose a city. At most one capital per country in this list.
+  - **Country** (required, a Country) — Exactly one country; a city belongs to a single country. The country the city is in. Chosen first; the cities offered are those of that country. A city is narrowed by its country, and by its state where it has one.
   - **State Province** (a State Province) — The state or province the city is in, where the registry says which. Chosen after the country; narrows the cities offered. A city has at most one state or province; outside the United States and Canada the list leaves it empty. The state o…
+
+### Compensation Basis
+
+The values of compensation basis, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Compensation Status
+
+The values of compensation status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Contact Point
 
-A governed communication endpoint such as email address, telephone number, web endpoint, or other contact channel associated with a Party. Provide a canonical enterprise representation with stable identity and governed semantics. A governed communication endpoint such as email address, telephone number, web endpoint, or other contact channel associated with a Party. Used whenever enterprise processes need this concept as controlled master or reference data. Referenced by compatible domain entities and workflows while preserving a single canonical identity. Created under governance, maintained…
+A communication endpoint for a party, such as an email address, telephone number, web address or other channel. Reaching someone requires a specific address. A contact point holds each one with its own status, so messages go to working endpoints and old ones are not lost. Added when a party gives an email, phone or other channel; read by communications, notifications and service processes. Each contact point belongs to one Party, which may have several. Code and identity stay stable, and an endpoint that is retired remains in history. The billing team's email address invoices@acme.example, re…
 
 Readable by every signed-in person.
 
 Fields:
-  - **Code** (required) — Governed business code for ContactPoint. Human and integration-friendly identifier. Search, configuration, exchange and reporting. Unique within its governing context according to policy. Required.
-  - **Name** (required) — Human-readable name of ContactPoint. Communicates the concept to business users. UI, documents and reports. Does not replace immutable identity. Required.
-  - **Party** (required, a Party) — Governing Party context for this record. Establishes ownership and enterprise context. Authorization, reporting and workflow. Exactly one Party. Referenced workflows must remain compatible with governing context.
+  - **Code** (required) — A short reference for the contact point. Assigned or imported; stays stable so integrations can match it.
+  - **Name** (required) — A descriptive label for the endpoint, such as Head office switchboard. Shown wherever contact points are listed.
+  - **Party** (required, a Party) — The party the endpoint belongs to. Set when the endpoint is added. Exactly one party; each endpoint has one owner. Lets communications find the right channel for a party.
 
 ### Country
 
-A country or territory from the ISO 3166-1 registry, used consistently for addresses, tax, trade, localization, compliance and reporting. Give every application the same governed list, so a place or code means one thing across the enterprise. A country or territory from the ISO 3166-1 registry, used consistently for addresses, tax, trade, localization, compliance and reporting. Chosen from the list wherever a record needs a place, code or currency; maintained by an administrator when a registry changes. Referenced by addresses, parties, products and documents; related entities narrow each oth…
+Read by address forms, tax and trade rules, localization and reports; changed only by an administrator when the ISO registry changes. A country or territory from the ISO 3166-1 registry, used consistently for addresses, tax, trade, localization, compliance and reporting. A country or territory from the ISO 3166-1 registry, used consistently for addresses, tax, trade, localization, compliance and reporting. Chosen from the list wherever a record needs a place, code or currency; maintained by an administrator when a registry changes.
 
 Readable by every signed-in person.
 
 Fields:
-  - **Code** (required) — The two-letter ISO 3166-1 code, such as US or DE. Search, integration and reporting; stored on nothing else, because records point at the country itself. Unique; a state or province and a city belong to a country through it. Required.
+  - **Code** (required) — The two-letter ISO 3166-1 code, such as US or DE. Search, integration and reporting; stored on nothing else, because records point at the country itself. Unique; a state or province and a city belong to a country through it.
   - **Alpha3** — The three-letter ISO 3166-1 code, such as USA or DEU. Trade and customs documents, which use the long form. Unique among countries.
   - **Numeric Code** — The three-digit ISO 3166-1 numeric code, such as 840. Banking and statistical exchange formats. Unique among countries.
-  - **Name** (required) — The country's short name in English. Shown in lists, on addresses and on reports. Does not replace the code as the stable key. Required.
-  - **Phone Code** — The international dialling prefix, without the plus sign. Validating and formatting telephone numbers. Belongs to the country; several countries can share a prefix.
+  - **Name** (required) — The country's short name in English. Shown in lists, on addresses and on reports. Does not replace the code as the stable key.
+  - **Phone Code** — The international dialling prefix for the country, held without the plus sign, such as 44 or 1. Used to validate and format telephone numbers entered against addresses and contacts, so the same number reads the same everywhere. Belongs to…
   - **Currency** (a Currency) — The currency the country mainly uses. Chosen from the currency list; used to suggest a currency on records for the country. A country has at most one main currency; a currency can be the main one of many countries. Lets a default currency…
 
 ### Currency
@@ -142,10 +211,10 @@ Readable by every signed-in person.
 
 Fields:
   - **Code** (required) — Three-letter business currency code, normally an ISO 4217 code where one exists. Used in documents, APIs, integrations, reports, pricing, banking, and accounting. Code identifies the denomination and is not an exchange rate or amount. Prov…
-  - **Name** (required) — Human-readable currency name. Used in user interfaces, documents, reports, master-data management, and integrations. Describes the currency identified by code and currencyId. Provides understandable monetary context to business users. Requ…
+  - **Name** (required) — The name of the currency, such as Euro or US Dollar. Used in user interfaces, documents, reports, master-data management, and integrations. Describes the currency identified by code and currencyId. Provides understandable monetary context…
   - **Symbol** — Common display symbol for the currency. Used in user interfaces, customer documents, reports, and formatted amounts. Presentation metadata; it must not be used as the canonical currency identity. Improves human-readable display without aff…
   - **Decimal Places** (required) — Standard number of decimal places normally used when representing amounts in this currency. Used for amount formatting, rounding, validation, invoicing, payment processing, and accounting presentation. Transaction-specific precision or fin…
-  - **Status** (required, one of the Currency Status values) — Controls whether the currency is available for new monetary transactions. Used by pricing, order, invoicing, payment, banking, and accounting validation. Retiring a currency must not invalidate historical transactions expressed in that cur…
+  - **Status** (required, one of the Currency Status values) — Available for use on new prices, documents and payments. Temporarily not offered, for example while a market is closed; it can be reactivated. No longer in use, such as a replaced national currency; historical amounts keep it. Controls whe…
 
 ### Currency Status
 
@@ -162,34 +231,34 @@ Fields:
 
 ### Department
 
-A governed organizational unit grouping people, positions, responsibilities, and work within an Organization or BusinessUnit. Provide a canonical enterprise representation with stable identity and governed semantics. A governed organizational unit grouping people, positions, responsibilities, and work within an Organization or BusinessUnit. Used whenever enterprise processes need this concept as controlled master or reference data. Referenced by compatible domain entities and workflows while preserving a single canonical identity. Created under governance, maintained through controlled change…
+A unit of an organisation that groups people, positions, responsibilities and work. Departments are how people are organised day to day. They define reporting lines, budgets and responsibilities. Defined by HR and management; assigned to people and positions; used in reporting and approvals. A department belongs to an Organization (or one of its business units). Code and identity stay stable. Reorganisations are recorded explicitly so earlier reports do not change. The Accounts Payable department of the finance function.
 
 Readable by every signed-in person.
 
 Fields:
-  - **Code** (required) — Governed business code for Department. Human and integration-friendly identifier. Search, configuration, exchange and reporting. Unique within its governing context according to policy. Required.
-  - **Name** (required) — Human-readable name of Department. Communicates the concept to business users. UI, documents and reports. Does not replace immutable identity. Required.
-  - **Organization** (required, a Organization) — Governing Organization context for this record. Establishes ownership and enterprise context. Authorization, reporting and workflow. Exactly one Organization. Referenced workflows must remain compatible with governing context.
+  - **Code** (required) — The short code of the department, such as FIN-AP. Used in postings and reports; kept stable.
+  - **Name** (required) — The name of the department as the organisation calls it, such as Finance or Field Operations. Entered by an administrator; shown in organisation charts, on documents and in reports that group people and costs by department.
+  - **Organization** (required, a Organization) — Chosen when the department is created; reporting lines, headcount and budgets roll up through the organisation it belongs to. The organisation the department belongs to. Exactly one organisation: a department is part of a single organisati…
 
 ### Employee
 
-Represents a party role specialization called Employee within the CEDM business model. Employee is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface. Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find, change, or relate Employee records. The entity participates in a wider business graph through relationships with Person, Organization. These relationships provide the context needed to interpret the record rather than tr…
+A person engaged by an organisation as an employee. Employment law, payroll and HR all apply to the employee role rather than to the person in general. This record carries that role: the employee number and the hiring and leaving dates. Created when a person is hired; updated as they take leave or leave the organisation; read by HR, payroll and managers. An employee is a Person, may belong to an Organization, requests leave and has attendance records. An employee is active, may be on leave, and ends terminated or retired. Employee 10482, hired on 1 March, currently active in the finance team.
 
 Readable by every signed-in person.
 
 Fields:
-  - **Party Role** (required, a Party Role) — Identifies the related PartyRole associated with this Employee. It provides the link needed to navigate from this record to the related business object. Used when creating, reviewing, searching, validating, reporting on, or integrating Emp…
-  - **Employee Number** (required) — Captures the business meaning of employee number for the Employee. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record. Used when creating, reviewing, searching,…
-  - **Hire Date** — Records the business date associated with the hire. It is used in chronology, eligibility, scheduling, reporting, and related business rules. Used when creating, reviewing, searching, validating, reporting on, or integrating Employee recor…
-  - **Termination Date** — Records the business date associated with the termination. It is used in chronology, eligibility, scheduling, reporting, and related business rules. Used when creating, reviewing, searching, validating, reporting on, or integrating Employe…
-  - **Status** (required, one of the Employee Status values) — The lifecycle state of the record. It controls which business actions are normally permitted and how the record is treated by related processes. Used when creating, reviewing, searching, validating, reporting on, or integrating Employee re…
-  - **Party** (required, a Party) — Identifies the underlying person or organization performing this role. Provides common identity without duplicating Party data. One Party may have multiple PartyRoles simultaneously or historically. Connects role-specific processing back t…
-  - **Role Type** (required, one of the Employee Role Type values) — Defines the business capacity in which the Party participates. Determines specialized capabilities, policies, workflows, and validations. Separate from Party.partyType, which describes whether the participant is a person or organization. S…
-  - **Code** — Optional business-context identifier for this role instance. Supports operational search, integrations, reports, and legacy references. Identifies the role instance and must not replace Party or specialized role identifiers. Optional when…
-  - **Valid From** — Date from which this role is eligible for ordinary business processing. Used by eligibility and transaction validation. Works with validTo and status; ending a role does not delete Party identity or other roles. Prevents premature use of a…
-  - **Valid To** — Date after which the role is no longer normally eligible for new business processing. Used by eligibility, renewal, reporting, and expiry workflows. Historical transactions may continue referencing the role after validTo. Prevents new use…
-  - **Person** (required, a Person) — Connects Employee to Person so related business context can be navigated and enforced. Used when processes need to find or reason about Person records associated with a Employee. The declared cardinality 1 expresses how many related record…
-  - **Organization** (a Organization) — Connects Employee to Organization so related business context can be navigated and enforced. Used when processes need to find or reason about Organization records associated with a Employee. The declared cardinality 0..1 expresses how many…
+  - **Party Role** (required, a Party Role) — The party role that this employee record specialises. Set at hiring so the role is linked to the person's general identity.
+  - **Employee Number** (required) — The number the employer gives the employee, printed on badges and payslips. Allocated at hiring; unique.
+  - **Hire Date** — The date the person started as an employee. Entered by HR; the start of service for benefits.
+  - **Termination Date** — The date the employment ended. Entered when it ends; must not be before the hire date.
+  - **Status** (required, one of the Employee Status values) — Whether the person is currently working, away on leave, or has left the organisation. Set by HR when employment changes; payroll and access rules read it, and the two leaver states close the record. Employed and currently working for the o…
+  - **Party** (required, a Party) — The party that holds the role. Set when the role is assigned and not changed. One Party may have multiple PartyRoles simultaneously or historically. Connects role-specific processing back to the canonical identity.
+  - **Role Type** (required, one of the Employee Role Type values) — The kind of role the party plays, such as customer, supplier, employee or partner. Chosen when the role is assigned; decides which specialised record (customer, supplier and so on) carries its detail. The party buys goods or services from…
+  - **Code** — An optional code for the role. Used by integrations that identify the role separately from the party. Identifies the role instance and must not replace Party or specialized role identifiers.
+  - **Valid From** — The first date on which the role applies. Set when the role is assigned. Works with validTo and status; ending a role does not delete Party identity or other roles. Prevents premature use of a newly established role.
+  - **Valid To** — The last date on which the role still applies to the party. Set when the role ends, such as a contract expiry; empty while open-ended, and later use of the role is refused. Historical transactions may continue referencing the role after va…
+  - **Person** (required, a Person) — Chosen when the employee is hired; personal details are read from that person and are not copied onto the employee. The person who is the employee. Exactly one person: an employee role is held by a specific individual.
+  - **Organization** (a Organization) — The organisation that employs the person in this employee role. Set by HR at hiring; payroll, reporting lines and headcount are read through it, and it stays empty for an unattached record. At most one organisation, because an employee rec…
   - **Position** (a Position) — The Position this Employee belongs to.
 
 ### Employee Role Type
@@ -220,18 +289,20 @@ Fields:
 
 ### Employment
 
-Represents a workforce relationship called Employment within the CEDM business model. Employment is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface. Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find, change, or relate Employment records. The entity participates in a wider business graph through relationships with Employee, Organization, Position. These relationships provide the context needed to interpret the record…
+A time-bound employment relationship between a person and an organisation. Employment is more than a role; it has terms, a start and an end, and may change over time. This record is the contract-level relationship that pay, leave and attendance are measured against. Created at hiring and on a change of contract; read by HR and payroll. An employment links an Employee to an employer Organization, may fill a Position, and has Compensation history, leave requests and attendance. An employment is pending until its start, active while in force, may be suspended and ends terminated. Full-time emplo…
 
 Readable by every signed-in person.
 
 Fields:
-  - **Employment Type** (required, one of the Employment Employment Type values) — Captures the business meaning of employment type for the Employment. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record. Used when creating, reviewing, searching…
-  - **Start Date** (required) — The date on which the applicable business period, agreement, service, or lifecycle begins. Related end dates must follow the business chronology. Used when creating, reviewing, searching, validating, reporting on, or integrating Employment…
-  - **End Date** — The date on which the applicable business period, agreement, service, or lifecycle ends. It is interpreted together with the corresponding start date. Used when creating, reviewing, searching, validating, reporting on, or integrating Emplo…
-  - **Status** (required, one of the Employment Status values) — The lifecycle state of the record. It controls which business actions are normally permitted and how the record is treated by related processes. Used when creating, reviewing, searching, validating, reporting on, or integrating Employment…
-  - **Employee** (required, a Employee) — Connects Employment to Employee so related business context can be navigated and enforced. Used when processes need to find or reason about Employee records associated with a Employment. The declared cardinality 1 expresses how many relate…
-  - **Employer** (required, a Organization) — Connects Employment to Organization so related business context can be navigated and enforced. Used when processes need to find or reason about Organization records associated with a Employment. The declared cardinality 1 expresses how man…
-  - **Position** (a Position) — Connects Employment to Position so related business context can be navigated and enforced. Used when processes need to find or reason about Position records associated with a Employment. The declared cardinality 0..1 expresses how many rel…
+  - **Employment Type** (required, one of the Employment Employment Type values) — The contractual basis on which the person is employed, such as full time or on a fixed-term contract. Chosen at hiring; it decides benefits, working time, notice periods and how the person is counted in workforce reports. A standard full-t…
+  - **Start Date** (required) — The first day of the employment. Taken from the contract; pay and leave accrue from it.
+  - **End Date** — The last day of the employment, if it has ended or is fixed-term. Set when known; must not be before the start date.
+  - **Status** (required, one of the Employment Status values) — Where the employment stands, from agreed but not started through in force to ended. Moved by HR; pay, leave and attendance run only while it is ACTIVE, and a terminated one is kept for history. Agreed but not yet started. In force; the per…
+  - **Employee** (required, a Employee) — Set when the employment is created; pay, leave and attendance are measured against this person's employment. The employee the employment is for. Exactly one employee: an employment relationship binds a specific individual.
+  - **Employer** (required, a Organization) — Chosen when the employment is created; it identifies the legal employer that carries the obligations of the contract. The organisation that employs the person. Exactly one employer: the legal entity that carries the obligations of employme…
+  - **Position** (a Position) — The position in the organisation structure that the person fills under this employment. Assigned by HR at hiring and changed on a transfer; it places the person in a reporting line and cost centre. At most one position, because someone fil…
+
+Line items — **Compensation**: kept inside each Employment and reached by opening it, never on their own. An effective-dated agreement about how an employment is paid, separate from calculating and settling that pay. What someone is paid is a commitment that changes over time, such as a raise or a new pay basis. Keeping it as its own dated record shows what was agreed at any point and keeps it separate…
 
 ### Employment Employment Type
 
@@ -269,11 +340,11 @@ Fields:
   - **From Currency** (required, a Currency) — Currency from which an amount is converted. Identifies the source denomination of the monetary amount being converted. Must differ from toCurrency for a meaningful exchange-rate conversion. Identifies the currency of the source Money value…
   - **To Currency** (required, a Currency) — Currency into which an amount is converted. Identifies the target denomination of the converted monetary amount. Conversion direction is from fromCurrency to toCurrency; reversing the direction requires an appropriate inverse rate rather t…
   - **Rate** (required) — Positive conversion factor that expresses how much target currency corresponds to one unit of source currency under this rate convention. Used to calculate converted monetary amounts while preserving the declared direction. Must always be…
-  - **Rate Type** (required, one of the Exchange Rate Rate Type values) — Classifies the business purpose and provenance context of the exchange rate. Used to select an appropriate rate according to transaction and accounting policy. Different workflows may require different rate types; a spot rate must not auto…
+  - **Rate Type** (required, one of the Exchange Rate Rate Type values) — The market rate at a moment in time. A rate fixed by agreement with a counterparty. The rate published for a business day. An average or closing rate for a month. A rate set by the finance team for ledger translation. Any other rate define…
   - **Effective At** (required) — Date and time from which the exchange rate is applicable under its rate policy. Used to select the correct rate for a transaction, settlement, or accounting event. A rate without an effective time cannot be reliably reproduced when rates c…
-  - **Expires At** — Optional end of the period during which the rate is valid. Used to prevent application of expired rates. When supplied, expiresAt must be later than effectiveAt. Defines the rate's validity window for transaction and reporting calculations…
+  - **Expires At** — Optional end of the period during which the rate is valid. Used to prevent application of expired rates. When supplied, expiresAt must be later than effectiveAt. Defines the rate's validity window for transaction and reporting calculations.
   - **Source** (required) — Identifies the provider or business authority from which the rate was obtained. Used for audit, reconciliation, regulatory reporting, and rate governance. Source identifies provenance; it does not by itself determine which rate is applicab…
-  - **Status** (required, one of the Exchange Rate Status values) — Lifecycle state of the exchange-rate record. Used by conversion services to determine whether a rate may be applied. Historical calculations retain the rate record even after it expires. Prevents use of draft, cancelled, or expired rates w…
+  - **Status** (required, one of the Exchange Rate Status values) — Being prepared; not yet used. In force and usable for conversion. Its validity period has ended; kept for past conversions. Withdrawn; must not be used. Lifecycle state of the exchange-rate record. Used by conversion services to determine…
 
 ### Exchange Rate Rate Type
 
@@ -303,14 +374,14 @@ Fields:
 
 ### Job
 
-Reusable definition of work in HCM. Job defines what work is; Position defines an organizational seat; Employment connects a person/employee to governed work arrangements. Workforce planning, recruiting, position management and compensation. Position instantiates Job; Employment remains transaction/relationship evidence.
+A reusable definition of work responsibilities, qualifications and classification that positions are created from and people are employed into. A job is the description of a kind of work, such as Accountant or Warehouse Operator, separate from any particular vacancy. Defining it once keeps titles, grades and requirements consistent across the many positions that share it. Defined by HR; used when positions are created and filled; read by recruiters, managers and compensation analysts. Positions are instances of a job. A job is drafted, becomes active when approved for use, may be inactive whi…
 
 Readable by every signed-in person.
 
 Fields:
-  - **Code** (required) — Governed job code. Human/integration classification identifier. HCM and reporting. Independent of employee/position identity. Required.
-  - **Title** (required) — Standard job title. Names the reusable work role. Organization design and HR. Position may have contextual display title. Required.
-  - **Status** (required, one of the Job Status values) — Job-definition lifecycle. Controls future position assignment. HCM governance. Historical employment remains valid. Being designed. Available. Temporarily unavailable. Closed to new use. Required.
+  - **Code** (required) — The job code in the organisation's job catalogue, such as ACC-SR. Unique; assigned by HR and used in reports and pay structures. Human/integration classification identifier. Independent of employee/position identity.
+  - **Title** (required) — The standard title of the job. Shown on job advertisements, contracts and organisation charts. Names the reusable work role. Position may have contextual display title.
+  - **Status** (required, one of the Job Status values) — Whether the job definition is available for new positions. Set by HR; only ACTIVE jobs can be used to create positions. Being written; not yet approved. Approved and available for positions. Temporarily not offered; existing positions cont…
 
 ### Job Status
 
@@ -327,37 +398,80 @@ Fields:
 
 ### Language
 
-A governed language reference used for localization, communication preferences, content, and reporting. Provide a canonical enterprise representation with stable identity and governed semantics. A governed language reference used for localization, communication preferences, content, and reporting. Used whenever enterprise processes need this concept as controlled master or reference data. Referenced by compatible domain entities and workflows while preserving a single canonical identity. Created under governance, maintained through controlled changes, and retired or superseded without rewriti…
+A language used for localisation, communication preferences, content and reporting. People read and write in different languages. A language record lets the application offer translations, remember preferences and tag content with the language it is written in. Loaded from the standard language registry; chosen on user profiles, documents and messages. Parties, users and content refer to a language; the language itself depends on nothing. Code and identity stay stable, and history is never silently rewritten. English, with code en.
 
 Readable by every signed-in person.
 
 Fields:
-  - **Code** (required) — Governed business code for Language. Human and integration-friendly identifier. Search, configuration, exchange and reporting. Unique within its governing context according to policy. Required.
-  - **Name** (required) — Human-readable name of Language. Communicates the concept to business users. UI, documents and reports. Does not replace immutable identity. Required.
+  - **Code** (required) — The two-letter ISO 639-1 code of the language, such as en or de. Taken from the standard; unique; used in locale settings and APIs.
+  - **Name** (required) — The English name of the language, such as French or Portuguese. Loaded from the language reference data; it is shown in language pick-lists and reports, while the code remains the identifier.
+
+### Leave Request
+
+Captures an auditable employee absence request and its approval outcome. LeaveRequest is the authorization transaction; Attendance records actual work or absence evidence and Payroll applies financial consequences. Employee self-service, manager approval, HR operations, scheduling, attendance, payroll and reporting. Employee is mandatory; Employment supplies policy context; Approval records authorization; Attendance reconciles actual absence. Draft requests are submitted and then approved, rejected or cancelled; final outcomes remain historical evidence. An employee requests three annual-leav…
+
+Readable by every signed-in person.
+
+Fields:
+  - **Request Number** (required) — The reference number of the request. Allocated on submission; unique; quoted in HR queries. Operational identifier for employees, managers and HR. Distinct from Employee or payroll identifiers.
+  - **Leave Type** (required, one of the Leave Request Leave Type values) — The category of absence the employee is asking for, which decides how it is paid and counted. Chosen by the employee when requesting; leave policy, payroll and entitlement checks use it to decide which balance is reduced. Paid holiday take…
+  - **Start Date** (required) — The first calendar day on which the employee asks to be absent. Entered by the employee; managers approve against team cover, and attendance and payroll begin counting absence from this date. Starts the requested absence interval. Must be…
+  - **End Date** (required) — The last day of the absence. Entered by the employee; must not be before the start date. Closes the requested absence interval.
+  - **Requested Units** — How much leave is requested, measured in the organisation's governed unit such as days or hours. Entered or computed from the dates; entitlement checks compare it with the available balance and payroll uses the approved quantity. Supports…
+  - **Status** (required, one of the Leave Request Status values) — Where the request is in the approval workflow, from drafting to a final decision. Moved by the employee and the approving manager; only APPROVED requests reduce entitlement and affect attendance or pay. Being prepared by the employee and n…
+  - **Employee** (required, a Employee) — Exactly one employee: a leave request is made by a specific person. Employee requesting leave. Identifies whose absence is being authorized. Approval, scheduling, attendance and payroll. Employee must be eligible under applicable policy.
+  - **Employment** (a Employment) — Employment relationship under which leave is requested. Supplies employer, position and effective policy context. Eligibility, payroll and reporting. Optional only when the employee has a single unambiguous Employment. Requested dates must…
+  - **Payroll** (a Payroll) — The Payroll this LeaveRequest belongs to.
+
+### Leave Request Leave Type
+
+The values of leave request leave type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Leave Request Status
+
+The values of leave request status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Legal Entity
 
-A legally recognized organization or person capable of holding rights, obligations, registrations, contracts, assets, liabilities, or filings. Provide canonical governance semantics for LegalEntity. A legally recognized organization or person capable of holding rights, obligations, registrations, contracts, assets, liabilities, or filings. Used in enterprise risk, legal, compliance, audit, contract, incident, and remediation processes where applicable. Connects risks, controls, parties, legal matters, agreements, obligations, evidence and outcomes without replacing their authoritative histori…
+A legally recognised organisation or person that can hold rights and obligations, registrations, contracts, assets, liabilities or filings. Contracts are signed and taxes are paid by legal entities, not by business units. Knowing exactly which entity is involved determines liability, reporting and registration duties. Registered when an entity is formed or acquired; referenced by contracts, filings and ledgers. Contracts, filings and accounting books refer to the legal entity. Finalised evidence and effective history are preserved; changes such as name changes or mergers are recorded explicit…
 
 Readable by every signed-in person.
 
 Fields:
-  - **Occurred At** — Effective occurrence or assessment time where applicable. Anchors temporal evidence. Chronology, reporting and audit. Historical timing is not silently rewritten. Optional when the concept is a standing master or future obligation.
+  - **Occurred At** — When the entity was formed, or its record took effect. Set from the registration data.
 
 ### Location
 
-Core location master with hierarchical, geographic, organizational, and lifecycle context. Location identifies where business activity or resources occur. It is distinct from Address: Location is the business place; Address describes its geographic/contact representation. Supports inventory, warehousing, yard/port operations, shipping, purchasing, sales, tax jurisdiction, service, logistics, and organizational processes. Organization provides operating ownership/context. Address provides geographic representation. Parent/child locations provide operational hierarchy. Dependent entities must r…
+A physical or logical place where resources, activities, stock, services or organisational operations are situated. Almost everything in a business happens somewhere. The location is the shared reference for that: sites, warehouses, stores, offices, ports and even virtual places, arranged in a hierarchy so addresses, stock and assets can all point to the same place. Created when a place becomes relevant; arranged under parent locations; referenced by assets, stock, facilities and addresses; read by logistics, facilities and reporting. A location may sit within a parent Location with children…
 
 Readable by every signed-in person.
 
 Fields:
-  - **Code** (required) — The code of the location: a value the business records on it. Entered or maintained when a location is created or changed; shown on its form and available to search and reports. Read together with the location's other fields and its relati…
-  - **Name** (required) — The name of the location: a value the business records on it. Entered or maintained when a location is created or changed; shown on its form and available to search and reports. Read together with the location's other fields and its relati…
-  - **Location Type** (required, one of the Location Location Type values) — The location type of the location: a value the business records on it. Entered or maintained when a location is created or changed; shown on its form and available to search and reports. Read together with the location's other fields and i…
-  - **Status** (required, one of the Location Status values) — The status of the location: a value the business records on it. Entered or maintained when a location is created or changed; shown on its form and available to search and reports. Read together with the location's other fields and its rela…
-  - **Address** (a Address) — The address id of the location: a link to another record the business records on it. Entered or maintained when a location is created or changed; shown on its form and available to search and reports. Read together with the location's othe…
-  - **Parent Location** (a Location) — The parent location id of the location: a link to another record the business records on it. Entered or maintained when a location is created or changed; shown on its form and available to search and reports. Read together with the locatio…
-  - **Organization** (a Organization) — Links a location to organization, the organization it relates to. Chosen from the existing organization records when the location is created or edited. A location has at most one organization in this role. Lets the location be found from,…
+  - **Code** (required) — The code of the place in the organisation's site list, such as NL-RTM-DC1. Unique; assigned by the administrator and used in integrations and labels.
+  - **Name** (required) — The name by which people refer to the place, such as Rotterdam Depot. Entered by the administrator when the location is created; shown in lists, maps and documents, and may be changed without breaking references.
+  - **Location Type** (required, one of the Location Location Type values) — A geographic site that may contain several buildings. A building or area for storing goods. A retail outlet where goods are sold to customers. A place where office work is done. A place where goods are made. An open area for storing or sta…
+  - **Status** (required, one of the Location Status values) — Expected but not yet in use. In use and offered for new assignments. Temporarily not used but expected to return to service. Closed down, with no new assignments but history kept. Removed from use altogether. A final state. Whether the pla…
+  - **Address** (a Address) — The postal address of the location. Chosen from the address list; used for deliveries, mapping and tax.
+  - **Parent Location** (a Location) — The place that contains this one, such as the site that holds a warehouse. Set to build the hierarchy; a top-level place has none.
+  - **Organization** (a Organization) — The organisation that operates the place. Set where operation is clear. At most one operating organisation. Determines responsibility and reporting.
 
 ### Location Location Type
 
@@ -394,10 +508,10 @@ Readable by every signed-in person.
 Fields:
   - **Party** (required, a Party) — Canonical Party identity represented by this Organization specialization. Connects organizational details to the shared Party identity used by all roles and transactions. One Party may have exactly one Organization specialization when part…
   - **Code** (required) — Business code for the organization within its governed business context. Used for operations, reporting, integrations, and organizational selection. Code is not the canonical Party identity and uniqueness is governed by organization scope.…
-  - **Name** (required) — Common organizational name used in business operations. Used in search, forms, reports, documents, and transactions. LegalName may differ and provides formal legal identity. Provides human-readable organizational identification. Required f…
-  - **Organization Type** (required, one of the Organization Organization Type values) — Classifies the organizational structure represented by the specialization. Used for hierarchy, authorization, reporting, transaction scope, and organizational configuration. Organization type describes structure, not commercial role. Custo…
-  - **Status** (required, one of the Organization Status values) — Lifecycle of the organizational specialization. Controls whether the organization can normally be selected as an organizational context. Organization status does not replace Party.status or PartyRole.status; all applicable states must perm…
-  - **Legal Name** — Formal legal name of the organization. Used for contracts, invoices, tax, regulatory reporting, and legal documentation. LegalName is distinct from the operational name. Supplies legal presentation and compliance context. Optional when the…
+  - **Name** (required) — Common organizational name used in business operations. Used in search, forms, reports, documents, and transactions. LegalName may differ and provides formal legal identity. Provides human-readable organizational identification.
+  - **Organization Type** (required, one of the Organization Organization Type values) — Classifies the organizational structure represented by the specialization, from whole enterprise down to department or branch. Used for hierarchy, authorization, reporting, transaction scope, and organizational selection; chosen when the u…
+  - **Status** (required, one of the Organization Status values) — Lifecycle of the organizational specialization, deciding whether the unit may be selected in new transactions. Controls whether the organization can normally be selected as an organizational scope; set by master-data staff. The organizatio…
+  - **Legal Name** — Formal legal name of the organization. Used for contracts, invoices, tax, regulatory reporting, and legal documentation. LegalName is distinct from the operational name. Supplies legal presentation and compliance context.
   - **Registration Number** — Registration identifier assigned by a competent authority. Used for legal verification, compliance, tax, and integrations. Registration number identifies the organization in an external legal system, not in CEDM. Supports identity verifica…
   - **Tax Identifier** — Tax identifier applicable to the organization in a relevant jurisdiction. Used for tax determination, invoices, reporting, and compliance. Tax identity may vary by jurisdiction and should not replace Party identity. Supports tax-rule appli…
   - **Party Type** (required, one of the Organization Party Type values) — Identifies whether the party is a person or an organization. Determines which party specialization is applicable and prevents business processes from interpreting an organization as an individual or vice versa. Used to select Person or Org…
@@ -472,14 +586,14 @@ Fields:
 
 ### Party Relationship
 
-A governed time-bounded relationship between two Parties describing a business, organizational, legal, household, customer, supplier, employment, or other role relationship. Provide a canonical enterprise representation with stable identity and governed semantics. A governed time-bounded relationship between two Parties describing a business, organizational, legal, household, customer, supplier, employment, or other role relationship. Used whenever enterprise processes need this concept as controlled master or reference data. Referenced by compatible domain entities and workflows while preser…
+A time-bound relationship between two parties that describes how they stand to each other in business, legal, household, employment or another way. Parties are connected to each other: a company to its subsidiary, a person to their employer, one household member to another. Recording the relationship, with its dates, lets the organisation see who is connected to whom and since when. Created when a relationship is established; ended when it stops; read by sales, compliance and customer service. A relationship runs from one Party to another. Code and identity stay stable, and the relationship's…
 
 Readable by every signed-in person.
 
 Fields:
-  - **Code** (required) — Governed business code for PartyRelationship. Human and integration-friendly identifier. Search, configuration, exchange and reporting. Unique within its governing context according to policy. Required.
-  - **Name** (required) — Human-readable name of PartyRelationship. Communicates the concept to business users. UI, documents and reports. Does not replace immutable identity. Required.
-  - **From Party** (required, a Party) — Governing Party context for this record. Establishes ownership and enterprise context. Authorization, reporting and workflow. Exactly one Party. Referenced workflows must remain compatible with governing context.
+  - **Code** (required) — The code of the relationship type or instance, such as SUBSIDIARY_OF. Chosen from the relationship list; used in queries and rules.
+  - **Name** (required) — A readable description of the relationship, such as Acme Ltd is subsidiary of Acme Group. Entered when the relationship is created; shown in party views and lists so users can understand the link at a glance.
+  - **From Party** (required, a Party) — The party at the origin of the relationship. Chosen when the relationship is created. Exactly one origin party: a relationship always starts at a particular party. Together with the other party it identifies the relationship.
 
 ### Party Role
 
@@ -488,12 +602,12 @@ The bridge between stable Party identity and contextual business participation. 
 Readable by every signed-in person.
 
 Fields:
-  - **Party** (required, a Party) — Identifies the underlying person or organization performing this role. Provides common identity without duplicating Party data. One Party may have multiple PartyRoles simultaneously or historically. Connects role-specific processing back t…
-  - **Role Type** (required, one of the Party Role Role Type values) — Defines the business capacity in which the Party participates. Determines specialized capabilities, policies, workflows, and validations. Separate from Party.partyType, which describes whether the participant is a person or organization. S…
-  - **Code** — Optional business-context identifier for this role instance. Supports operational search, integrations, reports, and legacy references. Identifies the role instance and must not replace Party or specialized role identifiers. Optional when…
-  - **Valid From** — Date from which this role is eligible for ordinary business processing. Used by eligibility and transaction validation. Works with validTo and status; ending a role does not delete Party identity or other roles. Prevents premature use of a…
-  - **Valid To** — Date after which the role is no longer normally eligible for new business processing. Used by eligibility, renewal, reporting, and expiry workflows. Historical transactions may continue referencing the role after validTo. Prevents new use…
-  - **Status** (required, one of the Party Role Status values) — Operational lifecycle of the PartyRole relationship. Controls whether the role can normally participate in new transactions, assignments, or authorizations. Role status is independent of Party.status and other PartyRole statuses. ACTIVE pe…
+  - **Party** (required, a Party) — The party that holds the role. Set when the role is assigned and not changed. One Party may have multiple PartyRoles simultaneously or historically. Connects role-specific processing back to the canonical identity.
+  - **Role Type** (required, one of the Party Role Role Type values) — The kind of role the party plays, such as customer, supplier, employee or partner. Chosen when the role is assigned; decides which specialised record (customer, supplier and so on) carries its detail. The party buys goods or services from…
+  - **Code** — An optional code for the role. Used by integrations that identify the role separately from the party. Identifies the role instance and must not replace Party or specialized role identifiers.
+  - **Valid From** — The first date on which the role applies. Set when the role is assigned. Works with validTo and status; ending a role does not delete Party identity or other roles. Prevents premature use of a newly established role.
+  - **Valid To** — The last date on which the role still applies to the party. Set when the role ends, such as a contract expiry; empty while open-ended, and later use of the role is refused. Historical transactions may continue referencing the role after va…
+  - **Status** (required, one of the Party Role Status values) — Whether the party currently holds the role and may be used in it. Set by master-data staff; only active roles are offered in selections, and expired is reached when the validity ends. The party currently holds the role. Dormant but may res…
   - **Person** (a Person) — The Person this PartyRole belongs to.
   - **Organization** (a Organization) — Optional organizational scope in which the role is recognized. Supports multi-enterprise, subsidiary, business-unit, and operating-context scenarios. Zero means global/context-independent; one means explicitly scoped to one organization. D…
 
@@ -538,19 +652,19 @@ Fields:
 
 ### Payroll
 
-Governs auditable gross-to-net payroll calculation and its downstream accounting and settlement. Payroll calculates employee compensation obligations; JournalEntry records accounting; Payment records settlement. Human capital management, payroll operations, finance, compliance, employee service, and audit. Employee and Employment provide eligibility; attendance and leave may supply time inputs; JournalEntry and Payment record separate downstream effects. Draft → calculated → approved → posted → paid, with controlled reversal. Changes to open-period employment/time/compensation inputs trigger…
+A payroll run, or an employee's payroll result, that turns approved employment, attendance, leave, compensation and statutory inputs into gross-to-net pay. Paying staff correctly means combining many inputs by many rules. The payroll record shows for each employee and period what was earned, what was deducted and what is owed, so pay can be explained, paid and posted to the books. Calculated for each pay period; approved; posted; paid; read by HR, finance and the employee. A payroll result is for an Employee under an Employment, uses Compensation terms, Attendance and LeaveRequests, is paid t…
 
 Readable by every signed-in person.
 
 Fields:
-  - **Payroll Number** (required) — Business-facing payroll reference. Identifies the payroll calculation or result operationally. Review, payslip correlation, finance, and audit. Distinct from Payment and JournalEntry references. Required.
-  - **Period Start** (required) — Start of the payroll earning period. Defines the first date whose approved employment inputs belong to the calculation. Eligibility, attendance, leave, compensation, and reporting. Must not follow periodEnd. Required.
-  - **Period End** (required) — End of the payroll earning period. Defines the final date included in the calculation. Payroll cutoff and reconciliation. Must be on or after periodStart. Required.
-  - **Gross Amount** (required) — Gross calculated employee earnings before deductions. Records total earnings recognized by the payroll calculation. Payroll review, finance, and reporting. Must reconcile with governed earning inputs. Required.
-  - **Net Amount** (required) — Net amount payable after authorized deductions. Establishes the payroll settlement obligation before Payment execution. Payroll approval and payment instruction. Payment settles this obligation but is separate evidence. Required.
-  - **Status** (required, one of the Payroll Status values) — Lifecycle state of payroll processing. Controls calculation, approval, accounting, settlement, and reversal. Payroll workflow and audit. PAID requires settlement evidence; POSTED requires accounting evidence. Inputs are being prepared. Gro…
-  - **Employee** (required, a Employee) — Employee whose compensation is calculated. Supplies employment identity and eligibility context. Payroll, reporting, and audit. Exactly one employee owns this payroll result. Employment must be eligible for the period.
-  - **Employment** (required, a Employment) — Employment relationship governing the payroll result. Supplies organizational and contractual employment context. Eligibility and compensation interpretation. Exactly one applicable employment is required. Must overlap the payroll period.
+  - **Payroll Number** (required) — The number of the payroll result, shown on the payslip. Allocated from a number series; unique. Identifies the payroll calculation or result operationally. Distinct from Payment and JournalEntry references.
+  - **Period Start** (required) — The first calendar day of the pay period that this payroll result covers. Taken from the payroll calendar when the run is created; attendance, leave and compensation are picked up from this date. Defines the first date whose approved emplo…
+  - **Period End** (required) — The last day of the pay period. Set by the payroll calendar; after the start date. Defines the final date included in the calculation. Must be on or after periodStart.
+  - **Gross Amount** (required) — The total pay earned in the period before tax, contributions and other deductions are taken off. Calculated from compensation terms, hours worked and approved leave; the net amount is derived from it by deductions. Records total earnings r…
+  - **Net Amount** (required) — The amount payable to the employee after deductions. Calculated from the gross amount less tax, contributions and other deductions. Establishes the payroll settlement obligation before Payment execution. Payment settles this obligation but…
+  - **Status** (required, one of the Payroll Status values) — Shows how far the payroll has moved from draft calculation through approval and posting to payment. Moved by payroll staff; only approved results are posted to the ledger, and only posted results are paid or reversed. Created; not yet calc…
+  - **Employee** (required, a Employee) — The employee the result is for. Set when the payroll is calculated. Exactly one employee: a payroll result is one person's pay for a period. Determines who is paid. Supplies employment identity and eligibility context.
+  - **Employment** (required, a Employment) — The employment under which the pay is earned. Set when the payroll is calculated. Exactly one employment, which supplies the contract terms. Provides the pay terms and tax treatment. Supplies organizational and contractual employment conte…
 
 ### Payroll Status
 
@@ -573,14 +687,14 @@ Readable by every signed-in person.
 
 Fields:
   - **Party** (required, a Party) — Canonical Party identity represented by this Person specialization. Connects person-specific data to common Party identity and all PartyRoles. Exactly one Person specialization may represent a Party classified as PERSON. Ensures transactio…
-  - **Title** — Personal title. documents and presentation. presentation attribute. supports person display. optional.
-  - **Given Name** (required) — Given name. identity and documents. intrinsic person identity. identification. required.
-  - **Middle Name** — Middle name. identity and documents. intrinsic person identity. identification. optional.
-  - **Family Name** (required) — Family name. identity and documents. intrinsic person identity. identification. required.
-  - **Preferred Name** — Preferred display name. communication and UI. presentation not canonical identity. human interaction. optional.
-  - **Date Of Birth** — Date of birth. processes requiring verified individual identity. sensitive person attribute subject to access policy. eligibility/verification where applicable. optional.
-  - **Gender** (one of the Person Gender values) — Gender classification where required by the business process. permitted business processes only. person attribute and not role. process-specific. optional. The gender of the person is female; set it when that is what the business means for…
-  - **Nationality** (a Country) — The country whose nationality the person holds. Chosen from the list of countries; used by identity and compliance processes. Not Party identity; process-specific. Optional.
+  - **Title** — The honorific or personal title used before the person's name, such as Dr, Prof or Ms. Entered when known and optional; printed in letters, documents and formal presentation of the name. presentation attribute. supports person display.
+  - **Given Name** (required) — The person's first or given name, as it appears on their identity documents. Required; entered at registration and used with the family name for identity matching, documents and correspondence. intrinsic person identity. identification.
+  - **Middle Name** — Any middle or additional given names the person carries, when they are used officially. Optional; entered only when needed to tell people apart or to match identity documents and legal records. intrinsic person identity. identification.
+  - **Family Name** (required) — The person's family name or surname, as it appears on their identity documents. Required; entered at registration and used with the given name for identity matching, documents and correspondence. intrinsic person identity. identification.
+  - **Preferred Name** — The name the person likes to be called, which may differ from their legal given name. Optional; chosen by the person and used for greetings, display in screens and informal communication, never for legal documents. presentation not canonic…
+  - **Date Of Birth** — The person's date of birth, recorded where age or verified identity matters to a process. Optional and sensitive; collected only where needed, for example for age checks, payroll or identity verification. sensitive person attribute subject…
+  - **Gender** (one of the Person Gender values) — The person's gender as recorded for the organisation's lawful purposes. Entered only where there is a need and a lawful basis, normally by the person; never used to decide eligibility. The person identifies and is recorded as female. The p…
+  - **Nationality** (a Country) — The country whose nationality the person holds. Chosen from the list of countries; used by identity and compliance processes. Not Party identity; process-specific.
   - **Party Type** (required, one of the Person Party Type values) — Identifies whether the party is a person or an organization. Determines which party specialization is applicable and prevents business processes from interpreting an organization as an individual or vice versa. Used to select Person or Org…
   - **Display Name** (required) — The business-facing name by which the party is normally displayed and recognized. Provides a consistent human-readable representation independent of whether the party is a person or organization. Used in forms, search results, documents, t…
   - **Status** (required, one of the Person Status values) — Controls whether the party may participate in new business activity. Represents the operational lifecycle of the party relationship with the enterprise, not the party's legal existence. Used by onboarding, transaction validation, account m…
@@ -627,19 +741,19 @@ Fields:
 
 ### Position
 
-Represents a workforce master entity called Position within the CEDM business model. Position is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface. Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find, change, or relate Position records. The entity participates in a wider business graph through relationships with Organization, Position, Employee. These relationships provide the context needed to interpret the record rath…
+A defined role in an organisation, with its responsibilities, place in the reporting structure and staffing needs. A position is a seat in the organisation chart. It exists whether or not someone sits in it, which lets headcount, budgets and succession be planned separately from the people. Created by HR and management when a role is approved; filled by hiring; read by managers and recruiters. A position belongs to an Organization, reports to a parent Position, may be based on a Job and is occupied by Employees. A position is open until filled; it can become vacant again, be frozen while recr…
 
 Readable by every signed-in person.
 
 Fields:
-  - **Code** (required) — A human-readable business code used to identify or reference the record in operational processes and integrations. Used when creating, reviewing, searching, validating, reporting on, or integrating Position records, where applicable. Its m…
-  - **Title** (required) — Captures the business meaning of title for the Position. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record. Used when creating, reviewing, searching, validating…
-  - **Status** (required, one of the Position Status values) — The lifecycle state of the record. It controls which business actions are normally permitted and how the record is treated by related processes. Used when creating, reviewing, searching, validating, reporting on, or integrating Position re…
-  - **Effective From** — Captures the business meaning of effective from for the Position. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record. Used when creating, reviewing, searching, v…
-  - **Effective To** — Captures the business meaning of effective to for the Position. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record. Used when creating, reviewing, searching, val…
-  - **Organization** (required, a Organization) — Connects Position to Organization so related business context can be navigated and enforced. Used when processes need to find or reason about Organization records associated with a Position. The declared cardinality 1 expresses how many re…
-  - **Parent Position** (a Position) — Connects Position to Position so related business context can be navigated and enforced. Used when processes need to find or reason about Position records associated with a Position. The declared cardinality 0..1 expresses how many related…
-  - **Job** (a Job) — Reusable work definition underlying Position. Separates job classification from organizational seat. Workforce planning and HCM. Optional for positions not classified through Job. Job retirement prevents incompatible new assignment while p…
+  - **Code** (required) — The position number that headcount plans, budgets and requisitions use to name this seat unambiguously. Assigned by HR when the position is approved; must be unique and is quoted in recruitment, budgeting and workforce reports.
+  - **Title** (required) — The working title of the seat, such as Senior Accountant, as it appears on charts and job advertisements. Entered by HR when the position is created; shown on organisation charts and in vacancy postings, and may be refined while it is open.
+  - **Status** (required, one of the Position Status values) — Whether the seat is currently open, occupied, held back or removed from the structure. Set by HR as the seat is filled, frozen, closed or retired; recruitment can only target an OPEN position. Approved and vacant, or available to be filled…
+  - **Effective From** — The first date on which the position exists in the organization structure and may be filled. Set when the position is approved; headcount reports use it with the end date to show the structure as it stood on any day.
+  - **Effective To** — The last date the position exists. Set when it is closed; not before the start date.
+  - **Organization** (required, a Organization) — The organisation the position belongs to. Set at creation. Exactly one organisation: a position is a seat in one organisation. Places it in the structure.
+  - **Parent Position** (a Position) — The position this one reports to. Set to build the reporting line. At most one parent; the top position has none. Defines the reporting chain.
+  - **Job** (a Job) — At most one job, the standard description the position is based on. Reusable work definition underlying Position. Separates job classification from organizational seat. Workforce planning and HCM. Job retirement prevents incompatible new a…
 
 ### Position Status
 
@@ -656,34 +770,34 @@ Fields:
 
 ### State Province
 
-A first-level division of a country — a state, province, region, territory or equivalent — from the ISO 3166-2 registry. Give every application the same governed list, so a place or code means one thing across the enterprise. A first-level division of a country — a state, province, region, territory or equivalent — from the ISO 3166-2 registry. Chosen from the list wherever a record needs a place, code or currency; maintained by an administrator when a registry changes. Referenced by addresses, parties, products and documents; related entities narrow each other (a city belongs to a state or p…
+A first-level division of a country, such as a state, province or region, from the ISO 3166-2 registry. States and provinces give addresses a standard, checkable subdivision. Choosing from this list avoids misspelt regions and lets reports group by region. Maintained as reference data; chosen in addresses; read by tax, shipping and reports. A state or province belongs to one country and contains cities. Entries are loaded from the standard and rarely change; when a division is abolished it is withdrawn without deleting history. "California" belongs to the United States and contains cities suc…
 
 Readable by every signed-in person.
 
 Fields:
-  - **Code** (required) — The ISO 3166-2 code, the country code and the division's own, such as US-CA. Search, integration and reporting. Unique; begins with the code of the country it belongs to. Required.
-  - **Name** (required) — The division's name in English. Shown in lists and on addresses. Does not replace the code as the stable key. Required.
+  - **Code** (required) — The ISO 3166-2 code, the country code and the division's own, such as US-CA. Search, integration and reporting. Unique; begins with the code of the country it belongs to.
+  - **Name** (required) — The English name of the division, such as California or Bavaria. Shown in lists and on addresses; it is a label only, so integrations should use the ISO code as the stable key. Does not replace the code as the stable key.
   - **Subdivision Type** — What the registry calls the division in its country: State, Province, Region, Territory and so on. Labelling the field for users of that country. Describes this division only.
   - **Country** (required, a Country) — The country the division belongs to. Chosen first; the divisions offered are those of that country. Every state or province belongs to exactly one country. A city and an address are narrowed by the country before the state.
 
 ### Task
 
-Represents a process runtime entity called Task within the CEDM business model. Task is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface. Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find, change, or relate Task records. The entity participates in a wider business graph through relationships with Workflow, Party, Organization, Document. These relationships provide the context needed to interpret the record rather tha…
+A discrete unit of business work performed by a person, organisation, system or workflow participant. Tasks are how work is handed out and tracked, whether a person must act or a system step must run. Their type, status, owner and dates show what is waiting, what is stuck and what is done. Created by people or workflows; picked up by assignees; read by managers and reports. A task may belong to a workflow, an assignee, an organisation and a related document. A task is created, becomes ready, is assigned and worked, and ends completed, cancelled or failed. It may be blocked and resumed. All th…
 
 Readable by every signed-in person.
 
 Fields:
-  - **Code** (required) — A human-readable business code used to identify or reference the record in operational processes and integrations. Used when creating, reviewing, searching, validating, reporting on, or integrating Task records, where applicable. Its meani…
-  - **Name** (required) — The human-readable name used by people, reports, searches, and related business processes. Used when creating, reviewing, searching, validating, reporting on, or integrating Task records, where applicable. Its meaning is specific to Task;…
-  - **Description** — A business description that explains the purpose, scope, or meaning of the record to users and downstream processes. Used when creating, reviewing, searching, validating, reporting on, or integrating Task records, where applicable. Its mea…
-  - **Task Type** (required, one of the Task Task Type values) — Captures the business meaning of task type for the Task. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record. Used when creating, reviewing, searching, validating…
-  - **Status** (required, one of the Task Status values) — The lifecycle state of the record. It controls which business actions are normally permitted and how the record is treated by related processes. Used when creating, reviewing, searching, validating, reporting on, or integrating Task record…
-  - **Priority** (required, one of the Task Priority values) — Captures the business meaning of priority for the Task. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record. Used when creating, reviewing, searching, validating,…
-  - **Due At** — Records when the due event occurred. It establishes chronology, supports auditability, and helps coordinate related lifecycle and process activities. Used when creating, reviewing, searching, validating, reporting on, or integrating Task r…
-  - **Started At** — Records when the started event occurred. It establishes chronology, supports auditability, and helps coordinate related lifecycle and process activities. Used when creating, reviewing, searching, validating, reporting on, or integrating Ta…
-  - **Completed At** — Records when the completed event occurred. It establishes chronology, supports auditability, and helps coordinate related lifecycle and process activities. Used when creating, reviewing, searching, validating, reporting on, or integrating…
-  - **Assignee** (a Party) — Connects Task to Party so related business context can be navigated and enforced. Used when processes need to find or reason about Party records associated with a Task. The declared cardinality 0..1 expresses how many related records may p…
-  - **Organization** (a Organization) — Connects Task to Organization so related business context can be navigated and enforced. Used when processes need to find or reason about Organization records associated with a Task. The declared cardinality 0..1 expresses how many related…
+  - **Code** (required) — The short business code that identifies the task in work queues, such as TSK-10482. Assigned when the task is created; quoted in assignments, escalations and reports, and used to find the task without its full name.
+  - **Name** (required) — A short title stating what work the task asks someone or something to do. Entered by the creator or the workflow that spawned it; shown in queues and notifications, so it should read as an action.
+  - **Description** — Fuller instructions explaining what is to be done, why, and any details the performer needs. Written by the creator; read by the assignee before starting, and updated if scope changes while the task is open.
+  - **Task Type** (required, one of the Task Task Type values) — The kind of work the task is. Chosen when created; decides who or what performs it. Work done by a person. A step run automatically. A person must approve or refuse something. A choice that decides the path. A message to be sent. A script…
+  - **Status** (required, one of the Task Status values) — Where the task stands, from creation through assignment and execution to completion, cancellation or failure. Moved by the assignee, workflow or system as work proceeds; completed, cancelled and failed tasks are closed to further work. The…
+  - **Priority** (required, one of the Task Priority values) — How urgently the task should be worked relative to others in the same queue. Set by the creator or workflow rules; assignees and queue views sort by it, and it may raise escalations when overdue. Can wait behind other work without business…
+  - **Due At** — Set when created; overdue tasks are flagged. Compared with the completion time. Records when the due event occurred. It establishes chronology, supports auditability, and helps coordinate related lifecycle and process activities.
+  - **Started At** — Set when work starts. Not later than the completion time. Records when the started event occurred. It establishes chronology, supports auditability, and helps coordinate related lifecycle and process activities.
+  - **Completed At** — Set when the task is completed; required for a completed task. Gives the time taken. Records when the completed event occurred. It establishes chronology, supports auditability, and helps coordinate related lifecycle and process activities.
+  - **Assignee** (a Party) — The person responsible for the task. Chosen when assigned. At most one assignee. Decides whose list it is on.
+  - **Organization** (a Organization) — The organisation the task is for. Chosen when it concerns a unit. At most one organisation. Groups tasks by unit.
 
 ### Task Priority
 
@@ -734,10 +848,10 @@ Fields:
   - **Code** (required) — Standard business code for the unit, such as EACH, KG, L, HOUR, or DAY. Used in forms, integrations, documents, validation, and quantity display. Code identifies the unit definition; it does not represent a conversion or quantity itself. U…
   - **Name** (required) — Human-readable name of the measurement unit. Used in user interfaces, reports, documents, catalogs, and search. Describes the unit definition identified by code and unitOfMeasureId. Provides understandable measurement context to business u…
   - **Symbol** — Standard display symbol for the unit. Used for compact display in documents, labels, reports, and interfaces. Symbol is presentation metadata and does not replace the canonical unit code. Improves human-readable representation of quantitie…
-  - **Category** (required, one of the Unit Of Measure Category values) — Defines the dimensional family of the unit. Prevents invalid conversions and supports dimensional validation. Conversion is valid only between compatible dimensions under the applicable conversion model. Used when validating Product, Sales…
+  - **Category** (required, one of the Unit Of Measure Category values) — A general count or quantity of items. A distance, such as metres or inches. A surface, such as square metres. A capacity, such as litres. A weight, such as kilograms or tonnes. A duration, such as hours or days. A number of discrete things…
   - **Conversion Factor** — Default multiplicative factor relating this unit to its base unit when a simple linear conversion applies. Defines a master conversion used for future quantity interpretation. Used for quantity conversion when no context-specific conversio…
   - **Base Unit** (a Unit Of Measure) — Identifies the canonical base unit against which this derived unit is normally converted. Supports standardized quantity storage and conversion. A derived unit belongs to the same dimensional category as its base unit. Provides the common…
-  - **Status** (required, one of the Unit Of Measure Status values) — Controls whether the unit can be used for new transactions. Used by master-data validation and transaction entry. Retiring a unit must not invalidate historical quantities already recorded with that unit. New quantity-bearing transactions…
+  - **Status** (required, one of the Unit Of Measure Status values) — Available for use on products and documents. Not offered for now; can be reactivated. No longer used; kept for history. A final state. Controls whether the unit can be used for new transactions. Used by master-data validation and transacti…
 
 ### Unit Of Measure Category
 
@@ -769,116 +883,166 @@ Fields:
 
 ### Address Address Type
 
-- **RESIDENTIAL** — The address type of the address is residential; set it when that is what the business means for this record.
-- **BUSINESS** — The address type of the address is business; set it when that is what the business means for this record.
-- **BILLING** — The address type of the address is billing; set it when that is what the business means for this record.
-- **SHIPPING** — The address type of the address is shipping; set it when that is what the business means for this record.
-- **REGISTERED** — The address type of the address is registered; set it when that is what the business means for this record.
-- **POSTAL** — The address type of the address is postal; set it when that is what the business means for this record.
-- **OTHER** — The address type of the address is other; set it when that is what the business means for this record.
+- **RESIDENTIAL** — A private home address.
+- **BUSINESS** — A place of business or office.
+- **BILLING** — Where invoices and statements are sent.
+- **SHIPPING** — Where goods are delivered.
+- **REGISTERED** — The official registered address of a legal entity.
+- **POSTAL** — A mailing address such as a post office box.
+- **OTHER** — Any purpose not listed.
 
 ### Address Status
 
-- **ACTIVE** — The status of the address is active; set it when that is what the business means for this record.
-- **INACTIVE** — The status of the address is inactive; set it when that is what the business means for this record.
-- **RETIRED** — The status of the address is retired; set it when that is what the business means for this record.
+- **ACTIVE** — Valid and available for new documents.
+- **INACTIVE** — Temporarily not offered, for example while a move is being confirmed; it can be reactivated.
+- **RETIRED** — No longer valid; kept only as history and in past documents.
+
+### Attendance Attendance Type
+
+- **PRESENT** — The attendance subject participated or was present in the expected work or education context.
+- **ABSENT** — The attendance subject was absent without another more specific governed category.
+- **LEAVE** — Absence is attributable to governed leave.
+- **REMOTE** — The attendance subject participated from an approved remote context.
+- **HOLIDAY** — Date is treated as a governed holiday.
+- **OFF DAY** — Scheduled non-working day, such as a weekend or rostered rest day.
+- **OTHER** — Another governed attendance classification.
+
+### Attendance Status
+
+- **DRAFT** — Record is incomplete or provisional.
+- **RECORDED** — Timekeeping evidence is captured and awaits approval where required.
+- **APPROVED** — Evidence is approved for downstream governed use.
+- **CANCELLED** — Erroneous or inapplicable provisional evidence was cancelled and retained.
+
+### Compensation Basis
+
+- **HOURLY** — The amount is paid per hour worked.
+- **DAILY** — The amount is paid per day worked.
+- **MONTHLY** — The amount is a monthly salary.
+- **ANNUAL** — The amount is an annual salary.
+- **FIXED** — A fixed sum, such as a one-off or contract fee, not tied to time.
+- **OTHER** — Any other basis defined by the contract.
+
+### Compensation Status
+
+- **DRAFT** — Being prepared; not yet used by payroll.
+- **ACTIVE** — In force for the employment and used by payroll.
+- **SUPERSEDED** — Replaced by a later arrangement; kept as history. A final state.
+- **CANCELLED** — Withdrawn before it took effect. A final state.
 
 ### Currency Status
 
-- **ACTIVE** — Available for normal financial activity.
-- **INACTIVE** — Temporarily unavailable for new normal activity.
-- **RETIRED** — No longer available for new normal activity while historical financial records remain valid.
+- **ACTIVE** — Available for use on new prices, documents and payments.
+- **INACTIVE** — Temporarily not offered, for example while a market is closed; it can be reactivated.
+- **RETIRED** — No longer in use, such as a replaced national currency; historical amounts keep it.
 
 ### Employee Role Type
 
-- **CUSTOMER** — The role type of the party role is customer; set it when that is what the business means for this record.
-- **SUPPLIER** — The role type of the party role is supplier; set it when that is what the business means for this record.
-- **EMPLOYEE** — The role type of the party role is employee; set it when that is what the business means for this record.
-- **PARTNER** — The role type of the party role is partner; set it when that is what the business means for this record.
-- **CARRIER** — The role type of the party role is carrier; set it when that is what the business means for this record.
-- **AGENT** — The role type of the party role is agent; set it when that is what the business means for this record.
-- **CONTRACTOR** — The role type of the party role is contractor; set it when that is what the business means for this record.
-- **OWNER** — The role type of the party role is owner; set it when that is what the business means for this record.
-- **INVESTOR** — The role type of the party role is investor; set it when that is what the business means for this record.
-- **OTHER** — The role type of the party role is other; set it when that is what the business means for this record.
+- **CUSTOMER** — The party buys goods or services from the organization and is handled in sales and receivables.
+- **SUPPLIER** — The party sells goods or services to the organization and is handled in procurement and payables.
+- **EMPLOYEE** — The party works for the organization under an employment relationship.
+- **PARTNER** — The party collaborates with the organization commercially, such as a reseller or alliance member.
+- **CARRIER** — The party transports goods or people for the organization.
+- **AGENT** — The party acts on behalf of the organization or of another party, usually for a commission.
+- **CONTRACTOR** — The party provides labour or services under a contract rather than as an employee.
+- **OWNER** — The party holds an ownership or beneficial interest in an asset or organization.
+- **INVESTOR** — The party provides capital to the organization in return for a financial return or equity stake.
+- **OTHER** — A role that fits none of the listed kinds and is explained in the role code or description.
 
 ### Employee Status
 
-- **ACTIVE** — Represents the active state or classification in the context of Employee.
-- **ON LEAVE** — Represents the on leave state or classification in the context of Employee.
-- **TERMINATED** — Represents the terminated state or classification in the context of Employee.
-- **RETIRED** — Represents the retired state or classification in the context of Employee.
+- **ACTIVE** — Employed and currently working for the organisation.
+- **ON LEAVE** — Employed but away on approved leave, so not currently working.
+- **TERMINATED** — Employment ended by dismissal, resignation or end of contract. A final state.
+- **RETIRED** — Left the organisation on retirement. A final state.
 
 ### Employment Employment Type
 
-- **FULL TIME** — Represents the full time state or classification in the context of Employment.
-- **PART TIME** — Represents the part time state or classification in the context of Employment.
-- **CONTRACT** — Represents the contract state or classification in the context of Employment.
-- **TEMPORARY** — Represents the temporary state or classification in the context of Employment.
-- **INTERN** — Represents the intern state or classification in the context of Employment.
-- **OTHER** — Represents the other state or classification in the context of Employment.
+- **FULL TIME** — A standard full-time contract with the organisation's normal working hours.
+- **PART TIME** — A contract for fewer hours than full time, usually with pro-rated pay and benefits.
+- **CONTRACT** — A fixed-term or project contract that ends on a set date or at completion.
+- **TEMPORARY** — Short-term or seasonal work covering a peak or an absence.
+- **INTERN** — A student or trainee placement for learning rather than a permanent role.
+- **OTHER** — Any other employment arrangement not covered by the listed kinds.
 
 ### Employment Status
 
-- **PENDING** — Represents the pending state or classification in the context of Employment.
-- **ACTIVE** — Represents the active state or classification in the context of Employment.
-- **SUSPENDED** — Represents the suspended state or classification in the context of Employment.
-- **TERMINATED** — Represents the terminated state or classification in the context of Employment.
+- **PENDING** — Agreed but not yet started.
+- **ACTIVE** — In force; the person is employed.
+- **SUSPENDED** — Temporarily not in force, for example during an unpaid break.
+- **TERMINATED** — Ended. A final state.
 
 ### Exchange Rate Rate Type
 
-- **SPOT** — Market or transaction-time conversion rate.
-- **CONTRACT** — Rate established by an agreement or commercial contract.
-- **DAILY** — Published daily rate for a defined business date.
-- **MONTHLY** — Published rate intended for a defined monthly reporting period.
-- **ACCOUNTING** — Rate designated by accounting policy for ledger translation or reporting.
-- **CUSTOM** — Controlled rate established for a specific business purpose.
+- **SPOT** — The market rate at a moment in time.
+- **CONTRACT** — A rate fixed by agreement with a counterparty.
+- **DAILY** — The rate published for a business day.
+- **MONTHLY** — An average or closing rate for a month.
+- **ACCOUNTING** — A rate set by the finance team for ledger translation.
+- **CUSTOM** — Any other rate defined by policy.
 
 ### Exchange Rate Status
 
-- **DRAFT** — The status of the exchange rate is draft; set it when that is what the business means for this record.
-- **ACTIVE** — The status of the exchange rate is active; set it when that is what the business means for this record.
-- **EXPIRED** — The status of the exchange rate is expired; set it when that is what the business means for this record.
-- **CANCELLED** — The status of the exchange rate is cancelled; set it when that is what the business means for this record.
+- **DRAFT** — Being prepared; not yet used.
+- **ACTIVE** — In force and usable for conversion.
+- **EXPIRED** — Its validity period has ended; kept for past conversions.
+- **CANCELLED** — Withdrawn; must not be used.
 
 ### Job Status
 
-- **DRAFT** — Being designed.
-- **ACTIVE** — Available.
-- **INACTIVE** — Temporarily unavailable.
-- **RETIRED** — Closed to new use.
+- **DRAFT** — Being written; not yet approved.
+- **ACTIVE** — Approved and available for positions.
+- **INACTIVE** — Temporarily not offered; existing positions continue.
+- **RETIRED** — Withdrawn; kept for history. A final state.
+
+### Leave Request Leave Type
+
+- **ANNUAL** — Paid holiday taken from the employee's annual entitlement.
+- **SICK** — Absence caused by illness or injury.
+- **PARENTAL** — Leave to care for a new child.
+- **UNPAID** — Absence without pay, agreed with the manager.
+- **COMPENSATORY** — Time off given in return for extra hours already worked.
+- **OTHER** — Any other approved absence, such as study or bereavement leave.
+
+### Leave Request Status
+
+- **DRAFT** — Being prepared by the employee and not yet visible to the approver.
+- **SUBMITTED** — Sent to the manager and waiting for a decision.
+- **APPROVED** — Granted by the manager. A final state.
+- **REJECTED** — Refused by the manager. A final state.
+- **CANCELLED** — Withdrawn by the employee. A final state.
 
 ### Location Location Type
 
-- **SITE** — The location type of the location is site; set it when that is what the business means for this record.
-- **WAREHOUSE** — The location type of the location is warehouse; set it when that is what the business means for this record.
-- **STORE** — The location type of the location is store; set it when that is what the business means for this record.
-- **OFFICE** — The location type of the location is office; set it when that is what the business means for this record.
-- **FACTORY** — The location type of the location is factory; set it when that is what the business means for this record.
-- **YARD** — The location type of the location is yard; set it when that is what the business means for this record.
-- **PORT** — The location type of the location is port; set it when that is what the business means for this record.
-- **DEPOT** — The location type of the location is depot; set it when that is what the business means for this record.
-- **VIRTUAL** — The location type of the location is virtual; set it when that is what the business means for this record.
-- **OTHER** — The location type of the location is other; set it when that is what the business means for this record.
+- **SITE** — A geographic site that may contain several buildings.
+- **WAREHOUSE** — A building or area for storing goods.
+- **STORE** — A retail outlet where goods are sold to customers.
+- **OFFICE** — A place where office work is done.
+- **FACTORY** — A place where goods are made.
+- **YARD** — An open area for storing or staging equipment or containers.
+- **PORT** — A harbour or terminal.
+- **DEPOT** — A base for vehicles and equipment.
+- **VIRTUAL** — A logical place with no physical presence, such as an online store.
+- **OTHER** — Any other kind of place.
 
 ### Location Status
 
-- **PLANNED** — The status of the location is planned; set it when that is what the business means for this record.
-- **ACTIVE** — The status of the location is active; set it when that is what the business means for this record.
-- **INACTIVE** — The status of the location is inactive; set it when that is what the business means for this record.
-- **CLOSED** — The status of the location is closed; set it when that is what the business means for this record.
-- **RETIRED** — The status of the location is retired; set it when that is what the business means for this record.
+- **PLANNED** — Expected but not yet in use.
+- **ACTIVE** — In use and offered for new assignments.
+- **INACTIVE** — Temporarily not used but expected to return to service.
+- **CLOSED** — Closed down, with no new assignments but history kept.
+- **RETIRED** — Removed from use altogether. A final state.
 
 ### Organization Organization Type
 
-- **ENTERPRISE** — The organization type of the organization is enterprise; set it when that is what the business means for this record.
-- **COMPANY** — The organization type of the organization is company; set it when that is what the business means for this record.
-- **BUSINESS UNIT** — The organization type of the organization is business unit; set it when that is what the business means for this record.
-- **DIVISION** — The organization type of the organization is division; set it when that is what the business means for this record.
-- **DEPARTMENT** — The organization type of the organization is department; set it when that is what the business means for this record.
-- **BRANCH** — The organization type of the organization is branch; set it when that is what the business means for this record.
-- **SUBSIDIARY** — The organization type of the organization is subsidiary; set it when that is what the business means for this record.
-- **OTHER** — The organization type of the organization is other; set it when that is what the business means for this record.
+- **ENTERPRISE** — The top-level group or enterprise that owns every other organizational unit beneath it.
+- **COMPANY** — A separate legal entity or operating company, usually with its own registrations, books and tax identifiers.
+- **BUSINESS UNIT** — A unit organized around a line of business or market, which may span several legal entities.
+- **DIVISION** — A large internal division grouping departments under a common head or function.
+- **DEPARTMENT** — A functional team within a company or division, such as finance or warehouse operations.
+- **BRANCH** — A geographically separate office, store or site operating under a parent organization.
+- **SUBSIDIARY** — A company controlled by a parent organization but trading as a separate legal entity.
+- **OTHER** — A structure that fits none of the other types and is explained in its name or description.
 
 ### Organization Party Type
 
@@ -887,10 +1051,10 @@ Fields:
 
 ### Organization Status
 
-- **DRAFT** — The status of the organization is draft; set it when that is what the business means for this record.
-- **ACTIVE** — The status of the organization is active; set it when that is what the business means for this record.
-- **INACTIVE** — The status of the organization is inactive; set it when that is what the business means for this record.
-- **RETIRED** — The status of the organization is retired; set it when that is what the business means for this record.
+- **DRAFT** — The organization is being set up and is not yet available for use in transactions.
+- **ACTIVE** — The organization is in use and can be selected as an organizational scope in new records.
+- **INACTIVE** — The organization is temporarily not selectable, for example while dormant, but its history is kept and it may return.
+- **RETIRED** — The organization has been permanently closed or merged away and cannot be selected again. A final state.
 
 ### Party Party Type
 
@@ -899,22 +1063,22 @@ Fields:
 
 ### Party Role Role Type
 
-- **CUSTOMER** — The role type of the party role is customer; set it when that is what the business means for this record.
-- **SUPPLIER** — The role type of the party role is supplier; set it when that is what the business means for this record.
-- **EMPLOYEE** — The role type of the party role is employee; set it when that is what the business means for this record.
-- **PARTNER** — The role type of the party role is partner; set it when that is what the business means for this record.
-- **CARRIER** — The role type of the party role is carrier; set it when that is what the business means for this record.
-- **AGENT** — The role type of the party role is agent; set it when that is what the business means for this record.
-- **CONTRACTOR** — The role type of the party role is contractor; set it when that is what the business means for this record.
-- **OWNER** — The role type of the party role is owner; set it when that is what the business means for this record.
-- **INVESTOR** — The role type of the party role is investor; set it when that is what the business means for this record.
-- **OTHER** — The role type of the party role is other; set it when that is what the business means for this record.
+- **CUSTOMER** — The party buys goods or services from the organization and is handled in sales and receivables.
+- **SUPPLIER** — The party sells goods or services to the organization and is handled in procurement and payables.
+- **EMPLOYEE** — The party works for the organization under an employment relationship.
+- **PARTNER** — The party collaborates with the organization commercially, such as a reseller or alliance member.
+- **CARRIER** — The party transports goods or people for the organization.
+- **AGENT** — The party acts on behalf of the organization or of another party, usually for a commission.
+- **CONTRACTOR** — The party provides labour or services under a contract rather than as an employee.
+- **OWNER** — The party holds an ownership or beneficial interest in an asset or organization.
+- **INVESTOR** — The party provides capital to the organization in return for a financial return or equity stake.
+- **OTHER** — A role that fits none of the listed kinds and is explained in the role code or description.
 
 ### Party Role Status
 
-- **ACTIVE** — The status of the party role is active; set it when that is what the business means for this record.
-- **INACTIVE** — The status of the party role is inactive; set it when that is what the business means for this record.
-- **EXPIRED** — The status of the party role is expired; set it when that is what the business means for this record.
+- **ACTIVE** — The party currently holds the role.
+- **INACTIVE** — Dormant but may resume.
+- **EXPIRED** — Ended; kept for history. A final state.
 
 ### Party Status
 
@@ -925,20 +1089,20 @@ Fields:
 
 ### Payroll Status
 
-- **DRAFT** — Inputs are being prepared.
-- **CALCULATED** — Gross-to-net calculation completed.
-- **APPROVED** — Authorized for posting/settlement.
-- **POSTED** — Accounting impact recorded.
-- **PAID** — Settlement completed.
-- **REVERSED** — Prior effects corrected through controlled reversal.
+- **DRAFT** — Created; not yet calculated.
+- **CALCULATED** — Gross-to-net calculation done and awaiting review.
+- **APPROVED** — Reviewed and approved for payment.
+- **POSTED** — Recorded in the books.
+- **PAID** — Net pay has been paid out. A final state.
+- **REVERSED** — Cancelled after posting by a compensating entry. A final state.
 
 ### Person Gender
 
-- **FEMALE** — The gender of the person is female; set it when that is what the business means for this record.
-- **MALE** — The gender of the person is male; set it when that is what the business means for this record.
-- **NON BINARY** — The gender of the person is non binary; set it when that is what the business means for this record.
-- **OTHER** — The gender of the person is other; set it when that is what the business means for this record.
-- **UNSPECIFIED** — The gender of the person is unspecified; set it when that is what the business means for this record.
+- **FEMALE** — The person identifies and is recorded as female.
+- **MALE** — The person identifies and is recorded as male.
+- **NON BINARY** — The person identifies as neither exclusively male nor exclusively female.
+- **OTHER** — The person identifies in a way not covered by the other values.
+- **UNSPECIFIED** — The gender is not recorded, because it was not needed or the person chose not to say.
 
 ### Person Party Type
 
@@ -954,57 +1118,57 @@ Fields:
 
 ### Position Status
 
-- **OPEN** — Represents the open state or classification in the context of Position.
-- **FILLED** — Represents the filled state or classification in the context of Position.
-- **FROZEN** — Represents the frozen state or classification in the context of Position.
-- **CLOSED** — Represents the closed state or classification in the context of Position.
-- **RETIRED** — Represents the retired state or classification in the context of Position.
+- **OPEN** — Approved and vacant, or available to be filled.
+- **FILLED** — Occupied by an employee.
+- **FROZEN** — Held back temporarily and not to be filled.
+- **CLOSED** — No longer needed but not yet retired.
+- **RETIRED** — Removed from the structure. A final state.
 
 ### Task Priority
 
-- **LOW** — Represents the low state or classification in the context of Task.
-- **NORMAL** — Represents the normal state or classification in the context of Task.
-- **HIGH** — Represents the high state or classification in the context of Task.
-- **CRITICAL** — Represents the critical state or classification in the context of Task.
+- **LOW** — Can wait behind other work without business impact.
+- **NORMAL** — Standard urgency, handled in the ordinary course of work.
+- **HIGH** — Needs prompt attention ahead of normal work.
+- **CRITICAL** — Needs immediate action because delay causes serious business impact.
 
 ### Task Status
 
-- **CREATED** — Represents the created state or classification in the context of Task.
-- **READY** — Represents the ready state or classification in the context of Task.
-- **ASSIGNED** — Represents the assigned state or classification in the context of Task.
-- **IN PROGRESS** — Represents the in progress state or classification in the context of Task.
-- **BLOCKED** — Represents the blocked state or classification in the context of Task.
-- **COMPLETED** — Represents the completed state or classification in the context of Task.
-- **CANCELLED** — Represents the cancelled state or classification in the context of Task.
-- **FAILED** — Represents the failed state or classification in the context of Task.
+- **CREATED** — The task exists but is not yet ready to be picked up.
+- **READY** — The task is released and waiting for someone to be assigned.
+- **ASSIGNED** — A person or party has been given the task but has not started it.
+- **IN PROGRESS** — The assignee is actively working on the task.
+- **BLOCKED** — Work is held up by a dependency, missing input or decision.
+- **COMPLETED** — The work was done as required. A final state.
+- **CANCELLED** — The task was withdrawn before completion. A final state.
+- **FAILED** — The task ended without achieving its result and needs follow-up elsewhere. A final state.
 
 ### Task Task Type
 
-- **USER** — Represents the user state or classification in the context of Task.
-- **SYSTEM** — Represents the system state or classification in the context of Task.
-- **APPROVAL** — Represents the approval state or classification in the context of Task.
-- **DECISION** — Represents the decision state or classification in the context of Task.
-- **NOTIFICATION** — Represents the notification state or classification in the context of Task.
-- **SCRIPT** — Represents the script state or classification in the context of Task.
-- **OTHER** — Represents the other state or classification in the context of Task.
+- **USER** — Work done by a person.
+- **SYSTEM** — A step run automatically.
+- **APPROVAL** — A person must approve or refuse something.
+- **DECISION** — A choice that decides the path.
+- **NOTIFICATION** — A message to be sent.
+- **SCRIPT** — A script run by the system.
+- **OTHER** — Work that fits no other type.
 
 ### Unit Of Measure Category
 
-- **QUANTITY** — The category of the unit of measure is quantity; set it when that is what the business means for this record.
-- **LENGTH** — The category of the unit of measure is length; set it when that is what the business means for this record.
-- **AREA** — The category of the unit of measure is area; set it when that is what the business means for this record.
-- **VOLUME** — The category of the unit of measure is volume; set it when that is what the business means for this record.
-- **MASS** — The category of the unit of measure is mass; set it when that is what the business means for this record.
-- **TIME** — The category of the unit of measure is time; set it when that is what the business means for this record.
-- **COUNT** — The category of the unit of measure is count; set it when that is what the business means for this record.
-- **CURRENCY** — The category of the unit of measure is currency; set it when that is what the business means for this record.
-- **OTHER** — The category of the unit of measure is other; set it when that is what the business means for this record.
+- **QUANTITY** — A general count or quantity of items.
+- **LENGTH** — A distance, such as metres or inches.
+- **AREA** — A surface, such as square metres.
+- **VOLUME** — A capacity, such as litres.
+- **MASS** — A weight, such as kilograms or tonnes.
+- **TIME** — A duration, such as hours or days.
+- **COUNT** — A number of discrete things, such as each or dozen.
+- **CURRENCY** — A monetary unit used as a measure.
+- **OTHER** — A unit that fits no other category.
 
 ### Unit Of Measure Status
 
-- **ACTIVE** — The status of the unit of measure is active; set it when that is what the business means for this record.
-- **INACTIVE** — The status of the unit of measure is inactive; set it when that is what the business means for this record.
-- **RETIRED** — The status of the unit of measure is retired; set it when that is what the business means for this record.
+- **ACTIVE** — Available for use on products and documents.
+- **INACTIVE** — Not offered for now; can be reactivated.
+- **RETIRED** — No longer used; kept for history. A final state.
 
 ## Lifecycles
 
@@ -1148,16 +1312,19 @@ Moves:
 ### Position — Position Lifecycle
 
 Starts at **OPEN**.
-Final: **FILLED**, **RETIRED**.
+Final: **RETIRED**.
 
 Moves:
-- OPEN → CLOSED (Close)
-- CLOSED → FILLED (Mark Filled)
-- OPEN → FROZEN (Mark Frozen)
+- OPEN → FILLED (Fill)
+- FILLED → OPEN (Vacate)
+- OPEN → FROZEN (Freeze)
 - FROZEN → OPEN (Unfreeze)
+- OPEN → CLOSED (Close)
+- CLOSED → OPEN (Reopen)
 - OPEN → RETIRED (Retire)
 - FROZEN → RETIRED (Retire)
 - CLOSED → RETIRED (Retire)
+- FILLED → RETIRED (Retire)
 
 ### Employment — Employment Lifecycle
 
@@ -1170,6 +1337,40 @@ Moves:
 - SUSPENDED → ACTIVE (Resume)
 - ACTIVE → TERMINATED (Terminate)
 - SUSPENDED → TERMINATED (Terminate)
+
+### Compensation — Compensation Lifecycle
+
+Starts at **DRAFT**.
+Final: **SUPERSEDED**, **CANCELLED**.
+
+Moves:
+- DRAFT → ACTIVE (Activate)
+- DRAFT → CANCELLED (Cancel)
+- ACTIVE → SUPERSEDED (Supersede)
+- ACTIVE → CANCELLED (Cancel)
+
+### Attendance — Attendance Lifecycle
+
+Starts at **DRAFT**.
+Final: **APPROVED**, **CANCELLED**.
+
+Moves:
+- DRAFT → RECORDED (Record)
+- DRAFT → CANCELLED (Cancel)
+- RECORDED → APPROVED (Approve)
+- RECORDED → CANCELLED (Cancel)
+
+### Leave Request — Leave Request Lifecycle
+
+Starts at **DRAFT**.
+Final: **APPROVED**, **REJECTED**, **CANCELLED**.
+
+Moves:
+- DRAFT → SUBMITTED (Submit)
+- DRAFT → CANCELLED (Cancel)
+- SUBMITTED → APPROVED (Approve)
+- SUBMITTED → REJECTED (Reject)
+- SUBMITTED → CANCELLED (Cancel)
 
 ### Payroll — Payroll Lifecycle
 
@@ -1198,7 +1399,7 @@ Moves:
 
 ## Roles
 
-- **User** — reads 55 of 55 record types
+- **User** — reads 64 of 64 record types
 - **Administrator** — reads and changes everything the lifecycles allow
 
 A refusal means the person's role does not allow it. Say which role does, from this list, and suggest their administrator.

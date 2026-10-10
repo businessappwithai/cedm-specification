@@ -19,7 +19,7 @@
 //! triggers it, then assert on the response, the *other* entity, or the run
 //! log.
 //!
-//! Generated: 2026-10-04T08:30:47.538Z
+//! Generated: 2026-10-10T02:41:39.288Z
 //! Project: quality
 
 use serde_json::{json, Value};
@@ -28,7 +28,7 @@ use serial_test::serial;
 use crate::support::{
     self, bearer,
     entities::{parent_of, EntityMeta, ENTITIES},
-    factory::{build_record, create_with_parents},
+    factory::{build_record, build_record_with_parents, create_with_parents},
     rows,
 };
 
@@ -420,6 +420,10 @@ async fn a_rule_can_create_a_record_in_another_entity() {
             return;
         };
 
+        // What the rule inserts has to be a whole record — required references
+        // included — or the database refuses it and the rule fails open. Built
+        // before counting, so the parents it may create are not what is counted.
+        let create_data = build_record_with_parents(&request, &token, parent).await;
         let before = count_rows(&request, &token, parent).await;
 
         let rule_id = create_rule(
@@ -433,7 +437,7 @@ async fn a_rule_can_create_a_record_in_another_entity() {
                 &[
                     ("action", json!("create-record")),
                     ("targetEntity", json!(parent.table_name)),
-                    ("createData", json!(Value::Object(build_record(parent)))),
+                    ("createData", json!(Value::Object(create_data))),
                 ],
             ),
         )

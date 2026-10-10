@@ -7,19 +7,18 @@ entity:
     icon: wrench
   identity: {key: equipmentId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: equipmentId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Equipment., businessMeaning: Identifies one governed Equipment record independently of mutable state., usage: "Operations, finance, integration, reporting and audit.", relationshipContext: Referenced by compatible lifecycle and transaction records., requiredMeaning: Required.}}
-  - {name: effectiveAt, type: datetime, required: false, help: {summary: Effective timestamp for the record., businessMeaning: Establishes temporal applicability or evidence cutoff., usage: "Lifecycle, reconciliation and reporting.", relationshipContext: Historical evidence before this time remains intact., optionalMeaning: Optional where the concept uses another effective period.}}
+    - {name: equipmentId, type: uuid, required: true, immutable: true, help: {summary: "The identity of the equipment record, independent of the asset's financial number.", usage: Generated on creation; work orders and meters refer to it.}}
+    - {name: effectiveAt, type: datetime, required: false, help: {summary: 'When the equipment record took effect, usually when it was put into service.', usage: Set at registration; maintenance history is counted from it.}}
   relationships:
-  - {name: asset, target: Asset, cardinality: "0..1", ownership: reference, help: {summary: Financial/fixed Asset represented by equipment., businessMeaning: Connects maintainable object to capitalization identity when applicable., usage: "EAM, depreciation and maintenance.", cardinalityMeaning: Optional for non-capitalized equipment., workflowRole: Maintenance history remains independent from accounting postings.}}
+    - {name: asset, target: Asset, cardinality: "0..1", ownership: reference, help: {summary: The fixed asset that represents the same machine in the financial records., usage: Set where the machine is capitalised., cardinalityMeaning: At most one asset; consumable or leased equipment may have none., workflowRole: Keeps maintenance and financial records of the same machine consistent., businessMeaning: Connects maintainable object to capitalization identity when applicable.}}
   invariants:
-  - {id: EQUIPMENT-001, rule: Finalized lifecycle or financial evidence must be corrected by explicit compensating or superseding records rather than silent history rewrite.}
+    - {id: EQUIPMENT-001, rule: Finalized lifecycle or financial evidence must be corrected by explicit compensating or superseding records rather than silent history rewrite.}
   help:
-    summary: A governed maintainable equipment identity linked to an Asset where financial capitalization and operational maintenance identities overlap.
-    purpose: Provide canonical enterprise semantics for Equipment.
-    businessMeaning: A governed maintainable equipment identity linked to an Asset where financial capitalization and operational maintenance identities overlap.
-    whenUsed: Used in asset, maintenance, treasury, banking, credit-risk, accounting, integration, and audit workflows where applicable.
-    howItRelates: Connects operational or financial lifecycle evidence to canonical masters while keeping accounting, bank, and physical records authoritative in their own domains.
-    lifecycleUsage: Created under governed conditions, progressed or finalized with audit history, and corrected through explicit subsequent evidence.
-    commonProcesses: Asset lifecycle, maintenance, treasury operations, bank reconciliation, lending, accounting, reporting, and audit.
+    summary: A maintainable piece of equipment, linked to an asset where the financial record and the maintenance record describe the same thing.
+    businessMeaning: The finance team sees a capitalised asset; the maintenance team sees a machine with a service history. Equipment is the maintenance identity of that machine, so work orders and meters attach to it while the asset keeps the financial view.
+    usage: Created when a machine needs maintenance tracking; read by maintenance planners and technicians.
+    relationshipContext: Equipment may be linked to an Asset; maintenance work orders and meters refer to the equipment.
+    lifecycle: Finalised financial and lifecycle evidence is corrected by compensating records, not by editing.
+    example: A packaging line filler, tracked as equipment E-0071 and linked to its fixed-asset record.
     commonExamples: Enterprise fixed assets, equipment reliability, bank close, FX, deposits, interest, and secured lending.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-EQUIPMENT}

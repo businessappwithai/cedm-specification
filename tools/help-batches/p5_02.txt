@@ -1,0 +1,77 @@
+@ Procedure
+a procedureId
+s: The permanent, system-generated identity of this procedure record, whether planned or already performed.
+u: Generated on creation and never changed; orders, encounters, notes and billing lines refer to the procedure through it.
+a description
+s: A plain-language description of the procedure so clinicians and billers can read what was done without decoding the code.
+u: Entered by the care team or filled from the coding system when a code is chosen; printed on reports and patient summaries.
+a status
+s: Where the procedure stands from being scheduled through being carried out or called off.
+u: Updated by the care team as the procedure starts, finishes or is cancelled; COMPLETED and CANCELLED are final.
+v PLANNED: Scheduled but not yet started; resources and consent may still be arranged.
+v IN_PROGRESS: Currently being performed on the patient by the care team.
+v COMPLETED: Carried out and documented. A final state.
+v CANCELLED: Not carried out, whether withdrawn before or abandoned. A final state.
+a performedAt
+s: The date and time at which the procedure was actually carried out on the patient.
+u: Recorded by the care team when the procedure takes place; left empty while planned and used for the clinical timeline and billing.
+@ ProcessDefinition
+a processDefinitionId
+s: The permanent, system-generated identity of this versioned business process definition.
+u: Generated on creation and never changed; running process instances and activities refer to the definition they were started from through it.
+@ ProcessInstance
+a status
+s: Where this one run of a business process stands, from created through running to finished or stopped.
+u: Moved by the workflow engine and by users who start or cancel the run; completed and cancelled runs are final and keep their history.
+@ ProductAttribute
+a productAttributeId
+s: The permanent, system-generated identity of this reusable product characteristic definition.
+u: Generated on creation and never changed; product data management, variant configuration, search and integrations refer to the attribute through it.
+a code
+s: The governed short code that names the characteristic, such as COLOR or SIZE, in schemas and interfaces.
+u: Assigned by product data governance and unique; used by catalogue schemas, import files and APIs instead of the display name.
+a name
+s: The human-readable name of the characteristic, such as Colour, shown wherever people see or filter by it.
+u: Entered by product data governance; appears on product forms, catalogue pages, filters and search facets.
+a valueType
+s: The kind of value this characteristic holds, which decides how entered values are validated and displayed.
+u: Chosen when the attribute is defined and used by product data validation and form generation; changing it needs impact analysis on stored values.
+v STRING: Free text such as a model name or finish description.
+v INTEGER: A whole number such as a pack count or number of drawers.
+v DECIMAL: A number with a fractional part such as a weight or length.
+v BOOLEAN: A yes or no flag such as waterproof or serialised.
+v DATE: A calendar date such as a launch or best-before date.
+v DATETIME: A date with a time of day, such as a release timestamp.
+v ENUM: One choice from a controlled list of permitted values such as a colour.
+v REFERENCE: A pointer to a governed master record such as a brand or material.
+a variantDefining
+s: Whether different values of this characteristic make separate product variants, as size and colour do.
+u: Set by product data governance; variant generation uses it to build combinations, and changing it needs review of existing variants.
+@ ProductCategory
+a description
+s: A description of what kinds of products belong in the category and where its boundary lies.
+u: Written by product managers when the category is created; helps people classify new products consistently and choose between similar categories.
+@ ProductLifecycle
+a productLifecycleId
+s: The permanent, system-generated identity of this lifecycle change record for a product.
+u: Generated on creation and never changed; the audit trail of a product's status changes is made of these records.
+a lifecycleStatus
+s: The lifecycle status the product moved to at the effective time of this record.
+u: Chosen when the change is made; restrictive moves need checks of open orders and stock, and earlier records are never rewritten.
+v DRAFT: The product is still being set up and is not yet available for trading.
+v ACTIVE: The product is available for ordinary buying and selling.
+v DISCONTINUED: The product is being phased out and no new trading should begin.
+v BLOCKED: The product is temporarily barred from trading until the issue is resolved.
+v RETIRED: The product is permanently removed from the catalogue.
+@ ProductVariant
+a code
+s: The unique business code of this variation, such as a size and colour combination, distinct from its parent product.
+u: Assigned by product management and unique across variants; used on orders, stock and price lists to name the exact variation.
+a status
+s: Whether this variant can be traded.
+u: Set by product management; only ACTIVE variants can be ordered, and discontinued and retired variants are final.
+v DRAFT: Being set up and not yet offered for sale or purchase.
+v ACTIVE: Available for trading and can be ordered, stocked and sold.
+v BLOCKED: Temporarily barred from trading until the hold is lifted.
+v DISCONTINUED: Being phased out and no longer to be introduced. A final state.
+v RETIRED: Removed from the catalogue for good. A final state.

@@ -122,3 +122,119 @@ ON CONFLICT (name) DO UPDATE SET
   description      = EXCLUDED.description,
   is_model_managed = TRUE,
   updated_at       = NOW();
+
+INSERT INTO sys_workflow_definitions
+  (name, entity_name, operation, trigger_type, bpmn_xml, description, is_active, is_model_managed, created_at, updated_at)
+VALUES ('MeterReadingSuspectReadingRecorded', 'bus_meter_reading', 'UPDATE',
+        'rule', '<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+  xmlns:appwithai="http://appwithai.io/schema/1.0"
+  id="Definitions_MeterReadingSuspectReadingRecorded"
+  targetNamespace="http://appwithai.io/bpmn">
+  <bpmn:process id="Process_MeterReadingSuspectReadingRecorded" isExecutable="true">
+    <bpmn:startEvent id="Process_MeterReadingSuspectReadingRecorded_start"/>
+    <bpmn:serviceTask id="Process_MeterReadingSuspectReadingRecorded_S1" name="Raise a task: review the reading">
+      <bpmn:extensionElements>
+        <appwithai:properties>
+        <appwithai:property name="nodeType" value="CreateEntity"/>
+        <appwithai:property name="entity" value="bus_task"/>
+        <appwithai:property name="as" value="taskId"/>
+        <appwithai:property name="fields" value="{&quot;code&quot;:&quot;METER-READING-REVIEW-{{id}}&quot;,&quot;name&quot;:&quot;Review meter reading {{id}}&quot;,&quot;description&quot;:&quot;Meter reading {{id}} was recorded as {{quality}}. Compare it with the meter&apos;s earlier readings, then correct it or confirm it before it is billed.&quot;,&quot;task_type&quot;:&quot;USER&quot;,&quot;status&quot;:&quot;CREATED&quot;,&quot;priority&quot;:&quot;HIGH&quot;}"/>
+        </appwithai:properties>
+      </bpmn:extensionElements>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="Process_MeterReadingSuspectReadingRecorded_end"/>
+    <bpmn:sequenceFlow id="Process_MeterReadingSuspectReadingRecorded_flow_0" sourceRef="Process_MeterReadingSuspectReadingRecorded_start" targetRef="Process_MeterReadingSuspectReadingRecorded_S1"/>
+    <bpmn:sequenceFlow id="Process_MeterReadingSuspectReadingRecorded_flow_1" sourceRef="Process_MeterReadingSuspectReadingRecorded_S1" targetRef="Process_MeterReadingSuspectReadingRecorded_end"/>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Process_MeterReadingSuspectReadingRecorded">
+    <bpmndi:BPMNPlane id="BPMNPlane_Process_MeterReadingSuspectReadingRecorded" bpmnElement="Process_MeterReadingSuspectReadingRecorded">
+      <bpmndi:BPMNShape id="Process_MeterReadingSuspectReadingRecorded_start_di" bpmnElement="Process_MeterReadingSuspectReadingRecorded_start">
+        <dc:Bounds x="160" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_MeterReadingSuspectReadingRecorded_S1_di" bpmnElement="Process_MeterReadingSuspectReadingRecorded_S1">
+        <dc:Bounds x="256" y="100" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_MeterReadingSuspectReadingRecorded_end_di" bpmnElement="Process_MeterReadingSuspectReadingRecorded_end">
+        <dc:Bounds x="456" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Process_MeterReadingSuspectReadingRecorded_flow_0_di" bpmnElement="Process_MeterReadingSuspectReadingRecorded_flow_0">
+        <di:waypoint x="196" y="140"/>
+        <di:waypoint x="256" y="140"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Process_MeterReadingSuspectReadingRecorded_flow_1_di" bpmnElement="Process_MeterReadingSuspectReadingRecorded_flow_1">
+        <di:waypoint x="396" y="140"/>
+        <di:waypoint x="456" y="140"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>', 'When a reading is recorded already marked suspect or invalid by validation, a task asks someone to check it before it reaches billing.', TRUE, TRUE, NOW(), NOW())
+ON CONFLICT (name) DO UPDATE SET
+  entity_name      = EXCLUDED.entity_name,
+  operation        = EXCLUDED.operation,
+  trigger_type     = EXCLUDED.trigger_type,
+  bpmn_xml         = EXCLUDED.bpmn_xml,
+  description      = EXCLUDED.description,
+  is_model_managed = TRUE,
+  updated_at       = NOW();
+
+INSERT INTO sys_workflow_definitions
+  (name, entity_name, operation, trigger_type, bpmn_xml, description, is_active, is_model_managed, created_at, updated_at)
+VALUES ('MeterReadingReadingMarkedSuspect', 'bus_meter_reading', 'UPDATE',
+        'rule', '<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+  xmlns:appwithai="http://appwithai.io/schema/1.0"
+  id="Definitions_MeterReadingReadingMarkedSuspect"
+  targetNamespace="http://appwithai.io/bpmn">
+  <bpmn:process id="Process_MeterReadingReadingMarkedSuspect" isExecutable="true">
+    <bpmn:startEvent id="Process_MeterReadingReadingMarkedSuspect_start"/>
+    <bpmn:serviceTask id="Process_MeterReadingReadingMarkedSuspect_S1" name="Raise a task: recheck the reading">
+      <bpmn:extensionElements>
+        <appwithai:properties>
+        <appwithai:property name="nodeType" value="CreateEntity"/>
+        <appwithai:property name="entity" value="bus_task"/>
+        <appwithai:property name="as" value="taskId"/>
+        <appwithai:property name="fields" value="{&quot;code&quot;:&quot;METER-READING-RECHECK-{{id}}&quot;,&quot;name&quot;:&quot;Recheck meter reading {{id}}&quot;,&quot;description&quot;:&quot;Meter reading {{id}} is now {{quality}}. Compare it with the meter&apos;s earlier readings, then correct it or confirm it before it is billed.&quot;,&quot;task_type&quot;:&quot;USER&quot;,&quot;status&quot;:&quot;CREATED&quot;,&quot;priority&quot;:&quot;HIGH&quot;}"/>
+        </appwithai:properties>
+      </bpmn:extensionElements>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="Process_MeterReadingReadingMarkedSuspect_end"/>
+    <bpmn:sequenceFlow id="Process_MeterReadingReadingMarkedSuspect_flow_0" sourceRef="Process_MeterReadingReadingMarkedSuspect_start" targetRef="Process_MeterReadingReadingMarkedSuspect_S1"/>
+    <bpmn:sequenceFlow id="Process_MeterReadingReadingMarkedSuspect_flow_1" sourceRef="Process_MeterReadingReadingMarkedSuspect_S1" targetRef="Process_MeterReadingReadingMarkedSuspect_end"/>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Process_MeterReadingReadingMarkedSuspect">
+    <bpmndi:BPMNPlane id="BPMNPlane_Process_MeterReadingReadingMarkedSuspect" bpmnElement="Process_MeterReadingReadingMarkedSuspect">
+      <bpmndi:BPMNShape id="Process_MeterReadingReadingMarkedSuspect_start_di" bpmnElement="Process_MeterReadingReadingMarkedSuspect_start">
+        <dc:Bounds x="160" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_MeterReadingReadingMarkedSuspect_S1_di" bpmnElement="Process_MeterReadingReadingMarkedSuspect_S1">
+        <dc:Bounds x="256" y="100" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_MeterReadingReadingMarkedSuspect_end_di" bpmnElement="Process_MeterReadingReadingMarkedSuspect_end">
+        <dc:Bounds x="456" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Process_MeterReadingReadingMarkedSuspect_flow_0_di" bpmnElement="Process_MeterReadingReadingMarkedSuspect_flow_0">
+        <di:waypoint x="196" y="140"/>
+        <di:waypoint x="256" y="140"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Process_MeterReadingReadingMarkedSuspect_flow_1_di" bpmnElement="Process_MeterReadingReadingMarkedSuspect_flow_1">
+        <di:waypoint x="396" y="140"/>
+        <di:waypoint x="456" y="140"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>', 'When validation or a reviewer marks an existing reading suspect or invalid, a task asks someone to check it before it reaches billing.', TRUE, TRUE, NOW(), NOW())
+ON CONFLICT (name) DO UPDATE SET
+  entity_name      = EXCLUDED.entity_name,
+  operation        = EXCLUDED.operation,
+  trigger_type     = EXCLUDED.trigger_type,
+  bpmn_xml         = EXCLUDED.bpmn_xml,
+  description      = EXCLUDED.description,
+  is_model_managed = TRUE,
+  updated_at       = NOW();

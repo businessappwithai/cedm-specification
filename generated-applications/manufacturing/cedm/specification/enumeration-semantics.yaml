@@ -24,7 +24,7 @@ enumeration:
       rule: <Entity><Attribute> in PascalCase — SalesOrder.status is SalesOrderStatus.
       uniqueness: An enumeration name is unique among enumerations and among entities. DICT-010.
     owner: The entity and attribute that declare the values. Another attribute with the same values declares its own enumeration.
-    registry: domain/enumerations/index.yaml — one entry per enumeration, generated from the entity files by tools/build_enumerations.py and checked in sync by tools/validate.py.
+    registry: domain/enumerations/index.yaml — one entry per enumeration, generated from the entity files by tools/build-enumerations.ts and checked in sync by tools/validate.ts.
 
   declaration:
     where: An attribute of type enum states `values`.

@@ -5,9 +5,10 @@
 //! every business suite depends on — then the per-entity CRUD and rules
 //! modules, which are generated one per entity in the model.
 //!
-//! Generated: 2026-10-04T08:29:38.981Z
+//! Generated: 2026-10-10T02:39:45.353Z
 //! Project: education
 
+mod accounts;
 mod ai;
 mod auth;
 mod concurrency;
@@ -31,10 +32,15 @@ mod workflow;
 mod crud_address;
 mod crud_address_address_type;
 mod crud_address_status;
+mod crud_assessment;
+mod crud_assessment_assessment_type;
+mod crud_assessment_status;
 mod crud_attachment;
 mod crud_business_unit;
 mod crud_calendar;
 mod crud_city;
+mod crud_class;
+mod crud_class_status;
 mod crud_contact_point;
 mod crud_country;
 mod crud_currency;
@@ -52,6 +58,13 @@ mod crud_enrollment_status;
 mod crud_exchange_rate;
 mod crud_exchange_rate_rate_type;
 mod crud_exchange_rate_status;
+mod crud_fee;
+mod crud_fee_status;
+mod crud_grade;
+mod crud_grade_status;
+mod crud_guardian;
+mod crud_guardian_relationship_type;
+mod crud_guardian_status;
 mod crud_language;
 mod crud_legal_entity;
 mod crud_location;
@@ -84,10 +97,15 @@ mod crud_unit_of_measure_status;
 mod rules_address;
 mod rules_address_address_type;
 mod rules_address_status;
+mod rules_assessment;
+mod rules_assessment_assessment_type;
+mod rules_assessment_status;
 mod rules_attachment;
 mod rules_business_unit;
 mod rules_calendar;
 mod rules_city;
+mod rules_class;
+mod rules_class_status;
 mod rules_contact_point;
 mod rules_country;
 mod rules_currency;
@@ -105,6 +123,13 @@ mod rules_enrollment_status;
 mod rules_exchange_rate;
 mod rules_exchange_rate_rate_type;
 mod rules_exchange_rate_status;
+mod rules_fee;
+mod rules_fee_status;
+mod rules_grade;
+mod rules_grade_status;
+mod rules_guardian;
+mod rules_guardian_relationship_type;
+mod rules_guardian_status;
 mod rules_language;
 mod rules_legal_entity;
 mod rules_location;

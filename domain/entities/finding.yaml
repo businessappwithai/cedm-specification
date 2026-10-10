@@ -7,20 +7,20 @@ entity:
     icon: table
   identity: {key: findingId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: findingId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Finding., businessMeaning: Identifies one governed record independently of mutable labels or state., usage: "Governance, workflow, integration and audit.", relationshipContext: Referenced by related enterprise records., requiredMeaning: Required.}}
-  - {name: effectiveAt, type: datetime, required: false, help: {summary: Time at which this record becomes effective or evidentially applicable., businessMeaning: Establishes temporal business meaning., usage: "Lifecycle, audit and reporting.", relationshipContext: Does not rewrite earlier effective evidence., optionalMeaning: Optional when lifecycle does not require a separate effective timestamp.}}
+    - {name: findingId, type: uuid, required: true, immutable: true, help: {summary: 'The permanent identity of the finding, kept even when its wording or status is later revised.', usage: 'Generated when the finding is raised; remediation tasks, reviews and audit reports refer to it by this value.'}}
+    - {name: effectiveAt, type: datetime, required: false, help: {summary: The moment from which the finding stands as an issued observation about the control or risk., usage: Set at issue by the auditor or reviewer; ageing of open findings and remediation deadlines are measured from it.}}
   relationships:
-  - {name: control, target: Control, cardinality: 0..1, ownership: reference, help: {summary: Control associated with finding., businessMeaning: Identifies deficient or tested control., usage: Audit and remediation., cardinalityMeaning: Optional for findings not control-specific., workflowRole: Finding resolution does not erase original evidence.}}
-  - {name: risk, target: Risk, cardinality: 0..1, ownership: reference, help: {summary: Risk informed by finding., businessMeaning: Connects evidence to risk governance., usage: Risk assessment and treatment., cardinalityMeaning: Optional., workflowRole: May trigger reassessment/treatment.}}
+    - {name: control, target: Control, cardinality: 0..1, ownership: reference, help: {summary: The control the finding is about., usage: Set where a specific control failed., cardinalityMeaning: At most one control., workflowRole: Links the deficiency to the control to be fixed., businessMeaning: Identifies deficient or tested control.}}
+    - {name: risk, target: Risk, cardinality: 0..1, ownership: reference, help: {cardinalityMeaning: 'At most one risk, the exposure that the finding relates to.', summary: Risk informed by finding., businessMeaning: Connects evidence to risk governance., usage: Risk assessment and treatment., workflowRole: May trigger reassessment/treatment.}}
   invariants:
-  - {id: FINDING-001, rule: Finalized historical evidence must not be silently rewritten; corrections or supersession require explicit governed records.}
+    - {id: FINDING-001, rule: Finalized historical evidence must not be silently rewritten; corrections or supersession require explicit governed records.}
   help:
-    summary: A governed observation of a control, audit, compliance, quality, or risk deficiency requiring disposition or remediation.
-    purpose: Provide durable, implementation-neutral governance semantics for Finding.
-    businessMeaning: A governed observation of a control, audit, compliance, quality, or risk deficiency requiring disposition or remediation.
+    summary: An observation of a deficiency in a control, audit, compliance, quality or risk area that needs a decision or remediation.
+    businessMeaning: Audits are only useful if what they find is followed up. A finding states the problem, how serious it is and what has to be done, so it can be tracked to closure.
+    usage: Raised by auditors or reviewers; assigned for remediation; reviewed until closed.
+    relationshipContext: A finding may concern a Control or a Risk.
+    lifecycle: Finalised evidence is not silently rewritten; corrections or supersession are explicit.
+    example: Finding that bank reconciliations were reviewed late in three of twelve months.
     whenUsed: Used in contracts, documents, governance, compliance, risk, legal, service, finance, or audit workflows where applicable.
-    howItRelates: Connects authoritative business records to controlled lifecycle, evidence, findings, and downstream remediation without replacing source transactions.
-    lifecycleUsage: Created under governance, reviewed or finalized where applicable, and retained or superseded with history preserved.
     commonProcesses: Contract management, document control, audit, compliance assessment, risk governance, approval, and remediation.
-    commonExamples: Enterprise agreements, controlled records, audit evidence, compliance findings, and lifecycle changes.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-FINDING}

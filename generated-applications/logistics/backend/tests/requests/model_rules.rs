@@ -1,6 +1,6 @@
 //! The rules the *model* declared, and whether they reached the application.
 //!
-//! Generated: 2026-10-04T01:12:10.683Z
+//! Generated: 2026-10-10T02:40:47.660Z
 //! Project: logistics
 //!
 //! Every other rules suite creates a rule through the API and then checks that
@@ -69,6 +69,18 @@ const MODEL_RULES: &[(&str, &str, &str)] = &[
         "bus_shipment_line",
         "UPDATE",
     ),
+    ("tripInvariantsBeforeCreate", "bus_trip", "CREATE"),
+    ("tripInvariantsBeforeUpdate", "bus_trip", "UPDATE"),
+    (
+        "fuelTransactionInvariantsBeforeCreate",
+        "bus_fuel_transaction",
+        "CREATE",
+    ),
+    (
+        "fuelTransactionInvariantsBeforeUpdate",
+        "bus_fuel_transaction",
+        "UPDATE",
+    ),
     (
         "salesOrderLineInvariantsBeforeCreate",
         "bus_sales_order_line",
@@ -97,6 +109,11 @@ const MODEL_RULES: &[(&str, &str, &str)] = &[
     (
         "tripSegmentWorkflowsAfterUpdate",
         "bus_trip_segment",
+        "UPDATE",
+    ),
+    (
+        "fuelTransactionWorkflowsAfterUpdate",
+        "bus_fuel_transaction",
         "UPDATE",
     ),
     ("customerWorkflowsAfterUpdate", "bus_customer", "UPDATE"),

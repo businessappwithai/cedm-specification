@@ -7,20 +7,18 @@ entity:
     icon: table
   identity: {key: contactId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: contactId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Contact., businessMeaning: Identifies one governed Contact record., usage: "Transactions, integration, reporting and audit.", relationshipContext: Referenced by compatible cross-domain workflows., requiredMeaning: Required.}}
-  - {name: code, type: string, required: false, maxLength: 120, help: {summary: Business reference for Contact., businessMeaning: Human or integration-friendly reference where applicable., usage: "Search, exchange and reporting.", relationshipContext: Does not replace immutable identity., optionalMeaning: Optional when another transaction reference supplies business identity.}}
+    - {name: contactId, type: uuid, required: true, immutable: true, help: {summary: The identity of the contact record., usage: Generated on creation; activities and opportunities refer to the contact.}}
+    - {name: code, type: string, required: false, maxLength: 120, help: {summary: 'An optional short reference for the contact, often from an import or an external CRM.', usage: Used to match records during synchronisation.}}
   relationships:
-  - {name: person, target: Person, cardinality: '1', ownership: reference, help: {summary: Person represented by contact., businessMeaning: Preserves canonical human identity., usage: CRM communication and relationship management., cardinalityMeaning: Exactly one Person., workflowRole: Contact context must not duplicate Person master.}}
-  - {name: account, target: Account, cardinality: 0..1, ownership: reference, help: {summary: Commercial account context., businessMeaning: Identifies account for which person is a contact., usage: CRM and sales., cardinalityMeaning: Optional., workflowRole: Account relationship can change without changing Person identity.}}
+    - {name: person, target: Person, cardinality: '1', ownership: reference, help: {summary: The person who is the contact., usage: Chosen when the contact is created; supplies name and personal details., cardinalityMeaning: Exactly one person; a contact is always a specific human being., workflowRole: Keeps personal identity in one place so the same person can be a contact in several relationships., businessMeaning: Preserves canonical human identity.}}
+    - {name: account, target: Account, cardinality: 0..1, ownership: reference, help: {summary: 'The customer, supplier or partner account the person is a contact for.', usage: Set when the person is linked to an organisation relationship., cardinalityMeaning: At most one account; a freelance contact may have none., workflowRole: Gives the contact its business context., businessMeaning: Identifies account for which person is a contact.}}
   invariants:
-  - {id: CONTACT-001, rule: "Lifecycle changes, corrections and retries must preserve historical evidence and must not duplicate downstream commercial, physical or financial effects."}
+    - {id: CONTACT-001, rule: "Lifecycle changes, corrections and retries must preserve historical evidence and must not duplicate downstream commercial, physical or financial effects."}
   help:
-    summary: A governed business contact representing a Person in a customer, prospect, supplier, partner, or account relationship context.
-    purpose: Provide canonical implementation-neutral semantics for Contact across enterprise applications.
-    businessMeaning: A governed business contact representing a Person in a customer, prospect, supplier, partner, or account relationship context.
-    whenUsed: Used in CRM, sales, fulfillment, logistics, reporting, integration, or audit processes where this concept applies.
-    howItRelates: Connects to canonical parties, commercial transactions, logistics execution, and downstream evidence without replacing their authoritative records.
-    lifecycleUsage: Created and progressed through governed business workflow; completed history is retained and corrections are explicit.
-    commonProcesses: Commercial management, fulfillment, logistics execution, reconciliation, reporting, and audit.
-    commonExamples: Enterprise sales and supply-chain operations.
+    summary: A person recorded in a business relationship, such as a contact at a customer, prospect, supplier or partner.
+    businessMeaning: Selling and service happen between people. A contact says who the person is in a relationship, which account they belong to, and gives a stable place to hang conversations and activities.
+    usage: Created when a person is added to a customer or partner account; read by sales and service staff when they reach out.
+    relationshipContext: A contact is a Person associated with an Account; the Person record holds the identity and the contact adds the business context.
+    lifecycle: Changes and retries preserve history and do not duplicate commercial effects of past interactions.
+    example: Maria Lopez, purchasing manager at a customer account, recorded as the main contact for renewals.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-CONTACT}

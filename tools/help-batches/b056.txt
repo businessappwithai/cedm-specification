@@ -1,0 +1,147 @@
+@ RiskTreatment
+s: An action planned and carried out to reduce, accept, transfer, avoid or monitor a risk.
+b: A treatment is how the organisation responds to a risk it has assessed. Recording it with an owner and a status shows that each risk has an answer, what that answer is and whether it has been done.
+u: Raised by the risk owner; carried out by the named people; read by governance and audit.
+c: A treatment belongs to exactly one risk and goes with it.
+l: A treatment is drafted, active while the work is done and completed when finished. It may be cancelled if no longer needed. Completed and cancelled are final.
+x: To treat the supplier concentration risk, qualify a second source by 30 June.
+a riskTreatmentId
+s: The identity of the treatment, constant for its life.
+u: Generated on creation; reviews refer to it.
+a riskTreatmentCode
+s: The code of the treatment, such as RT-021-1.
+u: Unique; quoted in risk reviews and audit.
+c: Read with the risk code.
+a status
+s: Where the treatment is.
+u: Starts as DRAFT; moved by the owner.
+v DRAFT: Proposed and not yet approved.
+v ACTIVE: Approved and being carried out.
+v COMPLETED: The action is done. A final state.
+v CANCELLED: No longer needed. A final state.
+r context
+s: The risk the treatment responds to.
+u: Chosen when the treatment is created.
+n: Exactly one risk; a treatment for two risks is recorded twice.
+t: Keeps the response attached to the risk it addresses.
+
+@ Role
+s: A named set of permissions or responsibilities that can be given to users or service accounts.
+b: Roles let access be granted by job function instead of person by person. Changing what a role may do changes it for everyone who holds it, so access stays consistent and reviewable.
+u: Defined by an administrator; assigned to users; read when access is decided and audited.
+c: A role holds permissions and is held by users.
+l: A role is drafted, active while in use, may be switched off and back on, and is retired when no longer needed. Retired is final.
+x: The "Sales manager" role may read and update all orders but not change prices.
+a roleId
+s: The identity of the role, constant when it is renamed.
+u: Generated on creation; grants refer to it.
+a code
+s: The code of the role, such as SALES_MANAGER.
+u: Unique; used in imports and rules.
+a name
+s: The name of the role as administrators and users see it.
+u: Shown when roles are assigned.
+a description
+s: What the role is for and who should hold it.
+u: Read by administrators before granting.
+a status
+s: Whether the role can be granted and used.
+u: Starts as DRAFT; set by an administrator.
+v DRAFT: Being defined; not yet granted.
+v ACTIVE: In use and can be granted.
+v INACTIVE: Switched off for a time; its grants give no access.
+v RETIRED: No longer used. A final state.
+r permissions
+s: The permissions the role gives.
+u: Chosen when the role is defined.
+n: Any number, none for an empty role.
+t: Decides what holders may do.
+r users
+s: The users holding the role.
+u: Read to review who has access.
+n: Any number, none for an unassigned role.
+t: Anyone holding the role gains its permissions.
+
+@ Route
+s: A planned path of transport stops used to move shipments or run a fleet.
+b: A route fixes the order in which stops are visited so deliveries and collections can be planned, driven and compared with what actually happened.
+u: Planned by logistics; used by dispatch and drivers.
+c: A route is made of ordered stops.
+l: A route is planned, used, and withdrawn when no longer run. Past trips keep their route.
+x: Route R-NORTH visits five depots in order from the warehouse each morning.
+a routeId
+s: The identity of the route, constant for its life.
+u: Generated on creation; trips and shipments refer to it.
+a code
+s: The short code of the route, such as R-NORTH.
+u: Used by dispatch and drivers.
+r stops
+n: Any number of stops, in visiting order; a route with none is not yet planned.
+
+@ Routing
+a status
+s: Whether the process definition may be used for production.
+v DRAFT: Being defined; not yet usable.
+v ACTIVE: Approved for production.
+v SUSPENDED: Temporarily withdrawn from use.
+v OBSOLETE: Superseded or no longer used. A final state.
+
+@ SalesOrder
+s: A customer's firm commitment to buy specified products or services on stated commercial terms and delivery needs.
+b: The sales order is the contract in operational form. It fixes what was ordered, by whom, at what price and for when, and drives allocation of stock, shipment and invoicing, so everything downstream can be traced back to what the customer agreed.
+u: Entered by sales or placed online; confirmed by the business; read by warehouse, shipping and finance.
+c: An order is for one customer, has lines, may name an organisation and delivery location, and is followed by shipments and invoices.
+l: An order is drafted and confirmed, then stock is allocated and it is fulfilled in whole or in parts. It may be cancelled. Fulfilled and cancelled are final.
+x: Order SO-10482 for 40 units is confirmed on Monday, shipped in two parts and invoiced on delivery.
+a salesOrderId
+s: The identity of the order, constant for its life.
+u: Generated on creation; shipments and invoices refer to it.
+c: Referenced by every document that follows the order.
+a orderNumber
+s: The number the customer sees, such as SO-10482.
+u: Unique; quoted on confirmations and invoices.
+c: Used to find the order from any following document.
+a orderDate
+s: When the order was placed.
+u: Set on entry; sales are reported by it.
+c: Compared with the requested delivery date.
+a currencyId
+u: Chosen when the order is created; all amounts are in it.
+c: Read with the total.
+a requestedDeliveryDate
+u: Entered from the customer's request; used to plan allocation and shipping.
+c: Compared with the promised and actual shipment dates.
+a totalAmount
+s: The total value of the order after discounts and tax.
+u: Calculated from the lines.
+c: Matched with the invoiced amount.
+r customer
+s: The customer who placed the order.
+u: Chosen when the order is created.
+n: Exactly one customer.
+t: Decides who is shipped to and invoiced.
+r organization
+s: The selling organisation that takes the order.
+u: Chosen when the business has several companies.
+n: At most one organisation.
+t: Decides whose accounts record the sale.
+r lines
+s: The items ordered.
+u: Edited while the order is a draft.
+n: At least one line.
+t: The lines belong to the order.
+r deliveryLocation
+u: Chosen when delivery is not to the customer's default address.
+s: The place the goods are to be delivered.
+n: At most one location; empty uses the customer's address.
+t: Used by shipping.
+r shipments
+s: The shipments made against the order.
+u: Read to follow delivery.
+n: Any number, as an order may be shipped in parts.
+t: Show how much of the order has gone.
+r invoices
+s: The invoices raised for the order.
+u: Read to follow billing.
+n: Any number, as billing may be in parts.
+t: Show how much has been billed.

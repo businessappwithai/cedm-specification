@@ -7,20 +7,19 @@ entity:
     icon: truck
   identity: {key: deliveryAttemptId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: deliveryAttemptId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of DeliveryAttempt., businessMeaning: Identifies one governed integration record., usage: "Integration, event processing, reporting and audit.", relationshipContext: Referenced by compatible integration workflows., requiredMeaning: Required.}}
-  - {name: occurredAt, type: datetime, required: false, help: {summary: Effective or occurrence time where applicable., businessMeaning: Anchors integration evidence in chronology., usage: Processing and audit., relationshipContext: Does not replace source transaction timestamps., optionalMeaning: Optional for endpoint/master definitions.}}
+    - {name: deliveryAttemptId, type: uuid, required: true, immutable: true, help: {summary: The identity of the attempt., usage: Generated for each attempt; logs and retry decisions refer to it.}}
+    - {name: occurredAt, type: datetime, required: false, help: {summary: When the attempt was made., usage: Set automatically; attempts are ordered by it when diagnosing a failure.}}
   relationships:
-  - {name: message, target: Message, cardinality: '1', ownership: reference, help: {summary: Message being delivered., businessMeaning: Supplies immutable payload identity., usage: Retry and delivery audit., cardinalityMeaning: Exactly one Message., workflowRole: Retries create distinct attempts and must not duplicate business effects.}}
-  - {name: endpoint, target: IntegrationEndpoint, cardinality: '1', ownership: reference, help: {summary: Destination endpoint attempted., businessMeaning: Defines delivery target., usage: Integration operations., cardinalityMeaning: Exactly one endpoint., workflowRole: Configuration changes do not rewrite historical attempts.}}
+    - {name: message, target: Message, cardinality: '1', ownership: reference, help: {cardinalityMeaning: 'Exactly one message: every attempt tries to deliver a particular message.', summary: Message being delivered., businessMeaning: Supplies immutable payload identity., usage: Retry and delivery audit., workflowRole: Retries create distinct attempts and must not duplicate business effects.}}
+    - {name: endpoint, target: IntegrationEndpoint, cardinality: '1', ownership: reference, help: {cardinalityMeaning: 'Exactly one endpoint: every attempt targets a specific destination.', summary: Destination endpoint attempted., businessMeaning: Defines delivery target., usage: Integration operations., workflowRole: Configuration changes do not rewrite historical attempts.}}
   invariants:
-  - {id: DELIVERY-ATTEMPT-001, rule: Delivery retries and corrections must preserve auditable evidence and must not duplicate downstream business effects.}
+    - {id: DELIVERY-ATTEMPT-001, rule: Delivery retries and corrections must preserve auditable evidence and must not duplicate downstream business effects.}
   help:
-    summary: An immutable record of an attempt to deliver a Message or BusinessEvent subscription payload to an IntegrationEndpoint.
-    purpose: Provide canonical implementation-neutral integration semantics for DeliveryAttempt.
-    businessMeaning: An immutable record of an attempt to deliver a Message or BusinessEvent subscription payload to an IntegrationEndpoint.
+    summary: An immutable record of one attempt to deliver a message or event payload to an integration endpoint.
+    businessMeaning: Integrations fail and retry. Recording each attempt, with its outcome, lets operators see what was tried, diagnose failures and prove a message was delivered.
+    usage: Written automatically for each attempt; read by integration operators and in incident reviews.
+    relationshipContext: Each attempt links a Message and the IntegrationEndpoint it was sent to.
+    lifecycle: An attempt is final once recorded; the next try is a new attempt. Retries must not duplicate business effects downstream.
+    example: Attempt 2 to post an order event to a partner's endpoint timed out after 30 seconds.
     whenUsed: Used for event publication, message exchange, delivery, retry, reconciliation, integration operations, and audit.
-    howItRelates: Carries or routes evidence derived from authoritative domain transactions without replacing those source records.
-    lifecycleUsage: Created and processed through governed integration states; attempts and finalized evidence are retained.
-    commonProcesses: Event publication, messaging, endpoint delivery, retry, dead-letter handling, reconciliation, and audit.
-    commonExamples: Enterprise application integration and event-driven workflows.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-DELIVERY-ATTEMPT}

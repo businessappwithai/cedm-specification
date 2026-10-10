@@ -1,6 +1,6 @@
 //! The rules the *model* declared, and whether they reached the application.
 //!
-//! Generated: 2026-10-04T01:12:01.753Z
+//! Generated: 2026-10-10T02:40:31.439Z
 //! Project: inventory
 //!
 //! Every other rules suite creates a rule through the API and then checks that
@@ -48,6 +48,16 @@ const MODEL_RULES: &[(&str, &str, &str)] = &[
     ("taskInvariantsBeforeCreate", "bus_task", "CREATE"),
     ("taskInvariantsBeforeUpdate", "bus_task", "UPDATE"),
     (
+        "inventoryItemInvariantsBeforeCreate",
+        "bus_inventory_item",
+        "CREATE",
+    ),
+    (
+        "inventoryItemInvariantsBeforeUpdate",
+        "bus_inventory_item",
+        "UPDATE",
+    ),
+    (
         "inventoryTransferInvariantsBeforeCreate",
         "bus_inventory_transfer",
         "CREATE",
@@ -91,6 +101,11 @@ const MODEL_RULES: &[(&str, &str, &str)] = &[
     (
         "exchangeRateWorkflowsAfterUpdate",
         "bus_exchange_rate",
+        "UPDATE",
+    ),
+    (
+        "inventoryItemWorkflowsAfterUpdate",
+        "bus_inventory_item",
         "UPDATE",
     ),
     (

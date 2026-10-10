@@ -1,0 +1,136 @@
+@ PaymentInstruction
+s: An instruction that authorises or requests a future payment through a bank or payment channel, kept apart from the payment and bank transaction that result.
+b: Paying someone is a two-step affair: the organisation instructs the bank, and later the bank confirms. Holding the instruction separately shows what was authorised, by whom and when, and lets it be compared with what the bank actually did.
+u: Created when a payment run is approved or a standing instruction is set up; sent to the bank; read by treasury to follow what was authorised.
+c: An instruction is for a BankAccount and, once executed, relates to the Payment it produces. It does not itself duplicate or rewrite cash, accounting or billing evidence.
+l: An instruction is drafted, becomes active when released to the bank, completes when executed and is cancelled if withdrawn first.
+x: A supplier payment run of 38 invoices approved on Thursday and sent to the bank for execution on Friday.
+a paymentInstructionId
+s: The identity of the instruction.
+u: Generated on creation; the bank file and the resulting payments refer to it.
+a status
+s: Where the instruction is in its path to the bank.
+u: Moved by treasury and the bank interface.
+v DRAFT: Being prepared; not yet released.
+v ACTIVE: Released to the bank and awaiting execution.
+v COMPLETED: Executed by the bank. A final state.
+v CANCELLED: Withdrawn before execution. A final state.
+r bankAccount
+s: The bank account from which the payment is to be made.
+u: Chosen when the instruction is created.
+n: Exactly one account: an instruction debits one account.
+w: Determines the bank channel, balances and approval limits.
+r payment
+s: The payment that results from the instruction.
+u: Linked when the instruction has been executed.
+n: At most one payment; a draft or cancelled instruction produces none.
+w: Connects what was authorised to what was paid.
+
+@ Payroll
+s: A payroll run, or an employee's payroll result, that turns approved employment, attendance, leave, compensation and statutory inputs into gross-to-net pay.
+b: Paying staff correctly means combining many inputs by many rules. The payroll record shows for each employee and period what was earned, what was deducted and what is owed, so pay can be explained, paid and posted to the books.
+u: Calculated for each pay period; approved; posted; paid; read by HR, finance and the employee.
+c: A payroll result is for an Employee under an Employment, uses Compensation terms, Attendance and LeaveRequests, is paid through Payments and posted through JournalEntries.
+l: A payroll is drafted, calculated, approved and posted, and finally paid. A posted payroll can be reversed if it was wrong.
+x: The March payroll for employee 10482: gross 4,800, net 3,420 after tax and social contributions.
+a payrollId
+s: The identity of the payroll result.
+u: Generated on calculation; payslips and postings refer to it.
+a payrollNumber
+s: The number of the payroll result, shown on the payslip.
+u: Allocated from a number series; unique.
+a periodStart
+s: The first day of the pay period.
+u: Set by the payroll calendar.
+a periodEnd
+s: The last day of the pay period.
+u: Set by the payroll calendar; after the start date.
+a grossAmount
+s: The total pay before deductions.
+u: Calculated from compensation, hours worked and leave.
+a netAmount
+s: The amount payable to the employee after deductions.
+u: Calculated from the gross amount less tax, contributions and other deductions.
+a status
+s: How far the payroll has progressed.
+u: Moved by payroll staff.
+v DRAFT: Created; not yet calculated.
+v CALCULATED: Gross-to-net calculation done and awaiting review.
+v APPROVED: Reviewed and approved for payment.
+v POSTED: Recorded in the books.
+v PAID: Net pay has been paid out. A final state.
+v REVERSED: Cancelled after posting by a compensating entry. A final state.
+r employee
+s: The employee the result is for.
+u: Set when the payroll is calculated.
+n: Exactly one employee: a payroll result is one person's pay for a period.
+w: Determines who is paid.
+r employment
+s: The employment under which the pay is earned.
+u: Set when the payroll is calculated.
+n: Exactly one employment, which supplies the contract terms.
+w: Provides the pay terms and tax treatment.
+r payments
+s: The payments by which the net pay is made.
+u: Read to confirm that the pay reached the employee.
+n: Any number of payments, as pay may be split or corrected.
+w: Link the pay owed to the money paid.
+r journalEntries
+n: Any number of journal entries that record the payroll costs and liabilities.
+r compensationTerms
+n: Any number of compensation arrangements that applied during the period.
+r attendanceRecords
+n: Any number of attendance records used to calculate pay.
+r leaveRequests
+n: Any number of leave requests that affected pay in the period.
+
+@ Permission
+s: A fine-grained authorisation that allows an operation on a resource.
+b: Access control is built from small permissions, such as "approve invoices" or "export customers". Defining each one explicitly lets roles be composed from them and reviewed.
+u: Defined by security administrators; added to roles; checked at each protected operation.
+c: Permissions are granted through Roles.
+l: A permission is active while in use, can be made inactive, and is retired when no longer needed. Roles that held it keep the history.
+x: The permission to APPROVE the resource "purchase_order", granted to the Purchasing Manager role.
+a permissionId
+s: The identity of the permission.
+u: Generated on creation; roles refer to it.
+a code
+s: The code of the permission, such as purchase_order:approve.
+u: Unique; used in access checks.
+a resource
+s: The kind of thing the permission governs, such as purchase_order or customer.
+u: Entered at definition; the check is made against this resource.
+a action
+s: The operation the permission allows.
+u: Chosen at definition.
+v CREATE: Create new records.
+v READ: View records.
+v UPDATE: Change records.
+v DELETE: Remove records.
+v EXECUTE: Run an operation or process.
+v APPROVE: Approve a pending item.
+v EXPORT: Export data.
+v ADMINISTER: Manage the resource's configuration and access.
+a status
+s: Whether the permission can be granted.
+u: Set by security administrators.
+v ACTIVE: Available and enforced.
+v INACTIVE: Temporarily not granted.
+v RETIRED: Withdrawn. A final state.
+r roles
+s: The roles that include the permission.
+u: Read to see who can do what.
+n: Any number of roles.
+w: Shows how widely a capability is granted.
+
+@ Person
+a gender
+s: The person's gender as recorded for the organisation's purposes.
+u: Entered only where there is a need and a lawful basis; never used to decide eligibility unless the law requires it.
+v FEMALE: Identifies as female.
+v MALE: Identifies as male.
+v NON_BINARY: Identifies as neither exclusively male nor female.
+v OTHER: Identifies in another way.
+v UNSPECIFIED: Not stated or not collected.
+r party
+n: Exactly one party: a person is the individual form of a party, so each person has one party record.

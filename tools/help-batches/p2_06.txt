@@ -1,0 +1,19 @@
+@ HealthcareProvider
+a providerType
+v PHYSICIAN: A doctor in independent practice.
+v NURSE: A nurse or nurse practitioner providing care.
+v CLINIC: An outpatient clinic or practice.
+v HOSPITAL: A hospital or inpatient facility.
+v LABORATORY: A diagnostic laboratory that performs tests and reports results.
+v PHARMACY: A pharmacy dispensing medicines.
+v OTHER: Any other kind of provider.
+
+@ Hotel
+a name
+s: The trading name guests know the hotel by, as shown on its website and booking channels.
+u: Shown on confirmations, invoices and search results; it may be rebranded while the hotel code stays the key.
+a status
+v PLANNED: Not yet open to guests.
+v ACTIVE: Open for business and taking reservations.
+v CLOSED: Closed to guests, for example for renovation, and expected to reopen.
+v RETIRED: Removed from the portfolio. A final state.

@@ -370,49 +370,39 @@ INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, st
 VALUES ('7ef8d939-bee3-55bd-a4d4-4d9cbcb7427c', 'bus_education_course', 'status', 'INACTIVE', 'RETIRED', 'retire', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- EducationStudentLifecycle: APPLICANT → ACTIVE (activate)
+-- ClassLifecycle: DRAFT → OPEN (open)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('cedb8d38-1f93-530b-81db-c9edf6eda9a4', 'bus_education_student', 'status', 'APPLICANT', 'ACTIVE', 'activate', TRUE, NOW())
+VALUES ('f09cfd74-0fbf-5b0c-871b-f28bac544f49', 'bus_class', 'status', 'DRAFT', 'OPEN', 'open', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- EducationStudentLifecycle: ACTIVE → GRADUATED (mark_graduated)
+-- ClassLifecycle: DRAFT → CANCELLED (cancel)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('eaf46b98-83db-572c-96c0-9351a03261f1', 'bus_education_student', 'status', 'ACTIVE', 'GRADUATED', 'mark_graduated', TRUE, NOW())
+VALUES ('8b259817-dd4d-57c4-aae7-657cd19a95f0', 'bus_class', 'status', 'DRAFT', 'CANCELLED', 'cancel', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- EducationStudentLifecycle: GRADUATED → ALUMNI (mark_alumni)
+-- ClassLifecycle: OPEN → IN_PROGRESS (start)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('b24912fc-459d-5027-a042-730de471ef0b', 'bus_education_student', 'status', 'GRADUATED', 'ALUMNI', 'mark_alumni', TRUE, NOW())
+VALUES ('f741db50-d57f-5f3a-82e8-991181e18fca', 'bus_class', 'status', 'OPEN', 'IN_PROGRESS', 'start', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- EducationStudentLifecycle: ACTIVE → SUSPENDED (suspend)
+-- ClassLifecycle: OPEN → CANCELLED (cancel)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('b867e746-5465-52d8-b5ef-8cb06da0bac9', 'bus_education_student', 'status', 'ACTIVE', 'SUSPENDED', 'suspend', TRUE, NOW())
+VALUES ('44f862ce-cfcb-51d5-b452-b7ff2b946c7f', 'bus_class', 'status', 'OPEN', 'CANCELLED', 'cancel', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- EducationStudentLifecycle: SUSPENDED → ACTIVE (resume)
+-- ClassLifecycle: IN_PROGRESS → COMPLETED (complete)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('4b50be6a-dc2b-5258-b6a9-6a295ce00b7d', 'bus_education_student', 'status', 'SUSPENDED', 'ACTIVE', 'resume', TRUE, NOW())
+VALUES ('c37cb36e-e4a7-59fc-a1a0-8fee1b576671', 'bus_class', 'status', 'IN_PROGRESS', 'COMPLETED', 'complete', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- EducationStudentLifecycle: GRADUATED → SUSPENDED (suspend)
+-- ClassLifecycle: IN_PROGRESS → CANCELLED (cancel)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('9c131709-6d56-5a5d-bc43-a0f9388baad6', 'bus_education_student', 'status', 'GRADUATED', 'SUSPENDED', 'suspend', TRUE, NOW())
+VALUES ('cf0846fb-f69d-500b-aafa-b6199bc66c2a', 'bus_class', 'status', 'IN_PROGRESS', 'CANCELLED', 'cancel', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- EducationStudentLifecycle: SUSPENDED → GRADUATED (resume)
+-- EducationStudentLifecycle: APPLICANT → ACTIVE (admit)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('cfadf2e3-98b7-53a5-967f-098e04e5f11f', 'bus_education_student', 'status', 'SUSPENDED', 'GRADUATED', 'resume', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- EducationStudentLifecycle: ALUMNI → SUSPENDED (suspend)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('06925372-3769-5e33-8fae-5bf44e533ed7', 'bus_education_student', 'status', 'ALUMNI', 'SUSPENDED', 'suspend', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- EducationStudentLifecycle: SUSPENDED → ALUMNI (resume)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('f069662b-beb1-5b6e-af36-d4db7b31261b', 'bus_education_student', 'status', 'SUSPENDED', 'ALUMNI', 'resume', TRUE, NOW())
+VALUES ('cedb8d38-1f93-530b-81db-c9edf6eda9a4', 'bus_education_student', 'status', 'APPLICANT', 'ACTIVE', 'admit', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- EducationStudentLifecycle: APPLICANT → WITHDRAWN (withdraw)
@@ -420,24 +410,44 @@ INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, st
 VALUES ('9f436584-82ff-5721-916e-ca04da63373b', 'bus_education_student', 'status', 'APPLICANT', 'WITHDRAWN', 'withdraw', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
+-- EducationStudentLifecycle: ACTIVE → SUSPENDED (suspend)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('b867e746-5465-52d8-b5ef-8cb06da0bac9', 'bus_education_student', 'status', 'ACTIVE', 'SUSPENDED', 'suspend', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- EducationStudentLifecycle: SUSPENDED → ACTIVE (reinstate)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('4b50be6a-dc2b-5258-b6a9-6a295ce00b7d', 'bus_education_student', 'status', 'SUSPENDED', 'ACTIVE', 'reinstate', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- EducationStudentLifecycle: ACTIVE → GRADUATED (graduate)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('eaf46b98-83db-572c-96c0-9351a03261f1', 'bus_education_student', 'status', 'ACTIVE', 'GRADUATED', 'graduate', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- EducationStudentLifecycle: GRADUATED → ALUMNI (make_alumnus)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('b24912fc-459d-5027-a042-730de471ef0b', 'bus_education_student', 'status', 'GRADUATED', 'ALUMNI', 'make_alumnus', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
 -- EducationStudentLifecycle: ACTIVE → WITHDRAWN (withdraw)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
 VALUES ('5cc0d42b-f775-505f-aa65-3ab2d07f7d94', 'bus_education_student', 'status', 'ACTIVE', 'WITHDRAWN', 'withdraw', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- EducationStudentLifecycle: GRADUATED → WITHDRAWN (withdraw)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('4a27502e-f1b5-523d-8194-b075187e49f6', 'bus_education_student', 'status', 'GRADUATED', 'WITHDRAWN', 'withdraw', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- EducationStudentLifecycle: ALUMNI → WITHDRAWN (withdraw)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('7e9b83ae-14c4-53f8-a3da-2630a24d5c6b', 'bus_education_student', 'status', 'ALUMNI', 'WITHDRAWN', 'withdraw', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
 -- EducationStudentLifecycle: SUSPENDED → WITHDRAWN (withdraw)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
 VALUES ('205cf852-aca2-51f1-aba4-1eebfa66be21', 'bus_education_student', 'status', 'SUSPENDED', 'WITHDRAWN', 'withdraw', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- GuardianLifecycle: ACTIVE → INACTIVE (deactivate)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('51f6f41c-5bff-56fc-bf80-6e555b479f0e', 'bus_guardian', 'status', 'ACTIVE', 'INACTIVE', 'deactivate', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- GuardianLifecycle: INACTIVE → ACTIVE (reactivate)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('76dc766b-d4bd-5fa4-a675-5f3e35c820c5', 'bus_guardian', 'status', 'INACTIVE', 'ACTIVE', 'reactivate', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- EnrollmentLifecycle: PENDING → ACTIVE (activate)
@@ -468,6 +478,71 @@ ON CONFLICT DO NOTHING;
 -- EnrollmentLifecycle: ACTIVE → CANCELLED (cancel)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
 VALUES ('c209ae52-8225-53b8-a540-f1e6bc03f886', 'bus_enrollment', 'status', 'ACTIVE', 'CANCELLED', 'cancel', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- AssessmentLifecycle: DRAFT → PUBLISHED (publish)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('6694f5b5-2f7c-56ef-af17-01ae196aa51b', 'bus_assessment', 'status', 'DRAFT', 'PUBLISHED', 'publish', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- AssessmentLifecycle: DRAFT → CANCELLED (cancel)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('ff2e2c8b-4827-5dcb-821b-c9ab28679e4d', 'bus_assessment', 'status', 'DRAFT', 'CANCELLED', 'cancel', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- AssessmentLifecycle: PUBLISHED → CLOSED (close)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('9682850d-1abd-53cc-ac55-c52538876b09', 'bus_assessment', 'status', 'PUBLISHED', 'CLOSED', 'close', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- AssessmentLifecycle: PUBLISHED → CANCELLED (cancel)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('efbec954-25d4-5826-b55d-ee19a3a11ead', 'bus_assessment', 'status', 'PUBLISHED', 'CANCELLED', 'cancel', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- GradeLifecycle: DRAFT → FINAL (finalize)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('9c9af9da-8c3f-5919-96f4-650894f26478', 'bus_grade', 'status', 'DRAFT', 'FINAL', 'finalize', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- GradeLifecycle: DRAFT → VOID (void)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('619fd529-d19b-5036-b1b4-acd7c27d6ae0', 'bus_grade', 'status', 'DRAFT', 'VOID', 'void', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- FeeLifecycle: DRAFT → ASSESSED (assess)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('e3fa2e46-ba33-50d8-a5cf-79917de4dd3c', 'bus_fee', 'status', 'DRAFT', 'ASSESSED', 'assess', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- FeeLifecycle: DRAFT → CANCELLED (cancel)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('bd10caf5-0a4a-5b8a-900b-eb867d67bb72', 'bus_fee', 'status', 'DRAFT', 'CANCELLED', 'cancel', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- FeeLifecycle: ASSESSED → INVOICED (invoice)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('9ba4b14d-7bec-5024-b5c7-a74fbf995174', 'bus_fee', 'status', 'ASSESSED', 'INVOICED', 'invoice', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- FeeLifecycle: ASSESSED → WAIVED (waive)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('060b8c49-1446-5ed8-98af-9c63784d192c', 'bus_fee', 'status', 'ASSESSED', 'WAIVED', 'waive', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- FeeLifecycle: ASSESSED → CANCELLED (cancel)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('e0fe4ea4-0ef0-5630-8d65-363574d82cd8', 'bus_fee', 'status', 'ASSESSED', 'CANCELLED', 'cancel', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- FeeLifecycle: INVOICED → PAID (mark_paid)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('bbb425f1-8caa-56c9-b852-7cff2f9b82ac', 'bus_fee', 'status', 'INVOICED', 'PAID', 'mark_paid', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- FeeLifecycle: INVOICED → WAIVED (waive)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('1c7d5f2c-71c0-5bb6-a361-da753c9bcb13', 'bus_fee', 'status', 'INVOICED', 'WAIVED', 'waive', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- PartyLifecycle: states
@@ -627,6 +702,23 @@ INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field
 VALUES ('4c89010e-eea6-54bd-a28a-c6b9a7a86b74', 'bus_education_course', 'status', 'RETIRED', FALSE, TRUE, 40, TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
+-- ClassLifecycle: states
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('8c2c719c-a7ca-5395-97e9-7441d0886bcb', 'bus_class', 'status', 'DRAFT', TRUE, FALSE, 10, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('e61dc7a1-dc78-5b87-ad8c-bdad002ece18', 'bus_class', 'status', 'OPEN', FALSE, FALSE, 20, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('af8a9829-e069-587c-a488-e61388912db6', 'bus_class', 'status', 'IN_PROGRESS', FALSE, FALSE, 30, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('4f51788c-d55e-566d-9ca0-afe92f277a45', 'bus_class', 'status', 'COMPLETED', FALSE, TRUE, 40, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('3fc7bb75-9681-5a80-b620-8545e5dad26e', 'bus_class', 'status', 'CANCELLED', FALSE, TRUE, 50, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
 -- EducationStudentLifecycle: states
 INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
 VALUES ('eb4467b7-b3ab-561b-b755-ec4f26476829', 'bus_education_student', 'status', 'APPLICANT', TRUE, FALSE, 10, TRUE, NOW())
@@ -644,7 +736,15 @@ INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field
 VALUES ('9a088bee-9cbd-51dc-8646-1af0644e9fdb', 'bus_education_student', 'status', 'WITHDRAWN', FALSE, TRUE, 50, TRUE, NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
-VALUES ('82f06e62-6063-5157-b748-1501a0a89d68', 'bus_education_student', 'status', 'ALUMNI', FALSE, FALSE, 60, TRUE, NOW())
+VALUES ('82f06e62-6063-5157-b748-1501a0a89d68', 'bus_education_student', 'status', 'ALUMNI', FALSE, TRUE, 60, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- GuardianLifecycle: states
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('f0155310-7d99-5b8f-964a-fe83a9f82390', 'bus_guardian', 'status', 'ACTIVE', TRUE, FALSE, 10, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('7437d507-843d-58ca-a30f-7286d5dca7b0', 'bus_guardian', 'status', 'INACTIVE', FALSE, FALSE, 20, TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- EnrollmentLifecycle: states
@@ -662,4 +762,49 @@ VALUES ('1eaab393-b7e5-513d-a0d0-d3a994d94bb1', 'bus_enrollment', 'status', 'WIT
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
 VALUES ('3b4cdcff-f4a5-514d-92ef-fbe422a8ddd7', 'bus_enrollment', 'status', 'CANCELLED', FALSE, TRUE, 50, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- AssessmentLifecycle: states
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('42524613-58d3-5fbd-ae9b-69f2b9bee6d9', 'bus_assessment', 'status', 'DRAFT', TRUE, FALSE, 10, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('72009ba7-b97c-508d-becf-8094e6e35b25', 'bus_assessment', 'status', 'PUBLISHED', FALSE, FALSE, 20, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('8b3a660c-c161-56aa-94cf-b9dc5bf3ba5f', 'bus_assessment', 'status', 'CLOSED', FALSE, TRUE, 30, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('cdb1053b-5c16-54bf-adff-7efc26398269', 'bus_assessment', 'status', 'CANCELLED', FALSE, TRUE, 40, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- GradeLifecycle: states
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('34b7c5d0-6446-545e-b537-68cea53e24a8', 'bus_grade', 'status', 'DRAFT', TRUE, FALSE, 10, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('aadf8939-9cde-5f12-803a-22a3aaf150b6', 'bus_grade', 'status', 'FINAL', FALSE, TRUE, 20, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('b55dc7f5-8894-5837-99c8-7bd9e498dba9', 'bus_grade', 'status', 'VOID', FALSE, TRUE, 30, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- FeeLifecycle: states
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('a6dbdf78-b4c7-5c8e-a4fa-ffea644e1d28', 'bus_fee', 'status', 'DRAFT', TRUE, FALSE, 10, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('d35b7b3d-7d5c-5ed3-8cae-c0b6a1864be1', 'bus_fee', 'status', 'ASSESSED', FALSE, FALSE, 20, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('1ee3e20d-7f8d-586d-88a6-14316e5e3b4f', 'bus_fee', 'status', 'INVOICED', FALSE, FALSE, 30, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('5fb8ed33-5d2e-5cbc-a1b7-65b2adfc5586', 'bus_fee', 'status', 'PAID', FALSE, TRUE, 40, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('5d2f964c-a13c-5d01-9c00-bd9f556a04eb', 'bus_fee', 'status', 'WAIVED', FALSE, TRUE, 50, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('981ab147-f7e9-55f0-88c7-94ca24c6e459', 'bus_fee', 'status', 'CANCELLED', FALSE, TRUE, 60, TRUE, NOW())
 ON CONFLICT DO NOTHING;

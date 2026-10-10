@@ -5,7 +5,7 @@
  * completes. Components read from this cache via `getSysCache()` — reads are
  * instant because they skip the network entirely.
  *
- * Generated: 2026-10-04T01:11:46.895Z
+ * Generated: 2026-10-09T15:28:45.786Z
  * Project: finance
  */
 

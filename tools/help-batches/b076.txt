@@ -1,0 +1,100 @@
+@ TelecomSubscription
+r customer
+n: A subscription is held by a single customer, who receives the bill.
+r service
+n: A subscription provides one telecom service; a second line is a second subscription.
+
+@ Ticket
+a ticketNumber
+s: The number of the ticket, such as TK-20418.
+a status
+v NEW: Raised and not yet looked at.
+v ASSIGNED: Given to a queue or person.
+v IN_PROGRESS: Being worked.
+v PENDING: Waiting for the customer or a third party.
+v RESOLVED: A fix or answer has been given.
+v CLOSED: Confirmed finished. A final state.
+v CANCELLED: Withdrawn without action. A final state.
+
+@ TrackingEvent
+s: A timestamped observation of how a shipment or its containers and handling units are progressing.
+b: Tracking events give the shipment's trail: where it was and when. Because each is a fixed observation, the history can be trusted for delivery proof and delay analysis, and a correction is a new event.
+u: Created by carriers, scanners and staff; read by customer service and logistics.
+c: Each event belongs to one shipment.
+l: An event is recorded once and never changed. A mistaken one is followed by a correcting event.
+x: "Departed Leeds depot" recorded for shipment SH-1042 at 14:05 on 3 March.
+a trackingEventId
+s: The identity of the event, constant for its life.
+b: Lets a correction refer to the event it corrects.
+u: Generated on creation.
+c: Referenced by the shipment's history.
+a code
+s: The code of the event type, such as DEPARTED or DELIVERED.
+b: Gives events a consistent vocabulary across carriers.
+u: Entered by the source system; reports group by it.
+c: Read with the time and place.
+r shipment
+n: Each event is about exactly one shipment, whose trail it extends.
+
+@ TradeDeclaration
+s: A formal customs or trade declaration describing goods crossing a border.
+b: A trade declaration tells the customs authority what is being imported, exported or moved in transit, with the value and the parties. It is the legal record that lets goods be released and duties be worked out.
+u: Prepared by trade compliance or a broker; submitted to customs; read by logistics and finance.
+c: A declaration may name an importer and an exporter, relates to a shipment and has supporting documents.
+l: A declaration is drafted and submitted, accepted or reviewed by customs, then released. It may be rejected or cancelled. Released, rejected and cancelled are final.
+x: An import declaration for a shipment of machine parts is submitted on 3 March and released on 5 March.
+a tradeDeclarationId
+s: The identity of the declaration, constant for its life.
+u: Generated on creation; documents and duties refer to it.
+c: Referenced by shipments and duty records.
+a declarationNumber
+s: The number of the declaration, such as the customs reference.
+u: Unique; quoted to customs.
+c: Read with the type.
+a declarationType
+s: The kind of crossing declared.
+u: Chosen when created; decides the forms and duties.
+c: Read with the importer and exporter.
+v IMPORT: Goods entering the country.
+v EXPORT: Goods leaving the country.
+v TRANSIT: Goods passing through under customs control.
+v RE_EXPORT: Imported goods leaving again.
+v OTHER: A declaration of another kind.
+a declarationDate
+u: Set when the declaration is made; duty rates are taken as at this date.
+c: Compared with the release date.
+a status
+s: Where the declaration is with customs.
+u: Starts as DRAFT; moved as it is submitted and answered.
+c: Goods cannot move until it is released.
+v DRAFT: Being prepared; not yet sent.
+v SUBMITTED: Filed with customs.
+v ACCEPTED: Accepted by customs for processing.
+v UNDER_REVIEW: Customs is checking it.
+v RELEASED: Goods may proceed. A final state.
+v REJECTED: Refused by customs. A final state.
+v CANCELLED: Withdrawn by the declarant. A final state.
+a customsValue
+s: The value of the goods declared to customs.
+u: Entered from the invoice; duties are based on it.
+c: Compared with the invoice total.
+r importer
+s: The party importing the goods.
+u: Chosen for imports.
+n: At most one importer.
+t: Who is liable for duties.
+r exporter
+s: The party exporting the goods.
+u: Chosen for exports.
+n: At most one exporter.
+t: Who must declare the goods leaving.
+r shipment
+s: The shipment the declaration covers.
+u: Chosen when the declaration is for a shipment.
+n: At most one shipment.
+t: Links the legal filing to the movement.
+r documents
+s: The documents supporting the declaration.
+u: Attached before filing.
+n: Any number of documents.
+t: Provide evidence to customs.

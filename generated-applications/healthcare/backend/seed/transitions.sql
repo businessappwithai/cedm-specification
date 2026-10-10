@@ -310,34 +310,34 @@ INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, st
 VALUES ('7407fd3e-6160-580e-942b-09e6b2623b25', 'bus_task', 'status', 'BLOCKED', 'FAILED', 'fail', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- HealthcarePatientLifecycle: ACTIVE → DECEASED (mark_deceased)
+-- HealthcarePatientLifecycle: ACTIVE → INACTIVE (deactivate)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('4d0b558b-8bef-5e16-8fb7-bb65d491b545', 'bus_healthcare_patient', 'status', 'ACTIVE', 'DECEASED', 'mark_deceased', TRUE, NOW())
+VALUES ('64fa1d71-e6f3-5fd1-9224-cc3e2fc3acb3', 'bus_healthcare_patient', 'status', 'ACTIVE', 'INACTIVE', 'deactivate', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- HealthcarePatientLifecycle: DECEASED → MERGED (mark_merged)
+-- HealthcarePatientLifecycle: INACTIVE → ACTIVE (reactivate)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('3ac1ebf8-997d-53f9-b6c7-618322f5b66b', 'bus_healthcare_patient', 'status', 'DECEASED', 'MERGED', 'mark_merged', TRUE, NOW())
+VALUES ('0e0d6209-05ad-563d-9702-f36c5adf9e77', 'bus_healthcare_patient', 'status', 'INACTIVE', 'ACTIVE', 'reactivate', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- HealthcarePatientLifecycle: DECEASED → INACTIVE (deactivate)
+-- HealthcarePatientLifecycle: ACTIVE → DECEASED (record_death)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('34cf2885-215b-519e-8ec8-75eb7b471e59', 'bus_healthcare_patient', 'status', 'DECEASED', 'INACTIVE', 'deactivate', TRUE, NOW())
+VALUES ('4d0b558b-8bef-5e16-8fb7-bb65d491b545', 'bus_healthcare_patient', 'status', 'ACTIVE', 'DECEASED', 'record_death', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- HealthcarePatientLifecycle: INACTIVE → DECEASED (reactivate)
+-- HealthcarePatientLifecycle: INACTIVE → DECEASED (record_death)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('b0b27ec4-f040-5a11-b2fd-fa703e20e2f6', 'bus_healthcare_patient', 'status', 'INACTIVE', 'DECEASED', 'reactivate', TRUE, NOW())
+VALUES ('b0b27ec4-f040-5a11-b2fd-fa703e20e2f6', 'bus_healthcare_patient', 'status', 'INACTIVE', 'DECEASED', 'record_death', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- HealthcarePatientLifecycle: MERGED → INACTIVE (deactivate)
+-- HealthcarePatientLifecycle: ACTIVE → MERGED (merge)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('07472606-e044-5124-9b3c-3463b5dc8adc', 'bus_healthcare_patient', 'status', 'MERGED', 'INACTIVE', 'deactivate', TRUE, NOW())
+VALUES ('3894ab6a-aaf9-5503-9929-9fabf8c2308f', 'bus_healthcare_patient', 'status', 'ACTIVE', 'MERGED', 'merge', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- HealthcarePatientLifecycle: INACTIVE → MERGED (reactivate)
+-- HealthcarePatientLifecycle: INACTIVE → MERGED (merge)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('380ac270-2c32-5e62-9e8c-48210829606a', 'bus_healthcare_patient', 'status', 'INACTIVE', 'MERGED', 'reactivate', TRUE, NOW())
+VALUES ('380ac270-2c32-5e62-9e8c-48210829606a', 'bus_healthcare_patient', 'status', 'INACTIVE', 'MERGED', 'merge', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- HealthcareProviderLifecycle: ACTIVE → INACTIVE (deactivate)
@@ -373,6 +373,91 @@ ON CONFLICT DO NOTHING;
 -- HealthcareProviderLifecycle: SUSPENDED → RETIRED (retire)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
 VALUES ('1e5d4a82-675f-51fc-849a-b85f5f331e11', 'bus_healthcare_provider', 'status', 'SUSPENDED', 'RETIRED', 'retire', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- PractitionerLifecycle: DRAFT → ACTIVE (activate)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('784036d7-87dd-5138-b515-dca3a4387301', 'bus_practitioner', 'status', 'DRAFT', 'ACTIVE', 'activate', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- PractitionerLifecycle: ACTIVE → SUSPENDED (suspend)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('d684cb59-9211-5230-9451-a5fa5860a996', 'bus_practitioner', 'status', 'ACTIVE', 'SUSPENDED', 'suspend', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- PractitionerLifecycle: SUSPENDED → ACTIVE (resume)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('0de52ce4-fdcd-5603-8f59-582de2855443', 'bus_practitioner', 'status', 'SUSPENDED', 'ACTIVE', 'resume', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- PractitionerLifecycle: ACTIVE → INACTIVE (deactivate)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('221aa6e0-bbe9-58c3-bfcb-29d7c70628a5', 'bus_practitioner', 'status', 'ACTIVE', 'INACTIVE', 'deactivate', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- PractitionerLifecycle: INACTIVE → ACTIVE (reactivate)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('b3799264-d3f9-5879-b815-3c0db7706540', 'bus_practitioner', 'status', 'INACTIVE', 'ACTIVE', 'reactivate', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- PractitionerLifecycle: DRAFT → RETIRED (retire)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('e1f60bc2-1207-5547-a218-ef6b742e9dd4', 'bus_practitioner', 'status', 'DRAFT', 'RETIRED', 'retire', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- PractitionerLifecycle: ACTIVE → RETIRED (retire)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('6454ffd7-cc03-580d-8cc8-1cb0fe325d67', 'bus_practitioner', 'status', 'ACTIVE', 'RETIRED', 'retire', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- PractitionerLifecycle: SUSPENDED → RETIRED (retire)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('dbeed16b-6c46-59ea-b304-631a0c46a6c1', 'bus_practitioner', 'status', 'SUSPENDED', 'RETIRED', 'retire', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- PractitionerLifecycle: INACTIVE → RETIRED (retire)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('8bc24c0c-dbfd-5575-8ed6-2450808653a1', 'bus_practitioner', 'status', 'INACTIVE', 'RETIRED', 'retire', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- AppointmentLifecycle: SCHEDULED → CONFIRMED (confirm)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('cb40f897-4873-5a4e-9131-166b790ae424', 'bus_appointment', 'status', 'SCHEDULED', 'CONFIRMED', 'confirm', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- AppointmentLifecycle: SCHEDULED → CHECKED_IN (check_in)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('719c6914-9eb9-5f84-9111-7a9298154fd0', 'bus_appointment', 'status', 'SCHEDULED', 'CHECKED_IN', 'check_in', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- AppointmentLifecycle: CONFIRMED → CHECKED_IN (check_in)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('bd382cb5-ea8e-5879-9188-b07f526258a6', 'bus_appointment', 'status', 'CONFIRMED', 'CHECKED_IN', 'check_in', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- AppointmentLifecycle: CHECKED_IN → COMPLETED (complete)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('07837613-f143-5338-85ce-eedacc6e480f', 'bus_appointment', 'status', 'CHECKED_IN', 'COMPLETED', 'complete', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- AppointmentLifecycle: SCHEDULED → CANCELLED (cancel)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('3574cf49-3a9e-529a-ad08-486724ae37a4', 'bus_appointment', 'status', 'SCHEDULED', 'CANCELLED', 'cancel', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- AppointmentLifecycle: CONFIRMED → CANCELLED (cancel)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('9f8ed8ba-2bef-5ec2-8106-5b2daef51f4d', 'bus_appointment', 'status', 'CONFIRMED', 'CANCELLED', 'cancel', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- AppointmentLifecycle: SCHEDULED → NO_SHOW (mark_no_show)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('894e5c72-49c3-50f5-91be-3f04af0b0984', 'bus_appointment', 'status', 'SCHEDULED', 'NO_SHOW', 'mark_no_show', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- AppointmentLifecycle: CONFIRMED → NO_SHOW (mark_no_show)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('5ef46e3f-c55a-5f9e-b38d-cb35964a6232', 'bus_appointment', 'status', 'CONFIRMED', 'NO_SHOW', 'mark_no_show', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- HealthcareEncounterLifecycle: PLANNED → IN_PROGRESS (start)
@@ -662,10 +747,10 @@ INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field
 VALUES ('f42f38de-4e1d-5d5a-b778-15aa58025cbe', 'bus_healthcare_patient', 'status', 'INACTIVE', FALSE, FALSE, 20, TRUE, NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
-VALUES ('96ef8ab8-41f0-565e-8a34-205a69097ba1', 'bus_healthcare_patient', 'status', 'DECEASED', FALSE, FALSE, 30, TRUE, NOW())
+VALUES ('96ef8ab8-41f0-565e-8a34-205a69097ba1', 'bus_healthcare_patient', 'status', 'DECEASED', FALSE, TRUE, 30, TRUE, NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
-VALUES ('57929104-c7cf-5efd-9dcc-4299e814c4a3', 'bus_healthcare_patient', 'status', 'MERGED', FALSE, FALSE, 40, TRUE, NOW())
+VALUES ('57929104-c7cf-5efd-9dcc-4299e814c4a3', 'bus_healthcare_patient', 'status', 'MERGED', FALSE, TRUE, 40, TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- HealthcareProviderLifecycle: states
@@ -680,6 +765,43 @@ VALUES ('46b4d3b3-c056-5e95-87ae-183d4cd14531', 'bus_healthcare_provider', 'stat
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
 VALUES ('a581fde7-95bf-550d-b041-97e4cfb3aeaa', 'bus_healthcare_provider', 'status', 'RETIRED', FALSE, TRUE, 40, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- PractitionerLifecycle: states
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('b4f5dc0e-fa79-5926-a4db-532c192034b3', 'bus_practitioner', 'status', 'DRAFT', TRUE, FALSE, 10, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('41cdb416-7964-5566-894d-7a2c7acf435e', 'bus_practitioner', 'status', 'ACTIVE', FALSE, FALSE, 20, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('a3aabc1a-9c50-5d40-971f-b5371403f10e', 'bus_practitioner', 'status', 'SUSPENDED', FALSE, FALSE, 30, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('ffae9d8c-3a91-5d71-baf3-e8364aeaa8bd', 'bus_practitioner', 'status', 'INACTIVE', FALSE, FALSE, 40, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('e5ea6190-fc17-5178-a333-2e689ca2c175', 'bus_practitioner', 'status', 'RETIRED', FALSE, TRUE, 50, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- AppointmentLifecycle: states
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('a0056948-ac83-5baa-a930-5fbde08faf6b', 'bus_appointment', 'status', 'SCHEDULED', TRUE, FALSE, 10, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('c9021792-78f5-572b-9a54-a6e623f76010', 'bus_appointment', 'status', 'CONFIRMED', FALSE, FALSE, 20, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('dafbca5b-af94-5131-85d2-973c3370ec95', 'bus_appointment', 'status', 'CHECKED_IN', FALSE, FALSE, 30, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('f5da573a-0b9e-55d6-9a7b-838b4726fc5c', 'bus_appointment', 'status', 'COMPLETED', FALSE, TRUE, 40, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('a114c18c-a936-530b-a3f3-3e6aece54342', 'bus_appointment', 'status', 'CANCELLED', FALSE, TRUE, 50, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('4e6bf7ee-78da-5bf2-9553-498252c5362a', 'bus_appointment', 'status', 'NO_SHOW', FALSE, TRUE, 60, TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- HealthcareEncounterLifecycle: states

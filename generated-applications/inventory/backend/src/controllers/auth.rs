@@ -22,6 +22,7 @@ use serde_json::json;
 use crate::errors::{AppError, AppResult};
 use crate::models::_entities::users;
 use crate::models::users::{LoginParams, RegisterParams, UserResponse};
+use crate::services::authz;
 
 #[derive(Debug, Serialize)]
 struct LoginResponse {
@@ -82,6 +83,24 @@ pub async fn login(
         return Err(invalid_credentials());
     }
 
+    // Deactivated and locked accounts are told what any wrong password is
+    // told. A different answer would confirm the address belongs to a real
+    // account, and that the password was right.
+    let pool = ctx.db.get_postgres_connection_pool();
+    if !authz::account_enabled(pool, &user).await? {
+        return Err(invalid_credentials());
+    }
+    if let Some(sys_user_id) = user.sys_user_id {
+        // Informational for the accounts screen; failures are not counted, so
+        // guessing passwords cannot lock the administrator out.
+        let _ = sqlx::query(
+            "UPDATE sys_user SET login_date = NOW(), login_failure_count = 0 WHERE sys_user_id = $1",
+        )
+        .bind(sys_user_id)
+        .execute(pool)
+        .await;
+    }
+
     let token = issue_token(&ctx, &user.pid.to_string())?;
     let role = user.role_name(&ctx.db).await;
 
@@ -110,6 +129,10 @@ pub async fn current(
     auth: auth::JWTWithUser<users::Model>,
     State(ctx): State<AppContext>,
 ) -> AppResult<Response> {
+    // A token outlives the account's standing; this is where the session ends.
+    if !authz::account_enabled(ctx.db.get_postgres_connection_pool(), &auth.user).await? {
+        return Err(AppError::Unauthorized);
+    }
     let role = auth.user.role_name(&ctx.db).await;
     Ok(Json(json!({ "user": UserResponse::new(&auth.user, role) })).into_response())
 }
@@ -236,7 +259,11 @@ fn issue_token(ctx: &AppContext, pid: &str) -> AppResult<String> {
     // NOTE: `auth` from the prelude is the *extractor* module
     // (`controller::extractor::auth`); the JWT type lives at the crate root.
     loco_rs::auth::jwt::JWT::new(&jwt.secret)
-        .generate_token(jwt.expiration, pid.to_string(), serde_json::Map::<String, serde_json::Value>::new())
+        .generate_token(
+            jwt.expiration,
+            pid.to_string(),
+            serde_json::Map::<String, serde_json::Value>::new(),
+        )
         .map_err(|err| AppError::Internal(err.into()))
 }
 
@@ -249,7 +276,8 @@ fn session_cookie(ctx: &AppContext, token: &str) -> AppResult<HeaderValue> {
     } else {
         ""
     };
-    let cookie = format!("token={token}; HttpOnly; SameSite=Lax; Path=/; Max-Age={max_age}{secure}");
+    let cookie =
+        format!("token={token}; HttpOnly; SameSite=Lax; Path=/; Max-Age={max_age}{secure}");
     HeaderValue::from_str(&cookie).map_err(|err| AppError::Internal(err.into()))
 }
 

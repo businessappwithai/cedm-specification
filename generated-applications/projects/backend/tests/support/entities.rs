@@ -5,7 +5,7 @@
 //! payload, so adding an entity to the model adds it to the tests without
 //! anyone writing a test.
 //!
-//! Generated: 2026-10-04T01:12:33.610Z
+//! Generated: 2026-10-10T04:18:59.980Z
 //! Project: projects
 
 /// What a column holds, which is what decides the shape of a generated value.
@@ -220,7 +220,42 @@ pub fn is_managed(column: &str) -> bool {
     )
 }
 
+/// `(table, column, initial state)` for every column a state machine the model
+/// drew governs — the same resolution `requests/model_transitions.rs` asserts
+/// against. Such a column is not free text: the API refuses a move the diagram
+/// does not draw, so a suite that writes an arbitrary string into it tests the
+/// transition guard instead of what it set out to test.
+pub const STATE_COLUMNS: &[(&str, &str, &str)] = &[
+    ("bus_party", "status", "ACTIVE"),
+    ("bus_organization", "status", "DRAFT"),
+    ("bus_party_role", "status", "ACTIVE"),
+    ("bus_address", "status", "ACTIVE"),
+    ("bus_location", "status", "PLANNED"),
+    ("bus_currency", "status", "ACTIVE"),
+    ("bus_exchange_rate", "status", "DRAFT"),
+    ("bus_unit_of_measure", "status", "ACTIVE"),
+    ("bus_task", "status", "CREATED"),
+    ("bus_project", "status", "DRAFT"),
+    ("bus_project_phase", "status", "PLANNED"),
+    ("bus_project_task", "status", "NOT_STARTED"),
+    ("bus_milestone", "status", "PLANNED"),
+    ("bus_resource_assignment", "status", "DRAFT"),
+    ("bus_timesheet", "status", "DRAFT"),
+    ("bus_project_cost", "status", "DRAFT"),
+    ("bus_professional_engagement", "status", "PROPOSED"),
+];
+
 impl EntityMeta {
+    /// The state a new record starts in, when a state machine governs `column`.
+    pub fn initial_state(&self, column: &str) -> Option<&'static str> {
+        STATE_COLUMNS
+            .iter()
+            .find(|(table, governed, initial)| {
+                *table == self.table_name && *governed == column && !initial.is_empty()
+            })
+            .map(|(_, _, initial)| *initial)
+    }
+
     /// The fields a caller may actually write.
     ///
     /// Everything else on this type filters through here, so a server-managed
@@ -236,8 +271,10 @@ impl EntityMeta {
 
     /// The first free-text field, for "does it persist what I sent?" assertions.
     pub fn first_text_field(&self) -> Option<&FieldMeta> {
-        self.writable_fields()
-            .find(|f| matches!(f.field_type, FieldType::String | FieldType::Text))
+        self.writable_fields().find(|f| {
+            matches!(f.field_type, FieldType::String | FieldType::Text)
+                && self.initial_state(f.name).is_none()
+        })
     }
 
     /// The first numeric field, for the rules suites' range checks.
@@ -1248,14 +1285,14 @@ pub static ENTITIES: &[EntityMeta] = &[
                 max_length: None,
             },
             FieldMeta {
-                name: "from_currency",
+                name: "from_currency_id",
                 field_type: FieldType::from_model("string", true),
                 required: true,
                 ref_table: Some("bus_currency"),
                 max_length: None,
             },
             FieldMeta {
-                name: "to_currency",
+                name: "to_currency_id",
                 field_type: FieldType::from_model("string", true),
                 required: true,
                 ref_table: Some("bus_currency"),
@@ -1840,6 +1877,83 @@ pub static ENTITIES: &[EntityMeta] = &[
                 field_type: FieldType::from_model("string", true),
                 required: true,
                 ref_table: Some("bus_professional_engagement"),
+                max_length: None,
+            },
+        ],
+    },
+    EntityMeta {
+        name: "ProjectCost",
+        table_name: "bus_project_cost",
+        route: "bus_project_cost",
+        fields: &[
+            FieldMeta {
+                name: "id",
+                field_type: FieldType::from_model("string", false),
+                required: false,
+                ref_table: ref_table_for("id", false),
+                max_length: None,
+            },
+            FieldMeta {
+                name: "cost_number",
+                field_type: FieldType::from_model("string", false),
+                required: true,
+                ref_table: ref_table_for("cost_number", false),
+                max_length: Some(120),
+            },
+            FieldMeta {
+                name: "cost_type",
+                field_type: FieldType::from_model("string", false),
+                required: true,
+                ref_table: ref_table_for("cost_type", false),
+                max_length: None,
+            },
+            FieldMeta {
+                name: "amount",
+                field_type: FieldType::from_model("decimal", false),
+                required: true,
+                ref_table: ref_table_for("amount", false),
+                max_length: None,
+            },
+            FieldMeta {
+                name: "incurred_date",
+                field_type: FieldType::from_model("date", false),
+                required: true,
+                ref_table: ref_table_for("incurred_date", false),
+                max_length: None,
+            },
+            FieldMeta {
+                name: "status",
+                field_type: FieldType::from_model("string", false),
+                required: true,
+                ref_table: ref_table_for("status", false),
+                max_length: None,
+            },
+            FieldMeta {
+                name: "project_id",
+                field_type: FieldType::from_model("string", true),
+                required: true,
+                ref_table: ref_table_for("project_id", true),
+                max_length: None,
+            },
+            FieldMeta {
+                name: "project_task_id",
+                field_type: FieldType::from_model("string", true),
+                required: false,
+                ref_table: ref_table_for("project_task_id", true),
+                max_length: None,
+            },
+            FieldMeta {
+                name: "timesheet_id",
+                field_type: FieldType::from_model("string", true),
+                required: false,
+                ref_table: ref_table_for("timesheet_id", true),
+                max_length: None,
+            },
+            FieldMeta {
+                name: "currency_id",
+                field_type: FieldType::from_model("string", true),
+                required: true,
+                ref_table: ref_table_for("currency_id", true),
                 max_length: None,
             },
         ],
@@ -3283,6 +3397,104 @@ pub static ENTITIES: &[EntityMeta] = &[
         name: "TimesheetStatus",
         table_name: "bus_timesheet_status",
         route: "bus_timesheet_status",
+        fields: &[
+            FieldMeta {
+                name: "id",
+                field_type: FieldType::from_model("string", false),
+                required: false,
+                ref_table: ref_table_for("id", false),
+                max_length: None,
+            },
+            FieldMeta {
+                name: "code",
+                field_type: FieldType::from_model("string", false),
+                required: true,
+                ref_table: ref_table_for("code", false),
+                max_length: Some(100),
+            },
+            FieldMeta {
+                name: "name",
+                field_type: FieldType::from_model("string", false),
+                required: true,
+                ref_table: ref_table_for("name", false),
+                max_length: Some(200),
+            },
+            FieldMeta {
+                name: "description",
+                field_type: FieldType::from_model("text", false),
+                required: false,
+                ref_table: ref_table_for("description", false),
+                max_length: None,
+            },
+            FieldMeta {
+                name: "sequence",
+                field_type: FieldType::from_model("integer", false),
+                required: true,
+                ref_table: ref_table_for("sequence", false),
+                max_length: None,
+            },
+            FieldMeta {
+                name: "is_active",
+                field_type: FieldType::from_model("boolean", false),
+                required: true,
+                ref_table: ref_table_for("is_active", false),
+                max_length: None,
+            },
+        ],
+    },
+    EntityMeta {
+        name: "ProjectCostCostType",
+        table_name: "bus_project_cost_cost_type",
+        route: "bus_project_cost_cost_type",
+        fields: &[
+            FieldMeta {
+                name: "id",
+                field_type: FieldType::from_model("string", false),
+                required: false,
+                ref_table: ref_table_for("id", false),
+                max_length: None,
+            },
+            FieldMeta {
+                name: "code",
+                field_type: FieldType::from_model("string", false),
+                required: true,
+                ref_table: ref_table_for("code", false),
+                max_length: Some(100),
+            },
+            FieldMeta {
+                name: "name",
+                field_type: FieldType::from_model("string", false),
+                required: true,
+                ref_table: ref_table_for("name", false),
+                max_length: Some(200),
+            },
+            FieldMeta {
+                name: "description",
+                field_type: FieldType::from_model("text", false),
+                required: false,
+                ref_table: ref_table_for("description", false),
+                max_length: None,
+            },
+            FieldMeta {
+                name: "sequence",
+                field_type: FieldType::from_model("integer", false),
+                required: true,
+                ref_table: ref_table_for("sequence", false),
+                max_length: None,
+            },
+            FieldMeta {
+                name: "is_active",
+                field_type: FieldType::from_model("boolean", false),
+                required: true,
+                ref_table: ref_table_for("is_active", false),
+                max_length: None,
+            },
+        ],
+    },
+    EntityMeta {
+        name: "ProjectCostStatus",
+        table_name: "bus_project_cost_status",
+        route: "bus_project_cost_status",
         fields: &[
             FieldMeta {
                 name: "id",

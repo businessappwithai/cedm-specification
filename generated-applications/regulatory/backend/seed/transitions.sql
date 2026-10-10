@@ -320,39 +320,24 @@ INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, st
 VALUES ('61a11e39-7a85-5868-8c4d-f0d0b55d3f19', 'bus_regulatory_submission', 'status', 'SUBMITTED', 'UNDER_REVIEW', 'review', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- RegulatorySubmissionLifecycle: UNDER_REVIEW → QUESTIONS (mark_questions)
+-- RegulatorySubmissionLifecycle: UNDER_REVIEW → QUESTIONS (query)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('0f8fba4b-fa18-501d-94da-3bf1664a66bc', 'bus_regulatory_submission', 'status', 'UNDER_REVIEW', 'QUESTIONS', 'mark_questions', TRUE, NOW())
+VALUES ('0f8fba4b-fa18-501d-94da-3bf1664a66bc', 'bus_regulatory_submission', 'status', 'UNDER_REVIEW', 'QUESTIONS', 'query', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- RegulatorySubmissionLifecycle: QUESTIONS → APPROVED (approve)
+-- RegulatorySubmissionLifecycle: QUESTIONS → UNDER_REVIEW (respond)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('c4db6e8d-c4e9-5445-887b-5ecd8959c6d9', 'bus_regulatory_submission', 'status', 'QUESTIONS', 'APPROVED', 'approve', TRUE, NOW())
+VALUES ('69614806-2859-5847-aa89-e5e64c9c0970', 'bus_regulatory_submission', 'status', 'QUESTIONS', 'UNDER_REVIEW', 'respond', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- RegulatorySubmissionLifecycle: DRAFT → REJECTED (reject)
+-- RegulatorySubmissionLifecycle: UNDER_REVIEW → APPROVED (approve)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('7061d4b2-9721-5021-8497-1375bb7d6e72', 'bus_regulatory_submission', 'status', 'DRAFT', 'REJECTED', 'reject', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- RegulatorySubmissionLifecycle: SUBMITTED → REJECTED (reject)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('787b73e9-3bf7-5f93-bf8a-683268608b4a', 'bus_regulatory_submission', 'status', 'SUBMITTED', 'REJECTED', 'reject', TRUE, NOW())
+VALUES ('a3d8d0bd-3c43-5926-a7e2-b6b488d588fa', 'bus_regulatory_submission', 'status', 'UNDER_REVIEW', 'APPROVED', 'approve', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- RegulatorySubmissionLifecycle: UNDER_REVIEW → REJECTED (reject)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
 VALUES ('700991b1-6020-578b-a804-e77cd509224c', 'bus_regulatory_submission', 'status', 'UNDER_REVIEW', 'REJECTED', 'reject', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- RegulatorySubmissionLifecycle: QUESTIONS → REJECTED (reject)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('1d356ba2-ceed-513e-b545-5e4f6d909479', 'bus_regulatory_submission', 'status', 'QUESTIONS', 'REJECTED', 'reject', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- RegulatorySubmissionLifecycle: APPROVED → REJECTED (reject)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('a67b06ea-f411-5974-9fc0-565cd85dcb48', 'bus_regulatory_submission', 'status', 'APPROVED', 'REJECTED', 'reject', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- RegulatorySubmissionLifecycle: DRAFT → WITHDRAWN (withdraw)
@@ -373,11 +358,6 @@ ON CONFLICT DO NOTHING;
 -- RegulatorySubmissionLifecycle: QUESTIONS → WITHDRAWN (withdraw)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
 VALUES ('bdec37b4-1c5c-59a9-a076-0f4f0e5e28ca', 'bus_regulatory_submission', 'status', 'QUESTIONS', 'WITHDRAWN', 'withdraw', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- RegulatorySubmissionLifecycle: APPROVED → WITHDRAWN (withdraw)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('d809459c-ac1b-5d48-9c94-f00c9680fa72', 'bus_regulatory_submission', 'status', 'APPROVED', 'WITHDRAWN', 'withdraw', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- PartyLifecycle: states
@@ -523,7 +503,7 @@ INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field
 VALUES ('41741ade-5bd8-5159-8663-0e09959c68ab', 'bus_regulatory_submission', 'status', 'QUESTIONS', FALSE, FALSE, 40, TRUE, NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
-VALUES ('044f536e-03b0-5d21-a623-f5e884c79ff7', 'bus_regulatory_submission', 'status', 'APPROVED', FALSE, FALSE, 50, TRUE, NOW())
+VALUES ('044f536e-03b0-5d21-a623-f5e884c79ff7', 'bus_regulatory_submission', 'status', 'APPROVED', FALSE, TRUE, 50, TRUE, NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
 VALUES ('8487c1f8-0756-56c6-9016-2fa9d8b70d52', 'bus_regulatory_submission', 'status', 'REJECTED', FALSE, TRUE, 60, TRUE, NOW())

@@ -17,6 +17,7 @@ imports:
   - entity: Milestone
   - entity: ResourceAssignment
   - entity: Timesheet
+  - entity: ProjectCost
 ui:
   categories:
     - name: Project Management

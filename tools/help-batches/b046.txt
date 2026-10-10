@@ -1,0 +1,101 @@
+@ Prospect
+s: A potential customer that has been identified but is not yet qualified as a lead or established as a customer.
+b: A prospect is the earliest stage of a sales relationship. Recording it lets the business keep track of who it hopes to win before any qualification effort is spent, and decide later whether to promote it to a lead or drop it.
+u: Created by sales or marketing from lists, events or referrals; read by sales when deciding whom to pursue.
+c: A prospect is the sales state of one party, which holds the name and contact details.
+l: A prospect is recorded, then either qualified onward as a lead or left. Contact history is kept either way.
+x: A regional distributor met at a trade show is recorded as a prospect until a salesperson qualifies it.
+a prospectId
+s: The identity of the prospect, constant for its life.
+u: Generated on creation; follow-up activity refers to it.
+c: Referenced by activities and by the lead made from it.
+a code
+s: The short code of the prospect, such as PRS-0192.
+u: Used in lists and imports; unique where used.
+c: Read with the party's name to identify the prospect.
+r party
+n: The prospect is the sales state of exactly one party, so contact details are held once on the party.
+
+@ Protocol
+s: A governed scientific procedure that sets out objectives, methods, eligibility, measurements, controls and execution rules for studies and experiments.
+b: A protocol fixes how work is to be done so that results are comparable and defensible. Studies and experiments follow an approved protocol, and a change goes through a new approval rather than being made on the day.
+u: Written by the scientist or study lead; approved by quality or the principal investigator; read by everyone who runs the work.
+c: A protocol may belong to a research project and is followed by studies and experiments; documents support it.
+l: A protocol is drafted, approved, may be suspended and reinstated, and is retired when superseded. Retired is final.
+x: Protocol PR-117 sets out how a cell viability assay is run and read, and is approved before any study uses it.
+a protocolCode
+s: The code of the protocol, such as PR-117.
+u: Unique; quoted in studies, experiments and reports.
+a title
+s: The title of the protocol.
+u: Shown in lists and on reports.
+r studies
+n: Any number of studies can follow the same protocol.
+r experiments
+n: Any number of experiments can be run under the protocol.
+r documents
+n: Any number of supporting documents, such as method sheets and approvals.
+
+@ PurchaseOrderLine
+s: One item ordered on a purchase order, with the quantity, price and the progress of receipt, invoicing and return.
+b: The line is where the commitment is made precise: which product, how many, at what price and from what source. It keeps the price as agreed at the time and tracks what has since arrived, been accepted, returned and is still owed, so the order's completion can be judged line by line.
+u: Created with the order, from a requisition or quotation line; updated as goods arrive; read by receiving, accounts payable and buyers.
+c: A line belongs to one order and product, may come from a quotation or requisition line, and is matched by receipt, invoice and return lines.
+l: A line follows its order: open until fully received, then settled. Its quantities change only through receipts and returns.
+x: Line 2 of PO-5120 orders 400 bolts at 0.35 each; 250 have been received and 150 are outstanding.
+a purchaseOrderLineId
+s: The identity of the line, constant for its life.
+u: Generated on creation; receipt and invoice lines refer to it.
+c: Referenced when matching receipts and invoices.
+a lineNumber
+s: The position of the line on the order.
+u: Assigned in sequence; used to refer to the line in documents.
+c: Read with the order number to name a line.
+a quantity
+s: The quantity ordered, in the line's unit of measure.
+u: Entered when ordering; receipts are measured against it.
+c: Compared with received quantity to find what is outstanding.
+a unitPrice
+s: The price for one unit, as agreed when the order was placed.
+u: Set from the price source; kept even if prices later change.
+c: Multiplied by quantity to give the line amount.
+a lineAmount
+s: The value of the line: quantity times unit price.
+u: Calculated; summed into the order total.
+c: Matched against the invoiced amount.
+a receivedQuantity
+s: The quantity physically received so far.
+u: Increased by goods receipt lines.
+c: Compared with accepted quantity to find rejections.
+a acceptedQuantity
+s: The quantity received and accepted after inspection.
+u: Increased as receipts are accepted; invoicing is matched to it.
+c: Never more than the received quantity.
+a returnedQuantity
+s: The quantity sent back to the supplier.
+u: Increased by supplier return lines.
+c: Reduces the accepted quantity that is payable.
+a outstandingQuantity
+s: The quantity still to be delivered.
+u: Calculated from ordered, received and returned; read by expediters.
+c: Reaches zero when the line is fully delivered.
+r purchaseOrder
+s: The purchase order this line belongs to.
+u: Set when the line is added.
+n: Exactly one order; a line cannot stand alone.
+r product
+s: The product being ordered.
+u: Chosen when the line is entered.
+n: Exactly one product per line.
+r unitOfMeasure
+s: The unit the quantity is expressed in.
+u: Defaults to the product's purchasing unit.
+n: At most one unit; empty uses the product's default.
+r goodsReceiptLines
+s: The receipt lines recording delivery against this line.
+u: Read to see what has arrived.
+n: Any number, since a line may arrive in several deliveries.
+r invoiceLines
+s: The supplier invoice lines billing this line.
+u: Read for three-way matching.
+n: Any number, as a line may be invoiced in parts.

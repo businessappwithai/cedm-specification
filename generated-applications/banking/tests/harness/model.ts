@@ -13,7 +13,7 @@
  * word, so a dropdown that lost an option or a state machine that lost an edge
  * fails a test instead of quietly shipping.
  *
- * Generated: 2026-10-04T01:11:19.838Z
+ * Generated: 2026-10-09T15:27:57.361Z
  * Project: banking
  */
 
@@ -85,108 +85,113 @@ export const modelEnums: ModelEnum[] = [
     values: ["CREDIT", "DEBIT", "TRANSFER", "FEE", "INTEREST", "REVERSAL", "OTHER"],
   },
   {
-    name: "CreditStatus",
+    name: "CreditReason",
     referenceId: 1007,
+    values: ["GOODWILL", "BILLING_ERROR", "RETURN", "PROMOTION", "OTHER"],
+  },
+  {
+    name: "CreditStatus",
+    referenceId: 1008,
     values: ["DRAFT", "ACTIVE", "COMPLETED", "CANCELLED"],
   },
   {
     name: "CurrencyStatus",
-    referenceId: 1008,
+    referenceId: 1009,
     values: ["ACTIVE", "INACTIVE", "RETIRED"],
   },
   {
     name: "ExchangeRateRateType",
-    referenceId: 1009,
+    referenceId: 1010,
     values: ["SPOT", "CONTRACT", "DAILY", "MONTHLY", "ACCOUNTING", "CUSTOM"],
   },
   {
     name: "ExchangeRateStatus",
-    referenceId: 1010,
+    referenceId: 1011,
     values: ["DRAFT", "ACTIVE", "EXPIRED", "CANCELLED"],
   },
   {
     name: "LocationLocationType",
-    referenceId: 1011,
+    referenceId: 1012,
     values: ["SITE", "WAREHOUSE", "STORE", "OFFICE", "FACTORY", "YARD", "PORT", "DEPOT", "VIRTUAL", "OTHER"],
   },
   {
     name: "LocationStatus",
-    referenceId: 1012,
+    referenceId: 1013,
     values: ["PLANNED", "ACTIVE", "INACTIVE", "CLOSED", "RETIRED"],
   },
   {
     name: "OrganizationOrganizationType",
-    referenceId: 1013,
+    referenceId: 1014,
     values: ["ENTERPRISE", "COMPANY", "BUSINESS_UNIT", "DIVISION", "DEPARTMENT", "BRANCH", "SUBSIDIARY", "OTHER"],
   },
   {
     name: "OrganizationPartyType",
-    referenceId: 1014,
+    referenceId: 1015,
     values: ["PERSON", "ORGANIZATION"],
   },
   {
     name: "OrganizationStatus",
-    referenceId: 1015,
+    referenceId: 1016,
     values: ["DRAFT", "ACTIVE", "INACTIVE", "RETIRED"],
   },
   {
     name: "PartyPartyType",
-    referenceId: 1016,
+    referenceId: 1017,
     values: ["PERSON", "ORGANIZATION"],
   },
   {
     name: "PartyRoleRoleType",
-    referenceId: 1017,
+    referenceId: 1018,
     values: ["CUSTOMER", "SUPPLIER", "EMPLOYEE", "PARTNER", "CARRIER", "AGENT", "CONTRACTOR", "OWNER", "INVESTOR", "OTHER"],
   },
   {
     name: "PartyRoleStatus",
-    referenceId: 1018,
+    referenceId: 1019,
     values: ["ACTIVE", "INACTIVE", "EXPIRED"],
   },
   {
     name: "PartyStatus",
-    referenceId: 1019,
+    referenceId: 1020,
     values: ["ACTIVE", "INACTIVE", "BLOCKED", "RETIRED"],
   },
   {
     name: "PersonGender",
-    referenceId: 1020,
+    referenceId: 1021,
     values: ["FEMALE", "MALE", "NON_BINARY", "OTHER", "UNSPECIFIED"],
   },
   {
     name: "PersonPartyType",
-    referenceId: 1021,
+    referenceId: 1022,
     values: ["PERSON", "ORGANIZATION"],
   },
   {
     name: "PersonStatus",
-    referenceId: 1022,
+    referenceId: 1023,
     values: ["ACTIVE", "INACTIVE", "BLOCKED", "RETIRED"],
   },
   {
     name: "TaskPriority",
-    referenceId: 1023,
+    referenceId: 1024,
     values: ["LOW", "NORMAL", "HIGH", "CRITICAL"],
   },
   {
     name: "TaskStatus",
-    referenceId: 1024,
+    referenceId: 1025,
     values: ["CREATED", "READY", "ASSIGNED", "IN_PROGRESS", "BLOCKED", "COMPLETED", "CANCELLED", "FAILED"],
   },
   {
     name: "TaskTaskType",
-    referenceId: 1025,
+    referenceId: 1026,
     values: ["USER", "SYSTEM", "APPROVAL", "DECISION", "NOTIFICATION", "SCRIPT", "OTHER"],
   },
   {
     name: "UnitOfMeasureCategory",
-    referenceId: 1026,
+    referenceId: 1027,
     values: ["QUANTITY", "LENGTH", "AREA", "VOLUME", "MASS", "TIME", "COUNT", "CURRENCY", "OTHER"],
   },
   {
     name: "UnitOfMeasureStatus",
-    referenceId: 1027,
+    referenceId: 1028,
     values: ["ACTIVE", "INACTIVE", "RETIRED"],
   },
 ];
@@ -362,19 +367,17 @@ export const stateMachines: StateMachine[] = [
     tableName: "bus_bank_loan",
     statusField: "status",
     initial: "APPLICATION",
-    terminal: ["CANCELLED"],
+    terminal: ["PAID_OFF", "DEFAULTED", "CANCELLED"],
     edges: [
       { from: "APPLICATION", to: "APPROVED", trigger: "approve" },
-      { from: "APPROVED", to: "ACTIVE", trigger: "activate" },
+      { from: "APPROVED", to: "ACTIVE", trigger: "disburse" },
       { from: "ACTIVE", to: "DELINQUENT", trigger: "mark_delinquent" },
-      { from: "DELINQUENT", to: "PAID_OFF", trigger: "mark_paid_off" },
-      { from: "PAID_OFF", to: "DEFAULTED", trigger: "mark_defaulted" },
+      { from: "DELINQUENT", to: "ACTIVE", trigger: "cure" },
+      { from: "ACTIVE", to: "PAID_OFF", trigger: "pay_off" },
+      { from: "DELINQUENT", to: "PAID_OFF", trigger: "pay_off" },
+      { from: "DELINQUENT", to: "DEFAULTED", trigger: "mark_defaulted" },
       { from: "APPLICATION", to: "CANCELLED", trigger: "cancel" },
       { from: "APPROVED", to: "CANCELLED", trigger: "cancel" },
-      { from: "ACTIVE", to: "CANCELLED", trigger: "cancel" },
-      { from: "DELINQUENT", to: "CANCELLED", trigger: "cancel" },
-      { from: "PAID_OFF", to: "CANCELLED", trigger: "cancel" },
-      { from: "DEFAULTED", to: "CANCELLED", trigger: "cancel" },
     ],
   },
   {

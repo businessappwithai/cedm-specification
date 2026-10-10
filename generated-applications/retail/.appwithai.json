@@ -112,9 +112,9 @@
     "UnitOfMeasure: RETIRED",
     "Task: COMPLETED, CANCELLED, FAILED",
     "Store: CLOSED, RETIRED",
-    "RetailSale: COMPLETED, REFUNDED",
+    "RetailSale: VOIDED, REFUNDED",
     "Product: DISCONTINUED, RETIRED"
   ],
   "packageManager": "bun",
-  "generatedAt": "2026-10-08T00:57:35.655Z"
+  "generatedAt": "2026-10-10T09:26:58.472Z"
 }

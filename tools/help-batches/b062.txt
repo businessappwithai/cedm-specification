@@ -1,0 +1,98 @@
+@ Settlement
+a settlementNumber
+s: The number of the settlement, such as STL-3041.
+a amount
+c: Compared with the approved claim amount and the payment made.
+a status
+s: Where the settlement is in approval and execution.
+v DRAFT: Being prepared; nothing is committed.
+v APPROVED: Approved and ready to be carried out.
+v EXECUTED: Paid or otherwise discharged. A final state.
+v VOID: Cancelled and of no effect. A final state.
+r claim
+n: A settlement discharges one insurance claim; separate claims are settled separately.
+r claimLines
+n: At least one claim line is settled; each line is covered by the settlement.
+r currency
+n: The amount is in exactly one currency.
+
+@ Shipment
+a status
+v PLANNED: Intended; no transport is booked.
+v BOOKED: A carrier is booked and a date agreed.
+v IN_TRANSIT: On its way.
+v DELIVERED: Arrived at the destination. A final state.
+v CANCELLED: Called off before delivery. A final state.
+v EXCEPTION: Delayed or damaged; needs a decision.
+a shipmentId
+s: The identity of the shipment, constant for its life.
+u: Generated on creation; lines and tracking refer to it.
+c: Referenced by every line and movement of the shipment.
+a shipmentType
+s: The direction of the movement.
+u: Chosen when the shipment is created; decides which orders can link.
+c: Read with the origin and destination.
+v INBOUND: Goods arriving from a supplier.
+v OUTBOUND: Goods going to a customer.
+v TRANSFER: Goods moving between the business's own locations.
+v RETURN: Goods coming back from a customer or going back to a supplier.
+a shipmentNumber
+c: Read with the carrier's reference to follow a delivery.
+u: Unique; quoted to carriers and customers.
+a plannedDate
+s: The date the shipment is planned to be delivered.
+u: Set when booked; used to plan receiving and dispatch.
+c: Compared with the actual date.
+a actualDate
+s: The date the shipment was actually delivered.
+u: Set on delivery.
+c: Gives the delivery performance.
+a trackingReference
+s: The carrier's tracking number.
+u: Entered when booked; given to the customer.
+c: Used to follow the shipment.
+r origin
+s: The place the goods leave from.
+u: Chosen when planned.
+n: At most one location.
+t: Starts the journey.
+r destination
+s: The place the goods are going to.
+u: Chosen when planned.
+n: At most one location.
+t: Ends the journey.
+r carrier
+s: The party transporting the goods.
+u: Chosen when booked.
+n: At most one carrier.
+t: Who is paid and tracked.
+r containers
+s: The containers carrying the goods.
+u: Chosen when goods are containerised.
+n: Any number of containers.
+t: Identify the units that are moved.
+r salesOrder
+s: The sales order the shipment delivers.
+u: Chosen for outbound shipments.
+n: At most one order.
+t: Links delivery to the sale.
+r purchaseOrder
+s: The purchase order the shipment delivers against.
+u: Chosen for inbound shipments.
+n: At most one order.
+t: Links receipt to the purchase.
+r inventoryMovements
+s: The stock movements caused by the shipment.
+u: Read to reconcile stock.
+n: Any number of movements.
+t: Record the stock effect.
+
+@ ShipmentLine
+r shipment
+n: Each line belongs to exactly one shipment and goes with it.
+r product
+n: Each line carries one product.
+a lineNumber
+s: The position of the line on the shipment.
+r inventoryMovements
+u: Read to reconcile the line with the stock movements that moved the goods.

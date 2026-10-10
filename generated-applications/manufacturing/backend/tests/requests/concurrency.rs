@@ -1,6 +1,6 @@
 //! Two people, one record: optimistic locking and closed transactions.
 //!
-//! Generated: 2026-10-08T00:56:46.213Z
+//! Generated: 2026-10-10T09:26:28.072Z
 //! Project: manufacturing
 //!
 //! Every entity is optimistic unless the model says `concurrency:
@@ -51,9 +51,9 @@ const FINAL_STATES: &[(&str, &str, &str)] = &[
     ("WorkCenter", "status", "RETIRED"),
     ("ManufacturingWorkOrder", "status", "CLOSED"),
     ("Lot", "status", "CONSUMED"),
-    ("SerialNumber", "status", "RETURNED"),
+    ("SerialNumber", "status", "CONSUMED"),
     ("QualityInspection", "status", "PASSED"),
-    ("ProductionRecord", "status", "REJECTED"),
+    ("ProductionRecord", "status", "VERIFIED"),
 ];
 
 /// `(entity, status column, initial, [targets of edges out of initial])`.
@@ -97,13 +97,13 @@ const FIRST_MOVES: &[(&str, &str, &str, &[&str])] = &[
         "PLANNED",
         &["RELEASED", "CANCELLED"],
     ),
-    ("Lot", "status", "ACTIVE", &["HOLD", "REJECTED"]),
     (
-        "SerialNumber",
+        "Lot",
         "status",
-        "EXPECTED",
-        &["AVAILABLE", "RETIRED"],
+        "ACTIVE",
+        &["HOLD", "QUARANTINED", "CONSUMED", "EXPIRED", "CLOSED"],
     ),
+    ("SerialNumber", "status", "EXPECTED", &["AVAILABLE"]),
     (
         "QualityInspection",
         "status",
@@ -113,8 +113,8 @@ const FIRST_MOVES: &[(&str, &str, &str, &[&str])] = &[
     (
         "ProductionRecord",
         "status",
-        "RECORDED",
-        &["PLANNED", "REJECTED"],
+        "PLANNED",
+        &["RECORDED", "REJECTED"],
     ),
 ];
 
@@ -691,18 +691,24 @@ async fn of_two_moves_out_of_one_state_one_lands() {
         let url = format!("/api/bus/{}/{id}", meta.route);
         let second = targets.get(1).copied().unwrap_or(targets[0]);
 
-        // `*`: neither names a version, so only the from-state decides.
+        // Both people read the record in its initial state, and each names the
+        // version it read. Without that the race has no fixed starting point:
+        // a request whose own read lands after the other's commit sees the new
+        // state, and when the model draws an edge onward from it (Lead:
+        // working → disqualified) that is a legal second move, not a race.
+        let read_at = if_match(&read);
         let moves = [targets[0], second]
             .into_iter()
             .map(|to| {
                 let request = &request;
                 let token = &token;
                 let url = &url;
+                let read_at = read_at.as_str();
                 async move {
                     request
                         .patch(url)
                         .add_header("authorization", bearer(token))
-                        .add_header("if-match", "*")
+                        .add_header("if-match", read_at)
                         .json(&json!({ status_field: to }))
                         .await
                         .status_code()
@@ -710,12 +716,14 @@ async fn of_two_moves_out_of_one_state_one_lands() {
                 }
             })
             .collect::<Vec<_>>();
-        let statuses = all(moves).await;
+        let mut statuses = all(moves).await;
+        statuses.sort_unstable();
 
         assert_eq!(
-            statuses.iter().filter(|status| **status == 200).count(),
-            1,
-            "two moves out of {initial} landed, or none did: {statuses:?}"
+            statuses,
+            vec![200, 409],
+            "of two moves out of {initial} made from one read, exactly one lands \
+             and the other is told the record changed: {statuses:?}"
         );
     })
     .await;

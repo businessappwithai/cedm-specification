@@ -5,9 +5,10 @@
 //! every business suite depends on — then the per-entity CRUD and rules
 //! modules, which are generated one per entity in the model.
 //!
-//! Generated: 2026-10-04T08:29:32.673Z
+//! Generated: 2026-10-09T15:28:18.665Z
 //! Project: document-management
 
+mod accounts;
 mod ai;
 mod auth;
 mod concurrency;

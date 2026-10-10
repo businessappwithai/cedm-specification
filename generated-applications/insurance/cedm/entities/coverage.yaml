@@ -1,0 +1,82 @@
+entity:
+  name: Coverage
+  namespace: cedm.domain
+  kind: insurance_coverage
+  description: A governed component of an InsurancePolicy defining a specific insured risk, benefit, limit, deductible and effective scope independently of the policy header.
+  ui: {icon: shield-check}
+  identity: {key: coverageId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: coverageId, type: uuid, required: true, immutable: true, help: {summary: 'The stable identity of one coverage component within a policy, unchanged for its whole life.', usage: Generated when the coverage is created; claim lines and assessments point to it so the terms applied to a claim stay traceable., businessMeaning: Identifies one coverage independently of policy header and claims., relationshipContext: InsurancePolicy supplies the governing contract context.}}
+    - {name: coverageCode, type: string, required: true, maxLength: 120, help: {summary: 'The business code naming the type of cover, such as collision, theft or liability.', usage: Chosen from the insurer's product setup when a policy is written; claims are matched to the right cover by this code., businessMeaning: Classifies the insured benefit or risk for policy and claim processing., relationshipContext: May repeat across policies while coverageId remains unique.}}
+    - {name: description, type: string, required: true, maxLength: 1000, help: {summary: A plain-language statement of what risk or benefit this coverage protects against., usage: Written by the underwriter when the policy is set up; read by servicing staff and shown to customers explaining their protection., businessMeaning: Explains what benefit or risk the Coverage represents., relationshipContext: Detailed legal terms remain in policy/contract documents and clauses.}}
+    - {name: limitAmount, type: decimal, required: false, precision: 20, scale: 4, help: {summary: The most the insurer will pay under this coverage for a covered loss., usage: Set when the policy is written; claim assessment caps the approved amount at it. Not negative., relationshipContext: "Expressed in the coverage's currency; a deductible, if any, is applied before the limit.", businessMeaning: Provides claim authorization limit without replacing detailed policy terms.}}
+    - {name: deductibleAmount, type: decimal, required: false, precision: 20, scale: 4, help: {summary: The portion of a covered loss the insured bears before the insurer pays., usage: Set when the policy is written; claim assessment subtracts it from the covered amount. Not negative., relationshipContext: Expressed in the coverage's currency and applied before the limit., businessMeaning: Supports claim responsibility calculation.}}
+    - name: status
+      type: enum
+      required: true
+      default: DRAFT
+      values: [DRAFT, ACTIVE, SUSPENDED, EXPIRED, CANCELLED]
+      help:
+        summary: 'Where the coverage stands: being written, in force, paused, ended by expiry or withdrawn.'
+        usage: Moved by policy administration; only an active coverage lets claims be assessed, while ended ones stay readable for past claims.
+        valueSemantics:
+          DRAFT: Being written into the policy; not yet in force.
+          ACTIVE: In force; claims may be assessed against it.
+          SUSPENDED: Temporarily not in force, for example for non-payment of premium; new claims are not assessed against it.
+          EXPIRED: Its period has ended; historical claims remain valid.
+          CANCELLED: Withdrawn before or during its term; kept for history.
+        businessMeaning: Controls eligibility for new loss events while preserving historical policy and claim evidence.
+        relationshipContext: Policy lifecycle remains separately authoritative.
+  relationships:
+    - {name: policy, target: InsurancePolicy, cardinality: "1", ownership: reference, help: {summary: The insurance policy of which this coverage is a part., cardinalityMeaning: 'Exactly one policy: a coverage is a section of a single policy and cannot exist alone.', businessMeaning: Supplies contract parties and overall policy lifecycle., usage: "Policy administration and claims.", workflowRole: Coverage cannot be effective outside applicable policy terms.}}
+    - {name: currency, target: Currency, cardinality: "0..1", ownership: reference, help: {summary: Currency for monetary limits and deductibles., businessMeaning: Makes monetary coverage values unambiguous., usage: "Claims, exposure and reporting.", cardinalityMeaning: Optional when no monetary values are defined., workflowRole: Currency changes require new governed terms rather than reinterpretation of historical claims.}}
+    - {name: insuredParties, target: InsuredParty, cardinality: "0..*", ownership: reference, help: {summary: Insured-party relationships covered by this component., businessMeaning: Identifies who benefits from or is protected by the coverage., usage: "Eligibility and claims validation.", cardinalityMeaning: Zero or many where coverage is policy-wide or party-specific., workflowRole: Claim coverage eligibility must reconcile to insured-party scope.}}
+    - {name: claimLines, target: ClaimLine, cardinality: "0..*", ownership: reference, help: {cardinalityMeaning: 'Any number of claim lines, one for each claimed item assessed against this coverage.', summary: Claim lines assessed against this Coverage., businessMeaning: Preserves coverage-to-claim utilization and decision traceability., usage: "Claims, exposure and audit.", workflowRole: Approved amounts must respect coverage rules and limits.}}
+  invariants:
+    - {id: COVERAGE-001, rule: limitAmount and deductibleAmount must be non-negative when supplied.}
+    - {id: COVERAGE-002, rule: ACTIVE Coverage must be compatible with the governing InsurancePolicy lifecycle and effective period.}
+    - {id: COVERAGE-003, rule: Policy or Coverage changes must not rewrite the terms historically applied to completed claim decisions.}
+    - {id: COVERAGE-EXE-001, rule: "Limit Amount cannot be negative.", violatedWhen: "limit_amount != null and limit_amount < 0", message: "Limit Amount cannot be negative."}
+    - {id: COVERAGE-EXE-002, rule: "Deductible Amount cannot be negative.", violatedWhen: "deductible_amount != null and deductible_amount < 0", message: "Deductible Amount cannot be negative."}
+  lifecycle:
+    title: Coverage Lifecycle
+    attribute: status
+    states: [DRAFT, ACTIVE, SUSPENDED, EXPIRED, CANCELLED]
+    initial: DRAFT
+    terminal: [EXPIRED, CANCELLED]
+    transitions:
+      - {from: DRAFT, to: ACTIVE, action: activate}
+      - {from: DRAFT, to: CANCELLED, action: cancel}
+      - {from: ACTIVE, to: SUSPENDED, action: suspend}
+      - {from: SUSPENDED, to: ACTIVE, action: resume}
+      - {from: ACTIVE, to: EXPIRED, action: expire}
+      - {from: SUSPENDED, to: EXPIRED, action: expire}
+      - {from: ACTIVE, to: CANCELLED, action: cancel}
+      - {from: SUSPENDED, to: CANCELLED, action: cancel}
+  workflows:
+    - name: FollowUpRequired
+      title: "Follow up when a coverage is ended"
+      description: "When a coverage is cancelled, a task asks someone to settle what depended on it."
+      when: "status == \"CANCELLED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "COVERAGE-FOLLOW-UP-{{id}}"
+              name: "Follow up on coverage {{id}}"
+              description: "Coverage {{id}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
+  help:
+    summary: Represents one governed insured benefit or risk component of a policy.
+    businessMeaning: InsurancePolicy is the contract-level aggregate; Coverage states the specific protection and limits applied to claims.
+    usage: Insurance policy administration, underwriting, claims, exposure management and audit.
+    relationshipContext: Policy is mandatory, insured parties define beneficiaries or risk subjects, and ClaimLines preserve utilization and adjudication.
+    lifecycle: Coverage is drafted, activated, may suspend, and ends through expiry or cancellation while historical claims retain applied terms.
+    example: A motor policy has collision Coverage with a monetary limit and deductible; claim lines are assessed against that specific component.
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-COVERAGE}

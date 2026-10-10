@@ -689,6 +689,14 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
         dest: "src/components/admin/workflow-state-bar.tsx",
       },
       {
+        src: "src/components/admin/account-dialogs.tsx",
+        dest: "src/components/admin/account-dialogs.tsx",
+      },
+      {
+        src: "src/lib/accounts.ts",
+        dest: "src/lib/accounts.ts",
+      },
+      {
         src: "src/components/admin/use-report-designs.ts",
         dest: "src/components/admin/use-report-designs.ts",
       },

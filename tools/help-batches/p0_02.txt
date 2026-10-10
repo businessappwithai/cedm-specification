@@ -1,0 +1,71 @@
+@ Attendance
+a attendanceId
+s: The permanent system identity of one attendance record for a person on a date.
+u: Generated on creation; payroll results, leave checks and corrections refer to the record through it.
+a attendanceDate
+s: The calendar date the presence, absence or work being recorded belongs to, regardless of when it was entered.
+u: Entered by the person, supervisor or timekeeping device; payroll periods, class registers and reports group records by it.
+a attendanceType
+s: How the day is classified, such as present, absent, on leave, working remotely or a holiday.
+u: Set at recording; leave must match approved leave evidence, and payroll and scheduling read it to treat the day correctly.
+v PRESENT: The attendance subject participated or was present in the expected work or education context.
+v ABSENT: The attendance subject was absent without another more specific governed category.
+v LEAVE: Absence is attributable to governed leave.
+v REMOTE: The attendance subject participated from an approved remote context.
+v HOLIDAY: Date is treated as a governed holiday.
+v OFF_DAY: Scheduled non-working day, such as a weekend or rostered rest day.
+v OTHER: Another governed attendance classification.
+a clockInAt
+s: The moment the person started work or arrived, as captured by a clock, device or manual entry.
+u: Optional; paired with the clock-out to derive worked hours, and compared with the schedule for lateness and overtime.
+a clockOutAt
+s: The moment the person finished work or left, as captured by a clock, device or manual entry.
+u: Optional but never earlier than the clock-in; used with it to derive worked hours, overtime and early departure.
+a workedHours
+s: The number of hours counted as worked on the date, after breaks and rounding rules.
+u: Calculated from the clock times or entered by a supervisor; non-negative, and read by payroll, utilisation and workforce reports.
+a status
+s: Whether the record is provisional, captured, or approved for payroll and other downstream use.
+u: Moved by the person and their supervisor; payroll only relies on approved records and later corrections need corrective evidence.
+@ BankTransaction
+a description
+s: The narrative text the bank supplied with the transaction, such as payer name, memo or payment details.
+u: Stored as received; reconciliation staff read it to match the movement to a payment or investigate an exception.
+@ Berth
+a status
+s: Whether the berth can currently take vessels, and with what limits, through to being permanently withdrawn.
+u: Set by port planners as conditions change; vessel scheduling consults it before assigning a voyage, and safety restrictions are applied through it.
+v ACTIVE: Open for ordinary vessel assignments.
+v RESTRICTED: Usable only with limits, such as reduced draught or vessel length; new assignments need planner approval.
+v OUT_OF_SERVICE: Temporarily unusable, for example for dredging or repair; no new assignments.
+v RETIRED: Permanently removed from use; kept for history of past assignments. A final state.
+@ Brand
+a code
+s: The short unique code identifying the brand across catalogue, sourcing and integration systems.
+u: Assigned by master-data governance when the brand is created; used as the stable key when products and feeds name the brand.
+a name
+s: The brand's display name as customers and buyers know it, such as the manufacturer's trading name.
+u: Shown on catalogue pages, documents and search results, and used to group sales and sourcing reports by brand.
+a status
+s: Whether the brand is in use, paused, or withdrawn from the catalogue.
+u: Set by master-data governance; only active brands are offered for new products, and retired ones are kept for history.
+v ACTIVE: In use and available for assignment to products.
+v INACTIVE: Temporarily not offered, for example while a licence is renegotiated; it can be reactivated.
+v RETIRED: No longer used; kept so historical sales and catalogue records remain accurate. A final state.
+@ Budget
+a status
+s: How far the budget has progressed through preparation, approval, use and replacement.
+u: Moved by the budget owner and approvers; only active budgets control spending, and later changes need a new revision.
+v DRAFT: Being prepared by the budget owner; figures may change freely.
+v SUBMITTED: Sent for approval; changes are held while it is reviewed.
+v APPROVED: Accepted by the authorising body but not yet the live control.
+v ACTIVE: The live budget against which spending is monitored.
+v SUPERSEDED: Replaced by a later version; kept as the record of what was once approved. A final state.
+v CLOSED: The period is over and the budget is closed for comparison with actuals. A final state.
+@ BudgetLine
+a budgetLineId
+s: The permanent system identity of one allocation within a budget.
+u: Generated on creation; variance reports and revisions refer to the line through it.
+a amount
+s: The money planned for this combination of account, cost centre and profit centre in the budget period.
+u: Entered by the budget owner; never negative, and compared with actual postings to show overspend or underspend.

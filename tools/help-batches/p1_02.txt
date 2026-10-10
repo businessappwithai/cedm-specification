@@ -1,0 +1,41 @@
+@ CustomerReturnLine
+a quantityRestocked
+s: How many returned units passed inspection and may go back into unrestricted, saleable stock.
+u: Entered at disposition by the warehouse; it alone drives the positive stock movement, and it is part of the quantity returned.
+a quantityQuarantined
+s: How many returned units are held in restricted stock until further inspection or controlled handling.
+u: Entered at disposition by quality staff; it never adds to available stock, and it is part of the quantity returned.
+a quantityToRepair
+s: How many returned units are sent for repair or refurbishment before any decision on their stock.
+u: Entered at disposition; it may raise a repair work order and adds nothing to unrestricted stock, and it is part of the quantity returned.
+a quantityScrapped
+s: How many returned units are approved for scrap or disposal and will never return to saleable stock.
+u: Entered at disposition by the warehouse; it feeds disposal and inventory write-off, and it is part of the quantity returned.
+@ CustomerReturn
+a status
+s: Where the return stands, from request and authorisation through transport, receipt, inspection and completion.
+u: Moved by customer service and the warehouse; it controls what may happen next but does not itself change stock or invoices.
+a notes
+s: Free-text remarks about the return, such as damage seen on arrival or what the customer said.
+u: Written by customer service or warehouse staff for colleagues and audit; the facts that matter are held in structured fields.
+@ Customer
+a partyRoleId
+s: The link to the party role that makes this party a customer.
+u: Set when the customer is created; the party's name, addresses and contacts are read through it and are not copied here.
+a customerCode
+s: The short code staff and systems use to refer to this customer.
+u: Assigned when the customer is set up; quoted on orders, invoices and statements and used in integrations, and different from the system id.
+a customerType
+s: The commercial kind of buyer, such as a private consumer, a company or a public body.
+u: Chosen by sales when the customer is created; it steers pricing, credit rules, tax handling and reporting segments.
+v INDIVIDUAL: A private consumer buying for personal use rather than for a business.
+v BUSINESS: A company or other commercial organisation buying for its own operations.
+v GOVERNMENT: A public authority or agency, often with its own procurement and payment rules.
+v INTERNAL: Another unit of the organisation itself, supplied through internal sales.
+v OTHER: A customer that fits none of the other kinds.
+a creditStatus
+s: The credit-control decision currently in force for this customer.
+u: Set by credit control after review; order authorisation, receivables and collections check it before releasing credit-bearing orders.
+a status
+s: Whether the customer relationship is open for business, dormant, held back or closed.
+u: Moved by sales or finance; it decides whether new orders may be taken, while past transactions stay attributed to the customer.

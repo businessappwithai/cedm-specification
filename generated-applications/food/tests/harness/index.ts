@@ -1,7 +1,7 @@
 /**
  * Harness barrel — suites import everything from here.
  *
- * Generated: 2026-10-04T01:11:49.946Z
+ * Generated: 2026-10-09T15:28:51.050Z
  * Project: food
  */
 

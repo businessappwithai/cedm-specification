@@ -5,18 +5,21 @@ registry:
   specificationVersion: 0.3.0
   status: draft
   entities:
-    - AIEvaluation
-    - AIModel
-    - AIPolicy
-    - AIPrediction
     - AccessGrant
     - Account
     - Activity
     - Address
     - Agreement
+    - AIEvaluation
+    - AIModel
+    - AIPolicy
+    - AIPrediction
     - Aircraft
     - Allergy
+    - Appointment
     - Approval
+    - Assay
+    - Assessment
     - Asset
     - AssetAcquisition
     - AssetClass
@@ -25,15 +28,17 @@ registry:
     - AssetTransfer
     - Assignment
     - Attachment
+    - Attendance
     - AuditCase
     - AuditEvent
-    - BOMComponent
     - BankAccount
     - BankLoan
     - BankReconciliation
     - BankTransaction
-    - BillOfMaterial
+    - Berth
     - BillingCycle
+    - BillOfMaterial
+    - BOMComponent
     - Brand
     - Budget
     - BudgetLine
@@ -50,8 +55,11 @@ registry:
     - Charge
     - ChemicalBatch
     - City
+    - ClaimLine
+    - Class
     - Classification
     - Collateral
+    - Compensation
     - ComplianceRequirement
     - Compound
     - Consignment
@@ -60,6 +68,7 @@ registry:
     - ContactPoint
     - Container
     - ContainerMovement
+    - ContainerVisit
     - Contract
     - ContractAmendment
     - ContractClause
@@ -72,6 +81,7 @@ registry:
     - CorrectiveActionVerification
     - CostCenter
     - Country
+    - Coverage
     - Credit
     - CreditNote
     - CreditNoteApplication
@@ -94,7 +104,7 @@ registry:
     - Document
     - DocumentClassification
     - DocumentVersion
-    - ERP
+    - Driver
     - EducationCourse
     - EducationProgram
     - EducationStudent
@@ -105,7 +115,9 @@ registry:
     - EnergyMeter
     - EnergyTariff
     - Enrollment
+    - Entitlement
     - Equipment
+    - ERP
     - Escalation
     - Event
     - ExchangeRate
@@ -114,6 +126,7 @@ registry:
     - Failure
     - Farm
     - FarmField
+    - Fee
     - Filing
     - Finding
     - FiscalPeriod
@@ -122,10 +135,15 @@ registry:
     - Forecast
     - ForeignExchangeTransaction
     - FreightCharge
+    - FuelTransaction
     - Fulfillment
+    - Gate
+    - GateEvent
     - GoodsReceipt
     - GoodsReceiptLine
     - GovernmentCase
+    - Grade
+    - Guardian
     - HandlingUnit
     - HealthcareEncounter
     - HealthcareOrder
@@ -139,11 +157,13 @@ registry:
     - InspectionSample
     - InsuranceClaim
     - InsurancePolicy
+    - InsuredParty
     - IntegrationEndpoint
     - Interest
     - InventoryAdjustment
     - InventoryBalance
     - InventoryCount
+    - InventoryItem
     - InventoryLocation
     - InventoryMovement
     - InventoryReservation
@@ -156,6 +176,7 @@ registry:
     - Language
     - Lead
     - Lease
+    - LeaveRequest
     - Ledger
     - LegalCase
     - LegalEntity
@@ -172,6 +193,7 @@ registry:
     - MediaRight
     - Medication
     - Message
+    - Meter
     - MeterReading
     - Milestone
     - MiningSite
@@ -179,6 +201,7 @@ registry:
     - Nonconformance
     - NonprofitCampaign
     - Obligation
+    - Observation
     - Operation
     - Opportunity
     - Organization
@@ -197,7 +220,10 @@ registry:
     - Person
     - Picking
     - Policy
+    - Port
     - Position
+    - Practitioner
+    - Premium
     - Prescription
     - Pricing
     - Procedure
@@ -206,18 +232,20 @@ registry:
     - Product
     - ProductAttribute
     - ProductCategory
-    - ProductLifecycle
-    - ProductVariant
     - ProductionReceipt
     - ProductionRecord
+    - ProductLifecycle
+    - ProductVariant
     - ProfessionalEngagement
     - ProfitCenter
     - Project
+    - ProjectCost
     - ProjectPhase
     - ProjectTask
     - Promotion
     - Property
     - Prospect
+    - Protocol
     - PurchaseOrder
     - PurchaseOrderLine
     - PurchaseRequisition
@@ -238,6 +266,7 @@ registry:
     - RequestForQuotationLine
     - ResearchProject
     - ResourceAssignment
+    - Result
     - RetailSale
     - RetailSaleLine
     - ReturnDisposition
@@ -256,8 +285,12 @@ registry:
     - Scrap
     - SecurityIncident
     - SerialNumber
+    - ServiceCase
+    - ServiceContract
     - ServiceLevelAgreement
+    - ServiceOrder
     - ServiceRequest
+    - Settlement
     - Shipment
     - ShipmentLine
     - ShoppingCart
@@ -265,7 +298,9 @@ registry:
     - Signature
     - SparePart
     - StateProvince
+    - Stop
     - Store
+    - Study
     - Subscription
     - SubscriptionPlan
     - Supplier
@@ -295,17 +330,21 @@ registry:
     - TelecomService
     - TelecomSubscription
     - TestMethod
+    - Ticket
     - Timesheet
     - TrackingEvent
     - TradeDeclaration
     - Trip
     - TripSegment
+    - Underwriting
     - UnitOfMeasure
     - UsageRecord
     - User
     - Variance
     - Vehicle
     - VehicleModel
+    - Vessel
+    - Voyage
     - Warehouse
     - WarehouseZone
     - Wave
@@ -316,9 +355,3 @@ registry:
     - YardBlock
     - YardSlot
     - YardTier
-  conventions:
-    identity: Globally unique UUID unless a domain-specific natural key is explicitly declared.
-    references: Entity references use target entity names and cardinality.
-    lifecycle: State transitions are expressed under lifecycle or invariants when required.
-    businessRules: Rules are expressed as invariants and remain implementation-neutral.
-    audit: System-managed timestamps and actors are declared explicitly where applicable.

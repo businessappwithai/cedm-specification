@@ -1,0 +1,159 @@
+@ ProductionReceipt
+s: An auditable record that a quantity of accepted product came out of a manufacturing work order and into stock.
+b: A receipt is the moment production becomes inventory. It ties the quantity made to the work order, the product, any lot or serial numbers and the quality inspection that accepted it, and it is backed by an inventory movement so stock rises by exactly what was received.
+u: Created by the shop floor or production control when finished goods are reported; read by inventory, costing and quality.
+c: A receipt belongs to one work order and one product, may name a lot, serial numbers and an inspection, and always points to the inventory movement that added the stock.
+l: A receipt is posted once and then stands. A correction is a further movement, never an edit.
+x: Receipt PR-2041 books 120 units of a finished pump from work order MWO-889 into lot L-2210 after inspection.
+a productionReceiptId
+s: The identity of the receipt, constant for its life.
+u: Generated on creation; the inventory movement and costing refer to it.
+c: Referred to by the inventory movement and by any output costing that reads the receipt.
+a receiptNumber
+s: The business number printed on the receipt, such as PR-2041.
+c: Quoted on the work order and on stock documents.
+a quantity
+b: The accepted quantity added to stock. Rejected output is not counted here.
+u: Entered when output is reported; must be positive; drives the inventory increase and unit cost.
+c: Compared with the quantity planned on the work order to show how much of it is done.
+a receivedAt
+b: When the output entered stock, which decides the period it is costed and reported in.
+u: Defaults to the time of entry; reports and costing group by it.
+c: Matches the movement date on the linked inventory movement.
+r workOrder
+s: The manufacturing work order that produced this output.
+u: Chosen when the receipt is entered; the work order's completed quantity follows from its receipts.
+n: Exactly one work order; a receipt cannot exist without its source.
+w: Links output back to the job that made it, for completion and cost.
+r product
+s: The product that was produced and received.
+u: Normally taken from the work order; read by stock and costing.
+n: Exactly one product per receipt.
+w: Identifies what stock increases.
+r lot
+n: At most one lot; empty for products that are not lot tracked.
+r serialNumbers
+n: Any number of serial numbers, one for each serialised unit received; none for untracked products.
+r qualityInspection
+n: At most one inspection; empty when the product needs none.
+r inventoryMovement
+u: Created with the receipt; read to trace the stock effect.
+n: Exactly one movement, which carries the stock increase.
+
+@ ProductionRecord
+s: A recorded quantity of output produced or extracted by an operational process, such as a shift's output at a site.
+b: A production record is the operation's own account of what it produced, when and where. It lets management track output against plan, verify it before it is relied on, and reject figures that prove wrong, without yet being an accounting entry.
+u: Entered by site or production staff; verified by a supervisor; read by planning, reporting and yield analysis.
+c: A record names the product produced and may name the location, mining site or work order that produced it.
+l: A record is planned, recorded when output is reported, then verified or rejected. A planned record may also be rejected if the run is cancelled. Verified and rejected are final.
+x: On 3 March the north pit records 1,850 tonnes of iron ore, which the shift supervisor verifies the next morning.
+a productionRecordId
+s: The identity of the production record, constant for its life.
+u: Generated on creation; other records refer to it.
+c: Referenced by anything that reports or verifies this output.
+a productionDate
+s: The date and time the output was produced.
+u: Entered with the record; used to place output in a shift, day or period.
+c: Compared with the planned schedule of the work order or site.
+a quantity
+s: The amount produced, in the product's unit of measure.
+u: Must be greater than zero; entered when output is reported and summed in reports.
+c: Totals by product, site and period form production figures.
+a status
+s: Where the record is in its review.
+u: Starts as PLANNED; moves to RECORDED when output is reported, then VERIFIED or REJECTED.
+c: Only verified records should feed official output figures.
+v PLANNED: Output is expected but not yet reported.
+v RECORDED: Output has been reported and awaits verification.
+v VERIFIED: A supervisor has confirmed the figure. A final state.
+v REJECTED: The figure was found wrong or the run cancelled. A final state.
+r product
+s: The product that was produced.
+u: Chosen when the record is entered; used to total output by product.
+n: Exactly one product per record.
+t: Output is always about one product, so figures can be added up by product.
+r location
+s: The location where the output was produced or stored.
+u: Chosen when output is attributed to a place.
+n: At most one location; empty if unplaced.
+t: Lets output be reported by place when no mining site applies.
+r miningSite
+s: The mining site that produced the output.
+u: Chosen for extractive operations.
+n: At most one site; empty for other kinds of production.
+t: Gives site level yield for mining operations.
+r workOrder
+s: The manufacturing work order the output belongs to.
+u: Chosen when output comes from a manufacturing job.
+n: At most one work order; empty for output outside a job.
+t: Ties reported output to the job that is meant to produce it.
+
+@ ProfessionalEngagement
+s: A client engagement under which professional services are planned, delivered, measured and billed.
+b: An engagement is the commercial frame for a piece of service work. It names the client, the contract that governs it and the project that runs it, and it collects the timesheets that become billable time, so work can be tracked from proposal to completion.
+u: Created by the account or engagement manager; read by delivery, finance and billing.
+c: An engagement is for one client, may rest on a contract and a project, and gathers the timesheets booked against it.
+l: An engagement is proposed, becomes active when agreed, may be put on hold and resumed, and ends completed or cancelled. Completed and cancelled are final.
+x: Engagement ENG-2026-014 for Northwind is proposed in January, active from February and completed in June.
+a engagementId
+s: The identity of the engagement, constant for its life.
+u: Generated on creation; timesheets and invoices refer to it.
+a engagementNumber
+s: The number the business uses for the engagement, such as ENG-2026-014.
+u: Unique; quoted in correspondence and invoices.
+a name
+s: A short name for the engagement as people recognise it.
+u: Shown in lists and picks; usually names the client and scope.
+a status
+s: Where the engagement stands.
+u: Starts as PROPOSED; changed by the engagement manager as the work progresses.
+v PROPOSED: Offered to the client but not yet agreed.
+v ACTIVE: Agreed and in delivery; time may be booked.
+v ON_HOLD: Paused; no new time is expected until resumed.
+v COMPLETED: All work is delivered. A final state.
+v CANCELLED: Stopped before completion. A final state.
+a startDate
+s: The date work on the engagement starts.
+u: Set when the engagement is agreed; planning and billing periods begin from it.
+a endDate
+s: The date work on the engagement is due to end.
+u: Must not be before the start date; updated if the scope changes.
+r client
+s: The party the services are delivered to and billed.
+u: Chosen when the engagement is created.
+n: Exactly one client.
+t: Decides who is invoiced.
+r contract
+s: The contract that governs the terms of the engagement.
+u: Chosen once a contract exists.
+n: At most one contract; empty while still a proposal.
+t: Supplies rates and terms for billing.
+r project
+s: The project used to plan and track the delivery work.
+u: Chosen when delivery is organised as a project.
+n: At most one project; empty if no project is set up.
+t: Connects commercial terms to the work plan.
+r timesheets
+s: The timesheets booked against this engagement.
+u: Read to total the hours worked and billed.
+n: Any number of timesheets, none at the start.
+t: Time worked is what is measured and billed.
+
+@ ProfitCenter
+s: A responsibility centre used to analyse revenue, cost and profit independently of the legal accounts.
+b: A profit centre lets management see how a part of the business performs, such as a product line or region, whatever legal entity or account the money passes through. It supports management reporting only and never rewrites accounting entries.
+u: Defined by finance; chosen on transactions and budgets; read by management reports.
+c: A profit centre belongs to one organisation.
+l: A profit centre is created, used while it is reported on, and left unused when the unit closes. Existing analysis keeps it.
+x: The "Northern Region" profit centre reports revenue and cost for all sales and branches in that region.
+a profitCenterId
+s: The identity of the profit centre, constant when it is renamed.
+u: Generated on creation; transactions and reports refer to it.
+a code
+s: The short code of the profit centre, such as PC-NORTH.
+u: Unique within the organisation; used in imports, budgets and reports.
+r organization
+s: The organisation the profit centre belongs to.
+u: Chosen when it is created.
+n: Exactly one organisation.
+w: Keeps profit analysis within the right company.

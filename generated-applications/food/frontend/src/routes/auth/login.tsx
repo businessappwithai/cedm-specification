@@ -3,7 +3,7 @@
  *
  * User authentication with email and password
  *
- * Generated: 2026-10-04T01:11:49.787Z
+ * Generated: 2026-10-09T15:28:50.750Z
  * Project: food
  */
 

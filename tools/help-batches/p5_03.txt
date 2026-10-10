@@ -1,0 +1,41 @@
+@ Product
+a createdAt
+s: The moment this product record was first created in the catalogue.
+u: Set by the system on creation and never changed; used for audit, catalogue age reporting and change history.
+a updatedAt
+s: The moment this product record was last changed in the catalogue.
+u: Set by the system on every change; synchronisation and integrations use it to find products that changed since a given time.
+@ ProjectPhase
+a status
+s: Where this stage of the project stands from being scheduled through work under way to closure.
+u: Starts as PLANNED and is moved by the project manager; completion requires its required tasks and milestones to be reconciled.
+v PLANNED: Scheduled but work in the phase has not started.
+v ACTIVE: Work in the phase is under way and tasks are being executed.
+v COMPLETED: All required work in the phase is finished. A final state.
+v CANCELLED: The phase will not be carried out. A final state.
+@ ProjectTask
+a name
+s: A short statement of the work item that team members can read at a glance, such as Prepare site survey.
+u: Entered by the planner or task owner; shown on boards, schedules and time sheets, and kept brief while detail goes elsewhere.
+a priority
+s: How urgent this task is relative to the other tasks of the project.
+u: Set when planned and revised as the schedule changes; used to order work queues and decide which delays to escalate.
+v LOW: Can wait without affecting delivery of the project.
+v NORMAL: Ordinary priority, scheduled in turn with other work.
+v HIGH: Should be done ahead of normal work to protect the schedule.
+v CRITICAL: Delays the project if not done now and needs immediate attention.
+@ Property
+a name
+s: The name the property is known by in the business, such as Riverside Business Park or 12 High Street.
+u: Entered when the property is registered; shown in lists, leases and valuation documents so people can recognise the asset.
+a propertyType
+s: The kind of real estate asset, such as land, office or residential, used to group the portfolio.
+u: Chosen when created; reports, valuation rules and lease templates split the portfolio by it.
+v LAND: Undeveloped land with no building on it.
+v BUILDING: A building of mixed or unspecified use.
+v OFFICE: Office space let or used for administrative work.
+v RETAIL: Shops and retail units open to customers.
+v INDUSTRIAL: Factories, plants and industrial sites.
+v RESIDENTIAL: Homes and apartments used for living.
+v WAREHOUSE: Storage and distribution space for goods.
+v OTHER: A property that fits none of the other types.

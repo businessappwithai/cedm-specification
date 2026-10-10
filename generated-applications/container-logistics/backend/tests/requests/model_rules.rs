@@ -1,6 +1,6 @@
 //! The rules the *model* declared, and whether they reached the application.
 //!
-//! Generated: 2026-10-04T01:11:26.240Z
+//! Generated: 2026-10-10T02:39:25.603Z
 //! Project: container-logistics
 //!
 //! Every other rules suite creates a rule through the API and then checks that
@@ -74,6 +74,13 @@ const MODEL_RULES: &[(&str, &str, &str)] = &[
     ("yardBayWorkflowsAfterUpdate", "bus_yard_bay", "UPDATE"),
     ("yardTierWorkflowsAfterUpdate", "bus_yard_tier", "UPDATE"),
     ("yardSlotWorkflowsAfterUpdate", "bus_yard_slot", "UPDATE"),
+    ("gateEventWorkflowsAfterUpdate", "bus_gate_event", "UPDATE"),
+    (
+        "containerVisitWorkflowsAfterUpdate",
+        "bus_container_visit",
+        "UPDATE",
+    ),
+    ("voyageWorkflowsAfterUpdate", "bus_voyage", "UPDATE"),
 ];
 
 /// Every rule reached `sys_rule_definitions`, bound to the physical

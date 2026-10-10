@@ -1,0 +1,15 @@
+@ Protocol
+a status
+v DRAFT: Being written; not yet approved for use.
+v APPROVED: Cleared for use by studies and experiments.
+v SUSPENDED: Withdrawn from use for a time, for example pending a review.
+v RETIRED: Superseded or no longer used. A final state.
+
+@ PurchaseOrderLine
+a priceSource
+v PRICE_LIST: Taken from the supplier's price list.
+v CONTRACT: Taken from a contract with the supplier.
+v SUPPLIER_AGREEMENT: Taken from a standing supplier agreement.
+v QUOTATION: Taken from an accepted supplier quotation.
+v MANUAL: Entered by the buyer.
+v OTHER: Determined some other way.

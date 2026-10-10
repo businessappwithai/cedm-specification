@@ -1,0 +1,67 @@
+entity:
+  name: InsuredParty
+  namespace: cedm.domain
+  kind: insurance_party_role
+  description: A governed relationship linking a Party to an InsurancePolicy as an insured, beneficiary, dependent or other covered role, distinct from generic policyholder identity.
+  ui: {icon: shield-check}
+  identity: {key: insuredPartyId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: insuredPartyId, type: uuid, required: true, immutable: true, help: {summary: The identity of the insured role., usage: Generated when the party is added to a policy., businessMeaning: Identifies one Party-policy insurance role independently of Party identity., relationshipContext: Party supplies common identity; InsurancePolicy supplies contract context.}}
+    - {name: insuredPartyCode, type: string, required: true, unique: true, maxLength: 120, help: {summary: The unique reference of this insured party within the insurer's systems., usage: Allocated when added; quoted in claims., businessMeaning: Supports policy administration and integration without reusing Party identifiers., relationshipContext: Distinct from Party and policy numbers.}}
+    - name: roleType
+      type: enum
+      required: true
+      values: [INSURED, BENEFICIARY, DEPENDENT, COVERED_MEMBER, OTHER]
+      help:
+        summary: How the party is connected to the policy.
+        usage: Chosen when added; decides entitlement to cover and to payment.
+        valueSemantics:
+          INSURED: The person or thing whose risk is insured.
+          BENEFICIARY: The party entitled to be paid on a claim.
+          DEPENDENT: A person covered through the main insured.
+          COVERED_MEMBER: A member covered under a group policy.
+          OTHER: Any other covered role.
+        businessMeaning: Determines coverage and claim eligibility semantics under policy terms.
+        relationshipContext: Policyholder status may be modeled separately through InsurancePolicy policyholders.
+    - name: status
+      type: enum
+      required: true
+      default: ACTIVE
+      values: [ACTIVE, SUSPENDED, ENDED]
+      help:
+        summary: Whether this party's insured or beneficiary relationship to the policy is currently in force.
+        usage: Set by policy administration; coverage checks and claims only treat ACTIVE relationships as eligible, while ended ones stay as historical evidence.
+        valueSemantics:
+          ACTIVE: Covered under the policy.
+          SUSPENDED: Cover paused for this party.
+          ENDED: No longer covered. A final state.
+        businessMeaning: Controls new eligibility while preserving historical claim evidence.
+        relationshipContext: Coverage may apply only during a subset of policy period.
+  relationships:
+    - {name: party, target: Party, cardinality: "1", ownership: reference, help: {summary: The person or organisation holding the insured role., usage: Chosen when added to the policy., cardinalityMeaning: 'Exactly one party: each role is held by a specific person or organisation.', workflowRole: 'Identifies who is covered, or who is paid, under the policy.', businessMeaning: Reuses common identity and contact data.}}
+    - {name: policy, target: InsurancePolicy, cardinality: "1", ownership: reference, help: {summary: The policy that this party is covered under., usage: Set when added., cardinalityMeaning: 'Exactly one policy: an insured role exists only within a policy.', workflowRole: Ties the party's cover to a policy's terms., businessMeaning: Supplies governing insurance contract context.}}
+    - {name: coverages, target: Coverage, cardinality: "0..*", ownership: reference, help: {summary: The coverages that apply to this party., usage: Linked when the policy specifies who each cover applies to., cardinalityMeaning: Any number of coverages., workflowRole: Decides which benefits the party can claim., businessMeaning: Narrows policy protection to the relevant covered benefits.}}
+    - {name: claims, target: InsuranceClaim, cardinality: "0..*", ownership: reference, help: {summary: The claims that concern this party., usage: Read to see the party's claims history., cardinalityMeaning: Any number of claims over the party's time on the policy., workflowRole: Claims history can affect renewal., businessMeaning: Preserves who was covered or benefited in each claim context.}}
+  invariants:
+    - {id: INSURED-PARTY-001, rule: InsuredParty must reference a valid Party and InsurancePolicy.}
+    - {id: INSURED-PARTY-002, rule: Applied Coverage must belong to the same InsurancePolicy.}
+    - {id: INSURED-PARTY-003, rule: Ending or suspending the relationship does not rewrite historical claim eligibility decisions.}
+  lifecycle:
+    title: Insured Party Lifecycle
+    attribute: status
+    states: [ACTIVE, SUSPENDED, ENDED]
+    initial: ACTIVE
+    terminal: [ENDED]
+    transitions:
+      - {from: ACTIVE, to: SUSPENDED, action: suspend}
+      - {from: SUSPENDED, to: ACTIVE, action: resume}
+      - {from: ACTIVE, to: ENDED, action: end}
+      - {from: SUSPENDED, to: ENDED, action: end}
+  help:
+    summary: Represents a Party's insured or beneficiary role under an InsurancePolicy.
+    businessMeaning: InsuredParty separates common Party identity from policy-specific coverage eligibility.
+    usage: Insurance enrollment, policy servicing, coverage validation, claims and reporting.
+    relationshipContext: Party and Policy are mandatory; Coverage refines benefits and Claims preserve utilization/history.
+    lifecycle: Relationship is active, may suspend, and eventually ends without losing historical eligibility evidence.
+    example: A dependent Person is represented as an InsuredParty under a family policy and linked to the health Coverage applicable to that member.
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-INSURED-PARTY}

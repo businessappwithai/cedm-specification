@@ -24,9 +24,12 @@ imports:
   - entity: Fulfillment
   - entity: Load
   - entity: Route
+  - entity: Stop
   - entity: TrackingEvent
   - entity: Trip
   - entity: TripSegment
+  - entity: Driver
+  - entity: FuelTransaction
 ui:
   categories:
     - name: Transportation Management
@@ -35,4 +38,4 @@ ui:
     - name: Fulfillment
       entities: [SalesOrder, InventoryMovement]
     - name: Transportation and Logistics records
-      entities: [Carrier, Consignment, Delivery, DeliveryAttempt, FreightCharge, Fulfillment, Load, Route, TrackingEvent, Trip]
+      entities: [Carrier, Consignment, Delivery, DeliveryAttempt, FreightCharge, Fulfillment, Load, Route, TrackingEvent, Trip, Driver, FuelTransaction]

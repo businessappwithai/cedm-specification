@@ -1,0 +1,157 @@
+@ AuditCase
+s: An audit investigation or review that groups its scope, evidence, findings, actions and conclusions in one place.
+b: An audit case is the container for one piece of assurance work. It keeps everything an auditor gathered and concluded together, so the outcome can be defended later and follow-up actions can be traced to their source.
+u: Opened when an audit, review or investigation starts; updated as evidence and findings are added; read by auditors, management and regulators when the case is reviewed.
+c: Evidence, findings and corrective actions attach to the case; the audit events that prove the underlying activity are referenced as evidence.
+l: Finalised evidence and conclusions are preserved. Reassessment or correction is recorded explicitly, never by silently rewriting the case.
+x: An internal audit of supplier payment controls for the third quarter, with sampled payments as evidence and three findings raised.
+a auditCaseId
+s: The identity of the audit case.
+u: Generated on opening; findings, evidence and actions refer to the case through it.
+a effectiveAt
+s: When the case took effect as the governing record of the review.
+u: Set when the case is opened or a revision takes effect; used to order cases and show which version applied at a given time.
+
+@ AuditEvent
+s: An immutable record of a significant action, state change, access, decision or control event.
+b: Audit events are the evidence that something happened: who did what, to what, and when. They cannot be edited, which is exactly what makes them usable as proof.
+u: Written automatically whenever a governed action occurs; read by auditors, security teams and investigations to reconstruct what took place.
+c: Events point to the record or action they describe and the actor responsible; audit cases cite them as evidence.
+l: An event is final the moment it is written. A mistake is explained by a later event, never by changing the original.
+x: Event recorded when a finance manager approved a payment run, showing the approver, the time and the run approved.
+a auditEventId
+s: The identity of the audit event.
+u: Generated when the event is written; cases and investigations cite events by it.
+a effectiveAt
+s: When the audited action took place.
+u: Set from the time of the action, not the time of writing; events are ordered by it when reconstructing a sequence.
+
+@ BOMComponent
+s: One line of a bill of material: a product or material that is needed, in what quantity, at what stage of the build.
+b: A bill of material is only as useful as its lines. Each component line says what goes into the finished product, how much, and how much extra to allow for waste, which is what material planning and costing run on.
+u: Added when a bill of material is designed or revised; read by planning to calculate material requirements and by costing to price the product.
+c: Each component belongs to one BillOfMaterial and names the Product or material it consumes.
+l: Component lines follow the lifecycle of their bill: they are edited while it is in draft and fixed once it is released.
+x: Line 20 of the bike BOM: 2 wheels, scrap allowance 1%, consumed at assembly operation 30.
+a bomComponentId
+s: The identity of this component line.
+u: Generated when the line is added; revisions and cost roll-ups refer to it.
+a sequence
+s: The position of the line in the bill of material.
+u: Set by the engineer to give lines a stable order; also used to name a line in discussion, for example line 20.
+a quantity
+s: How much of the component is needed to make one unit of the parent product.
+u: Entered by the engineer in the component's unit of measure; must be greater than zero. Planning multiplies it by the order quantity.
+a scrapPercent
+s: The extra percentage of the component expected to be lost or spoiled during production.
+u: Entered from experience; planning adds it to the net requirement so enough material is ordered. Zero or more, at most 100.
+a operationSequence
+s: The routing operation at which this component is consumed.
+u: Optional; lets the shop floor issue material at the step where it is used instead of all at the start.
+r billOfMaterial
+s: The bill of material this line belongs to.
+u: Set when the line is created and not changed.
+n: Exactly one bill; a bill has many lines.
+w: Lines are released and retired together with their bill.
+r componentProduct
+s: The product or material that is consumed.
+u: Chosen from the product catalogue when the line is added.
+n: Exactly one product per line; the same product can appear on many bills.
+w: Gives planning and costing the item to buy or make.
+
+@ BankLoan
+s: A loan in which a bank advances funds to a borrower on agreed terms of repayment.
+b: A loan is a long-running promise: money goes out now and comes back, with interest, over time. This record carries the terms and the loan's standing, so servicing, risk and reporting all work from the same facts.
+u: Created when a borrower applies; progressed through approval and drawdown; watched through repayment until it is paid off or defaults; read by servicing, collections, risk and finance.
+c: The loan links a borrowing Party, the lending Organization and the Currency of the amounts, so who owes whom and in what money is never ambiguous.
+l: A loan is an application, then approved, then active when funds are advanced. An active loan can fall delinquent and be cured, and ends paid off, or defaulted if delinquency is not resolved. An application or approved loan that is not drawn can be cancelled.
+x: A 250,000 five-year business loan to Acme Ltd at 6.5%, approved on 3 February, drawn down on 10 February and repaid monthly.
+a loanId
+s: The permanent system identity of the loan.
+u: Generated on application; repayments, collateral and statements refer to it.
+a loanNumber
+s: The reference number under which the bank services the loan.
+u: Allocated by the bank and quoted on statements and in correspondence; unique across loans.
+a principalAmount
+s: The amount of money advanced, before interest.
+u: Set at approval and fixed for the life of the loan; interest and repayments are calculated from it. Must be greater than zero.
+a interestRate
+s: The agreed annual interest rate charged on the outstanding balance.
+u: Entered as a fraction (for example 0.065 for 6.5%); used with the repayment schedule to calculate interest due.
+a startDate
+s: The date from which the loan runs and interest begins to accrue.
+u: Normally the drawdown date; the repayment schedule is built from it.
+a maturityDate
+s: The date by which the loan must be repaid in full.
+u: Agreed at approval; must be later than the start date. Collections treats balances outstanding after it as overdue.
+a status
+s: Where the loan stands in its life.
+u: Moved by credit, servicing and collections processes; repayment collection applies to ACTIVE and DELINQUENT loans.
+v APPLICATION: Requested by the borrower and under assessment; no funds have moved.
+v APPROVED: Credit has been approved on agreed terms but funds are not yet advanced.
+v ACTIVE: Funds advanced and repayments are being made as scheduled.
+v DELINQUENT: A repayment is overdue; the loan is under collections attention and may be cured.
+v PAID_OFF: Fully repaid; a final state.
+v DEFAULTED: Delinquency was not resolved and the bank treats the loan as in default; a final state.
+v CANCELLED: Withdrawn or refused before any funds were advanced; a final state.
+r borrower
+s: The party that owes the loan.
+u: Chosen at application; statements and legal notices are addressed to this party.
+n: Exactly one borrower; joint borrowers would be modelled by a joint party.
+w: Identifies who is bound to repay.
+r lender
+s: The organisation that lends the money.
+u: Set at application; determines which bank entity books the loan and receives repayments.
+n: Exactly one lender: every loan is booked by a single lending entity.
+w: Identifies whose balance sheet carries the loan.
+r currency
+s: The currency in which the loan is denominated.
+u: Fixed at approval; principal, interest and repayments are all in this currency.
+n: Exactly one currency, so every amount on the loan is in the same money.
+w: Keeps amounts unambiguous across multi-currency portfolios.
+
+@ BankReconciliation
+s: A reconciliation of a bank account's statement transactions against internal payments and accounting records up to a cut-off.
+b: Banks and the books record the same money from two sides. Reconciliation proves they agree, or explains the difference, which is the control that catches missing, duplicate or wrong entries.
+u: Performed at period end or as often as the bank feed arrives; read by treasury, accounting and auditors as evidence the cash balance is right.
+c: A reconciliation covers one BankAccount and takes in the BankTransactions of the statement period; matched items link to payments and journal entries.
+l: Reconciliation work is finalised once balances agree; corrections after that are made by explicit compensating records, not by editing the finished reconciliation.
+x: Reconciliation of the main operating account at 31 March: 412 statement lines matched, 3 unmatched items carried forward.
+a bankReconciliationId
+s: The identity of this reconciliation.
+u: Generated when it is started; matched items and sign-off records refer to it.
+a effectiveAt
+s: The cut-off date and time up to which transactions are reconciled.
+u: Chosen when the reconciliation is started, usually the statement date; transactions after it belong to the next reconciliation.
+r bankAccount
+n: Exactly one account; a reconciliation never mixes accounts.
+r bankTransactions
+n: Any number, normally every statement line up to the cut-off.
+
+@ BankTransaction
+a transactionType
+v CREDIT: Money received into the account.
+v DEBIT: Money paid out of the account.
+v TRANSFER: Movement between the organisation's own accounts or accounts at the bank.
+v FEE: A charge made by the bank for its services.
+v INTEREST: Interest credited or debited by the bank.
+v REVERSAL: A reversal of an earlier bank transaction, such as a returned payment.
+v OTHER: A bank-side adjustment that fits none of the above.
+a status
+v PENDING: Reported by the bank but not yet final; it may still change or fall away.
+v POSTED: Final on the bank's books and eligible as settlement evidence.
+v REVERSED: Undone by the bank; no longer supports a payment being cleared.
+v FAILED: Did not complete; no money moved.
+
+@ BankAccount
+a accountType
+v CURRENT: A transaction account for everyday receipts and payments.
+v SAVINGS: An interest-bearing account held mainly to accumulate balances.
+v LOAN: An account carrying borrowing from the bank.
+v ESCROW: An account holding money on behalf of others until conditions are met.
+v OTHER: Any other kind of account.
+a status
+v PENDING: Opened or requested but not yet confirmed by the bank; not available for payments.
+v ACTIVE: Open and available for receipts and payments.
+v BLOCKED: Temporarily frozen, for example for compliance reasons; no new payments should be routed to it.
+v CLOSED: Permanently closed; history remains for reconciliation and audit.

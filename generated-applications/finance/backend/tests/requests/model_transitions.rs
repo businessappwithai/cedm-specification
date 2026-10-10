@@ -1,6 +1,6 @@
 //! The state machines the *model* drew, and whether the API enforces them.
 //!
-//! Generated: 2026-10-04T08:29:46.971Z
+//! Generated: 2026-10-09T15:28:42.454Z
 //! Project: finance
 //!
 //! `requests/rbac.rs` proves the topology guard works by seeding an edge of its
@@ -190,25 +190,35 @@ const MODEL_EDGES: &[(&str, &str, &str, &str)] = &[
     ("bus_credit_note", "status", "DRAFT", "APPROVED"),
     ("bus_credit_note", "status", "APPROVED", "POSTED"),
     ("bus_credit_note", "status", "POSTED", "PARTIALLY_APPLIED"),
+    ("bus_credit_note", "status", "POSTED", "FULLY_APPLIED"),
+    (
+        "bus_credit_note",
+        "status",
+        "PARTIALLY_APPLIED",
+        "FULLY_APPLIED",
+    ),
+    ("bus_credit_note", "status", "POSTED", "REFUND_DUE"),
     (
         "bus_credit_note",
         "status",
         "PARTIALLY_APPLIED",
         "REFUND_DUE",
     ),
-    ("bus_credit_note", "status", "REFUND_DUE", "FULLY_APPLIED"),
     ("bus_credit_note", "status", "REFUND_DUE", "REFUNDED"),
-    ("bus_credit_note", "status", "DRAFT", "CANCELLED"),
-    ("bus_credit_note", "status", "APPROVED", "CANCELLED"),
-    ("bus_credit_note", "status", "POSTED", "CANCELLED"),
     (
         "bus_credit_note",
         "status",
+        "REFUND_DUE",
         "PARTIALLY_APPLIED",
-        "CANCELLED",
     ),
-    ("bus_credit_note", "status", "REFUND_DUE", "CANCELLED"),
+    ("bus_credit_note", "status", "REFUND_DUE", "FULLY_APPLIED"),
+    ("bus_credit_note", "status", "DRAFT", "CANCELLED"),
+    ("bus_credit_note", "status", "APPROVED", "CANCELLED"),
+    ("bus_credit_note", "status", "POSTED", "REVERSED"),
+    ("bus_credit_note", "status", "PARTIALLY_APPLIED", "REVERSED"),
+    ("bus_credit_note", "status", "FULLY_APPLIED", "REVERSED"),
     ("bus_credit_note", "status", "REFUND_DUE", "REVERSED"),
+    ("bus_credit_note", "status", "REFUNDED", "REVERSED"),
     ("bus_credit_note_application", "status", "DRAFT", "ACTIVE"),
     (
         "bus_credit_note_application",

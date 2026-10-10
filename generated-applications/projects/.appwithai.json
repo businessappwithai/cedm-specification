@@ -36,6 +36,7 @@
     "Milestone",
     "ResourceAssignment",
     "Timesheet",
+    "ProjectCost",
     "ProfessionalEngagement",
     "PartyPartyType",
     "PartyStatus",
@@ -66,6 +67,8 @@
     "MilestoneStatus",
     "ResourceAssignmentStatus",
     "TimesheetStatus",
+    "ProjectCostCostType",
+    "ProjectCostStatus",
     "ProfessionalEngagementStatus"
   ],
   "categories": [
@@ -93,6 +96,8 @@
     "PersonPartyType (2)",
     "PersonStatus (4)",
     "ProfessionalEngagementStatus (5)",
+    "ProjectCostCostType (6)",
+    "ProjectCostStatus (5)",
     "ProjectPhaseStatus (4)",
     "ProjectStatus (7)",
     "ProjectTaskPriority (4)",
@@ -118,6 +123,8 @@
     "ResourceAssignmentCompletionConfirmed on ResourceAssignment (1 steps, rule)",
     "TimesheetFollowUpRequired on Timesheet (1 steps, rule)",
     "TimesheetCompletionConfirmed on Timesheet (1 steps, rule)",
+    "ProjectCostFollowUpRequired on ProjectCost (1 steps, rule)",
+    "ProjectCostCompletionConfirmed on ProjectCost (1 steps, rule)",
     "ProfessionalEngagementApprovalRequested on ProfessionalEngagement (1 steps, rule)",
     "ProfessionalEngagementExceptionRaised on ProfessionalEngagement (1 steps, rule)",
     "ProfessionalEngagementFollowUpRequired on ProfessionalEngagement (1 steps, rule)"
@@ -136,11 +143,12 @@
     "Project: CLOSED, CANCELLED",
     "ProjectPhase: COMPLETED, CANCELLED",
     "ProjectTask: COMPLETED, CANCELLED",
-    "Milestone: CANCELLED",
+    "Milestone: ACHIEVED, MISSED, CANCELLED",
     "ResourceAssignment: COMPLETED, CANCELLED",
     "Timesheet: COMPLETED, CANCELLED",
+    "ProjectCost: REVERSED, CANCELLED",
     "ProfessionalEngagement: COMPLETED, CANCELLED"
   ],
   "packageManager": "bun",
-  "generatedAt": "2026-10-08T00:57:09.090Z"
+  "generatedAt": "2026-10-10T09:26:43.825Z"
 }

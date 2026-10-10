@@ -431,8 +431,8 @@ CREATE INDEX IF NOT EXISTS idx_bus_currency_name ON bus_currency (name);
 -- Exchange Rate (bus_exchange_rate)
 CREATE TABLE IF NOT EXISTS bus_exchange_rate (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid()
-  , from_currency UUID NOT NULL
-  , to_currency UUID NOT NULL
+  , from_currency_id UUID NOT NULL
+  , to_currency_id UUID NOT NULL
   , rate DECIMAL(18,6) NOT NULL
   , rate_type VARCHAR(255) NOT NULL
   , effective_at TIMESTAMPTZ NOT NULL
@@ -684,6 +684,12 @@ CREATE TABLE IF NOT EXISTS bus_deposit (
 CREATE TABLE IF NOT EXISTS bus_credit (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid()
   , status VARCHAR(255) NOT NULL
+  , credit_number VARCHAR(100) NOT NULL UNIQUE
+  , reason VARCHAR(255) NOT NULL
+  , amount DECIMAL(18,6) NOT NULL
+  , remaining_amount DECIMAL(18,6) NOT NULL
+  , currency_id UUID NOT NULL
+  , issued_on DATE NOT NULL
   , created_at TIMESTAMPTZ DEFAULT NOW()
   , updated_at TIMESTAMPTZ DEFAULT NOW()
   , deleted_at TIMESTAMPTZ
@@ -1421,6 +1427,31 @@ CREATE TABLE IF NOT EXISTS bus_credit_status (
 -- Composite declarations are the ones that were silently lost before the parser
 -- read the model's indexes at all: no convention can produce them.
 CREATE INDEX IF NOT EXISTS idx_bus_credit_status_name ON bus_credit_status (name);
+-- Credit Reason (bus_credit_reason)
+CREATE TABLE IF NOT EXISTS bus_credit_reason (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid()
+  , code VARCHAR(100) NOT NULL UNIQUE
+  , name VARCHAR(200) NOT NULL
+  , description TEXT
+  , sequence INTEGER NOT NULL
+  , is_active BOOLEAN NOT NULL
+  , created_at TIMESTAMPTZ DEFAULT NOW()
+  , updated_at TIMESTAMPTZ DEFAULT NOW()
+  , deleted_at TIMESTAMPTZ
+  , version INTEGER NOT NULL DEFAULT 1
+);
+
+-- Indexes.
+--
+-- `entity.indexes` is the merge of what the model declared in `indexes` and
+-- the conventional single-column ones (a column called `name`, and anything
+-- unique). It is merged rather than emitted from both sources because both name
+-- an index after its columns: two `CREATE INDEX IF NOT EXISTS` statements with
+-- the same name meant the second — the one carrying UNIQUE — was the no-op.
+--
+-- Composite declarations are the ones that were silently lost before the parser
+-- read the model's indexes at all: no convention can produce them.
+CREATE INDEX IF NOT EXISTS idx_bus_credit_reason_name ON bus_credit_reason (name);
 
 -- The TypeScript migration wraps this in `.catch(() => {})`; the DO block is
 -- how that same tolerance is expressed in plain SQL. Re-running a migration or
@@ -1835,40 +1866,6 @@ END $$;
 -- a model whose FK column was typed as something other than UUID must not
 -- abort the whole migration.
 DO $$ BEGIN
-  ALTER TABLE bus_exchange_rate
-    ADD CONSTRAINT fk_bus_exchange_rate_currency_id
-    FOREIGN KEY (currency_id)
-    REFERENCES bus_currency(id)
-    ON DELETE SET NULL ON UPDATE CASCADE;
-EXCEPTION
-  WHEN duplicate_object THEN NULL;
-  WHEN undefined_column THEN NULL;
-  WHEN undefined_table THEN NULL;
-  WHEN datatype_mismatch THEN NULL;
-END $$;
-
--- The TypeScript migration wraps this in `.catch(() => {})`; the DO block is
--- how that same tolerance is expressed in plain SQL. Re-running a migration or
--- a model whose FK column was typed as something other than UUID must not
--- abort the whole migration.
-DO $$ BEGIN
-  ALTER TABLE bus_exchange_rate
-    ADD CONSTRAINT fk_bus_exchange_rate_currency_id
-    FOREIGN KEY (currency_id)
-    REFERENCES bus_currency(id)
-    ON DELETE SET NULL ON UPDATE CASCADE;
-EXCEPTION
-  WHEN duplicate_object THEN NULL;
-  WHEN undefined_column THEN NULL;
-  WHEN undefined_table THEN NULL;
-  WHEN datatype_mismatch THEN NULL;
-END $$;
-
--- The TypeScript migration wraps this in `.catch(() => {})`; the DO block is
--- how that same tolerance is expressed in plain SQL. Re-running a migration or
--- a model whose FK column was typed as something other than UUID must not
--- abort the whole migration.
-DO $$ BEGIN
   ALTER TABLE bus_unit_of_measure
     ADD CONSTRAINT fk_bus_unit_of_measure_unit_of_measure_id
     FOREIGN KEY (unit_of_measure_id)
@@ -2161,6 +2158,7 @@ DROP TABLE IF EXISTS bus_bank_transaction_transaction_type CASCADE;
 DROP TABLE IF EXISTS bus_bank_transaction_status CASCADE;
 DROP TABLE IF EXISTS bus_bank_loan_status CASCADE;
 DROP TABLE IF EXISTS bus_credit_status CASCADE;
+DROP TABLE IF EXISTS bus_credit_reason CASCADE;
 "#;
 
 #[async_trait::async_trait]

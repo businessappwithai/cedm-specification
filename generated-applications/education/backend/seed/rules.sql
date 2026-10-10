@@ -97,6 +97,50 @@ ON CONFLICT (entity_name, operation, rule_name) DO UPDATE
       updated_at  = NOW()
   WHERE current_setting('appwithai.rules_overwrite', true) = 'on';
 
+-- classInvariantsBeforeCreate — Class.beforeCreate (priority 100)
+INSERT INTO sys_rule_definitions (id, entity_name, rule_name, operation, jdm_content, version, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('5e1b43aa-0010-5358-a224-d34b50197c13', 'bus_class', 'classInvariantsBeforeCreate', 'CREATE', '{"nodes":[{"id":"input","name":"Input","type":"inputNode"},{"id":"classInvariantsBeforeCreate-table","name":"classInvariantsBeforeCreate","type":"decisionTableNode","content":{"hitPolicy":"collect","inputs":[{"id":"i1","name":"Record","field":""}],"outputs":[{"id":"o1","name":"Action","field":"action"},{"id":"o2","name":"Message","field":"message"},{"id":"o3","name":"Rule ID","field":"ruleId"},{"id":"o4","name":"Workflow Name","field":"workflowName"},{"id":"o5","name":"Target Entity","field":"targetEntity"},{"id":"o6","name":"Link Field","field":"linkField"},{"id":"o7","name":"Update Data","field":"updateData"},{"id":"o8","name":"Create Data","field":"createData"},{"id":"o9","name":"Transform Data","field":"transformData"}],"rules":[{"_id":"classInvariantsBeforeCreate-CLASS-EXE-001","i1":"start_date != null and end_date != null and end_date < start_date","o1":"''prevent''","o2":"''End Date cannot be earlier than start date.''","o3":"''classInvariantsBeforeCreate''","o4":"''''","o5":"''''","o6":"''''","o7":"''''","o8":"''''","o9":"''''"}]}},{"id":"output","name":"Output","type":"outputNode"}],"edges":[{"id":"edge-1","sourceId":"input","targetId":"classInvariantsBeforeCreate-table"},{"id":"edge-2","sourceId":"classInvariantsBeforeCreate-table","targetId":"output"}]}', 1, TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT (entity_name, operation, rule_name) DO UPDATE
+  SET jdm_content = EXCLUDED.jdm_content,
+      version     = sys_rule_definitions.version + 1,
+      is_active   = TRUE,
+      updated_by  = EXCLUDED.updated_by,
+      updated_at  = NOW()
+  WHERE current_setting('appwithai.rules_overwrite', true) = 'on';
+
+-- classInvariantsBeforeUpdate — Class.beforeUpdate (priority 100)
+INSERT INTO sys_rule_definitions (id, entity_name, rule_name, operation, jdm_content, version, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('75527b6d-80a5-5f43-a960-f070584375a4', 'bus_class', 'classInvariantsBeforeUpdate', 'UPDATE', '{"nodes":[{"id":"input","name":"Input","type":"inputNode"},{"id":"classInvariantsBeforeUpdate-table","name":"classInvariantsBeforeUpdate","type":"decisionTableNode","content":{"hitPolicy":"collect","inputs":[{"id":"i1","name":"Record","field":""}],"outputs":[{"id":"o1","name":"Action","field":"action"},{"id":"o2","name":"Message","field":"message"},{"id":"o3","name":"Rule ID","field":"ruleId"},{"id":"o4","name":"Workflow Name","field":"workflowName"},{"id":"o5","name":"Target Entity","field":"targetEntity"},{"id":"o6","name":"Link Field","field":"linkField"},{"id":"o7","name":"Update Data","field":"updateData"},{"id":"o8","name":"Create Data","field":"createData"},{"id":"o9","name":"Transform Data","field":"transformData"}],"rules":[{"_id":"classInvariantsBeforeUpdate-CLASS-EXE-001","i1":"start_date != null and end_date != null and end_date < start_date","o1":"''prevent''","o2":"''End Date cannot be earlier than start date.''","o3":"''classInvariantsBeforeUpdate''","o4":"''''","o5":"''''","o6":"''''","o7":"''''","o8":"''''","o9":"''''"}]}},{"id":"output","name":"Output","type":"outputNode"}],"edges":[{"id":"edge-1","sourceId":"input","targetId":"classInvariantsBeforeUpdate-table"},{"id":"edge-2","sourceId":"classInvariantsBeforeUpdate-table","targetId":"output"}]}', 1, TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT (entity_name, operation, rule_name) DO UPDATE
+  SET jdm_content = EXCLUDED.jdm_content,
+      version     = sys_rule_definitions.version + 1,
+      is_active   = TRUE,
+      updated_by  = EXCLUDED.updated_by,
+      updated_at  = NOW()
+  WHERE current_setting('appwithai.rules_overwrite', true) = 'on';
+
+-- feeInvariantsBeforeCreate — Fee.beforeCreate (priority 100)
+INSERT INTO sys_rule_definitions (id, entity_name, rule_name, operation, jdm_content, version, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('7ab86dc4-696c-59c8-9db4-be6f22c4e5fe', 'bus_fee', 'feeInvariantsBeforeCreate', 'CREATE', '{"nodes":[{"id":"input","name":"Input","type":"inputNode"},{"id":"feeInvariantsBeforeCreate-table","name":"feeInvariantsBeforeCreate","type":"decisionTableNode","content":{"hitPolicy":"collect","inputs":[{"id":"i1","name":"Record","field":""}],"outputs":[{"id":"o1","name":"Action","field":"action"},{"id":"o2","name":"Message","field":"message"},{"id":"o3","name":"Rule ID","field":"ruleId"},{"id":"o4","name":"Workflow Name","field":"workflowName"},{"id":"o5","name":"Target Entity","field":"targetEntity"},{"id":"o6","name":"Link Field","field":"linkField"},{"id":"o7","name":"Update Data","field":"updateData"},{"id":"o8","name":"Create Data","field":"createData"},{"id":"o9","name":"Transform Data","field":"transformData"}],"rules":[{"_id":"feeInvariantsBeforeCreate-FEE-EXE-001","i1":"amount != null and amount < 0","o1":"''prevent''","o2":"''Amount cannot be negative.''","o3":"''feeInvariantsBeforeCreate''","o4":"''''","o5":"''''","o6":"''''","o7":"''''","o8":"''''","o9":"''''"}]}},{"id":"output","name":"Output","type":"outputNode"}],"edges":[{"id":"edge-1","sourceId":"input","targetId":"feeInvariantsBeforeCreate-table"},{"id":"edge-2","sourceId":"feeInvariantsBeforeCreate-table","targetId":"output"}]}', 1, TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT (entity_name, operation, rule_name) DO UPDATE
+  SET jdm_content = EXCLUDED.jdm_content,
+      version     = sys_rule_definitions.version + 1,
+      is_active   = TRUE,
+      updated_by  = EXCLUDED.updated_by,
+      updated_at  = NOW()
+  WHERE current_setting('appwithai.rules_overwrite', true) = 'on';
+
+-- feeInvariantsBeforeUpdate — Fee.beforeUpdate (priority 100)
+INSERT INTO sys_rule_definitions (id, entity_name, rule_name, operation, jdm_content, version, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('e7ad7add-0053-558b-9c06-e8762e8d2f57', 'bus_fee', 'feeInvariantsBeforeUpdate', 'UPDATE', '{"nodes":[{"id":"input","name":"Input","type":"inputNode"},{"id":"feeInvariantsBeforeUpdate-table","name":"feeInvariantsBeforeUpdate","type":"decisionTableNode","content":{"hitPolicy":"collect","inputs":[{"id":"i1","name":"Record","field":""}],"outputs":[{"id":"o1","name":"Action","field":"action"},{"id":"o2","name":"Message","field":"message"},{"id":"o3","name":"Rule ID","field":"ruleId"},{"id":"o4","name":"Workflow Name","field":"workflowName"},{"id":"o5","name":"Target Entity","field":"targetEntity"},{"id":"o6","name":"Link Field","field":"linkField"},{"id":"o7","name":"Update Data","field":"updateData"},{"id":"o8","name":"Create Data","field":"createData"},{"id":"o9","name":"Transform Data","field":"transformData"}],"rules":[{"_id":"feeInvariantsBeforeUpdate-FEE-EXE-001","i1":"amount != null and amount < 0","o1":"''prevent''","o2":"''Amount cannot be negative.''","o3":"''feeInvariantsBeforeUpdate''","o4":"''''","o5":"''''","o6":"''''","o7":"''''","o8":"''''","o9":"''''"}]}},{"id":"output","name":"Output","type":"outputNode"}],"edges":[{"id":"edge-1","sourceId":"input","targetId":"feeInvariantsBeforeUpdate-table"},{"id":"edge-2","sourceId":"feeInvariantsBeforeUpdate-table","targetId":"output"}]}', 1, TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT (entity_name, operation, rule_name) DO UPDATE
+  SET jdm_content = EXCLUDED.jdm_content,
+      version     = sys_rule_definitions.version + 1,
+      is_active   = TRUE,
+      updated_by  = EXCLUDED.updated_by,
+      updated_at  = NOW()
+  WHERE current_setting('appwithai.rules_overwrite', true) = 'on';
+
 -- partyWorkflowsAfterUpdate — Party.afterUpdate (priority 100)
 INSERT INTO sys_rule_definitions (id, entity_name, rule_name, operation, jdm_content, version, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('4dbb4590-3fee-5dd5-a278-e5d0e3b2419c', 'bus_party', 'partyWorkflowsAfterUpdate', 'UPDATE', '{"nodes":[{"id":"input","name":"Input","type":"inputNode"},{"id":"partyWorkflowsAfterUpdate-table","name":"partyWorkflowsAfterUpdate","type":"decisionTableNode","content":{"hitPolicy":"collect","inputs":[{"id":"i1","name":"Record","field":""}],"outputs":[{"id":"o1","name":"Action","field":"action"},{"id":"o2","name":"Message","field":"message"},{"id":"o3","name":"Rule ID","field":"ruleId"},{"id":"o4","name":"Workflow Name","field":"workflowName"},{"id":"o5","name":"Target Entity","field":"targetEntity"},{"id":"o6","name":"Link Field","field":"linkField"},{"id":"o7","name":"Update Data","field":"updateData"},{"id":"o8","name":"Create Data","field":"createData"},{"id":"o9","name":"Transform Data","field":"transformData"}],"rules":[{"_id":"partyWorkflowsAfterUpdate-ExceptionRaised","i1":"status == \"BLOCKED\" and status != _previous_status","o1":"''trigger-workflow''","o2":"''partyWorkflowsAfterUpdate: ExceptionRaised''","o3":"''partyWorkflowsAfterUpdate''","o4":"''PartyExceptionRaised''","o5":"''''","o6":"''''","o7":"''''","o8":"''''","o9":"''''"}]}},{"id":"output","name":"Output","type":"outputNode"}],"edges":[{"id":"edge-1","sourceId":"input","targetId":"partyWorkflowsAfterUpdate-table"},{"id":"edge-2","sourceId":"partyWorkflowsAfterUpdate-table","targetId":"output"}]}', 1, TRUE, 'system', 'system', NOW(), NOW())
@@ -119,9 +163,53 @@ ON CONFLICT (entity_name, operation, rule_name) DO UPDATE
       updated_at  = NOW()
   WHERE current_setting('appwithai.rules_overwrite', true) = 'on';
 
+-- classWorkflowsAfterUpdate — Class.afterUpdate (priority 100)
+INSERT INTO sys_rule_definitions (id, entity_name, rule_name, operation, jdm_content, version, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('65ef9dc4-54b9-5674-92da-81be8a6c7b77', 'bus_class', 'classWorkflowsAfterUpdate', 'UPDATE', '{"nodes":[{"id":"input","name":"Input","type":"inputNode"},{"id":"classWorkflowsAfterUpdate-table","name":"classWorkflowsAfterUpdate","type":"decisionTableNode","content":{"hitPolicy":"collect","inputs":[{"id":"i1","name":"Record","field":""}],"outputs":[{"id":"o1","name":"Action","field":"action"},{"id":"o2","name":"Message","field":"message"},{"id":"o3","name":"Rule ID","field":"ruleId"},{"id":"o4","name":"Workflow Name","field":"workflowName"},{"id":"o5","name":"Target Entity","field":"targetEntity"},{"id":"o6","name":"Link Field","field":"linkField"},{"id":"o7","name":"Update Data","field":"updateData"},{"id":"o8","name":"Create Data","field":"createData"},{"id":"o9","name":"Transform Data","field":"transformData"}],"rules":[{"_id":"classWorkflowsAfterUpdate-FollowUpRequired","i1":"status == \"CANCELLED\" and status != _previous_status","o1":"''trigger-workflow''","o2":"''classWorkflowsAfterUpdate: FollowUpRequired''","o3":"''classWorkflowsAfterUpdate''","o4":"''ClassFollowUpRequired''","o5":"''''","o6":"''''","o7":"''''","o8":"''''","o9":"''''"}]}},{"id":"output","name":"Output","type":"outputNode"}],"edges":[{"id":"edge-1","sourceId":"input","targetId":"classWorkflowsAfterUpdate-table"},{"id":"edge-2","sourceId":"classWorkflowsAfterUpdate-table","targetId":"output"}]}', 1, TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT (entity_name, operation, rule_name) DO UPDATE
+  SET jdm_content = EXCLUDED.jdm_content,
+      version     = sys_rule_definitions.version + 1,
+      is_active   = TRUE,
+      updated_by  = EXCLUDED.updated_by,
+      updated_at  = NOW()
+  WHERE current_setting('appwithai.rules_overwrite', true) = 'on';
+
 -- enrollmentWorkflowsAfterUpdate — Enrollment.afterUpdate (priority 100)
 INSERT INTO sys_rule_definitions (id, entity_name, rule_name, operation, jdm_content, version, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('d8c921d3-e5c7-5fd1-85d0-0dae9ea450b4', 'bus_enrollment', 'enrollmentWorkflowsAfterUpdate', 'UPDATE', '{"nodes":[{"id":"input","name":"Input","type":"inputNode"},{"id":"enrollmentWorkflowsAfterUpdate-table","name":"enrollmentWorkflowsAfterUpdate","type":"decisionTableNode","content":{"hitPolicy":"collect","inputs":[{"id":"i1","name":"Record","field":""}],"outputs":[{"id":"o1","name":"Action","field":"action"},{"id":"o2","name":"Message","field":"message"},{"id":"o3","name":"Rule ID","field":"ruleId"},{"id":"o4","name":"Workflow Name","field":"workflowName"},{"id":"o5","name":"Target Entity","field":"targetEntity"},{"id":"o6","name":"Link Field","field":"linkField"},{"id":"o7","name":"Update Data","field":"updateData"},{"id":"o8","name":"Create Data","field":"createData"},{"id":"o9","name":"Transform Data","field":"transformData"}],"rules":[{"_id":"enrollmentWorkflowsAfterUpdate-FollowUpRequired","i1":"status == \"CANCELLED\" and status != _previous_status","o1":"''trigger-workflow''","o2":"''enrollmentWorkflowsAfterUpdate: FollowUpRequired''","o3":"''enrollmentWorkflowsAfterUpdate''","o4":"''EnrollmentFollowUpRequired''","o5":"''''","o6":"''''","o7":"''''","o8":"''''","o9":"''''"},{"_id":"enrollmentWorkflowsAfterUpdate-CompletionConfirmed","i1":"status == \"COMPLETED\" and status != _previous_status","o1":"''trigger-workflow''","o2":"''enrollmentWorkflowsAfterUpdate: CompletionConfirmed''","o3":"''enrollmentWorkflowsAfterUpdate''","o4":"''EnrollmentCompletionConfirmed''","o5":"''''","o6":"''''","o7":"''''","o8":"''''","o9":"''''"}]}},{"id":"output","name":"Output","type":"outputNode"}],"edges":[{"id":"edge-1","sourceId":"input","targetId":"enrollmentWorkflowsAfterUpdate-table"},{"id":"edge-2","sourceId":"enrollmentWorkflowsAfterUpdate-table","targetId":"output"}]}', 1, TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT (entity_name, operation, rule_name) DO UPDATE
+  SET jdm_content = EXCLUDED.jdm_content,
+      version     = sys_rule_definitions.version + 1,
+      is_active   = TRUE,
+      updated_by  = EXCLUDED.updated_by,
+      updated_at  = NOW()
+  WHERE current_setting('appwithai.rules_overwrite', true) = 'on';
+
+-- assessmentWorkflowsAfterUpdate — Assessment.afterUpdate (priority 100)
+INSERT INTO sys_rule_definitions (id, entity_name, rule_name, operation, jdm_content, version, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('9facba83-5a0b-5025-9236-c5ae3811cade', 'bus_assessment', 'assessmentWorkflowsAfterUpdate', 'UPDATE', '{"nodes":[{"id":"input","name":"Input","type":"inputNode"},{"id":"assessmentWorkflowsAfterUpdate-table","name":"assessmentWorkflowsAfterUpdate","type":"decisionTableNode","content":{"hitPolicy":"collect","inputs":[{"id":"i1","name":"Record","field":""}],"outputs":[{"id":"o1","name":"Action","field":"action"},{"id":"o2","name":"Message","field":"message"},{"id":"o3","name":"Rule ID","field":"ruleId"},{"id":"o4","name":"Workflow Name","field":"workflowName"},{"id":"o5","name":"Target Entity","field":"targetEntity"},{"id":"o6","name":"Link Field","field":"linkField"},{"id":"o7","name":"Update Data","field":"updateData"},{"id":"o8","name":"Create Data","field":"createData"},{"id":"o9","name":"Transform Data","field":"transformData"}],"rules":[{"_id":"assessmentWorkflowsAfterUpdate-FollowUpRequired","i1":"status == \"CANCELLED\" and status != _previous_status","o1":"''trigger-workflow''","o2":"''assessmentWorkflowsAfterUpdate: FollowUpRequired''","o3":"''assessmentWorkflowsAfterUpdate''","o4":"''AssessmentFollowUpRequired''","o5":"''''","o6":"''''","o7":"''''","o8":"''''","o9":"''''"}]}},{"id":"output","name":"Output","type":"outputNode"}],"edges":[{"id":"edge-1","sourceId":"input","targetId":"assessmentWorkflowsAfterUpdate-table"},{"id":"edge-2","sourceId":"assessmentWorkflowsAfterUpdate-table","targetId":"output"}]}', 1, TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT (entity_name, operation, rule_name) DO UPDATE
+  SET jdm_content = EXCLUDED.jdm_content,
+      version     = sys_rule_definitions.version + 1,
+      is_active   = TRUE,
+      updated_by  = EXCLUDED.updated_by,
+      updated_at  = NOW()
+  WHERE current_setting('appwithai.rules_overwrite', true) = 'on';
+
+-- gradeWorkflowsAfterUpdate — Grade.afterUpdate (priority 100)
+INSERT INTO sys_rule_definitions (id, entity_name, rule_name, operation, jdm_content, version, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('f1f396e1-131e-50a1-8e28-be4ba1031d2a', 'bus_grade', 'gradeWorkflowsAfterUpdate', 'UPDATE', '{"nodes":[{"id":"input","name":"Input","type":"inputNode"},{"id":"gradeWorkflowsAfterUpdate-table","name":"gradeWorkflowsAfterUpdate","type":"decisionTableNode","content":{"hitPolicy":"collect","inputs":[{"id":"i1","name":"Record","field":""}],"outputs":[{"id":"o1","name":"Action","field":"action"},{"id":"o2","name":"Message","field":"message"},{"id":"o3","name":"Rule ID","field":"ruleId"},{"id":"o4","name":"Workflow Name","field":"workflowName"},{"id":"o5","name":"Target Entity","field":"targetEntity"},{"id":"o6","name":"Link Field","field":"linkField"},{"id":"o7","name":"Update Data","field":"updateData"},{"id":"o8","name":"Create Data","field":"createData"},{"id":"o9","name":"Transform Data","field":"transformData"}],"rules":[{"_id":"gradeWorkflowsAfterUpdate-FollowUpRequired","i1":"status == \"VOID\" and status != _previous_status","o1":"''trigger-workflow''","o2":"''gradeWorkflowsAfterUpdate: FollowUpRequired''","o3":"''gradeWorkflowsAfterUpdate''","o4":"''GradeFollowUpRequired''","o5":"''''","o6":"''''","o7":"''''","o8":"''''","o9":"''''"}]}},{"id":"output","name":"Output","type":"outputNode"}],"edges":[{"id":"edge-1","sourceId":"input","targetId":"gradeWorkflowsAfterUpdate-table"},{"id":"edge-2","sourceId":"gradeWorkflowsAfterUpdate-table","targetId":"output"}]}', 1, TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT (entity_name, operation, rule_name) DO UPDATE
+  SET jdm_content = EXCLUDED.jdm_content,
+      version     = sys_rule_definitions.version + 1,
+      is_active   = TRUE,
+      updated_by  = EXCLUDED.updated_by,
+      updated_at  = NOW()
+  WHERE current_setting('appwithai.rules_overwrite', true) = 'on';
+
+-- feeWorkflowsAfterUpdate — Fee.afterUpdate (priority 100)
+INSERT INTO sys_rule_definitions (id, entity_name, rule_name, operation, jdm_content, version, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('7dfec4a2-df51-5185-904e-ad41860f31be', 'bus_fee', 'feeWorkflowsAfterUpdate', 'UPDATE', '{"nodes":[{"id":"input","name":"Input","type":"inputNode"},{"id":"feeWorkflowsAfterUpdate-table","name":"feeWorkflowsAfterUpdate","type":"decisionTableNode","content":{"hitPolicy":"collect","inputs":[{"id":"i1","name":"Record","field":""}],"outputs":[{"id":"o1","name":"Action","field":"action"},{"id":"o2","name":"Message","field":"message"},{"id":"o3","name":"Rule ID","field":"ruleId"},{"id":"o4","name":"Workflow Name","field":"workflowName"},{"id":"o5","name":"Target Entity","field":"targetEntity"},{"id":"o6","name":"Link Field","field":"linkField"},{"id":"o7","name":"Update Data","field":"updateData"},{"id":"o8","name":"Create Data","field":"createData"},{"id":"o9","name":"Transform Data","field":"transformData"}],"rules":[{"_id":"feeWorkflowsAfterUpdate-FollowUpRequired","i1":"status == \"CANCELLED\" and status != _previous_status","o1":"''trigger-workflow''","o2":"''feeWorkflowsAfterUpdate: FollowUpRequired''","o3":"''feeWorkflowsAfterUpdate''","o4":"''FeeFollowUpRequired''","o5":"''''","o6":"''''","o7":"''''","o8":"''''","o9":"''''"}]}},{"id":"output","name":"Output","type":"outputNode"}],"edges":[{"id":"edge-1","sourceId":"input","targetId":"feeWorkflowsAfterUpdate-table"},{"id":"edge-2","sourceId":"feeWorkflowsAfterUpdate-table","targetId":"output"}]}', 1, TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT (entity_name, operation, rule_name) DO UPDATE
   SET jdm_content = EXCLUDED.jdm_content,
       version     = sys_rule_definitions.version + 1,

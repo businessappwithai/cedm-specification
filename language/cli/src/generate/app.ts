@@ -173,7 +173,7 @@ function generatePackageJson(appName: string): string {
         start: "bun src/server.js",
         dev: "bun --watch src/server.js",
       },
-      engines: { bun: ">=1.3.0" },
+      engines: { bun: ">=1.4.0" },
     },
     null,
     2

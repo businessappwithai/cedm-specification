@@ -310,29 +310,14 @@ INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, st
 VALUES ('5c5dd332-c73e-5f22-9084-d362981dd31e', 'bus_task', 'status', 'BLOCKED', 'FAILED', 'fail', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- MiningSiteLifecycle: DEVELOPMENT → EXPLORATION (mark_exploration)
+-- MiningSiteLifecycle: EXPLORATION → DEVELOPMENT (develop)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('d7ec16b5-5c2e-56e7-900c-cce6d69281eb', 'bus_mining_site', 'status', 'DEVELOPMENT', 'EXPLORATION', 'mark_exploration', TRUE, NOW())
+VALUES ('c259c1b3-4b36-5324-be01-0d481d90c2e7', 'bus_mining_site', 'status', 'EXPLORATION', 'DEVELOPMENT', 'develop', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- MiningSiteLifecycle: EXPLORATION → ACTIVE (activate)
+-- MiningSiteLifecycle: DEVELOPMENT → ACTIVE (start_production)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('c97df60c-5690-5f61-9ba8-4466b44a8c2f', 'bus_mining_site', 'status', 'EXPLORATION', 'ACTIVE', 'activate', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- MiningSiteLifecycle: ACTIVE → CLOSED (close)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('7a17a53c-76f6-5ab9-8f39-9b1eefcc81ed', 'bus_mining_site', 'status', 'ACTIVE', 'CLOSED', 'close', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- MiningSiteLifecycle: EXPLORATION → SUSPENDED (suspend)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('3bd3612a-31d7-578b-ba8a-c96d78113fc5', 'bus_mining_site', 'status', 'EXPLORATION', 'SUSPENDED', 'suspend', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- MiningSiteLifecycle: SUSPENDED → EXPLORATION (resume)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('8798c6f8-57f7-57c2-a7e3-71dc12d92153', 'bus_mining_site', 'status', 'SUSPENDED', 'EXPLORATION', 'resume', TRUE, NOW())
+VALUES ('5895a4bd-1817-54b4-b51d-40c6b702f51a', 'bus_mining_site', 'status', 'DEVELOPMENT', 'ACTIVE', 'start_production', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- MiningSiteLifecycle: ACTIVE → SUSPENDED (suspend)
@@ -343,6 +328,26 @@ ON CONFLICT DO NOTHING;
 -- MiningSiteLifecycle: SUSPENDED → ACTIVE (resume)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
 VALUES ('2ab3bfa4-763c-540e-902c-70dedb97d0a6', 'bus_mining_site', 'status', 'SUSPENDED', 'ACTIVE', 'resume', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- MiningSiteLifecycle: ACTIVE → CLOSED (close)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('7a17a53c-76f6-5ab9-8f39-9b1eefcc81ed', 'bus_mining_site', 'status', 'ACTIVE', 'CLOSED', 'close', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- MiningSiteLifecycle: SUSPENDED → CLOSED (close)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('186310cc-bf20-5894-92a2-a1508ac5967f', 'bus_mining_site', 'status', 'SUSPENDED', 'CLOSED', 'close', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- MiningSiteLifecycle: EXPLORATION → CLOSED (abandon)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('22d551c5-cada-5cf4-9e37-70e595557d93', 'bus_mining_site', 'status', 'EXPLORATION', 'CLOSED', 'abandon', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- MiningSiteLifecycle: DEVELOPMENT → CLOSED (abandon)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('ddc3ece5-1328-5cd0-99d8-7168d7940bb0', 'bus_mining_site', 'status', 'DEVELOPMENT', 'CLOSED', 'abandon', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- PartyLifecycle: states
@@ -476,10 +481,10 @@ ON CONFLICT DO NOTHING;
 
 -- MiningSiteLifecycle: states
 INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
-VALUES ('c462eeff-0d50-5c66-9122-0ae5938688c7', 'bus_mining_site', 'status', 'EXPLORATION', FALSE, FALSE, 10, TRUE, NOW())
+VALUES ('c462eeff-0d50-5c66-9122-0ae5938688c7', 'bus_mining_site', 'status', 'EXPLORATION', TRUE, FALSE, 10, TRUE, NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
-VALUES ('39c2b5eb-2b76-5076-ab76-2bb3820aa027', 'bus_mining_site', 'status', 'DEVELOPMENT', TRUE, FALSE, 20, TRUE, NOW())
+VALUES ('39c2b5eb-2b76-5076-ab76-2bb3820aa027', 'bus_mining_site', 'status', 'DEVELOPMENT', FALSE, FALSE, 20, TRUE, NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
 VALUES ('2b79d453-f4fb-5177-bd70-60d428ac9c81', 'bus_mining_site', 'status', 'ACTIVE', FALSE, FALSE, 30, TRUE, NOW())

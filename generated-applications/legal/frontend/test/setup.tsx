@@ -106,6 +106,7 @@ export const mockApiResponses = {
         status: 'Test Status 1',
         external_reference: 'Test External Reference 1',
         contract_id: 'Test Contract 1',
+        agreement_id: 'Test Agreement 1',
       },
       {
         id: 'test-id-2',
@@ -114,6 +115,7 @@ export const mockApiResponses = {
         status: 'Test Status 2',
         external_reference: 'Test External Reference 2',
         contract_id: 'Test Contract 2',
+        agreement_id: 'Test Agreement 2',
       },
     ],
     single: {
@@ -123,6 +125,7 @@ export const mockApiResponses = {
       status: 'Test Status',
       external_reference: 'Test External Reference',
       contract_id: 'Test Contract',
+      agreement_id: 'Test Agreement',
     },
   },
   person: {
@@ -612,8 +615,8 @@ export const mockApiResponses = {
     list: [
       {
         id: 'test-id-1',
-        from_currency: 'Test From Currency 1',
-        to_currency: 'Test To Currency 1',
+        from_currency_id: 'Test From Currency 1',
+        to_currency_id: 'Test To Currency 1',
         rate: 10.99,
         rate_type: 'Test Rate Type 1',
         effective_at: '2024-01-15T10:00:00Z',
@@ -623,8 +626,8 @@ export const mockApiResponses = {
       },
       {
         id: 'test-id-2',
-        from_currency: 'Test From Currency 2',
-        to_currency: 'Test To Currency 2',
+        from_currency_id: 'Test From Currency 2',
+        to_currency_id: 'Test To Currency 2',
         rate: 20.99,
         rate_type: 'Test Rate Type 2',
         effective_at: '2024-01-16T10:00:00Z',
@@ -635,8 +638,8 @@ export const mockApiResponses = {
     ],
     single: {
       id: 'test-id-1',
-      from_currency: 'Test From Currency',
-      to_currency: 'Test To Currency',
+      from_currency_id: 'Test From Currency',
+      to_currency_id: 'Test To Currency',
       rate: 10.99,
       rate_type: 'Test Rate Type',
       effective_at: '2024-01-15T10:00:00Z',
@@ -858,15 +861,30 @@ export const mockApiResponses = {
       {
         id: 'test-id-1',
         occurred_at: '2024-01-15T10:00:00Z',
+        agreement_number: 'Test Agreement Number 1',
+        title: 'Test Title 1',
+        agreement_type: 'Test Agreement Type 1',
+        effective_from: '2024-01-15',
+        effective_to: '2024-01-15',
       },
       {
         id: 'test-id-2',
         occurred_at: '2024-01-16T10:00:00Z',
+        agreement_number: 'Test Agreement Number 2',
+        title: 'Test Title 2',
+        agreement_type: 'Test Agreement Type 2',
+        effective_from: '2024-01-16',
+        effective_to: '2024-01-16',
       },
     ],
     single: {
       id: 'test-id-1',
       occurred_at: '2024-01-15T10:00:00Z',
+      agreement_number: 'Test Agreement Number',
+      title: 'Test Title',
+      agreement_type: 'Test Agreement Type',
+      effective_from: '2024-01-15',
+      effective_to: '2024-01-15',
     },
   },
   contractLine: {
@@ -1669,6 +1687,34 @@ export const mockApiResponses = {
     },
   },
   contractObligationStatus: {
+    list: [
+      {
+        id: 'test-id-1',
+        code: 'Test Code 1',
+        name: 'Test Name 1',
+        description: 'Test text content',
+        sequence: 1,
+        is_active: true,
+      },
+      {
+        id: 'test-id-2',
+        code: 'Test Code 2',
+        name: 'Test Name 2',
+        description: 'Test text content 2',
+        sequence: 2,
+        is_active: false,
+      },
+    ],
+    single: {
+      id: 'test-id-1',
+      code: 'Test Code',
+      name: 'Test Name',
+      description: 'Test text content',
+      sequence: 1,
+      is_active: true,
+    },
+  },
+  agreementAgreementType: {
     list: [
       {
         id: 'test-id-1',

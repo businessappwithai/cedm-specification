@@ -36,7 +36,7 @@ pub struct Model {
     pub {{entity.primaryKey}}: Uuid,
 {{#each entity.attributes}}
 {{#unless (or (eq name ../entity.primaryKey) (eq name 'created_at') (eq name 'updated_at') (eq name 'deleted_at') (eq name 'version'))}}
-    pub {{name}}: {{seaOrmType (typeToReferenceId type) required isForeignKey}},
+    pub {{rustIdent name}}: {{seaOrmType (typeToReferenceId type) required isForeignKey}},
 {{/unless}}
 {{/each}}
     /// `TIMESTAMPTZ DEFAULT NOW()` — defaulted, not `NOT NULL`, so it is an

@@ -1,6 +1,6 @@
 //! Authorisation: the dictionary's table grants, plus the model's access rules.
 //!
-//! Generated: 2026-10-04T08:31:19.897Z
+//! Generated: 2026-10-10T09:27:13.192Z
 //! Project: telecommunications
 //!
 //! **The gap this closes.** `/api/bus/*` required a JWT and nothing else, so
@@ -135,8 +135,15 @@ pub async fn principal(pool: &PgPool, user: &users::Model) -> AppResult<Principa
         r"SELECT r.name, COALESCE(r.is_master_role, false)
             FROM sys_user_roles ur
             JOIN sys_role r ON r.sys_role_id = ur.sys_role_id
+            JOIN sys_user su ON su.sys_user_id = ur.sys_user_id
            WHERE ur.sys_user_id = $1
-             AND COALESCE(ur.is_active, true) = true",
+             AND COALESCE(ur.is_active, true) = true
+             -- A deactivated or locked account holds nothing, whatever it was
+             -- granted: a JWT cannot be revoked, so this is where disabled
+             -- takes effect on a token that is still valid.
+             AND COALESCE(su.is_active, false) = true
+             AND COALESCE(su.is_locked, false) = false
+             AND COALESCE(r.is_active, true) = true",
     )
     .bind(sys_user_id)
     .fetch_all(pool)
@@ -202,10 +209,18 @@ pub async fn table_access(
         r"SELECT bool_and(COALESCE(a.is_read_only, false))
             FROM sys_access     a
             JOIN sys_user_roles ur ON ur.sys_role_id = a.sys_role_id
+            JOIN sys_role       sr ON sr.sys_role_id = ur.sys_role_id
+            JOIN sys_user       su ON su.sys_user_id = ur.sys_user_id
             JOIN sys_tab        tb ON tb.sys_window_id = a.sys_window_id
             JOIN sys_table      t  ON t.sys_table_id  = tb.sys_table_id
            WHERE ur.sys_user_id = $1
              AND t.table_name   = $2
+             -- The grant counts only while the grant, the role and the account
+             -- are all switched on; deactivating any of them withdraws it.
+             AND COALESCE(ur.is_active, true) = true
+             AND COALESCE(sr.is_active, true) = true
+             AND COALESCE(su.is_active, false) = true
+             AND COALESCE(su.is_locked, false) = false
              AND COALESCE(a.is_active,  true)  = true
              AND COALESCE(a.is_exclude, false) = false",
     )
@@ -339,10 +354,16 @@ pub async fn readable_tables(
             r"SELECT t.table_name
                 FROM sys_access     a
                 JOIN sys_user_roles ur ON ur.sys_role_id = a.sys_role_id
+                JOIN sys_role       sr ON sr.sys_role_id = ur.sys_role_id
+                JOIN sys_user       su ON su.sys_user_id = ur.sys_user_id
                 JOIN sys_tab        tb ON tb.sys_window_id = a.sys_window_id
                 JOIN sys_table      t  ON t.sys_table_id  = tb.sys_table_id
                WHERE ur.sys_user_id = $1
                  AND t.table_name = ANY($2)
+                 AND COALESCE(ur.is_active, true) = true
+                 AND COALESCE(sr.is_active, true) = true
+                 AND COALESCE(su.is_active, false) = true
+                 AND COALESCE(su.is_locked, false) = false
                  AND COALESCE(a.is_active,  true)  = true
                  AND COALESCE(a.is_exclude, false) = false
                GROUP BY t.table_name",
@@ -425,12 +446,20 @@ pub async fn require_write(
 /// from-state a condition of its own UPDATE: of two concurrent moves out of
 /// one state, only one lands, and the other is refused as a concurrency
 /// conflict rather than recorded as a move nobody drew.
+///
+/// `expected_version` is the version the caller says it read. When the row has
+/// moved on since, the move is not judged against a state the caller never
+/// saw: it is passed through with the state as it stands, and the write's own
+/// version condition refuses it as the conflict it is. Judging it here instead
+/// answered a stale writer with "that move does not exist" — true of where the
+/// record is now, and no use to someone who must first be told it changed.
 pub async fn require_transition(
     pool: &PgPool,
     principal: &Principal,
     table_name: &str,
     id: Uuid,
     body: &Map<String, Value>,
+    expected_version: Option<i32>,
 ) -> AppResult<Vec<(String, String)>> {
     let mut moves = Vec::new();
     // The status columns this table's machines drive. Empty for a table with no
@@ -471,13 +500,16 @@ pub async fn require_transition(
         // `AssertSqlSafe` because the two interpolated names are a dictionary
         // table and one of its columns, both checked above against the bare
         // identifier shape — never anything the request supplied.
-        let from_state: Option<String> = sqlx::query_scalar(AssertSqlSafe(format!(
-            r#"SELECT "{field}"::text FROM "{table_name}" WHERE id = $1"#
+        let stored: Option<(Option<String>, i32)> = sqlx::query_as(AssertSqlSafe(format!(
+            r#"SELECT "{field}"::text, version FROM "{table_name}" WHERE id = $1"#
         )))
         .bind(id)
         .fetch_optional(pool)
-        .await?
-        .flatten();
+        .await?;
+        let Some((from_state, version)) = stored else {
+            // No such row: the write that follows answers that, as a 404.
+            continue;
+        };
 
         let Some(from_state) = from_state else {
             // A record with no state yet is entering the machine, not moving
@@ -486,6 +518,10 @@ pub async fn require_transition(
             continue;
         };
         if from_state == to_state {
+            continue;
+        }
+        if expected_version.is_some_and(|expected| expected != version) {
+            moves.push((field, from_state));
             continue;
         }
 
@@ -616,6 +652,41 @@ pub fn require_dictionary_admin(principal: &Principal) -> AppResult<()> {
     Err(AppError::Forbidden(
         "administering the Application Dictionary requires the master role".to_string(),
     ))
+}
+
+/// Refuse the request unless the caller may manage accounts and their roles.
+///
+/// The same bar as the dictionary's writes, spelled separately so the refusal
+/// says what was refused: granting a role is granting access.
+pub fn require_account_admin(principal: &Principal) -> AppResult<()> {
+    if principal.is_master {
+        return Ok(());
+    }
+    Err(AppError::Forbidden(
+        "managing accounts requires the master role".to_string(),
+    ))
+}
+
+/// May this account sign in at all?
+///
+/// An account with a `sys_user` identity that an administrator has deactivated
+/// or locked may not. An account with **no** identity (a self-registered one
+/// that nobody has granted anything) may: it exists, and reaches nothing.
+/// Anything the lookup cannot answer is a refusal, not a pass.
+pub async fn account_enabled(pool: &PgPool, user: &users::Model) -> AppResult<bool> {
+    let Some(sys_user_id) = user.sys_user_id else {
+        return Ok(true);
+    };
+    let state: Option<(bool, bool)> = sqlx::query_as(
+        r"SELECT COALESCE(is_active, false), COALESCE(is_locked, false)
+            FROM sys_user WHERE sys_user_id = $1",
+    )
+    .bind(sys_user_id)
+    .fetch_optional(pool)
+    .await
+    .map_err(|err| unreadable("the account's state", &err))?;
+    // A dangling link is an account the dictionary no longer knows.
+    Ok(matches!(state, Some((true, false))))
 }
 
 fn forbidden(table_name: &str, verb: &str) -> AppError {

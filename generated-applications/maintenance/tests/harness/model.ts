@@ -13,7 +13,7 @@
  * word, so a dropdown that lost an option or a state machine that lost an edge
  * fails a test instead of quietly shipping.
  *
- * Generated: 2026-10-04T01:12:16.346Z
+ * Generated: 2026-10-09T15:29:32.465Z
  * Project: maintenance
  */
 
@@ -125,103 +125,113 @@ export const modelEnums: ModelEnum[] = [
     values: ["INSPECTION", "PREVENTIVE", "CORRECTIVE", "REPAIR", "EMERGENCY"],
   },
   {
-    name: "OrganizationOrganizationType",
+    name: "MeterMeterType",
     referenceId: 1015,
+    values: ["HOURS", "DISTANCE", "CYCLES", "ENERGY", "VOLUME", "COUNT", "PRESSURE", "TEMPERATURE", "OTHER"],
+  },
+  {
+    name: "MeterStatus",
+    referenceId: 1016,
+    values: ["DRAFT", "ACTIVE", "OUT_OF_SERVICE", "RETIRED"],
+  },
+  {
+    name: "OrganizationOrganizationType",
+    referenceId: 1017,
     values: ["ENTERPRISE", "COMPANY", "BUSINESS_UNIT", "DIVISION", "DEPARTMENT", "BRANCH", "SUBSIDIARY", "OTHER"],
   },
   {
     name: "OrganizationPartyType",
-    referenceId: 1016,
-    values: ["PERSON", "ORGANIZATION"],
-  },
-  {
-    name: "OrganizationStatus",
-    referenceId: 1017,
-    values: ["DRAFT", "ACTIVE", "INACTIVE", "RETIRED"],
-  },
-  {
-    name: "PartyPartyType",
     referenceId: 1018,
     values: ["PERSON", "ORGANIZATION"],
   },
   {
-    name: "PartyRoleRoleType",
+    name: "OrganizationStatus",
     referenceId: 1019,
+    values: ["DRAFT", "ACTIVE", "INACTIVE", "RETIRED"],
+  },
+  {
+    name: "PartyPartyType",
+    referenceId: 1020,
+    values: ["PERSON", "ORGANIZATION"],
+  },
+  {
+    name: "PartyRoleRoleType",
+    referenceId: 1021,
     values: ["CUSTOMER", "SUPPLIER", "EMPLOYEE", "PARTNER", "CARRIER", "AGENT", "CONTRACTOR", "OWNER", "INVESTOR", "OTHER"],
   },
   {
     name: "PartyRoleStatus",
-    referenceId: 1020,
+    referenceId: 1022,
     values: ["ACTIVE", "INACTIVE", "EXPIRED"],
   },
   {
     name: "PartyStatus",
-    referenceId: 1021,
+    referenceId: 1023,
     values: ["ACTIVE", "INACTIVE", "BLOCKED", "RETIRED"],
   },
   {
     name: "PersonGender",
-    referenceId: 1022,
+    referenceId: 1024,
     values: ["FEMALE", "MALE", "NON_BINARY", "OTHER", "UNSPECIFIED"],
   },
   {
     name: "PersonPartyType",
-    referenceId: 1023,
+    referenceId: 1025,
     values: ["PERSON", "ORGANIZATION"],
   },
   {
     name: "PersonStatus",
-    referenceId: 1024,
+    referenceId: 1026,
     values: ["ACTIVE", "INACTIVE", "BLOCKED", "RETIRED"],
   },
   {
     name: "ProductProductType",
-    referenceId: 1025,
+    referenceId: 1027,
     values: ["GOOD", "MATERIAL", "SERVICE", "SUBSCRIPTION", "ASSET", "BUNDLE", "OTHER"],
   },
   {
     name: "ProductStatus",
-    referenceId: 1026,
+    referenceId: 1028,
     values: ["DRAFT", "ACTIVE", "DISCONTINUED", "BLOCKED", "RETIRED"],
   },
   {
     name: "RepairEstimateDisposition",
-    referenceId: 1027,
+    referenceId: 1029,
     values: ["LEASE", "SALE", "SCRAP", "REPAIR", "HOLD"],
   },
   {
     name: "RepairEstimateStatus",
-    referenceId: 1028,
+    referenceId: 1030,
     values: ["DRAFT", "SUBMITTED", "APPROVED", "REJECTED", "COMPLETED", "CANCELLED"],
   },
   {
     name: "SparePartCriticality",
-    referenceId: 1029,
+    referenceId: 1031,
     values: ["LOW", "MEDIUM", "HIGH", "CRITICAL"],
   },
   {
     name: "TaskPriority",
-    referenceId: 1030,
+    referenceId: 1032,
     values: ["LOW", "NORMAL", "HIGH", "CRITICAL"],
   },
   {
     name: "TaskStatus",
-    referenceId: 1031,
+    referenceId: 1033,
     values: ["CREATED", "READY", "ASSIGNED", "IN_PROGRESS", "BLOCKED", "COMPLETED", "CANCELLED", "FAILED"],
   },
   {
     name: "TaskTaskType",
-    referenceId: 1032,
+    referenceId: 1034,
     values: ["USER", "SYSTEM", "APPROVAL", "DECISION", "NOTIFICATION", "SCRIPT", "OTHER"],
   },
   {
     name: "UnitOfMeasureCategory",
-    referenceId: 1033,
+    referenceId: 1035,
     values: ["QUANTITY", "LENGTH", "AREA", "VOLUME", "MASS", "TIME", "COUNT", "CURRENCY", "OTHER"],
   },
   {
     name: "UnitOfMeasureStatus",
-    referenceId: 1034,
+    referenceId: 1036,
     values: ["ACTIVE", "INACTIVE", "RETIRED"],
   },
 ];
@@ -389,6 +399,21 @@ export const stateMachines: StateMachine[] = [
     ],
   },
   {
+    entity: "Meter",
+    tableName: "bus_meter",
+    statusField: "status",
+    initial: "DRAFT",
+    terminal: ["RETIRED"],
+    edges: [
+      { from: "DRAFT", to: "ACTIVE", trigger: "activate" },
+      { from: "ACTIVE", to: "OUT_OF_SERVICE", trigger: "take_out_of_service" },
+      { from: "OUT_OF_SERVICE", to: "ACTIVE", trigger: "return_to_service" },
+      { from: "DRAFT", to: "RETIRED", trigger: "retire" },
+      { from: "ACTIVE", to: "RETIRED", trigger: "retire" },
+      { from: "OUT_OF_SERVICE", to: "RETIRED", trigger: "retire" },
+    ],
+  },
+  {
     entity: "MaintenancePlan",
     tableName: "bus_maintenance_plan",
     statusField: "status",
@@ -407,24 +432,23 @@ export const stateMachines: StateMachine[] = [
     entity: "MaintenanceWorkOrder",
     tableName: "bus_maintenance_work_order",
     statusField: "status",
-    initial: "PLANNED",
+    initial: "OPEN",
     terminal: ["COMPLETED", "CANCELLED"],
     edges: [
-      { from: "PLANNED", to: "OPEN", trigger: "open" },
+      { from: "OPEN", to: "PLANNED", trigger: "plan" },
+      { from: "PLANNED", to: "ASSIGNED", trigger: "assign" },
       { from: "OPEN", to: "ASSIGNED", trigger: "assign" },
       { from: "ASSIGNED", to: "IN_PROGRESS", trigger: "start" },
       { from: "IN_PROGRESS", to: "COMPLETED", trigger: "complete" },
-      { from: "OPEN", to: "ON_HOLD", trigger: "hold" },
-      { from: "ON_HOLD", to: "OPEN", trigger: "resume" },
       { from: "ASSIGNED", to: "ON_HOLD", trigger: "hold" },
-      { from: "ON_HOLD", to: "ASSIGNED", trigger: "resume" },
       { from: "IN_PROGRESS", to: "ON_HOLD", trigger: "hold" },
+      { from: "ON_HOLD", to: "ASSIGNED", trigger: "resume" },
       { from: "ON_HOLD", to: "IN_PROGRESS", trigger: "resume" },
-      { from: "PLANNED", to: "CANCELLED", trigger: "cancel" },
       { from: "OPEN", to: "CANCELLED", trigger: "cancel" },
+      { from: "PLANNED", to: "CANCELLED", trigger: "cancel" },
       { from: "ASSIGNED", to: "CANCELLED", trigger: "cancel" },
-      { from: "IN_PROGRESS", to: "CANCELLED", trigger: "cancel" },
       { from: "ON_HOLD", to: "CANCELLED", trigger: "cancel" },
+      { from: "IN_PROGRESS", to: "CANCELLED", trigger: "cancel" },
     ],
   },
   {

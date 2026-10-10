@@ -91,8 +91,8 @@ pub async fn proxy_shape(
             AppError::ServiceUnavailable("Electric upstream unreachable".to_string())
         })?;
 
-    let status = StatusCode::from_u16(response.status().as_u16())
-        .unwrap_or(StatusCode::BAD_GATEWAY);
+    let status =
+        StatusCode::from_u16(response.status().as_u16()).unwrap_or(StatusCode::BAD_GATEWAY);
 
     // Electric's long-polling headers carry the shape cursor; the client cannot
     // resume without them, so they are passed through rather than dropped.

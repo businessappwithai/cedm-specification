@@ -6,17 +6,25 @@ helpContract:
   mandatory: true
 
 entityHelp:
+  # Enforced by tools/validate.ts as DICT-003: `summary` and `businessMeaning`
+  # (or its alias `purpose`). The remaining keys are recommended, and every
+  # key must be one dictionary-mapping.yaml carries (DICT-004).
   required:
     - summary
-    - purpose
     - businessMeaning
-    - whenUsed
-    - howItRelates
-    - lifecycleUsage
-    - commonProcesses
-    - commonExamples
+  recommended:
+    - usage
+    - relationshipContext
+    - lifecycle
+    - operationalProcess
+    - example
   fields:
     summary: One concise explanation of what the entity represents.
+    usage: How the entity is used by users, processes and systems.
+    relationshipContext: How it connects to the important related entities and why those relationships matter.
+    lifecycle: How the entity participates in lifecycle/state transitions.
+    operationalProcess: The business flow in which the entity is normally involved.
+    example: A concrete example of a valid business situation the entity represents.
     purpose: Why the entity exists in a business application.
     businessMeaning: The real-world business concept represented by the entity.
     whenUsed: When users, processes, or systems create, read, update, or reference it.
@@ -29,10 +37,12 @@ entityHelp:
     uiGuidance: Guidance for forms, lists, search, object pages, dashboards, and user actions.
 
 fieldHelp:
+  # Enforced by tools/validate.ts as DICT-006: `summary` and `usage`.
   required:
     - summary
-    - businessMeaning
     - usage
+  recommended:
+    - businessMeaning
     - relationshipContext
   fields:
     summary: Plain-language explanation of what the field stores.

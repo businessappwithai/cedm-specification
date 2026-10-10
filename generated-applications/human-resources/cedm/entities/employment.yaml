@@ -11,125 +11,121 @@ entity:
     generated: true
     immutable: true
   attributes:
-  - name: employmentId
-    type: uuid
-    required: true
-    immutable: true
-    help:
-      summary: Identifies the employment record associated with this Employment. The identifier connects this record to the
-        corresponding CEDM entity so related processes can resolve the correct business object.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Employment records, where
-        applicable.
-      relationshipContext: Its meaning is specific to Employment; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: employmentType
-    type: enum
-    required: true
-    values:
-    - FULL_TIME
-    - PART_TIME
-    - CONTRACT
-    - TEMPORARY
-    - INTERN
-    - OTHER
-    help:
-      summary: Captures the business meaning of employment type for the Employment. It is interpreted together with the entity's
-        other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Employment records, where
-        applicable.
-      relationshipContext: Its meaning is specific to Employment; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      valueSemantics:
-        FULL_TIME: Represents the full time state or classification in the context of Employment.
-        PART_TIME: Represents the part time state or classification in the context of Employment.
-        CONTRACT: Represents the contract state or classification in the context of Employment.
-        TEMPORARY: Represents the temporary state or classification in the context of Employment.
-        INTERN: Represents the intern state or classification in the context of Employment.
-        OTHER: Represents the other state or classification in the context of Employment.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: startDate
-    type: date
-    required: true
-    help:
-      summary: The date on which the applicable business period, agreement, service, or lifecycle begins. Related end dates
-        must follow the business chronology.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Employment records, where
-        applicable.
-      relationshipContext: Its meaning is specific to Employment; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: endDate
-    type: date
-    required: false
-    help:
-      summary: The date on which the applicable business period, agreement, service, or lifecycle ends. It is interpreted
-        together with the corresponding start date.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Employment records, where
-        applicable.
-      relationshipContext: Its meaning is specific to Employment; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
-  - name: status
-    type: enum
-    required: true
-    default: ACTIVE
-    values:
-    - PENDING
-    - ACTIVE
-    - SUSPENDED
-    - TERMINATED
-    help:
-      summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record
-        is treated by related processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Employment records, where
-        applicable.
-      relationshipContext: Its meaning is specific to Employment; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      valueSemantics:
-        PENDING: Represents the pending state or classification in the context of Employment.
-        ACTIVE: Represents the active state or classification in the context of Employment.
-        SUSPENDED: Represents the suspended state or classification in the context of Employment.
-        TERMINATED: Represents the terminated state or classification in the context of Employment.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+    - name: employmentId
+      type: uuid
+      required: true
+      immutable: true
+      help:
+        summary: The identity of the employment.
+        usage: Generated on creation; compensation and attendance refer to it.
+    - name: employmentType
+      type: enum
+      required: true
+      values:
+        - FULL_TIME
+        - PART_TIME
+        - CONTRACT
+        - TEMPORARY
+        - INTERN
+        - OTHER
+      help:
+        summary: The contractual basis on which the person is employed, such as full time or on a fixed-term contract.
+        usage: Chosen at hiring; it decides benefits, working time, notice periods and how the person is counted in workforce reports.
+        valueSemantics:
+          FULL_TIME: A standard full-time contract with the organisation's normal working hours.
+          PART_TIME: A contract for fewer hours than full time, usually with pro-rated pay and benefits.
+          CONTRACT: A fixed-term or project contract that ends on a set date or at completion.
+          TEMPORARY: Short-term or seasonal work covering a peak or an absence.
+          INTERN: A student or trainee placement for learning rather than a permanent role.
+          OTHER: Any other employment arrangement not covered by the listed kinds.
+    - name: startDate
+      type: date
+      required: true
+      help:
+        summary: The first day of the employment.
+        usage: Taken from the contract; pay and leave accrue from it.
+    - name: endDate
+      type: date
+      required: false
+      help:
+        summary: The last day of the employment, if it has ended or is fixed-term.
+        usage: Set when known; must not be before the start date.
+    - name: status
+      type: enum
+      required: true
+      default: PENDING
+      values:
+        - PENDING
+        - ACTIVE
+        - SUSPENDED
+        - TERMINATED
+      help:
+        summary: Where the employment stands, from agreed but not started through in force to ended.
+        usage: Moved by HR; pay, leave and attendance run only while it is ACTIVE, and a terminated one is kept for history.
+        valueSemantics:
+          PENDING: Agreed but not yet started.
+          ACTIVE: In force; the person is employed.
+          SUSPENDED: Temporarily not in force, for example during an unpaid break.
+          TERMINATED: Ended. A final state.
   relationships:
-  - name: employee
-    target: Employee
-    cardinality: '1'
-    ownership: reference
-    help:
-      summary: Connects Employment to Employee so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Employee records associated with a Employment.
-      cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
-  - name: employer
-    target: Organization
-    cardinality: '1'
-    ownership: reference
-    help:
-      summary: Connects Employment to Organization so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Organization records associated with a Employment.
-      cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
-  - name: position
-    target: Position
-    cardinality: 0..1
-    ownership: reference
-    help:
-      summary: Connects Employment to Position so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Position records associated with a Employment.
-      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+    - name: employee
+      target: Employee
+      cardinality: '1'
+      ownership: reference
+      help:
+        usage: Set when the employment is created; pay, leave and attendance are measured against this person's employment.
+        summary: The employee the employment is for.
+        cardinalityMeaning: 'Exactly one employee: an employment relationship binds a specific individual.'
+    - name: employer
+      target: Organization
+      cardinality: '1'
+      ownership: reference
+      help:
+        usage: Chosen when the employment is created; it identifies the legal employer that carries the obligations of the contract.
+        summary: The organisation that employs the person.
+        cardinalityMeaning: 'Exactly one employer: the legal entity that carries the obligations of employment.'
+    - name: position
+      target: Position
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The position in the organisation structure that the person fills under this employment.
+        usage: Assigned by HR at hiring and changed on a transfer; it places the person in a reporting line and cost centre.
+        cardinalityMeaning: At most one position, because someone fills a single position under one employment, and it may be unassigned.
+    - name: compensationHistory
+      target: Compensation
+      cardinality: 0..*
+      ownership: aggregate
+      help:
+        cardinalityMeaning: Any number of compensation arrangements over the employment.
+        summary: Effective-dated compensation arrangements for this Employment.
+        businessMeaning: Preserves remuneration history without overwriting terms used by earlier payroll periods.
+        usage: HCM, payroll, workforce planning, budgeting and audit.
+        workflowRole: Active terms must be temporally compatible with Employment and overlapping terms require governed policy.
+    - name: leaveRequests
+      target: LeaveRequest
+      cardinality: 0..*
+      ownership: reference
+      help:
+        cardinalityMeaning: Any number of leave requests.
+        summary: Leave requests governed by this Employment context.
+        businessMeaning: Supplies employer and effective-policy context for absence authorization.
+        usage: Leave administration, scheduling, payroll and audit.
+        workflowRole: Requested dates must overlap eligible Employment unless an explicit exception applies.
+    - name: attendanceRecords
+      target: Attendance
+      cardinality: 0..*
+      ownership: reference
+      help:
+        cardinalityMeaning: Any number of attendance records.
+        summary: Attendance evidence recorded under this Employment.
+        businessMeaning: Connects timekeeping evidence to the applicable employer relationship.
+        usage: Timekeeping, payroll, scheduling and audit.
+        workflowRole: Attendance dates must reconcile with the effective Employment period.
   invariants:
-  - id: EMPLOYMENT-001
-    rule: endDate must not precede startDate.
+    - id: EMPLOYMENT-001
+      rule: endDate must not precede startDate.
+    - {id: EMPLOYMENT-EXE-001, rule: "End Date must not be earlier than start date.", violatedWhen: "start_date != null and end_date != null and end_date < start_date", message: "End Date cannot be earlier than start date."}
   lifecycle:
     title: Employment Lifecycle
     attribute: status
@@ -143,18 +139,12 @@ entity:
       - {from: ACTIVE, to: TERMINATED, action: terminate}
       - {from: SUSPENDED, to: TERMINATED, action: terminate}
   help:
-    summary: Represents a workforce relationship called Employment within the CEDM business model.
-    businessMeaning: Employment is a business concept with its own identity and lifecycle. It captures information that must
-      remain understandable independently of a database, API, or user interface.
-    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
-      change, or relate Employment records.
-    relationshipContext: The entity participates in a wider business graph through relationships with Employee, Organization,
-      Position. These relationships provide the context needed to interpret the record rather than treating its fields as
-      isolated database columns.
-    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must
-      preserve the declared business meaning and relationships.
-    example: A typical Employment record represents one identifiable business occurrence or master-data object that can be
-      referenced by related CEDM processes.
+    summary: A time-bound employment relationship between a person and an organisation.
+    businessMeaning: Employment is more than a role; it has terms, a start and an end, and may change over time. This record is the contract-level relationship that pay, leave and attendance are measured against.
+    usage: Created at hiring and on a change of contract; read by HR and payroll.
+    relationshipContext: An employment links an Employee to an employer Organization, may fill a Position, and has Compensation history, leave requests and attendance.
+    lifecycle: An employment is pending until its start, active while in force, may be suspended and ends terminated.
+    example: Full-time employment of an analyst with Acme Ltd from 1 March, in the finance analyst position.
 specification:
   version: 0.1.0
   status: draft

@@ -11,153 +11,123 @@ entity:
     generated: true
     immutable: true
   attributes:
-  - name: maintenancePlanId
-    type: uuid
-    required: true
-    immutable: true
-    help:
-      summary: Identifies the maintenance plan record associated with this MaintenancePlan. The identifier connects this record
-        to the corresponding CEDM entity so related processes can resolve the correct business object.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating MaintenancePlan records, where
-        applicable.
-      relationshipContext: Its meaning is specific to MaintenancePlan; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: code
-    type: string
-    required: true
-    unique: true
-    maxLength: 100
-    help:
-      summary: A human-readable business code used to identify or reference the record in operational processes and integrations.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating MaintenancePlan records, where
-        applicable.
-      relationshipContext: Its meaning is specific to MaintenancePlan; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: name
-    type: string
-    required: true
-    maxLength: 300
-    help:
-      summary: The human-readable name used by people, reports, searches, and related business processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating MaintenancePlan records, where
-        applicable.
-      relationshipContext: Its meaning is specific to MaintenancePlan; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: maintenanceType
-    type: enum
-    required: true
-    values:
-    - PREVENTIVE
-    - CONDITION_BASED
-    - PREDICTIVE
-    - INSPECTION
-    help:
-      summary: Captures the business meaning of maintenance type for the MaintenancePlan. It is interpreted together with
-        the entity's other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating MaintenancePlan records, where
-        applicable.
-      relationshipContext: Its meaning is specific to MaintenancePlan; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      valueSemantics:
-        PREVENTIVE: Represents the preventive state or classification in the context of MaintenancePlan.
-        CONDITION_BASED: Represents the condition based state or classification in the context of MaintenancePlan.
-        PREDICTIVE: Represents the predictive state or classification in the context of MaintenancePlan.
-        INSPECTION: Represents the inspection state or classification in the context of MaintenancePlan.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: frequencyValue
-    type: decimal
-    required: false
-    precision: 12
-    scale: 4
-    help:
-      summary: Captures the business meaning of frequency value for the MaintenancePlan. It is interpreted together with the
-        entity's other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating MaintenancePlan records, where
-        applicable.
-      relationshipContext: Its meaning is specific to MaintenancePlan; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
-  - name: frequencyUnit
-    type: enum
-    required: false
-    values:
-    - HOURS
-    - DAYS
-    - WEEKS
-    - MONTHS
-    - MILES
-    - CYCLES
-    - OTHER
-    help:
-      summary: Captures the business meaning of frequency unit for the MaintenancePlan. It is interpreted together with the
-        entity's other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating MaintenancePlan records, where
-        applicable.
-      relationshipContext: Its meaning is specific to MaintenancePlan; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      valueSemantics:
-        HOURS: Represents the hours state or classification in the context of MaintenancePlan.
-        DAYS: Represents the days state or classification in the context of MaintenancePlan.
-        WEEKS: Represents the weeks state or classification in the context of MaintenancePlan.
-        MONTHS: Represents the months state or classification in the context of MaintenancePlan.
-        MILES: Represents the miles state or classification in the context of MaintenancePlan.
-        CYCLES: Represents the cycles state or classification in the context of MaintenancePlan.
-        OTHER: Represents the other state or classification in the context of MaintenancePlan.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
-  - name: status
-    type: enum
-    required: true
-    default: ACTIVE
-    values:
-    - DRAFT
-    - ACTIVE
-    - SUSPENDED
-    - RETIRED
-    help:
-      summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record
-        is treated by related processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating MaintenancePlan records, where
-        applicable.
-      relationshipContext: Its meaning is specific to MaintenancePlan; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      valueSemantics:
-        DRAFT: Represents the draft state or classification in the context of MaintenancePlan.
-        ACTIVE: Represents the active state or classification in the context of MaintenancePlan.
-        SUSPENDED: Represents the suspended state or classification in the context of MaintenancePlan.
-        RETIRED: Represents the retired state or classification in the context of MaintenancePlan.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+    - name: maintenancePlanId
+      type: uuid
+      required: true
+      immutable: true
+      help:
+        summary: The identity of the maintenance plan.
+        usage: Generated on creation; work orders refer to it.
+    - name: code
+      type: string
+      required: true
+      unique: true
+      maxLength: 100
+      help:
+        summary: The code of the plan, such as PM-FORK-500.
+        usage: Unique; used on work orders and reports.
+    - name: name
+      type: string
+      required: true
+      maxLength: 300
+      help:
+        summary: The descriptive name of the maintenance plan, such as quarterly compressor service.
+        usage: Entered by maintenance engineering; shown in planners' lists and on the work orders the plan generates.
+    - name: maintenanceType
+      type: enum
+      required: true
+      values:
+        - PREVENTIVE
+        - CONDITION_BASED
+        - PREDICTIVE
+        - INSPECTION
+      help:
+        summary: The approach the plan takes to maintenance.
+        usage: Chosen at creation; decides how work is triggered.
+        valueSemantics:
+          PREVENTIVE: Work done at fixed intervals whether or not anything is wrong.
+          CONDITION_BASED: Work done when a measured condition crosses a threshold.
+          PREDICTIVE: Work done when analysis predicts a failure is likely.
+          INSPECTION: A check that may lead to further work.
+    - name: frequencyValue
+      type: decimal
+      required: false
+      precision: 12
+      scale: 4
+      help:
+        summary: How often the plan's work is due, in the unit given by the frequency unit.
+        usage: Entered by the engineer; positive. For example 500 with unit hours.
+    - name: frequencyUnit
+      type: enum
+      required: false
+      values:
+        - HOURS
+        - DAYS
+        - WEEKS
+        - MONTHS
+        - MILES
+        - CYCLES
+        - OTHER
+      help:
+        summary: The unit in which the plan's frequency is measured, such as calendar days or operating hours.
+        usage: Chosen together with the frequency value; the scheduler uses it to decide when the next work order is due.
+        valueSemantics:
+          HOURS: Operating hours, counted from the asset's meter.
+          DAYS: Calendar days between jobs.
+          WEEKS: Calendar weeks between jobs.
+          MONTHS: Calendar months between jobs.
+          MILES: Distance travelled, read from the vehicle's odometer.
+          CYCLES: Operating cycles, such as starts or lifts.
+          OTHER: Any other measure of use, described in the plan.
+    - name: status
+      type: enum
+      required: true
+      default: DRAFT
+      values:
+        - DRAFT
+        - ACTIVE
+        - SUSPENDED
+        - RETIRED
+      help:
+        summary: Whether the plan is currently generating maintenance work.
+        usage: Set by maintenance engineering; only ACTIVE plans create work orders, and RETIRED plans stay on record for the orders already raised.
+        valueSemantics:
+          DRAFT: Being prepared; not generating work.
+          ACTIVE: In force; work orders are raised from it.
+          SUSPENDED: Paused; no new work orders.
+          RETIRED: Withdrawn. A final state.
   relationships:
-  - name: assets
-    target: Asset
-    cardinality: 0..*
-    ownership: reference
-    help:
-      summary: Connects MaintenancePlan to Asset so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Asset records associated with a MaintenancePlan.
-      cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
-  - name: products
-    target: Product
-    cardinality: 0..*
-    ownership: reference
-    help:
-      summary: Connects MaintenancePlan to Product so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Product records associated with a MaintenancePlan.
-      cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+    - name: assets
+      target: Asset
+      cardinality: 0..*
+      ownership: reference
+      help:
+        summary: The assets the plan applies to.
+        usage: Linked when the plan is assigned.
+        cardinalityMeaning: Any number of assets, since one plan covers a class of equipment.
+        workflowRole: Determines which assets get work orders from the plan.
+    - name: products
+      target: Product
+      cardinality: 0..*
+      ownership: reference
+      help:
+        summary: The product types the plan applies to.
+        usage: Linked to apply the plan to every asset of a model.
+        cardinalityMeaning: Any number of products.
+        workflowRole: Lets one plan cover a whole equipment model.
+    - name: meters
+      target: Meter
+      cardinality: 0..*
+      ownership: reference
+      help:
+        cardinalityMeaning: Any number of meters, whose readings trigger usage-based work.
+        summary: Meters whose accepted readings can drive or inform this MaintenancePlan.
+        businessMeaning: Enables usage-based and condition-based maintenance independently of calendar frequency.
+        usage: Preventive maintenance, predictive maintenance and due-date calculation.
+        workflowRole: Reading thresholds can make work due but do not themselves complete maintenance or rewrite meter evidence.
   invariants:
-  - id: MAINT-PLAN-001
-    rule: frequencyValue must be positive when supplied.
+    - id: MAINT-PLAN-001
+      rule: frequencyValue must be positive when supplied.
   lifecycle:
     title: Maintenance Plan Lifecycle
     attribute: status
@@ -172,18 +142,12 @@ entity:
       - {from: ACTIVE, to: RETIRED, action: retire}
       - {from: SUSPENDED, to: RETIRED, action: retire}
   help:
-    summary: Represents a maintenance definition called MaintenancePlan within the CEDM business model.
-    businessMeaning: MaintenancePlan is a business concept with its own identity and lifecycle. It captures information that
-      must remain understandable independently of a database, API, or user interface.
-    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
-      change, or relate MaintenancePlan records.
-    relationshipContext: The entity participates in a wider business graph through relationships with Asset, Product. These
-      relationships provide the context needed to interpret the record rather than treating its fields as isolated database
-      columns.
-    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must
-      preserve the declared business meaning and relationships.
-    example: A typical MaintenancePlan record represents one identifiable business occurrence or master-data object that can
-      be referenced by related CEDM processes.
+    summary: A preventive or condition-based schedule and policy for maintaining assets.
+    businessMeaning: Equipment fails less and lasts longer when it is looked after on a plan. The plan states what to do and how often, so work orders are raised automatically instead of when something breaks.
+    usage: Defined by maintenance engineers; linked to assets and meters; read by planners who generate work orders from it.
+    relationshipContext: A plan applies to Assets and Products, and may be triggered by Meters.
+    lifecycle: A plan is drafted, becomes active when approved, can be suspended, and is retired when replaced or no longer needed. Work orders already raised stay valid.
+    example: 'Quarterly inspection of a forklift fleet: lubricate, check brakes and test the mast, every 500 operating hours.'
 specification:
   version: 0.1.0
   status: draft

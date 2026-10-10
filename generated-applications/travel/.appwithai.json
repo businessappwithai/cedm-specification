@@ -104,9 +104,9 @@
     "ExchangeRate: EXPIRED, CANCELLED",
     "UnitOfMeasure: RETIRED",
     "Task: COMPLETED, CANCELLED, FAILED",
-    "Flight: CANCELLED",
+    "Flight: ARRIVED, CANCELLED",
     "Aircraft: RETIRED"
   ],
   "packageManager": "bun",
-  "generatedAt": "2026-10-08T00:58:10.295Z"
+  "generatedAt": "2026-10-10T09:27:19.249Z"
 }

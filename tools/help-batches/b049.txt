@@ -1,0 +1,45 @@
+@ Putaway
+a status
+v RELEASED: Released to the warehouse floor for a worker to carry out.
+v CANCELLED: Withdrawn before the stock was moved. A final state.
+v EXCEPTION: Could not be completed as planned, for example the target was full; needs a decision.
+r product
+n: Each putaway moves one product; a mixed pallet is split into one putaway per product.
+r sourceLocation
+n: The stock comes from a single source location, such as the receiving dock.
+r inventoryTransfer
+u: Read to reconcile the putaway with the stock movement that physically relocated the goods.
+
+@ QualityCharacteristic
+a code
+s: The short code of the characteristic, such as WEIGHT or PURITY.
+a name
+s: The name of the property being checked, as inspectors know it.
+
+@ QualityInspection
+a status
+v OPEN: Raised and not yet started.
+v IN_PROGRESS: Samples are being taken and measured.
+v PASSED: The goods met every requirement. A final state.
+v FAILED: The goods did not meet the requirements. A final state.
+v CONDITIONAL: Passed only with conditions, awaiting a decision on release.
+v CANCELLED: The inspection was not carried out. A final state.
+a result
+v PASS: Every measured characteristic was within its limits.
+v FAIL: At least one characteristic was outside its limits.
+v CONDITIONAL: Acceptable only if a stated condition is met.
+a disposition
+v RELEASE: Release the goods for use or sale.
+v ACCEPT: Accept the goods into stock.
+v REJECT: Refuse the goods.
+v QUARANTINE: Hold the goods apart until a decision is made.
+v RETURN_TO_SUPPLIER: Send the goods back to the supplier.
+v REWORK: Correct the goods so they meet the requirement.
+v REPAIR: Repair the goods to a usable condition.
+v SCRAP: Destroy or write off the goods.
+
+@ QualityMeasurement
+a result
+v PASS: The measured value is within its limits.
+v FAIL: The measured value is outside its limits.
+v CONDITIONAL: Within tolerance only under a stated condition.

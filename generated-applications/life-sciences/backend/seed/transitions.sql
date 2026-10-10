@@ -310,24 +310,24 @@ INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, st
 VALUES ('67194139-3a05-58e1-9ec8-f06da72eb316', 'bus_task', 'status', 'BLOCKED', 'FAILED', 'fail', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- CompoundLifecycle: CANDIDATE → DEVELOPMENT (mark_development)
+-- CompoundLifecycle: RESEARCH → DEVELOPMENT (mark_development)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('2924f834-94bf-5a6d-90c5-c079fc5da064', 'bus_compound', 'status', 'CANDIDATE', 'DEVELOPMENT', 'mark_development', TRUE, NOW())
+VALUES ('5198f255-804c-53a9-b3b8-93512d5de800', 'bus_compound', 'status', 'RESEARCH', 'DEVELOPMENT', 'mark_development', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- CompoundLifecycle: DEVELOPMENT → RESEARCH (mark_research)
+-- CompoundLifecycle: DEVELOPMENT → CANDIDATE (mark_candidate)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('63da59ca-0249-54ac-8f37-fc874e0d5231', 'bus_compound', 'status', 'DEVELOPMENT', 'RESEARCH', 'mark_research', TRUE, NOW())
+VALUES ('fc0438d8-048a-558a-bd0b-a28ceac94612', 'bus_compound', 'status', 'DEVELOPMENT', 'CANDIDATE', 'mark_candidate', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- CompoundLifecycle: RESEARCH → APPROVED (approve)
+-- CompoundLifecycle: CANDIDATE → APPROVED (approve)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('b5860167-60bf-5ea5-ae5a-4a929b0879d9', 'bus_compound', 'status', 'RESEARCH', 'APPROVED', 'approve', TRUE, NOW())
+VALUES ('7ebbef2b-8a04-55e4-babc-b7b756aafe3d', 'bus_compound', 'status', 'CANDIDATE', 'APPROVED', 'approve', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- CompoundLifecycle: CANDIDATE → DISCONTINUED (discontinue)
+-- CompoundLifecycle: RESEARCH → DISCONTINUED (discontinue)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('a009af81-8700-5871-943e-19894bdeb993', 'bus_compound', 'status', 'CANDIDATE', 'DISCONTINUED', 'discontinue', TRUE, NOW())
+VALUES ('418c3b94-dbe7-54e8-8561-466db51b5e49', 'bus_compound', 'status', 'RESEARCH', 'DISCONTINUED', 'discontinue', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- CompoundLifecycle: DEVELOPMENT → DISCONTINUED (discontinue)
@@ -335,9 +335,9 @@ INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, st
 VALUES ('f6c9bdcf-9756-5ae9-a04c-2553439d3cf1', 'bus_compound', 'status', 'DEVELOPMENT', 'DISCONTINUED', 'discontinue', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- CompoundLifecycle: RESEARCH → DISCONTINUED (discontinue)
+-- CompoundLifecycle: CANDIDATE → DISCONTINUED (discontinue)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('418c3b94-dbe7-54e8-8561-466db51b5e49', 'bus_compound', 'status', 'RESEARCH', 'DISCONTINUED', 'discontinue', TRUE, NOW())
+VALUES ('a009af81-8700-5871-943e-19894bdeb993', 'bus_compound', 'status', 'CANDIDATE', 'DISCONTINUED', 'discontinue', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- CompoundLifecycle: APPROVED → DISCONTINUED (discontinue)
@@ -375,9 +375,9 @@ INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, st
 VALUES ('9078ff91-1435-5539-9abe-dfae8bcbebbf', 'bus_experiment', 'status', 'RUNNING', 'CANCELLED', 'cancel', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- SampleLifecycle: PLANNED → COLLECTED (mark_collected)
+-- SampleLifecycle: PLANNED → COLLECTED (collect)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('93d21b52-a98b-511f-ac9f-9b4db50c40f8', 'bus_sample', 'status', 'PLANNED', 'COLLECTED', 'mark_collected', TRUE, NOW())
+VALUES ('93d21b52-a98b-511f-ac9f-9b4db50c40f8', 'bus_sample', 'status', 'PLANNED', 'COLLECTED', 'collect', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- SampleLifecycle: COLLECTED → RECEIVED (receive)
@@ -385,24 +385,49 @@ INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, st
 VALUES ('afae5aa8-8aba-515c-8bdb-6905d04bf0b6', 'bus_sample', 'status', 'COLLECTED', 'RECEIVED', 'receive', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- SampleLifecycle: RECEIVED → AVAILABLE (mark_available)
+-- SampleLifecycle: RECEIVED → AVAILABLE (release)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('6e1fb62a-ad9c-5285-9430-c546984328da', 'bus_sample', 'status', 'RECEIVED', 'AVAILABLE', 'mark_available', TRUE, NOW())
+VALUES ('6e1fb62a-ad9c-5285-9430-c546984328da', 'bus_sample', 'status', 'RECEIVED', 'AVAILABLE', 'release', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- SampleLifecycle: AVAILABLE → IN_USE (mark_in_use)
+-- SampleLifecycle: AVAILABLE → IN_USE (issue)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('a41e51a2-dd90-5668-bec6-e852fb335da8', 'bus_sample', 'status', 'AVAILABLE', 'IN_USE', 'mark_in_use', TRUE, NOW())
+VALUES ('a41e51a2-dd90-5668-bec6-e852fb335da8', 'bus_sample', 'status', 'AVAILABLE', 'IN_USE', 'issue', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- SampleLifecycle: IN_USE → ARCHIVED (archive)
+-- SampleLifecycle: IN_USE → AVAILABLE (return)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('32c3e13c-dd98-5c51-a43d-8f369b160229', 'bus_sample', 'status', 'IN_USE', 'ARCHIVED', 'archive', TRUE, NOW())
+VALUES ('de2e7bb6-50bc-52da-9499-9f221f09312a', 'bus_sample', 'status', 'IN_USE', 'AVAILABLE', 'return', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- SampleLifecycle: ARCHIVED → CONSUMED (consume)
+-- SampleLifecycle: IN_USE → CONSUMED (consume)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('358e534e-7810-56d5-b68e-63541ce722d5', 'bus_sample', 'status', 'ARCHIVED', 'CONSUMED', 'consume', TRUE, NOW())
+VALUES ('f3d4262c-13ed-558f-9d05-18490b0890a9', 'bus_sample', 'status', 'IN_USE', 'CONSUMED', 'consume', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- SampleLifecycle: AVAILABLE → CONSUMED (consume)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('6fc8e616-3c06-5f51-a828-89b66ad701a5', 'bus_sample', 'status', 'AVAILABLE', 'CONSUMED', 'consume', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- SampleLifecycle: AVAILABLE → DISPOSED (dispose)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('a35c5bd7-a047-5a9f-91b8-2497d55932fc', 'bus_sample', 'status', 'AVAILABLE', 'DISPOSED', 'dispose', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- SampleLifecycle: QUARANTINED → DISPOSED (dispose)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('70a07b3e-7f41-5833-b88f-cc734f0a3def', 'bus_sample', 'status', 'QUARANTINED', 'DISPOSED', 'dispose', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- SampleLifecycle: AVAILABLE → LOST (lose)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('d994aa3b-40a1-55df-82d5-fe5d50d88873', 'bus_sample', 'status', 'AVAILABLE', 'LOST', 'lose', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- SampleLifecycle: IN_USE → LOST (lose)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('189b0330-fd61-5df9-8891-cf92ca01b5ae', 'bus_sample', 'status', 'IN_USE', 'LOST', 'lose', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- SampleLifecycle: COLLECTED → QUARANTINED (quarantine)
@@ -410,19 +435,9 @@ INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, st
 VALUES ('42a3385d-de14-5756-a708-1301eb3ac4f8', 'bus_sample', 'status', 'COLLECTED', 'QUARANTINED', 'quarantine', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- SampleLifecycle: QUARANTINED → COLLECTED (release)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('e672c6ed-4f4d-58ff-ac3c-3c0880b7769b', 'bus_sample', 'status', 'QUARANTINED', 'COLLECTED', 'release', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
 -- SampleLifecycle: RECEIVED → QUARANTINED (quarantine)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
 VALUES ('aab18e01-a31b-5c76-a9ed-d2dda2732c92', 'bus_sample', 'status', 'RECEIVED', 'QUARANTINED', 'quarantine', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- SampleLifecycle: QUARANTINED → RECEIVED (release)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('92f87e0d-0b53-5b7f-ac4c-ef0bf362d7a4', 'bus_sample', 'status', 'QUARANTINED', 'RECEIVED', 'release', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- SampleLifecycle: AVAILABLE → QUARANTINED (quarantine)
@@ -435,79 +450,24 @@ INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, st
 VALUES ('8bbb7c74-441b-50dd-b5d5-fbbc7dd0acc3', 'bus_sample', 'status', 'QUARANTINED', 'AVAILABLE', 'release', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- SampleLifecycle: IN_USE → QUARANTINED (quarantine)
+-- SampleLifecycle: AVAILABLE → ARCHIVED (archive)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('8e18add9-e67c-5a41-b6cd-497b4a6bf805', 'bus_sample', 'status', 'IN_USE', 'QUARANTINED', 'quarantine', TRUE, NOW())
+VALUES ('7ebca30f-80a4-500c-a5fc-3a5b1afd6987', 'bus_sample', 'status', 'AVAILABLE', 'ARCHIVED', 'archive', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- SampleLifecycle: QUARANTINED → IN_USE (release)
+-- SampleLifecycle: ARCHIVED → AVAILABLE (restore)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('ca9eed03-14c7-503e-84b7-9a521b0d490b', 'bus_sample', 'status', 'QUARANTINED', 'IN_USE', 'release', TRUE, NOW())
+VALUES ('543be23e-99c6-5ca3-9fcd-09963faeeb1b', 'bus_sample', 'status', 'ARCHIVED', 'AVAILABLE', 'restore', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- SampleLifecycle: COLLECTED → DISPOSED (mark_disposed)
+-- SampleLifecycle: ARCHIVED → DISPOSED (dispose)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('ca63cb2f-b0cb-538a-b15c-6946cf985275', 'bus_sample', 'status', 'COLLECTED', 'DISPOSED', 'mark_disposed', TRUE, NOW())
+VALUES ('248636ec-a540-5669-af65-5b9bb578ba86', 'bus_sample', 'status', 'ARCHIVED', 'DISPOSED', 'dispose', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- SampleLifecycle: RECEIVED → DISPOSED (mark_disposed)
+-- ChemicalBatchLifecycle: PLANNED → QUARANTINED (receive)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('9500394e-77a2-5dec-9320-73e6e59c75a9', 'bus_sample', 'status', 'RECEIVED', 'DISPOSED', 'mark_disposed', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- SampleLifecycle: AVAILABLE → DISPOSED (mark_disposed)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('a35c5bd7-a047-5a9f-91b8-2497d55932fc', 'bus_sample', 'status', 'AVAILABLE', 'DISPOSED', 'mark_disposed', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- SampleLifecycle: IN_USE → DISPOSED (mark_disposed)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('d976999a-8fe0-5da7-b6d5-5e180a49e7c4', 'bus_sample', 'status', 'IN_USE', 'DISPOSED', 'mark_disposed', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- SampleLifecycle: QUARANTINED → DISPOSED (mark_disposed)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('70a07b3e-7f41-5833-b88f-cc734f0a3def', 'bus_sample', 'status', 'QUARANTINED', 'DISPOSED', 'mark_disposed', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- SampleLifecycle: COLLECTED → LOST (mark_lost)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('65eccf74-68b6-58b0-9f95-aa235837df5b', 'bus_sample', 'status', 'COLLECTED', 'LOST', 'mark_lost', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- SampleLifecycle: RECEIVED → LOST (mark_lost)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('6b6a50d2-259c-5d52-97ef-bc2a74558bc2', 'bus_sample', 'status', 'RECEIVED', 'LOST', 'mark_lost', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- SampleLifecycle: AVAILABLE → LOST (mark_lost)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('d994aa3b-40a1-55df-82d5-fe5d50d88873', 'bus_sample', 'status', 'AVAILABLE', 'LOST', 'mark_lost', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- SampleLifecycle: IN_USE → LOST (mark_lost)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('189b0330-fd61-5df9-8891-cf92ca01b5ae', 'bus_sample', 'status', 'IN_USE', 'LOST', 'mark_lost', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- SampleLifecycle: QUARANTINED → LOST (mark_lost)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('4a229c7b-b540-57cc-8c6b-0f54030806b6', 'bus_sample', 'status', 'QUARANTINED', 'LOST', 'mark_lost', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- ChemicalBatchLifecycle: PLANNED → RELEASED (release)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('6268445a-4031-5297-a09d-43a84058495b', 'bus_chemical_batch', 'status', 'PLANNED', 'RELEASED', 'release', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- ChemicalBatchLifecycle: RELEASED → CONSUMED (consume)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('bcd52e76-553a-595b-b9aa-39f0c8b08cbb', 'bus_chemical_batch', 'status', 'RELEASED', 'CONSUMED', 'consume', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- ChemicalBatchLifecycle: RELEASED → QUARANTINED (quarantine)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('89f4407c-71a2-5e9a-b675-761c9c12628e', 'bus_chemical_batch', 'status', 'RELEASED', 'QUARANTINED', 'quarantine', TRUE, NOW())
+VALUES ('eaee0a0a-7c09-56ae-ac0b-79d177a68c12', 'bus_chemical_batch', 'status', 'PLANNED', 'QUARANTINED', 'receive', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- ChemicalBatchLifecycle: QUARANTINED → RELEASED (release)
@@ -515,29 +475,29 @@ INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, st
 VALUES ('5343f52b-a5d5-5f1c-b692-eeee591959f2', 'bus_chemical_batch', 'status', 'QUARANTINED', 'RELEASED', 'release', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- ChemicalBatchLifecycle: PLANNED → REJECTED (reject)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('7bcd9b72-1e95-5568-b5bd-2c6f3e13ab8f', 'bus_chemical_batch', 'status', 'PLANNED', 'REJECTED', 'reject', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- ChemicalBatchLifecycle: RELEASED → REJECTED (reject)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('de2a6dfc-ea1c-5a65-a076-7649f2731c68', 'bus_chemical_batch', 'status', 'RELEASED', 'REJECTED', 'reject', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
 -- ChemicalBatchLifecycle: QUARANTINED → REJECTED (reject)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
 VALUES ('bd6a44c0-2ee0-5f60-8355-45eb71d569f0', 'bus_chemical_batch', 'status', 'QUARANTINED', 'REJECTED', 'reject', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- ChemicalBatchLifecycle: RELEASED → EXPIRED (expire)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('e2ef6b41-b2e5-5b4c-9a92-bb408b67b328', 'bus_chemical_batch', 'status', 'RELEASED', 'EXPIRED', 'expire', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
 -- ChemicalBatchLifecycle: QUARANTINED → EXPIRED (expire)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
 VALUES ('5f9a13fe-9faf-5f40-958a-12b3268e3f93', 'bus_chemical_batch', 'status', 'QUARANTINED', 'EXPIRED', 'expire', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- ChemicalBatchLifecycle: RELEASED → QUARANTINED (quarantine)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('89f4407c-71a2-5e9a-b675-761c9c12628e', 'bus_chemical_batch', 'status', 'RELEASED', 'QUARANTINED', 'quarantine', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- ChemicalBatchLifecycle: RELEASED → CONSUMED (consume)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('bcd52e76-553a-595b-b9aa-39f0c8b08cbb', 'bus_chemical_batch', 'status', 'RELEASED', 'CONSUMED', 'consume', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- ChemicalBatchLifecycle: RELEASED → EXPIRED (expire)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('e2ef6b41-b2e5-5b4c-9a92-bb408b67b328', 'bus_chemical_batch', 'status', 'RELEASED', 'EXPIRED', 'expire', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- ProductLifecycle: DRAFT → ACTIVE (activate)
@@ -716,13 +676,13 @@ ON CONFLICT DO NOTHING;
 
 -- CompoundLifecycle: states
 INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
-VALUES ('f7da933a-694e-5865-9268-d2d6a80736eb', 'bus_compound', 'status', 'RESEARCH', FALSE, FALSE, 10, TRUE, NOW())
+VALUES ('f7da933a-694e-5865-9268-d2d6a80736eb', 'bus_compound', 'status', 'RESEARCH', TRUE, FALSE, 10, TRUE, NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
 VALUES ('358c18d7-d767-50e8-b4ba-ad243dfecb0f', 'bus_compound', 'status', 'DEVELOPMENT', FALSE, FALSE, 20, TRUE, NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
-VALUES ('2e68c06e-1e0d-5a32-81ab-0f6955aa219d', 'bus_compound', 'status', 'CANDIDATE', TRUE, FALSE, 30, TRUE, NOW())
+VALUES ('2e68c06e-1e0d-5a32-81ab-0f6955aa219d', 'bus_compound', 'status', 'CANDIDATE', FALSE, FALSE, 30, TRUE, NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
 VALUES ('ea699f3f-bb9a-5958-93e8-d301baea85fd', 'bus_compound', 'status', 'APPROVED', FALSE, FALSE, 40, TRUE, NOW())

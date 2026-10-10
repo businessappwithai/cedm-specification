@@ -1,6 +1,6 @@
 //! The state machines the *model* drew, and whether the API enforces them.
 //!
-//! Generated: 2026-10-04T08:29:36.094Z
+//! Generated: 2026-10-09T15:28:23.188Z
 //! Project: ecommerce
 //!
 //! `requests/rbac.rs` proves the topology guard works by seeding an edge of its
@@ -76,9 +76,8 @@ const MODEL_EDGES: &[(&str, &str, &str, &str)] = &[
     ("bus_task", "status", "IN_PROGRESS", "FAILED"),
     ("bus_task", "status", "BLOCKED", "FAILED"),
     ("bus_shopping_cart", "status", "ACTIVE", "CHECKED_OUT"),
-    ("bus_shopping_cart", "status", "CHECKED_OUT", "ABANDONED"),
-    ("bus_shopping_cart", "status", "CHECKED_OUT", "EXPIRED"),
-    ("bus_shopping_cart", "status", "ABANDONED", "EXPIRED"),
+    ("bus_shopping_cart", "status", "ACTIVE", "ABANDONED"),
+    ("bus_shopping_cart", "status", "ACTIVE", "EXPIRED"),
     ("bus_product_variant", "status", "DRAFT", "ACTIVE"),
     ("bus_product_variant", "status", "ACTIVE", "BLOCKED"),
     ("bus_product_variant", "status", "BLOCKED", "ACTIVE"),

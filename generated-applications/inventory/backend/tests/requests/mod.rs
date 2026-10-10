@@ -5,9 +5,10 @@
 //! every business suite depends on — then the per-entity CRUD and rules
 //! modules, which are generated one per entity in the model.
 //!
-//! Generated: 2026-10-04T08:30:07.220Z
+//! Generated: 2026-10-09T15:29:11.025Z
 //! Project: inventory
 
+mod accounts;
 mod ai;
 mod auth;
 mod concurrency;
@@ -50,6 +51,8 @@ mod crud_handling_unit_type;
 mod crud_inventory_adjustment;
 mod crud_inventory_balance;
 mod crud_inventory_count;
+mod crud_inventory_item;
+mod crud_inventory_item_status;
 mod crud_inventory_location;
 mod crud_inventory_location_location_type;
 mod crud_inventory_location_status;
@@ -132,6 +135,8 @@ mod rules_handling_unit_type;
 mod rules_inventory_adjustment;
 mod rules_inventory_balance;
 mod rules_inventory_count;
+mod rules_inventory_item;
+mod rules_inventory_item_status;
 mod rules_inventory_location;
 mod rules_inventory_location_location_type;
 mod rules_inventory_location_status;

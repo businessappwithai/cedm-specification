@@ -66,6 +66,7 @@
     "ContractStatus",
     "ContractObligationObligationType",
     "ContractObligationStatus",
+    "AgreementAgreementType",
     "RenewalStatus"
   ],
   "categories": [
@@ -77,6 +78,7 @@
   "enums": [
     "AddressAddressType (7)",
     "AddressStatus (3)",
+    "AgreementAgreementType (6)",
     "ContractObligationObligationType (7)",
     "ContractObligationStatus (6)",
     "ContractStatus (8)",
@@ -126,5 +128,5 @@
     "Renewal: COMPLETED, CANCELLED"
   ],
   "packageManager": "bun",
-  "generatedAt": "2026-10-08T00:56:32.359Z"
+  "generatedAt": "2026-10-10T09:26:18.870Z"
 }

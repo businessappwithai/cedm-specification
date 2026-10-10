@@ -5,7 +5,7 @@
 //! payload, so adding an entity to the model adds it to the tests without
 //! anyone writing a test.
 //!
-//! Generated: 2026-10-04T01:11:44.670Z
+//! Generated: 2026-10-10T04:17:22.552Z
 //! Project: finance
 
 /// What a column holds, which is what decides the shape of a generated value.
@@ -220,7 +220,64 @@ pub fn is_managed(column: &str) -> bool {
     )
 }
 
+/// `(table, column, initial state)` for every column a state machine the model
+/// drew governs — the same resolution `requests/model_transitions.rs` asserts
+/// against. Such a column is not free text: the API refuses a move the diagram
+/// does not draw, so a suite that writes an arbitrary string into it tests the
+/// transition guard instead of what it set out to test.
+pub const STATE_COLUMNS: &[(&str, &str, &str)] = &[
+    ("bus_party", "status", "ACTIVE"),
+    ("bus_organization", "status", "DRAFT"),
+    ("bus_party_role", "status", "ACTIVE"),
+    ("bus_address", "status", "ACTIVE"),
+    ("bus_location", "status", "PLANNED"),
+    ("bus_currency", "status", "ACTIVE"),
+    ("bus_exchange_rate", "status", "DRAFT"),
+    ("bus_unit_of_measure", "status", "ACTIVE"),
+    ("bus_task", "status", "CREATED"),
+    ("bus_account", "status", "ACTIVE"),
+    ("bus_journal_entry", "status", "DRAFT"),
+    ("bus_invoice", "status", "DRAFT"),
+    ("bus_payment", "status", "DRAFT"),
+    ("bus_supplier", "status", "ACTIVE"),
+    ("bus_purchase_order", "status", "DRAFT"),
+    ("bus_customer", "status", "ACTIVE"),
+    ("bus_sales_order", "status", "DRAFT"),
+    ("bus_budget", "status", "DRAFT"),
+    ("bus_scenario", "status", "DRAFT"),
+    ("bus_ledger", "status", "DRAFT"),
+    ("bus_fiscal_period", "status", "FUTURE"),
+    ("bus_payment_allocation", "status", "DRAFT"),
+    ("bus_payment_instruction", "status", "DRAFT"),
+    ("bus_credit_note", "status", "DRAFT"),
+    ("bus_credit_note_application", "status", "DRAFT"),
+    ("bus_tax_code", "status", "DRAFT"),
+    ("bus_tax_jurisdiction", "status", "DRAFT"),
+    ("bus_tax_rate", "status", "DRAFT"),
+    ("bus_tax_registration", "status", "DRAFT"),
+    ("bus_tax_rule", "status", "DRAFT"),
+    ("bus_tax_transaction", "status", "DRAFT"),
+    ("bus_billing_cycle", "status", "DRAFT"),
+    ("bus_charge", "status", "DRAFT"),
+    ("bus_subscription", "status", "DRAFT"),
+    ("bus_subscription_plan", "status", "DRAFT"),
+    ("bus_usage_record", "status", "DRAFT"),
+    ("bus_bank_account", "status", "PENDING"),
+    ("bus_asset", "status", "PLANNED"),
+    ("bus_product", "status", "DRAFT"),
+];
+
 impl EntityMeta {
+    /// The state a new record starts in, when a state machine governs `column`.
+    pub fn initial_state(&self, column: &str) -> Option<&'static str> {
+        STATE_COLUMNS
+            .iter()
+            .find(|(table, governed, initial)| {
+                *table == self.table_name && *governed == column && !initial.is_empty()
+            })
+            .map(|(_, _, initial)| *initial)
+    }
+
     /// The fields a caller may actually write.
     ///
     /// Everything else on this type filters through here, so a server-managed
@@ -236,8 +293,10 @@ impl EntityMeta {
 
     /// The first free-text field, for "does it persist what I sent?" assertions.
     pub fn first_text_field(&self) -> Option<&FieldMeta> {
-        self.writable_fields()
-            .find(|f| matches!(f.field_type, FieldType::String | FieldType::Text))
+        self.writable_fields().find(|f| {
+            matches!(f.field_type, FieldType::String | FieldType::Text)
+                && self.initial_state(f.name).is_none()
+        })
     }
 
     /// The first numeric field, for the rules suites' range checks.
@@ -1283,14 +1342,14 @@ pub static ENTITIES: &[EntityMeta] = &[
                 max_length: None,
             },
             FieldMeta {
-                name: "from_currency",
+                name: "from_currency_id",
                 field_type: FieldType::from_model("string", true),
                 required: true,
                 ref_table: Some("bus_currency"),
                 max_length: None,
             },
             FieldMeta {
-                name: "to_currency",
+                name: "to_currency_id",
                 field_type: FieldType::from_model("string", true),
                 required: true,
                 ref_table: Some("bus_currency"),
@@ -2606,6 +2665,48 @@ pub static ENTITIES: &[EntityMeta] = &[
                 max_length: Some(100),
             },
             FieldMeta {
+                name: "period_start",
+                field_type: FieldType::from_model("date", false),
+                required: true,
+                ref_table: ref_table_for("period_start", false),
+                max_length: None,
+            },
+            FieldMeta {
+                name: "period_end",
+                field_type: FieldType::from_model("date", false),
+                required: true,
+                ref_table: ref_table_for("period_end", false),
+                max_length: None,
+            },
+            FieldMeta {
+                name: "basis",
+                field_type: FieldType::from_model("string", false),
+                required: true,
+                ref_table: ref_table_for("basis", false),
+                max_length: None,
+            },
+            FieldMeta {
+                name: "planned_amount",
+                field_type: FieldType::from_model("decimal", false),
+                required: true,
+                ref_table: ref_table_for("planned_amount", false),
+                max_length: None,
+            },
+            FieldMeta {
+                name: "actual_amount",
+                field_type: FieldType::from_model("decimal", false),
+                required: true,
+                ref_table: ref_table_for("actual_amount", false),
+                max_length: None,
+            },
+            FieldMeta {
+                name: "variance_amount",
+                field_type: FieldType::from_model("decimal", false),
+                required: true,
+                ref_table: ref_table_for("variance_amount", false),
+                max_length: None,
+            },
+            FieldMeta {
                 name: "organization_id",
                 field_type: FieldType::from_model("string", true),
                 required: true,
@@ -3306,10 +3407,52 @@ pub static ENTITIES: &[EntityMeta] = &[
                 max_length: None,
             },
             FieldMeta {
+                name: "rate",
+                field_type: FieldType::from_model("decimal", false),
+                required: true,
+                ref_table: ref_table_for("rate", false),
+                max_length: None,
+            },
+            FieldMeta {
+                name: "rate_basis",
+                field_type: FieldType::from_model("string", false),
+                required: true,
+                ref_table: ref_table_for("rate_basis", false),
+                max_length: None,
+            },
+            FieldMeta {
+                name: "effective_from",
+                field_type: FieldType::from_model("date", false),
+                required: true,
+                ref_table: ref_table_for("effective_from", false),
+                max_length: None,
+            },
+            FieldMeta {
+                name: "effective_to",
+                field_type: FieldType::from_model("date", false),
+                required: false,
+                ref_table: ref_table_for("effective_to", false),
+                max_length: None,
+            },
+            FieldMeta {
                 name: "organization_id",
                 field_type: FieldType::from_model("string", true),
                 required: false,
                 ref_table: ref_table_for("organization_id", true),
+                max_length: None,
+            },
+            FieldMeta {
+                name: "tax_code_id",
+                field_type: FieldType::from_model("string", true),
+                required: true,
+                ref_table: ref_table_for("tax_code_id", true),
+                max_length: None,
+            },
+            FieldMeta {
+                name: "tax_jurisdiction_id",
+                field_type: FieldType::from_model("string", true),
+                required: true,
+                ref_table: ref_table_for("tax_jurisdiction_id", true),
                 max_length: None,
             },
         ],
@@ -3500,6 +3643,48 @@ pub static ENTITIES: &[EntityMeta] = &[
                 required: true,
                 ref_table: ref_table_for("status", false),
                 max_length: None,
+            },
+            FieldMeta {
+                name: "charge_number",
+                field_type: FieldType::from_model("string", false),
+                required: true,
+                ref_table: ref_table_for("charge_number", false),
+                max_length: Some(100),
+            },
+            FieldMeta {
+                name: "charge_type",
+                field_type: FieldType::from_model("string", false),
+                required: true,
+                ref_table: ref_table_for("charge_type", false),
+                max_length: None,
+            },
+            FieldMeta {
+                name: "amount",
+                field_type: FieldType::from_model("decimal", false),
+                required: true,
+                ref_table: ref_table_for("amount", false),
+                max_length: None,
+            },
+            FieldMeta {
+                name: "currency_id",
+                field_type: FieldType::from_model("string", true),
+                required: true,
+                ref_table: ref_table_for("currency_id", true),
+                max_length: None,
+            },
+            FieldMeta {
+                name: "charged_on",
+                field_type: FieldType::from_model("date", false),
+                required: true,
+                ref_table: ref_table_for("charged_on", false),
+                max_length: None,
+            },
+            FieldMeta {
+                name: "description",
+                field_type: FieldType::from_model("string", false),
+                required: false,
+                ref_table: ref_table_for("description", false),
+                max_length: Some(1000),
             },
             FieldMeta {
                 name: "customer_id",
@@ -6360,6 +6545,55 @@ pub static ENTITIES: &[EntityMeta] = &[
         ],
     },
     EntityMeta {
+        name: "VarianceBasis",
+        table_name: "bus_variance_basis",
+        route: "bus_variance_basis",
+        fields: &[
+            FieldMeta {
+                name: "id",
+                field_type: FieldType::from_model("string", false),
+                required: false,
+                ref_table: ref_table_for("id", false),
+                max_length: None,
+            },
+            FieldMeta {
+                name: "code",
+                field_type: FieldType::from_model("string", false),
+                required: true,
+                ref_table: ref_table_for("code", false),
+                max_length: Some(100),
+            },
+            FieldMeta {
+                name: "name",
+                field_type: FieldType::from_model("string", false),
+                required: true,
+                ref_table: ref_table_for("name", false),
+                max_length: Some(200),
+            },
+            FieldMeta {
+                name: "description",
+                field_type: FieldType::from_model("text", false),
+                required: false,
+                ref_table: ref_table_for("description", false),
+                max_length: None,
+            },
+            FieldMeta {
+                name: "sequence",
+                field_type: FieldType::from_model("integer", false),
+                required: true,
+                ref_table: ref_table_for("sequence", false),
+                max_length: None,
+            },
+            FieldMeta {
+                name: "is_active",
+                field_type: FieldType::from_model("boolean", false),
+                required: true,
+                ref_table: ref_table_for("is_active", false),
+                max_length: None,
+            },
+        ],
+    },
+    EntityMeta {
         name: "LedgerStatus",
         table_name: "bus_ledger_status",
         route: "bus_ledger_status",
@@ -6850,6 +7084,55 @@ pub static ENTITIES: &[EntityMeta] = &[
         ],
     },
     EntityMeta {
+        name: "TaxRateRateBasis",
+        table_name: "bus_tax_rate_rate_basis",
+        route: "bus_tax_rate_rate_basis",
+        fields: &[
+            FieldMeta {
+                name: "id",
+                field_type: FieldType::from_model("string", false),
+                required: false,
+                ref_table: ref_table_for("id", false),
+                max_length: None,
+            },
+            FieldMeta {
+                name: "code",
+                field_type: FieldType::from_model("string", false),
+                required: true,
+                ref_table: ref_table_for("code", false),
+                max_length: Some(100),
+            },
+            FieldMeta {
+                name: "name",
+                field_type: FieldType::from_model("string", false),
+                required: true,
+                ref_table: ref_table_for("name", false),
+                max_length: Some(200),
+            },
+            FieldMeta {
+                name: "description",
+                field_type: FieldType::from_model("text", false),
+                required: false,
+                ref_table: ref_table_for("description", false),
+                max_length: None,
+            },
+            FieldMeta {
+                name: "sequence",
+                field_type: FieldType::from_model("integer", false),
+                required: true,
+                ref_table: ref_table_for("sequence", false),
+                max_length: None,
+            },
+            FieldMeta {
+                name: "is_active",
+                field_type: FieldType::from_model("boolean", false),
+                required: true,
+                ref_table: ref_table_for("is_active", false),
+                max_length: None,
+            },
+        ],
+    },
+    EntityMeta {
         name: "TaxRegistrationStatus",
         table_name: "bus_tax_registration_status",
         route: "bus_tax_registration_status",
@@ -7098,6 +7381,55 @@ pub static ENTITIES: &[EntityMeta] = &[
         name: "ChargeStatus",
         table_name: "bus_charge_status",
         route: "bus_charge_status",
+        fields: &[
+            FieldMeta {
+                name: "id",
+                field_type: FieldType::from_model("string", false),
+                required: false,
+                ref_table: ref_table_for("id", false),
+                max_length: None,
+            },
+            FieldMeta {
+                name: "code",
+                field_type: FieldType::from_model("string", false),
+                required: true,
+                ref_table: ref_table_for("code", false),
+                max_length: Some(100),
+            },
+            FieldMeta {
+                name: "name",
+                field_type: FieldType::from_model("string", false),
+                required: true,
+                ref_table: ref_table_for("name", false),
+                max_length: Some(200),
+            },
+            FieldMeta {
+                name: "description",
+                field_type: FieldType::from_model("text", false),
+                required: false,
+                ref_table: ref_table_for("description", false),
+                max_length: None,
+            },
+            FieldMeta {
+                name: "sequence",
+                field_type: FieldType::from_model("integer", false),
+                required: true,
+                ref_table: ref_table_for("sequence", false),
+                max_length: None,
+            },
+            FieldMeta {
+                name: "is_active",
+                field_type: FieldType::from_model("boolean", false),
+                required: true,
+                ref_table: ref_table_for("is_active", false),
+                max_length: None,
+            },
+        ],
+    },
+    EntityMeta {
+        name: "ChargeChargeType",
+        table_name: "bus_charge_charge_type",
+        route: "bus_charge_charge_type",
         fields: &[
             FieldMeta {
                 name: "id",

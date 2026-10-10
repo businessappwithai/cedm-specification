@@ -350,9 +350,9 @@ INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, st
 VALUES ('8b0a83cb-6c8a-505e-84a3-43fd51e23680', 'bus_bank_loan', 'status', 'APPLICATION', 'APPROVED', 'approve', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- BankLoanLifecycle: APPROVED → ACTIVE (activate)
+-- BankLoanLifecycle: APPROVED → ACTIVE (disburse)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('2b22469a-6047-51d6-998d-aea907b879a1', 'bus_bank_loan', 'status', 'APPROVED', 'ACTIVE', 'activate', TRUE, NOW())
+VALUES ('2b22469a-6047-51d6-998d-aea907b879a1', 'bus_bank_loan', 'status', 'APPROVED', 'ACTIVE', 'disburse', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- BankLoanLifecycle: ACTIVE → DELINQUENT (mark_delinquent)
@@ -360,14 +360,24 @@ INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, st
 VALUES ('23fe4c54-27e8-546a-aa2a-81f3dd7404ab', 'bus_bank_loan', 'status', 'ACTIVE', 'DELINQUENT', 'mark_delinquent', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- BankLoanLifecycle: DELINQUENT → PAID_OFF (mark_paid_off)
+-- BankLoanLifecycle: DELINQUENT → ACTIVE (cure)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('0887adb0-1b99-53ef-b282-cc875d513516', 'bus_bank_loan', 'status', 'DELINQUENT', 'PAID_OFF', 'mark_paid_off', TRUE, NOW())
+VALUES ('7fc5f1de-924a-57fd-b1b9-b15b103fc1c2', 'bus_bank_loan', 'status', 'DELINQUENT', 'ACTIVE', 'cure', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- BankLoanLifecycle: PAID_OFF → DEFAULTED (mark_defaulted)
+-- BankLoanLifecycle: ACTIVE → PAID_OFF (pay_off)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('65e46a15-7991-5762-b4d8-3b549830f19b', 'bus_bank_loan', 'status', 'PAID_OFF', 'DEFAULTED', 'mark_defaulted', TRUE, NOW())
+VALUES ('2f3cd0f8-2e2b-5f6c-bf7e-b756df253eb2', 'bus_bank_loan', 'status', 'ACTIVE', 'PAID_OFF', 'pay_off', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- BankLoanLifecycle: DELINQUENT → PAID_OFF (pay_off)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('0887adb0-1b99-53ef-b282-cc875d513516', 'bus_bank_loan', 'status', 'DELINQUENT', 'PAID_OFF', 'pay_off', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- BankLoanLifecycle: DELINQUENT → DEFAULTED (mark_defaulted)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('3309224c-9e74-5ad1-b979-4d83890d2ea4', 'bus_bank_loan', 'status', 'DELINQUENT', 'DEFAULTED', 'mark_defaulted', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- BankLoanLifecycle: APPLICATION → CANCELLED (cancel)
@@ -378,26 +388,6 @@ ON CONFLICT DO NOTHING;
 -- BankLoanLifecycle: APPROVED → CANCELLED (cancel)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
 VALUES ('f1d106cc-fecd-55f4-a089-b8aa5bd09a3c', 'bus_bank_loan', 'status', 'APPROVED', 'CANCELLED', 'cancel', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- BankLoanLifecycle: ACTIVE → CANCELLED (cancel)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('ff25e538-e91a-5b63-a26d-8a258eaca853', 'bus_bank_loan', 'status', 'ACTIVE', 'CANCELLED', 'cancel', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- BankLoanLifecycle: DELINQUENT → CANCELLED (cancel)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('318c64b2-b02b-56c9-ace7-2353216bfe2b', 'bus_bank_loan', 'status', 'DELINQUENT', 'CANCELLED', 'cancel', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- BankLoanLifecycle: PAID_OFF → CANCELLED (cancel)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('b4e649ba-4f92-5308-ae8a-ba0c0754a77a', 'bus_bank_loan', 'status', 'PAID_OFF', 'CANCELLED', 'cancel', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- BankLoanLifecycle: DEFAULTED → CANCELLED (cancel)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('66c05aad-4317-5864-b537-cc82ebf83f09', 'bus_bank_loan', 'status', 'DEFAULTED', 'CANCELLED', 'cancel', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- CreditLifecycle: DRAFT → ACTIVE (activate)
@@ -591,10 +581,10 @@ INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field
 VALUES ('f0eb3806-b534-5433-a8f1-3127751e4dc8', 'bus_bank_loan', 'status', 'DELINQUENT', FALSE, FALSE, 40, TRUE, NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
-VALUES ('b5e2eb73-4a55-58b5-a05c-bc82a34af73f', 'bus_bank_loan', 'status', 'PAID_OFF', FALSE, FALSE, 50, TRUE, NOW())
+VALUES ('b5e2eb73-4a55-58b5-a05c-bc82a34af73f', 'bus_bank_loan', 'status', 'PAID_OFF', FALSE, TRUE, 50, TRUE, NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
-VALUES ('d5e37540-ff75-5ffc-b881-7276478e84b9', 'bus_bank_loan', 'status', 'DEFAULTED', FALSE, FALSE, 60, TRUE, NOW())
+VALUES ('d5e37540-ff75-5ffc-b881-7276478e84b9', 'bus_bank_loan', 'status', 'DEFAULTED', FALSE, TRUE, 60, TRUE, NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
 VALUES ('23d3b8d5-d5e2-57d2-bb60-d62d9b035efc', 'bus_bank_loan', 'status', 'CANCELLED', FALSE, TRUE, 70, TRUE, NOW())

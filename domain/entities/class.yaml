@@ -1,0 +1,79 @@
+entity:
+  name: Class
+  namespace: cedm.domain
+  kind: education_class
+  description: A governed scheduled offering, section or cohort of an EducationCourse for a defined period, instructors and enrolled students.
+  ui: {icon: school}
+  identity: {key: classId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: classId, type: uuid, required: true, immutable: true, help: {summary: The permanent system identity of one scheduled class offering., usage: 'Generated on creation; enrolments, attendance and assessments refer to the class through it.', businessMeaning: Identifies one scheduled course section independently of the reusable EducationCourse definition., relationshipContext: EducationCourse defines curriculum while Class defines one delivery instance.}}
+    - {name: classCode, type: string, required: true, unique: true, maxLength: 120, help: {summary: 'The code by which the offering is known in timetables and registration, such as BIO101-A-2026F.', businessMeaning: Operational code for one course offering., usage: "Schedules, registers, search and integration.", relationshipContext: Distinct from EducationCourse code.}}
+    - {name: name, type: string, required: true, maxLength: 300, help: {summary: 'The name of the offering as students and instructors see it, such as Biology 101, Autumn Section B.', usage: 'Entered when the class is planned; shown in timetables, learner portals and reports.', businessMeaning: Identifies the teaching group to learners and staff., relationshipContext: May derive from course name plus section or term.}}
+    - {name: startDate, type: date, required: false, help: {summary: The first day on which teaching for the class takes place., usage: Set when scheduling; enrolment eligibility is judged against it and it must not come after the end date., businessMeaning: Establishes delivery period., relationshipContext: Must not follow endDate.}}
+    - {name: endDate, type: date, required: false, help: {summary: The last day of the offering., usage: Entered at scheduling; must not be earlier than the start date., businessMeaning: Closes the delivery period.}}
+    - name: status
+      type: enum
+      required: true
+      default: DRAFT
+      values: [DRAFT, OPEN, IN_PROGRESS, COMPLETED, CANCELLED]
+      help:
+        summary: Where the offering is, from planning through enrolment and teaching to completion or cancellation.
+        usage: Moved by the school administrator as the term proceeds; enrolment is only accepted while open, and attendance only once teaching begins.
+        valueSemantics:
+          DRAFT: Being planned; not yet visible to students.
+          OPEN: Open for enrolment, with teaching not yet begun.
+          IN_PROGRESS: Teaching has started and attendance and assessments are being recorded.
+          COMPLETED: Finished; results are final and kept as delivery evidence. A final state.
+          CANCELLED: Called off before completion. A final state.
+        businessMeaning: Controls enrollment and delivery progression.
+        relationshipContext: Completed class history remains immutable evidence.
+  relationships:
+    - {name: course, target: EducationCourse, cardinality: "1", ownership: reference, help: {cardinalityMeaning: Exactly one course; a class is always an offering of a single course., summary: Reusable course definition delivered by this Class., businessMeaning: Separates curriculum from one scheduled offering., usage: "Catalog, scheduling and reporting.", workflowRole: Course eligibility constrains new Class offerings.}}
+    - {name: instructors, target: Party, cardinality: "0..*", ownership: reference, help: {summary: Parties assigned to instruct or facilitate the Class., businessMeaning: Establishes teaching responsibility., usage: "Scheduling, workload and learner communication.", cardinalityMeaning: Zero or many instructors while staffing is arranged., workflowRole: Instructor eligibility is governed externally or by education policy.}}
+    - {name: enrollments, target: Enrollment, cardinality: "0..*", ownership: reference, help: {cardinalityMeaning: "Any number, up to the class's capacity.", summary: Student enrollments assigned to this Class., businessMeaning: Establishes learner membership for the delivery instance., usage: "Registers, attendance and assessment.", workflowRole: Enrollment status controls attendance and assessment eligibility.}}
+    - {name: attendanceRecords, target: Attendance, cardinality: "0..*", ownership: aggregate, help: {summary: Attendance evidence recorded for this Class., businessMeaning: Preserves participation history for enrolled students., usage: "Class registers, learner support and reporting.", cardinalityMeaning: Zero or many records., workflowRole: Attendance student and Class context must reconcile.}}
+    - {name: assessments, target: Assessment, cardinality: "0..*", ownership: aggregate, help: {cardinalityMeaning: 'Any number of assessments, each belonging to the class.', summary: Assessments scheduled or administered for this Class., businessMeaning: Connects evaluated learning activity to one delivery instance., usage: "Assessment planning, gradebook and reporting.", workflowRole: Assessment timing and eligibility follow Class lifecycle and policy.}}
+  invariants:
+    - {id: CLASS-001, rule: endDate must not precede startDate when both are supplied.}
+    - {id: CLASS-002, rule: COMPLETED or CANCELLED Class records are historical delivery evidence and must not be destructively rewritten.}
+    - {id: CLASS-EXE-001, rule: "End Date must not be earlier than start date.", violatedWhen: "start_date != null and end_date != null and end_date < start_date", message: "End Date cannot be earlier than start date."}
+  lifecycle:
+    title: Class Lifecycle
+    attribute: status
+    states: [DRAFT, OPEN, IN_PROGRESS, COMPLETED, CANCELLED]
+    initial: DRAFT
+    terminal: [COMPLETED, CANCELLED]
+    transitions:
+      - {from: DRAFT, to: OPEN, action: open}
+      - {from: DRAFT, to: CANCELLED, action: cancel}
+      - {from: OPEN, to: IN_PROGRESS, action: start}
+      - {from: OPEN, to: CANCELLED, action: cancel}
+      - {from: IN_PROGRESS, to: COMPLETED, action: complete}
+      - {from: IN_PROGRESS, to: CANCELLED, action: cancel}
+  workflows:
+    - name: FollowUpRequired
+      title: "Follow up when a class is ended"
+      description: "When a class is cancelled, a task asks someone to settle what depended on it."
+      when: "status == \"CANCELLED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "CLASS-FOLLOW-UP-{{id}}"
+              name: "Follow up on class {{name}}"
+              description: "Class {{name}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
+  help:
+    summary: Represents one scheduled delivery instance of an EducationCourse.
+    businessMeaning: EducationCourse defines what is taught; Class defines when and to whom one offering is delivered.
+    usage: School and education scheduling, enrollment, attendance, assessment, portals and reporting.
+    relationshipContext: Course is mandatory; instructors and enrollments define participants; Attendance and Assessment preserve delivery evidence.
+    lifecycle: Class moves from draft to open to in-progress and then completion or cancellation.
+    example: Algebra I is the EducationCourse; Algebra I Section B for the 2026 term is a Class with its own students, attendance and assessments.
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-CLASS}

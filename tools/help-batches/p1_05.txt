@@ -1,0 +1,38 @@
+@ ERP
+a createdAt
+s: The date and time the installation record was first created.
+u: Set by the system when the record is created and never edited; it marks when the application context came into being.
+a updatedAt
+s: The date and time the installation record was last changed.
+u: Set by the system on every change; it shows administrators when defaults such as currency or time zone were last altered.
+@ EducationCourse
+a name
+s: The title of the course as students and staff know it, such as Introduction to Statistics.
+u: Entered by the academic office; shown in catalogues, timetables and transcripts, so it should stay stable from term to term.
+@ EducationProgram
+a programType
+s: The kind of qualification the program leads to, such as a degree, diploma or certificate.
+u: Chosen when the program is created; it drives admission rules, credit requirements and how graduates are described.
+v DEGREE: A university-level degree awarded on completing a full course of study.
+v DIPLOMA: A diploma-level qualification, usually shorter or more applied than a degree.
+v CERTIFICATE: A shorter certificate recognising completion of a focused body of study.
+v COURSE: A stand-alone course that is treated as a program of its own.
+v TRAINING: Vocational or workplace training that leads to a defined skill.
+v OTHER: Any other kind of program that fits none of the above.
+a status
+s: Whether the program is being designed, open to students, closed for now, or withdrawn.
+u: Set by the institution; only an ACTIVE program accepts new enrolments, and retired programs stay for graduates' records.
+v DRAFT: Being designed; not yet open to students.
+v ACTIVE: Open for enrolment and accepting new students.
+v SUSPENDED: Temporarily closed to new enrolments, with current students unaffected.
+v RETIRED: Withdrawn permanently but kept for graduates' records. A final state.
+@ Emission
+a quantity
+s: The amount of gas or pollutant released, measured or calculated, in the unit the record states.
+u: Entered from a meter reading or calculated from activity data; never negative, and it is totalled in sustainability reports.
+r organization
+u: Chosen when the emission is recorded; it decides whose carbon total and reporting boundary the emission counts towards.
+r location
+u: Set when the release can be tied to a site; site-level reports and regional limits read it, and it is left empty otherwise.
+r product
+u: Set when the release can be assigned to a product's production or use; product carbon footprints are summed through it.

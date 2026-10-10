@@ -8,7 +8,7 @@
 # which are required. A CEDM specification that follows it supplies the whole
 # dictionary: nothing a screen shows has to be invented by a generator.
 #
-# `tools/validate.py` enforces the required rows (DICT-*); `tools/dictionary_report.py`
+# `tools/validate.ts` enforces the required rows (DICT-*); `tools/dictionary-report.ts`
 # reports coverage. A generator reads the same rows: where one says "derived",
 # the rule below is the rule, and a generator must not apply another.
 specification:
@@ -250,7 +250,7 @@ enumerations:
     sys_ref_list.description: help.valueSemantics[value]
 
 # --------------------------------------------------------------------------
-# Rules a conforming specification satisfies (enforced by tools/validate.py)
+# Rules a conforming specification satisfies (enforced by tools/validate.ts)
 # --------------------------------------------------------------------------
 rules:
   - {id: DICT-001, severity: error, rule: Every entity has ui.icon, and it is a lucide icon id.}

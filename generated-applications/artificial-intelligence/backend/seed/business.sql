@@ -200,19 +200,19 @@ VALUES ('136f586c-771a-56e5-9a60-f78f55ce4bff', 'Location 5', 'Location 5', 'FAC
 ON CONFLICT DO NOTHING;
 
 -- Exchange Rate (bus_exchange_rate)
-INSERT INTO bus_exchange_rate (id, from_currency, to_currency, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
+INSERT INTO bus_exchange_rate (id, from_currency_id, to_currency_id, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
 VALUES ('77aaf095-40f5-5183-b4d6-56234bd8f1ca', '8eb8c20c-ceb2-51f1-b499-7c2b89ed00f4', '8eb8c20c-ceb2-51f1-b499-7c2b89ed00f4', 10.50, 'SPOT', '2026-01-15T09:00:00Z', NULL, 'Source 1', 'DRAFT', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_exchange_rate (id, from_currency, to_currency, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
+INSERT INTO bus_exchange_rate (id, from_currency_id, to_currency_id, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
 VALUES ('720f0c0c-345a-56bb-aec2-99d679129df7', '429d1d50-eecf-5890-b04b-b5793d59f054', '429d1d50-eecf-5890-b04b-b5793d59f054', 21.00, 'CONTRACT', '2026-02-15T09:00:00Z', NULL, 'Source 2', 'DRAFT', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_exchange_rate (id, from_currency, to_currency, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
+INSERT INTO bus_exchange_rate (id, from_currency_id, to_currency_id, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
 VALUES ('e058cf50-84ae-5069-bdaf-0d92e2180715', '57e685c0-cebd-59e5-824a-1e1883e25e8d', '57e685c0-cebd-59e5-824a-1e1883e25e8d', 31.50, 'DAILY', '2026-03-15T09:00:00Z', NULL, 'Source 3', 'DRAFT', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_exchange_rate (id, from_currency, to_currency, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
+INSERT INTO bus_exchange_rate (id, from_currency_id, to_currency_id, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
 VALUES ('6d037897-d145-5731-b76b-d3b1fd7bae51', 'e35b5fd2-e70d-50a8-bbe1-44db248c2a0b', 'e35b5fd2-e70d-50a8-bbe1-44db248c2a0b', 42.00, 'MONTHLY', '2026-04-15T09:00:00Z', NULL, 'Source 4', 'DRAFT', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_exchange_rate (id, from_currency, to_currency, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
+INSERT INTO bus_exchange_rate (id, from_currency_id, to_currency_id, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
 VALUES ('02989df2-8681-56c5-ac51-d476870dbd32', 'b3101e66-8c8b-5f0c-b361-0bf1b3df9d44', 'b3101e66-8c8b-5f0c-b361-0bf1b3df9d44', 52.50, 'ACCOUNTING', '2026-05-15T09:00:00Z', NULL, 'Source 5', 'DRAFT', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
@@ -285,20 +285,20 @@ VALUES ('df182460-930b-5540-ad07-490ae2f8f92b', 'Code 5', 'Task 5', 'Description
 ON CONFLICT DO NOTHING;
 
 -- AI Model (bus_ai_model)
-INSERT INTO bus_ai_model (id, code, name, model_type, status, purpose, risk_level, owner_id, doc_status, created_at, updated_at)
-VALUES ('2943dd14-45d9-5a12-b51b-0074ba8ef027', 'AI Model 1', 'AI Model 1', 'CLASSIFICATION', 'DRAFT', 'Purpose 1', 'LOW', 'f24743ec-0e15-5b36-a0b6-e375817ec466', 'final', NOW(), NOW())
+INSERT INTO bus_ai_model (id, code, name, model_type, model_version, status, purpose, risk_level, owner_id, doc_status, created_at, updated_at)
+VALUES ('2943dd14-45d9-5a12-b51b-0074ba8ef027', 'AI Model 1', 'AI Model 1', 'CLASSIFICATION', 'Model Version 1', 'DRAFT', 'Purpose 1', 'LOW', 'f24743ec-0e15-5b36-a0b6-e375817ec466', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_ai_model (id, code, name, model_type, status, purpose, risk_level, owner_id, doc_status, created_at, updated_at)
-VALUES ('e15429be-ce86-5f0c-a455-a65f40866a06', 'AI Model 2', 'AI Model 2', 'REGRESSION', 'DRAFT', 'Purpose 2', 'MEDIUM', '9bb7a3a5-171b-509a-927e-916d3e31d7f6', 'final', NOW(), NOW())
+INSERT INTO bus_ai_model (id, code, name, model_type, model_version, status, purpose, risk_level, owner_id, doc_status, created_at, updated_at)
+VALUES ('e15429be-ce86-5f0c-a455-a65f40866a06', 'AI Model 2', 'AI Model 2', 'REGRESSION', 'Model Version 2', 'DRAFT', 'Purpose 2', 'MEDIUM', '9bb7a3a5-171b-509a-927e-916d3e31d7f6', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_ai_model (id, code, name, model_type, status, purpose, risk_level, owner_id, doc_status, created_at, updated_at)
-VALUES ('45e2598f-d571-5446-a09b-9e99336b68be', 'AI Model 3', 'AI Model 3', 'FORECASTING', 'DRAFT', 'Purpose 3', 'HIGH', '48545ed2-07ec-5193-b193-39422d5b4f5d', 'final', NOW(), NOW())
+INSERT INTO bus_ai_model (id, code, name, model_type, model_version, status, purpose, risk_level, owner_id, doc_status, created_at, updated_at)
+VALUES ('45e2598f-d571-5446-a09b-9e99336b68be', 'AI Model 3', 'AI Model 3', 'FORECASTING', 'Model Version 3', 'DRAFT', 'Purpose 3', 'HIGH', '48545ed2-07ec-5193-b193-39422d5b4f5d', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_ai_model (id, code, name, model_type, status, purpose, risk_level, owner_id, doc_status, created_at, updated_at)
-VALUES ('3386e4ce-ef16-5fd7-940d-8c40041c5204', 'AI Model 4', 'AI Model 4', 'RECOMMENDATION', 'DRAFT', 'Purpose 4', 'CRITICAL', '807e7f22-a4b5-5a71-85d0-799cdce2e790', 'final', NOW(), NOW())
+INSERT INTO bus_ai_model (id, code, name, model_type, model_version, status, purpose, risk_level, owner_id, doc_status, created_at, updated_at)
+VALUES ('3386e4ce-ef16-5fd7-940d-8c40041c5204', 'AI Model 4', 'AI Model 4', 'RECOMMENDATION', 'Model Version 4', 'DRAFT', 'Purpose 4', 'CRITICAL', '807e7f22-a4b5-5a71-85d0-799cdce2e790', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_ai_model (id, code, name, model_type, status, purpose, risk_level, owner_id, doc_status, created_at, updated_at)
-VALUES ('702a91a5-da0d-5c02-b876-df27ec39ce0d', 'AI Model 5', 'AI Model 5', 'GENERATION', 'DRAFT', 'Purpose 5', 'LOW', '24d5ec68-a546-55f6-8bae-8f668d527004', 'final', NOW(), NOW())
+INSERT INTO bus_ai_model (id, code, name, model_type, model_version, status, purpose, risk_level, owner_id, doc_status, created_at, updated_at)
+VALUES ('702a91a5-da0d-5c02-b876-df27ec39ce0d', 'AI Model 5', 'AI Model 5', 'GENERATION', 'Model Version 5', 'DRAFT', 'Purpose 5', 'LOW', '24d5ec68-a546-55f6-8bae-8f668d527004', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
 -- AI Prediction (bus_ai_prediction)

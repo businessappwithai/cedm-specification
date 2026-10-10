@@ -1,0 +1,103 @@
+@ ServiceContract
+a serviceContractNumber
+s: The number of the service contract, such as SC-2026-044.
+r contract
+n: A service contract specialises exactly one contract, which holds the legal terms.
+r entitlements
+n: Any number of entitlements, one for each service or product covered.
+r serviceOrders
+n: Any number of service orders may be performed under the contract.
+
+@ ServiceLevelAgreement
+a code
+b: The code identifies the agreement in service contracts, cases and reports, so a target can be named without quoting its terms.
+r serviceOrders
+n: Any number of service orders are measured against the agreement.
+r serviceContracts
+n: Any number of service contracts may carry the same agreement.
+r entitlements
+n: Any number of entitlements may promise its targets.
+
+@ ServiceOrder
+a serviceOrderNumber
+s: The number of the service order, such as SVO-7710.
+a status
+s: Where the service work is.
+r serviceCase
+n: At most one case; empty for work not tied to a case.
+r serviceLevelAgreement
+n: At most one agreement, which sets the time targets for the work.
+
+@ ServiceRequest
+s: A request for service, support, maintenance or assistance that must be fulfilled or resolved.
+b: The service request is where a need enters the business. Recording who asked, what for, how urgently and who is handling it lets the request be triaged, worked and answered within agreed times, and shows how long it took.
+u: Raised by the requester or on their behalf; triaged and assigned by service staff; read by managers.
+c: A request has a requester and an assignee, may relate to an organisation and location, and leads to tasks, cases, tickets and service orders.
+l: A request is opened, triaged, assigned, worked and resolved, and then closed. It may be cancelled before resolution. Closed and cancelled are final.
+x: Request SR-3382 asks for a faulty door sensor to be repaired at the Leeds site and is resolved after a visit.
+a serviceRequestId
+s: The identity of the request, constant for its life.
+u: Generated on creation; tasks and orders refer to it.
+c: Referenced by the work done for the request.
+a requestNumber
+s: The number given to the request, such as SR-3382.
+u: Unique; quoted to the requester.
+c: Used to follow up.
+a requestType
+s: The kind of request, such as repair, information or change.
+u: Chosen when raised; routes the request.
+c: Decides who triages it.
+a description
+s: What the requester needs.
+u: Written when raised.
+c: Read by the assignee.
+a priority
+s: How urgent the request is.
+u: Set at triage.
+c: Decides the order of work and the service target.
+v LOW: Can wait.
+v NORMAL: Handled in the ordinary course.
+v HIGH: Handled ahead of normal work.
+v CRITICAL: Needs immediate action.
+a status
+s: Where the request is.
+u: Starts as OPEN; moved by service staff.
+c: Decides whether it is still waiting for action.
+v OPEN: Received and not yet looked at.
+v TRIAGED: Assessed and prioritised.
+v ASSIGNED: Given to someone to handle.
+v IN_PROGRESS: Being worked.
+v RESOLVED: The need has been met.
+v CLOSED: Confirmed finished. A final state.
+v CANCELLED: Withdrawn. A final state.
+a requestedAt
+u: Set when received; response times are measured from it.
+c: Compared with the resolved time.
+a resolvedAt
+u: Set when resolved; required once the request is resolved or closed.
+c: Gives the time to resolve.
+r requester
+s: The person who asked for the service.
+u: Chosen when raised.
+n: Exactly one requester.
+t: Who is told the outcome.
+r assignee
+s: The person handling the request.
+u: Chosen when assigned.
+n: At most one assignee.
+t: Owns the work.
+r organization
+s: The organisation the request is for.
+u: Chosen when the request relates to a company.
+n: At most one organisation.
+t: Decides which contract and entitlement apply.
+r location
+s: The place where service is needed.
+u: Chosen when the work is on site.
+n: At most one location.
+t: Used to plan visits.
+r tasks
+s: The tasks created to fulfil the request.
+u: Read to follow progress.
+n: Any number of tasks.
+t: Break the request into work.

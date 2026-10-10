@@ -609,8 +609,8 @@ export const mockApiResponses = {
     list: [
       {
         id: 'test-id-1',
-        from_currency: 'Test From Currency 1',
-        to_currency: 'Test To Currency 1',
+        from_currency_id: 'Test From Currency 1',
+        to_currency_id: 'Test To Currency 1',
         rate: 10.99,
         rate_type: 'Test Rate Type 1',
         effective_at: '2024-01-15T10:00:00Z',
@@ -620,8 +620,8 @@ export const mockApiResponses = {
       },
       {
         id: 'test-id-2',
-        from_currency: 'Test From Currency 2',
-        to_currency: 'Test To Currency 2',
+        from_currency_id: 'Test From Currency 2',
+        to_currency_id: 'Test To Currency 2',
         rate: 20.99,
         rate_type: 'Test Rate Type 2',
         effective_at: '2024-01-16T10:00:00Z',
@@ -632,8 +632,8 @@ export const mockApiResponses = {
     ],
     single: {
       id: 'test-id-1',
-      from_currency: 'Test From Currency',
-      to_currency: 'Test To Currency',
+      from_currency_id: 'Test From Currency',
+      to_currency_id: 'Test To Currency',
       rate: 10.99,
       rate_type: 'Test Rate Type',
       effective_at: '2024-01-15T10:00:00Z',
@@ -941,6 +941,46 @@ export const mockApiResponses = {
       timesheet_code: 'Test Timesheet Code',
       status: 'Test Status',
       context_id: 'Test Context',
+    },
+  },
+  projectCost: {
+    list: [
+      {
+        id: 'test-id-1',
+        cost_number: 'Test Cost Number 1',
+        cost_type: 'Test Cost Type 1',
+        amount: 10.99,
+        incurred_date: '2024-01-15',
+        status: 'Test Status 1',
+        project_id: 'Test Project 1',
+        project_task_id: 'Test Project Task 1',
+        timesheet_id: 'Test Timesheet 1',
+        currency_id: 'Test Currency 1',
+      },
+      {
+        id: 'test-id-2',
+        cost_number: 'Test Cost Number 2',
+        cost_type: 'Test Cost Type 2',
+        amount: 20.99,
+        incurred_date: '2024-01-16',
+        status: 'Test Status 2',
+        project_id: 'Test Project 2',
+        project_task_id: 'Test Project Task 2',
+        timesheet_id: 'Test Timesheet 2',
+        currency_id: 'Test Currency 2',
+      },
+    ],
+    single: {
+      id: 'test-id-1',
+      cost_number: 'Test Cost Number',
+      cost_type: 'Test Cost Type',
+      amount: 10.99,
+      incurred_date: '2024-01-15',
+      status: 'Test Status',
+      project_id: 'Test Project',
+      project_task_id: 'Test Project Task',
+      timesheet_id: 'Test Timesheet',
+      currency_id: 'Test Currency',
     },
   },
   professionalEngagement: {
@@ -1762,6 +1802,62 @@ export const mockApiResponses = {
     },
   },
   timesheetStatus: {
+    list: [
+      {
+        id: 'test-id-1',
+        code: 'Test Code 1',
+        name: 'Test Name 1',
+        description: 'Test text content',
+        sequence: 1,
+        is_active: true,
+      },
+      {
+        id: 'test-id-2',
+        code: 'Test Code 2',
+        name: 'Test Name 2',
+        description: 'Test text content 2',
+        sequence: 2,
+        is_active: false,
+      },
+    ],
+    single: {
+      id: 'test-id-1',
+      code: 'Test Code',
+      name: 'Test Name',
+      description: 'Test text content',
+      sequence: 1,
+      is_active: true,
+    },
+  },
+  projectCostCostType: {
+    list: [
+      {
+        id: 'test-id-1',
+        code: 'Test Code 1',
+        name: 'Test Name 1',
+        description: 'Test text content',
+        sequence: 1,
+        is_active: true,
+      },
+      {
+        id: 'test-id-2',
+        code: 'Test Code 2',
+        name: 'Test Name 2',
+        description: 'Test text content 2',
+        sequence: 2,
+        is_active: false,
+      },
+    ],
+    single: {
+      id: 'test-id-1',
+      code: 'Test Code',
+      name: 'Test Name',
+      description: 'Test text content',
+      sequence: 1,
+      is_active: true,
+    },
+  },
+  projectCostStatus: {
     list: [
       {
         id: 'test-id-1',

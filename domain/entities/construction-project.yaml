@@ -12,142 +12,109 @@ entity:
     generated: true
     immutable: true
   attributes:
-  - name: constructionProjectId
-    type: uuid
-    required: true
-    immutable: true
-    help:
-      summary: Identifies the construction project record associated with this ConstructionProject. The identifier connects
-        this record to the corresponding CEDM entity so related processes can resolve the correct business object.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating ConstructionProject records,
-        where applicable.
-      relationshipContext: Its meaning is specific to ConstructionProject; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: projectId
-    type: reference
-    target: Project
-    required: true
-    unique: true
-    immutable: true
-    help:
-      summary: Identifies the related Project associated with this ConstructionProject. It provides the link needed to navigate
-        from this record to the related business object.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating ConstructionProject records,
-        where applicable.
-      relationshipContext: This field connects ConstructionProject to Project. The reference establishes business context
-        between the two entities and lets processes navigate from this record to the related Project.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: projectType
-    type: enum
-    required: true
-    values:
-    - BUILDING
-    - INFRASTRUCTURE
-    - CIVIL
-    - INDUSTRIAL
-    - RENOVATION
-    - OTHER
-    help:
-      summary: Captures the business meaning of project type for the ConstructionProject. It is interpreted together with
-        the entity's other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating ConstructionProject records,
-        where applicable.
-      relationshipContext: Its meaning is specific to ConstructionProject; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      valueSemantics:
-        BUILDING: Represents the building state or classification in the context of ConstructionProject.
-        INFRASTRUCTURE: Represents the infrastructure state or classification in the context of ConstructionProject.
-        CIVIL: Represents the civil state or classification in the context of ConstructionProject.
-        INDUSTRIAL: Represents the industrial state or classification in the context of ConstructionProject.
-        RENOVATION: Represents the renovation state or classification in the context of ConstructionProject.
-        OTHER: Represents the other state or classification in the context of ConstructionProject.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: siteCondition
-    type: string
-    required: false
-    maxLength: 2000
-    help:
-      summary: Captures the business meaning of site condition for the ConstructionProject. It is interpreted together with
-        the entity's other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating ConstructionProject records,
-        where applicable.
-      relationshipContext: Its meaning is specific to ConstructionProject; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
-  - name: status
-    type: enum
-    required: true
-    default: PLANNED
-    values:
-    - PLANNED
-    - DESIGN
-    - PROCUREMENT
-    - CONSTRUCTION
-    - COMMISSIONING
-    - COMPLETED
-    - CANCELLED
-    help:
-      summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record
-        is treated by related processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating ConstructionProject records,
-        where applicable.
-      relationshipContext: Its meaning is specific to ConstructionProject; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      valueSemantics:
-        PLANNED: Represents the planned state or classification in the context of ConstructionProject.
-        DESIGN: Represents the design state or classification in the context of ConstructionProject.
-        PROCUREMENT: Represents the procurement state or classification in the context of ConstructionProject.
-        CONSTRUCTION: Represents the construction state or classification in the context of ConstructionProject.
-        COMMISSIONING: Represents the commissioning state or classification in the context of ConstructionProject.
-        COMPLETED: Represents the completed state or classification in the context of ConstructionProject.
-        CANCELLED: Represents the cancelled state or classification in the context of ConstructionProject.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+    - name: constructionProjectId
+      type: uuid
+      required: true
+      immutable: true
+      help:
+        summary: The identity of the construction project record.
+        usage: Generated on creation; contracts, assets and progress reports refer to it.
+    - name: projectId
+      type: reference
+      target: Project
+      required: true
+      unique: true
+      immutable: true
+      help:
+        summary: The general project that this record specialises.
+        usage: Set when the construction project is created, linking it to the project's planning, budget and tasks.
+    - name: projectType
+      type: enum
+      required: true
+      values:
+        - BUILDING
+        - INFRASTRUCTURE
+        - CIVIL
+        - INDUSTRIAL
+        - RENOVATION
+        - OTHER
+      help:
+        summary: The kind of construction work.
+        usage: Chosen when the project is set up; drives templates, permits and risk checks.
+        valueSemantics:
+          BUILDING: Construction of buildings such as offices, homes or factories.
+          INFRASTRUCTURE: Roads, bridges, utilities and similar public works.
+          CIVIL: General civil engineering such as earthworks and drainage.
+          INDUSTRIAL: Plant, process facilities and heavy industrial structures.
+          RENOVATION: Refurbishment or extension of an existing structure.
+          OTHER: Work that fits none of the categories above.
+    - name: siteCondition
+      type: string
+      required: false
+      maxLength: 2000
+      help:
+        summary: A description of the site's physical conditions that affect the work, such as soil, access or contamination.
+        usage: Written after surveys; read by designers and contractors when planning and pricing.
+    - name: status
+      type: enum
+      required: true
+      default: PLANNED
+      values:
+        - PLANNED
+        - DESIGN
+        - PROCUREMENT
+        - CONSTRUCTION
+        - COMMISSIONING
+        - COMPLETED
+        - CANCELLED
+      help:
+        valueSemantics:
+          PLANNED: Approved but design has not begun.
+          DESIGN: Design and permitting are under way.
+          PROCUREMENT: Contractors and materials are being sourced.
+          CONSTRUCTION: Physical work is being carried out on site.
+          COMMISSIONING: Building work is done and systems are being tested and handed over.
+          COMPLETED: Handed over to the owner and closed. A final state.
+          CANCELLED: Stopped before completion, with work abandoned or the contract ended. A final state.
+        summary: The construction stage the project has reached.
+        usage: Advanced by the project manager as each stage completes.
   relationships:
-  - name: project
-    target: Project
-    cardinality: '1'
-    ownership: reference
-    help:
-      summary: Connects ConstructionProject to Project so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Project records associated with a ConstructionProject.
-      cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
-  - name: site
-    target: Location
-    cardinality: 0..1
-    ownership: reference
-    help:
-      summary: Connects ConstructionProject to Location so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Location records associated with a ConstructionProject.
-      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
-  - name: contracts
-    target: Contract
-    cardinality: 0..*
-    ownership: reference
-    help:
-      summary: Connects ConstructionProject to Contract so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Contract records associated with a ConstructionProject.
-      cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
-  - name: assets
-    target: Asset
-    cardinality: 0..*
-    ownership: reference
-    help:
-      summary: Connects ConstructionProject to Asset so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Asset records associated with a ConstructionProject.
-      cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+    - name: project
+      target: Project
+      cardinality: '1'
+      ownership: reference
+      help:
+        summary: The general project this construction project belongs to.
+        usage: Set at creation; gives access to the project's tasks, budget and team.
+        cardinalityMeaning: Exactly one project; the two records describe the same undertaking.
+        workflowRole: Keeps construction-specific and general project data consistent.
+    - name: site
+      target: Location
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The location where the construction takes place.
+        usage: Chosen at planning; used for permits, logistics and safety planning.
+        cardinalityMeaning: At most one site; a project spread across several sites would be split into several projects.
+        workflowRole: Anchors the work to a place for permits and logistics.
+    - name: contracts
+      target: Contract
+      cardinality: 0..*
+      ownership: reference
+      help:
+        summary: The contracts under which the work is carried out.
+        usage: Read to see who is responsible for what, and on what terms.
+        cardinalityMeaning: Any number, typically one per contractor or supplier.
+        workflowRole: Contracts commit contractors and suppliers to the project.
+    - name: assets
+      target: Asset
+      cardinality: 0..*
+      ownership: reference
+      help:
+        summary: The assets the project creates or modifies.
+        usage: Linked as the work produces them; read at handover.
+        cardinalityMeaning: Any number of assets.
+        workflowRole: At completion, the built items become managed assets.
   lifecycle:
     title: Construction Project Lifecycle
     attribute: status
@@ -185,18 +152,12 @@ entity:
               status: "CREATED"
               priority: "NORMAL"
   help:
-    summary: Represents a construction entity called ConstructionProject within the CEDM business model.
-    businessMeaning: ConstructionProject is a business concept with its own identity and lifecycle. It captures information
-      that must remain understandable independently of a database, API, or user interface.
-    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
-      change, or relate ConstructionProject records.
-    relationshipContext: The entity participates in a wider business graph through relationships with Project, Location, Contract,
-      Asset. These relationships provide the context needed to interpret the record rather than treating its fields as isolated
-      database columns.
-    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must
-      preserve the declared business meaning and relationships.
-    example: A typical ConstructionProject record represents one identifiable business occurrence or master-data object that
-      can be referenced by related CEDM processes.
+    summary: A project to plan and carry out construction or civil engineering work, from design through commissioning.
+    businessMeaning: Construction work has distinct stages with different people and contracts. This record adds the construction-specific view, such as project type and site condition, to the general project, so progress and responsibility can be followed stage by stage.
+    usage: Created when a construction project is approved; advanced through its stages; read by project managers, contractors and owners.
+    relationshipContext: A construction project extends a general Project, takes place at a site Location, is delivered under Contracts and produces Assets.
+    lifecycle: A project is planned, designed, procured, built and commissioned, and then completed. It can be cancelled at any stage before completion.
+    example: Construction of a distribution warehouse, designed in the first quarter, procured over the summer and handed over after commissioning in the following spring.
 specification:
   version: 0.1.0
   status: draft

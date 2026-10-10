@@ -13,7 +13,7 @@
  * word, so a dropdown that lost an option or a state machine that lost an edge
  * fails a test instead of quietly shipping.
  *
- * Generated: 2026-10-04T01:11:55.141Z
+ * Generated: 2026-10-09T15:28:59.349Z
  * Project: hospitality
  */
 
@@ -337,16 +337,15 @@ export const stateMachines: StateMachine[] = [
     initial: "AVAILABLE",
     terminal: [],
     edges: [
-      { from: "AVAILABLE", to: "OCCUPIED", trigger: "mark_occupied" },
-      { from: "OCCUPIED", to: "RESERVED", trigger: "reserve" },
-      { from: "OCCUPIED", to: "CLEANING", trigger: "mark_cleaning" },
-      { from: "CLEANING", to: "OCCUPIED", trigger: "finish_cleaning" },
-      { from: "RESERVED", to: "CLEANING", trigger: "mark_cleaning" },
-      { from: "CLEANING", to: "RESERVED", trigger: "finish_cleaning" },
-      { from: "OCCUPIED", to: "OUT_OF_SERVICE", trigger: "mark_out_of_service" },
-      { from: "OUT_OF_SERVICE", to: "OCCUPIED", trigger: "return_to_service" },
-      { from: "RESERVED", to: "OUT_OF_SERVICE", trigger: "mark_out_of_service" },
-      { from: "OUT_OF_SERVICE", to: "RESERVED", trigger: "return_to_service" },
+      { from: "AVAILABLE", to: "RESERVED", trigger: "reserve" },
+      { from: "RESERVED", to: "AVAILABLE", trigger: "release" },
+      { from: "RESERVED", to: "OCCUPIED", trigger: "check_in" },
+      { from: "AVAILABLE", to: "OCCUPIED", trigger: "check_in" },
+      { from: "OCCUPIED", to: "CLEANING", trigger: "check_out" },
+      { from: "CLEANING", to: "AVAILABLE", trigger: "mark_clean" },
+      { from: "AVAILABLE", to: "OUT_OF_SERVICE", trigger: "take_out_of_service" },
+      { from: "CLEANING", to: "OUT_OF_SERVICE", trigger: "take_out_of_service" },
+      { from: "OUT_OF_SERVICE", to: "AVAILABLE", trigger: "return_to_service" },
     ],
   },
   {
@@ -354,18 +353,14 @@ export const stateMachines: StateMachine[] = [
     tableName: "bus_hotel_reservation",
     statusField: "status",
     initial: "REQUESTED",
-    terminal: ["CANCELLED", "NO_SHOW"],
+    terminal: ["CHECKED_OUT", "CANCELLED", "NO_SHOW"],
     edges: [
-      { from: "REQUESTED", to: "RESERVED", trigger: "reserve" },
-      { from: "RESERVED", to: "CHECKED_IN", trigger: "mark_checked_in" },
-      { from: "CHECKED_IN", to: "CHECKED_OUT", trigger: "mark_checked_out" },
+      { from: "REQUESTED", to: "RESERVED", trigger: "confirm" },
+      { from: "RESERVED", to: "CHECKED_IN", trigger: "check_in" },
+      { from: "CHECKED_IN", to: "CHECKED_OUT", trigger: "check_out" },
       { from: "REQUESTED", to: "CANCELLED", trigger: "cancel" },
       { from: "RESERVED", to: "CANCELLED", trigger: "cancel" },
-      { from: "CHECKED_IN", to: "CANCELLED", trigger: "cancel" },
-      { from: "CHECKED_OUT", to: "CANCELLED", trigger: "cancel" },
       { from: "RESERVED", to: "NO_SHOW", trigger: "mark_no_show" },
-      { from: "CHECKED_IN", to: "NO_SHOW", trigger: "mark_no_show" },
-      { from: "CHECKED_OUT", to: "NO_SHOW", trigger: "mark_no_show" },
     ],
   },
 ];

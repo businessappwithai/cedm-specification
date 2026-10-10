@@ -1,0 +1,245 @@
+@ ComplianceRequirement
+s: A legal, regulatory, contractual, policy or standards requirement against which controls and evidence are assessed.
+b: Compliance starts from a clear statement of what must be true. Holding each requirement as a record lets controls, evidence and audits point at the exact obligation they satisfy, and show what applied when.
+u: Entered by compliance officers when a law, standard or contract imposes an obligation; read when controls are designed and when evidence is reviewed.
+c: Controls, evidence and audit cases reference the requirement they address.
+l: Finalised evidence and effective history are preserved. A changed rule is recorded as a superseding requirement, not by silently editing the old one.
+x: The requirement to retain customer payment records for seven years, derived from a financial regulation and assessed through a retention control.
+a complianceRequirementId
+s: The identity of the requirement.
+u: Generated on creation; controls and findings refer to the requirement through it.
+a effectiveAt
+s: When the requirement came into force.
+u: Set from the source law or contract; assessments compare evidence to the requirements in force on the assessment date.
+
+@ Compound
+s: A chemical or biological substance being investigated for scientific, pharmaceutical or industrial purposes.
+b: In discovery work the compound is the thing under study. Every experiment, sample and result traces back to it, so its identity, structure and development stage must be recorded exactly.
+u: Registered when a substance is first synthesised or acquired; updated as it moves through research and development; read by scientists, project teams and regulators.
+c: A compound is the subject of Experiments and exists physically as Samples; both link back to the compound.
+l: A compound begins in research, advances to development, becomes a candidate when it is put forward for approval, and is approved if accepted. It can be discontinued at any stage; the record remains.
+x: Compound CMP-00417, a kinase inhibitor with formula C22H24N4O3, moved from research into development after promising assay results.
+a compoundId
+s: The identity of the compound record.
+u: Generated on registration; experiments, samples and results refer to it.
+a compoundCode
+s: The unique code the organisation gives the compound, such as CMP-00417.
+u: Allocated at registration and used on labels, notebooks and reports; never reused.
+a name
+s: A common or working name for the compound.
+u: Optional; shown beside the code to help scientists recognise it.
+a molecularFormula
+s: The chemical formula showing which elements, and how many atoms of each, make up the compound.
+u: Entered from the structure at registration; used for search and to check weight calculations.
+a molecularWeight
+s: The mass of one mole of the compound, in grams per mole.
+u: Calculated from the formula or measured; used to convert between mass and amount of substance. Not negative.
+a status
+s: Where the compound stands in the development pipeline.
+u: Advanced by the project team as evidence accumulates; decisions to progress or discontinue are made at review.
+v RESEARCH: Under early investigation; properties and activity are still being explored.
+v DEVELOPMENT: Selected for further work such as optimisation and safety studies.
+v CANDIDATE: Put forward as a candidate for approval or product development.
+v APPROVED: Accepted for the intended use after review.
+v DISCONTINUED: Dropped from the pipeline; history is kept.
+r experiments
+s: The experiments that study this compound.
+u: Read to follow the evidence behind decisions about the compound.
+n: Any number, growing as work proceeds.
+w: Each experiment adds evidence used to advance or discontinue the compound.
+r samples
+s: The physical samples of the compound.
+u: Read to find available material and its provenance.
+n: Any number of samples, from different batches.
+w: Samples are what experiments actually consume and test.
+
+@ Consignment
+s: A grouping of goods handed to a carrier under common transport responsibility and commercial terms.
+b: A consignment is what the carrier is actually asked to move: one set of goods, from one sender, under one contract of carriage. It is the unit that is tracked, insured and billed.
+u: Created when goods are tendered to a carrier; tracked until delivery; read for status, proof of delivery and freight charges.
+c: A consignment is carried by a Carrier and contains one or more shipments.
+l: Changes and retries keep history and do not duplicate the commercial, physical or financial effects of the consignment.
+x: Twelve pallets for three customers consolidated onto one truck to a regional depot under a single waybill.
+a consignmentId
+s: The identity of the consignment.
+u: Generated on creation; tracking events and freight charges refer to it.
+a code
+s: The consignment or waybill number given to the grouping.
+u: Used by the carrier and customer to track and reference the movement.
+
+@ ConstructionProject
+s: A project to plan and carry out construction or civil engineering work, from design through commissioning.
+b: Construction work has distinct stages with different people and contracts. This record adds the construction-specific view, such as project type and site condition, to the general project, so progress and responsibility can be followed stage by stage.
+u: Created when a construction project is approved; advanced through its stages; read by project managers, contractors and owners.
+c: A construction project extends a general Project, takes place at a site Location, is delivered under Contracts and produces Assets.
+l: A project is planned, designed, procured, built and commissioned, and then completed. It can be cancelled at any stage before completion.
+x: Construction of a distribution warehouse, designed in the first quarter, procured over the summer and handed over after commissioning in the following spring.
+a constructionProjectId
+s: The identity of the construction project record.
+u: Generated on creation; contracts, assets and progress reports refer to it.
+a projectId
+s: The general project that this record specialises.
+u: Set when the construction project is created, linking it to the project's planning, budget and tasks.
+a projectType
+s: The kind of construction work.
+u: Chosen when the project is set up; drives templates, permits and risk checks.
+v BUILDING: Construction of buildings such as offices, homes or factories.
+v INFRASTRUCTURE: Roads, bridges, utilities and similar public works.
+v CIVIL: General civil engineering such as earthworks and drainage.
+v INDUSTRIAL: Plant, process facilities and heavy industrial structures.
+v RENOVATION: Refurbishment or extension of an existing structure.
+v OTHER: Work that fits none of the categories above.
+a siteCondition
+s: A description of the site's physical conditions that affect the work, such as soil, access or contamination.
+u: Written after surveys; read by designers and contractors when planning and pricing.
+a status
+s: The construction stage the project has reached.
+u: Advanced by the project manager as each stage completes.
+v PLANNED: Approved but design has not begun.
+v DESIGN: Design and permitting are under way.
+v PROCUREMENT: Contractors and materials are being sourced.
+v CONSTRUCTION: Physical work is being carried out on site.
+v COMMISSIONING: Building work is done and systems are being tested and handed over.
+v COMPLETED: Handed over and closed.
+v CANCELLED: Stopped before completion.
+r project
+s: The general project this construction project belongs to.
+u: Set at creation; gives access to the project's tasks, budget and team.
+n: Exactly one project; the two records describe the same undertaking.
+w: Keeps construction-specific and general project data consistent.
+r site
+s: The location where the construction takes place.
+u: Chosen at planning; used for permits, logistics and safety planning.
+n: At most one site; a project spread across several sites would be split into several projects.
+w: Anchors the work to a place for permits and logistics.
+r contracts
+s: The contracts under which the work is carried out.
+u: Read to see who is responsible for what, and on what terms.
+n: Any number, typically one per contractor or supplier.
+w: Contracts commit contractors and suppliers to the project.
+r assets
+s: The assets the project creates or modifies.
+u: Linked as the work produces them; read at handover.
+n: Any number of assets.
+w: At completion, the built items become managed assets.
+
+@ Contact
+s: A person recorded in a business relationship, such as a contact at a customer, prospect, supplier or partner.
+b: Selling and service happen between people. A contact says who the person is in a relationship, which account they belong to, and gives a stable place to hang conversations and activities.
+u: Created when a person is added to a customer or partner account; read by sales and service staff when they reach out.
+c: A contact is a Person associated with an Account; the Person record holds the identity and the contact adds the business context.
+l: Changes and retries preserve history and do not duplicate commercial effects of past interactions.
+x: Maria Lopez, purchasing manager at a customer account, recorded as the main contact for renewals.
+a contactId
+s: The identity of the contact record.
+u: Generated on creation; activities and opportunities refer to the contact.
+a code
+s: An optional short reference for the contact, often from an import or an external CRM.
+u: Used to match records during synchronisation.
+r person
+s: The person who is the contact.
+u: Chosen when the contact is created; supplies name and personal details.
+n: Exactly one person; a contact is always a specific human being.
+w: Keeps personal identity in one place so the same person can be a contact in several relationships.
+r account
+s: The customer, supplier or partner account the person is a contact for.
+u: Set when the person is linked to an organisation relationship.
+n: At most one account; a freelance contact may have none.
+w: Gives the contact its business context.
+
+@ ContactPoint
+s: A communication endpoint for a party, such as an email address, telephone number, web address or other channel.
+b: Reaching someone requires a specific address. A contact point holds each one with its own status, so messages go to working endpoints and old ones are not lost.
+u: Added when a party gives an email, phone or other channel; read by communications, notifications and service processes.
+c: Each contact point belongs to one Party, which may have several.
+l: Code and identity stay stable, and an endpoint that is retired remains in history.
+x: The billing team's email address invoices@acme.example, recorded for a customer.
+a contactPointId
+s: The identity of the contact point.
+u: Generated on creation; messages and preferences refer to it.
+a code
+s: A short reference for the contact point.
+u: Assigned or imported; stays stable so integrations can match it.
+a name
+s: A descriptive label for the endpoint, such as Head office switchboard.
+u: Shown wherever contact points are listed.
+r party
+s: The party the endpoint belongs to.
+u: Set when the endpoint is added.
+n: Exactly one party; each endpoint has one owner.
+w: Lets communications find the right channel for a party.
+
+@ ContainerVisit
+a containerVisitId
+s: The identity of the stay, separate from the container, which visits many times over its life.
+@ Port
+a portId
+s: The identity of the port, stable when its code or name is revised.
+@ Gate
+a gateId
+s: The identity of the checkpoint, stable when its code or lane layout changes.
+
+@ Contract
+s: A binding agreement between parties that fixes their rights, obligations, terms and conditions.
+b: A contract is the formal basis of a commercial relationship. It says who has agreed to what, for how long and on what terms, so obligations can be performed, tracked and enforced.
+u: Drafted and negotiated by commercial and legal teams; approved and signed; consulted throughout its life to check obligations, renewal and termination.
+c: A contract has at least two Parties, may be owned by an Organization, is evidenced by a Document and breaks down into ContractObligations and ServiceContracts.
+l: A contract is drafted, negotiated, approved and becomes active when signed. It can be suspended and resumed, and ends by expiring or being terminated; one that never became active is cancelled.
+x: A three-year supply contract between a manufacturer and a distributor, signed on 1 March and renewing automatically each year.
+a contractId
+s: The identity of the contract.
+u: Generated on creation; obligations, amendments and invoices refer to the contract.
+a contractNumber
+s: The number by which the contract is known in correspondence and systems.
+u: Allocated from a number series; unique across contracts.
+a title
+s: The descriptive title of the contract.
+u: Shown in lists and documents, for example Master Supply Agreement 2026.
+a contractType
+s: The kind of contract, such as supply, service, licence or employment.
+u: Chosen at creation; drives templates, approvals and the obligations typically attached.
+a status
+s: Where the contract stands from drafting to end.
+u: Moved by the contract owner; obligations are enforced while the contract is ACTIVE.
+v DRAFT: Being written; not yet shared with the other party.
+v NEGOTIATION: Terms are being discussed with the other party.
+v APPROVAL: Agreed in principle and awaiting internal approval and signature.
+v ACTIVE: Signed and in force.
+v SUSPENDED: Temporarily not in effect, for example during a dispute.
+v EXPIRED: Reached its end date without renewal.
+v TERMINATED: Ended early by notice or breach.
+v CANCELLED: Withdrawn before it ever became active.
+a effectiveFrom
+s: The date from which the contract is in force.
+u: Entered from the signed document; obligations and charges run from it.
+a effectiveTo
+s: The date on which the contract ends.
+u: Entered from the signed document; must not be before the start date.
+a signedAt
+s: When the contract was signed by the last party.
+u: Recorded at signature; marks the point at which the contract became binding.
+a autoRenew
+s: Whether the contract renews by itself at the end of its term.
+u: Set from the contract terms; renewal processes act on contracts with this on, unless notice is given.
+r parties
+s: The parties that are bound by the contract.
+u: Added when the contract is drafted; read to see who owes what.
+n: At least two parties; one party alone cannot make an agreement.
+w: Each party is bound by the contract's obligations.
+r ownerOrganization
+s: The part of the organisation that owns the relationship.
+u: Set at creation; receives renewal reminders and answers for performance.
+n: At most one owner.
+w: Gives the contract an internal owner.
+r document
+s: The signed document that evidences the contract.
+u: Attached after signature; read in case of dispute.
+n: At most one primary document.
+w: Provides the authoritative text.
+r obligations
+s: The obligations the contract imposes.
+u: Read to track who must do what and by when.
+n: Any number.
+w: Obligations are monitored while the contract is active.
+r serviceContracts
+n: Any number, each one covering a service the contract provides.

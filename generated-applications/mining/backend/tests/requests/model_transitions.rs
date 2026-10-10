@@ -1,6 +1,6 @@
 //! The state machines the *model* drew, and whether the API enforces them.
 //!
-//! Generated: 2026-10-04T08:30:28.982Z
+//! Generated: 2026-10-09T15:29:44.167Z
 //! Project: mining
 //!
 //! `requests/rbac.rs` proves the topology guard works by seeding an edge of its
@@ -75,13 +75,14 @@ const MODEL_EDGES: &[(&str, &str, &str, &str)] = &[
     ("bus_task", "status", "ASSIGNED", "FAILED"),
     ("bus_task", "status", "IN_PROGRESS", "FAILED"),
     ("bus_task", "status", "BLOCKED", "FAILED"),
-    ("bus_mining_site", "status", "DEVELOPMENT", "EXPLORATION"),
-    ("bus_mining_site", "status", "EXPLORATION", "ACTIVE"),
-    ("bus_mining_site", "status", "ACTIVE", "CLOSED"),
-    ("bus_mining_site", "status", "EXPLORATION", "SUSPENDED"),
-    ("bus_mining_site", "status", "SUSPENDED", "EXPLORATION"),
+    ("bus_mining_site", "status", "EXPLORATION", "DEVELOPMENT"),
+    ("bus_mining_site", "status", "DEVELOPMENT", "ACTIVE"),
     ("bus_mining_site", "status", "ACTIVE", "SUSPENDED"),
     ("bus_mining_site", "status", "SUSPENDED", "ACTIVE"),
+    ("bus_mining_site", "status", "ACTIVE", "CLOSED"),
+    ("bus_mining_site", "status", "SUSPENDED", "CLOSED"),
+    ("bus_mining_site", "status", "EXPLORATION", "CLOSED"),
+    ("bus_mining_site", "status", "DEVELOPMENT", "CLOSED"),
 ];
 
 /// The entity and starting state of the first machine, for the live check.

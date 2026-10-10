@@ -1,0 +1,42 @@
+@ TestMethod
+a code
+s: The controlled business code identifying the test method, such as TM-HPLC-012.
+u: Assigned when the method is authored; unique, and quoted on inspection plans, results and laboratory records to show which procedure was used.
+a name
+s: The readable name of the test method as quality and laboratory staff know it.
+u: Entered by method owners; shown when planning inspections and recording results.
+a instructions
+s: The step-by-step procedure, equipment and acceptance approach that testers follow to produce valid evidence.
+u: Written and reviewed under document control; testers follow it exactly, and changes are made through a new version, not silent edits.
+a status
+s: Shows whether the test method is being authored, available for use, paused, or withdrawn.
+u: Moved by quality owners; only active methods may be selected for new inspections, and past results keep the method they used.
+v DRAFT: The method is being written and cannot yet be used for governed work.
+v ACTIVE: The method is approved and may be selected for new inspections and tests.
+v SUSPENDED: Use is paused, for example pending a deviation or recalibration, and may resume.
+v RETIRED: The method is withdrawn permanently and kept for history. A final state.
+
+@ Ticket
+a ticketNumber
+s: The unique reference of the ticket, such as TK-20418, quoted by customers and support staff.
+u: Assigned when the ticket is raised; used in queues, messages and SLA reports, and never reused.
+a summary
+s: A one-line statement of the problem or work the ticket asks for.
+u: Entered when the ticket is raised; shown in queues and lists, so it should let an agent grasp the issue at a glance.
+a priority
+s: How urgently the ticket's work should be handled compared with other open tickets.
+u: Set at creation and adjusted by the service desk; queues sort by it and SLA targets may depend on it.
+v LOW: Minor impact that can wait behind other work.
+v NORMAL: Standard urgency, handled in normal queue order.
+v HIGH: Significant impact that needs prompt attention.
+v URGENT: Severe impact needing immediate action ahead of everything else.
+a status
+s: Where the ticket stands from being raised through work to resolution and closure.
+u: Moved by agents and the service desk; closed and cancelled tickets accept no further work.
+v NEW: The ticket was raised and nobody has looked at it yet.
+v ASSIGNED: The ticket has been given to a queue or person but work has not begun.
+v IN_PROGRESS: An agent is actively working on the ticket.
+v PENDING: Work is paused while waiting for the customer or a third party.
+v RESOLVED: A fix or answer has been given and awaits confirmation.
+v CLOSED: The resolution is confirmed and the ticket is finished. A final state.
+v CANCELLED: The ticket was withdrawn without action. A final state.

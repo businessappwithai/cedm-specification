@@ -11,152 +11,118 @@ entity:
     generated: true
     immutable: true
   attributes:
-  - name: tripSegmentId
-    type: uuid
-    required: true
-    immutable: true
-    help:
-      summary: Identifies the trip segment record associated with this TripSegment. The identifier connects this record to
-        the corresponding CEDM entity so related processes can resolve the correct business object.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating TripSegment records, where
-        applicable.
-      relationshipContext: Its meaning is specific to TripSegment; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: sequence
-    type: integer
-    required: true
-    minimum: 1
-    help:
-      summary: Captures the business meaning of sequence for the TripSegment. It is interpreted together with the entity's
-        other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating TripSegment records, where
-        applicable.
-      relationshipContext: Its meaning is specific to TripSegment; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: mode
-    type: enum
-    required: true
-    values:
-    - AIR
-    - RAIL
-    - ROAD
-    - SEA
-    - BUS
-    - WALK
-    - OTHER
-    help:
-      summary: Captures the business meaning of mode for the TripSegment. It is interpreted together with the entity's other
-        attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating TripSegment records, where
-        applicable.
-      relationshipContext: Its meaning is specific to TripSegment; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      valueSemantics:
-        AIR: Represents the air state or classification in the context of TripSegment.
-        RAIL: Represents the rail state or classification in the context of TripSegment.
-        ROAD: Represents the road state or classification in the context of TripSegment.
-        SEA: Represents the sea state or classification in the context of TripSegment.
-        BUS: Represents the bus state or classification in the context of TripSegment.
-        WALK: Represents the walk state or classification in the context of TripSegment.
-        OTHER: Represents the other state or classification in the context of TripSegment.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: departureAt
-    type: datetime
-    required: true
-    help:
-      summary: Records when the departure event occurred. It establishes chronology, supports auditability, and helps coordinate
-        related lifecycle and process activities.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating TripSegment records, where
-        applicable.
-      relationshipContext: Its meaning is specific to TripSegment; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: arrivalAt
-    type: datetime
-    required: false
-    help:
-      summary: Records when the arrival event occurred. It establishes chronology, supports auditability, and helps coordinate
-        related lifecycle and process activities.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating TripSegment records, where
-        applicable.
-      relationshipContext: Its meaning is specific to TripSegment; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
-  - name: status
-    type: enum
-    required: true
-    default: PLANNED
-    values:
-    - PLANNED
-    - BOOKED
-    - IN_PROGRESS
-    - COMPLETED
-    - CANCELLED
-    help:
-      summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record
-        is treated by related processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating TripSegment records, where
-        applicable.
-      relationshipContext: Its meaning is specific to TripSegment; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      valueSemantics:
-        PLANNED: Represents the planned state or classification in the context of TripSegment.
-        BOOKED: Represents the booked state or classification in the context of TripSegment.
-        IN_PROGRESS: Represents the in progress state or classification in the context of TripSegment.
-        COMPLETED: Represents the completed state or classification in the context of TripSegment.
-        CANCELLED: Represents the cancelled state or classification in the context of TripSegment.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+    - name: tripSegmentId
+      type: uuid
+      required: true
+      immutable: true
+      help:
+        summary: The permanent identifier of one leg of a trip, unchanged when its times or mode are revised.
+        usage: Generated on creation; bookings and tickets for the leg refer to it so they can be matched to the right part of the journey.
+        relationshipContext: Referenced by bookings of the leg.
+    - name: sequence
+      type: integer
+      required: true
+      minimum: 1
+      help:
+        summary: The position of the leg in the journey.
+        usage: Entered in order; the trip follows the sequence.
+        relationshipContext: Read with the trip.
+    - name: mode
+      type: enum
+      required: true
+      values:
+        - AIR
+        - RAIL
+        - ROAD
+        - SEA
+        - BUS
+        - WALK
+        - OTHER
+      help:
+        summary: The means of transport used to travel the leg, such as flight, train, road or sea.
+        usage: Chosen when the leg is planned; it decides what must be booked, which supplier is used and what expenses to expect.
+        valueSemantics:
+          AIR: Travel by aircraft, normally needing a flight booking and airport time.
+          RAIL: Travel by train, booked as a rail ticket or pass.
+          ROAD: Travel by car, van or truck on public roads, whether driven or hired.
+          SEA: Travel by ferry or ship across water.
+          BUS: Travel by bus or coach on a scheduled or chartered service.
+          WALK: Travel on foot, usually a short transfer needing no booking.
+          OTHER: Any means of transport not covered by the standard modes, described in the booking.
+        relationshipContext: Decides what must be booked.
+    - name: departureAt
+      type: datetime
+      required: true
+      help:
+        usage: Entered from the booking; arrivals are measured from it.
+        relationshipContext: Not later than arrival.
+        summary: Records when the departure event occurred. It establishes chronology, supports auditability, and helps coordinate related lifecycle and process activities.
+    - name: arrivalAt
+      type: datetime
+      required: false
+      help:
+        usage: Entered from the booking and updated on arrival; must not be before departure.
+        relationshipContext: Gives the leg's duration.
+        summary: Records when the arrival event occurred. It establishes chronology, supports auditability, and helps coordinate related lifecycle and process activities.
+    - name: status
+      type: enum
+      required: true
+      default: PLANNED
+      values:
+        - PLANNED
+        - BOOKED
+        - IN_PROGRESS
+        - COMPLETED
+        - CANCELLED
+      help:
+        summary: How far the leg has progressed, from planning through booking and travel to completion.
+        usage: Starts as PLANNED; moved as the leg is booked, started and finished, or called off before it ends.
+        valueSemantics:
+          PLANNED: Intended as part of the route but nothing is booked yet.
+          BOOKED: Tickets or reservations are confirmed for the leg.
+          IN_PROGRESS: The traveller is making the journey on this leg now.
+          COMPLETED: The leg has been travelled to its destination. A final state.
+          CANCELLED: The leg was called off and will not be travelled. A final state.
   relationships:
-  - name: trip
-    target: Trip
-    cardinality: '1'
-    ownership: reference
-    help:
-      summary: Connects TripSegment to Trip so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Trip records associated with a TripSegment.
-      cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
-  - name: origin
-    target: Location
-    cardinality: '1'
-    ownership: reference
-    help:
-      summary: Connects TripSegment to Location so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Location records associated with a TripSegment.
-      cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
-  - name: destination
-    target: Location
-    cardinality: '1'
-    ownership: reference
-    help:
-      summary: Connects TripSegment to Location so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Location records associated with a TripSegment.
-      cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
-  - name: vehicle
-    target: Vehicle
-    cardinality: 0..1
-    ownership: reference
-    help:
-      summary: Connects TripSegment to Vehicle so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Vehicle records associated with a TripSegment.
-      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+    - name: trip
+      target: Trip
+      cardinality: '1'
+      ownership: reference
+      help:
+        summary: The trip the leg belongs to.
+        usage: Set when the segment is added.
+        cardinalityMeaning: Exactly one trip; a leg cannot stand alone.
+        context: Places the leg in the journey.
+    - name: origin
+      target: Location
+      cardinality: '1'
+      ownership: reference
+      help:
+        cardinalityMeaning: A leg starts at one location; a journey with a change is two legs.
+        summary: The place the leg starts from.
+        usage: Chosen when planned.
+        context: Where the traveller begins this leg.
+    - name: destination
+      target: Location
+      cardinality: '1'
+      ownership: reference
+      help:
+        cardinalityMeaning: A leg ends at one location; the next leg starts where this one arrives.
+        summary: The place the leg ends at.
+        usage: Chosen when planned.
+        context: Where the traveller arrives.
+    - name: vehicle
+      target: Vehicle
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The vehicle used for the leg, if known.
+        usage: Chosen for owned or hired vehicles.
+        cardinalityMeaning: At most one vehicle.
+        context: Links the leg to the vehicle record.
   invariants:
-  - id: TRIP-SEGMENT-001
-    rule: arrivalAt must not precede departureAt.
+    - id: TRIP-SEGMENT-001
+      rule: arrivalAt must not precede departureAt.
   lifecycle:
     title: Trip Segment Lifecycle
     attribute: status
@@ -190,18 +156,12 @@ entity:
               status: "CREATED"
               priority: "NORMAL"
   help:
-    summary: Represents a travel entity called TripSegment within the CEDM business model.
-    businessMeaning: TripSegment is a business concept with its own identity and lifecycle. It captures information that must
-      remain understandable independently of a database, API, or user interface.
-    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
-      change, or relate TripSegment records.
-    relationshipContext: The entity participates in a wider business graph through relationships with Trip, Location, Location,
-      Vehicle. These relationships provide the context needed to interpret the record rather than treating its fields as isolated
-      database columns.
-    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must
-      preserve the declared business meaning and relationships.
-    example: A typical TripSegment record represents one identifiable business occurrence or master-data object that can be
-      referenced by related CEDM processes.
+    summary: One leg of a trip between an origin and a destination by a mode of transport.
+    businessMeaning: Segments give the route its detail, so each flight, train or drive can be booked, timed and followed separately, and delays can be seen on the leg where they happened.
+    usage: Added by the traveller or arranger; read by travel support and the traveller.
+    relationshipContext: A segment belongs to one trip, runs between two locations and may use a vehicle.
+    lifecycle: A segment is planned, booked, in progress while travelling and completed on arrival. It may be cancelled. Completed and cancelled are final.
+    example: The second leg of trip TR-2026-077 is a flight from Manchester to Frankfurt departing 07:10.
 specification:
   version: 0.1.0
   status: draft

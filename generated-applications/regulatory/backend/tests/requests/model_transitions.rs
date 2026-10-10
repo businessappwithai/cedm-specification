@@ -1,6 +1,6 @@
 //! The state machines the *model* drew, and whether the API enforces them.
 //!
-//! Generated: 2026-10-04T08:30:54.818Z
+//! Generated: 2026-10-09T15:30:22.267Z
 //! Project: regulatory
 //!
 //! `requests/rbac.rs` proves the topology guard works by seeding an edge of its
@@ -92,31 +92,18 @@ const MODEL_EDGES: &[(&str, &str, &str, &str)] = &[
         "bus_regulatory_submission",
         "status",
         "QUESTIONS",
-        "APPROVED",
-    ),
-    ("bus_regulatory_submission", "status", "DRAFT", "REJECTED"),
-    (
-        "bus_regulatory_submission",
-        "status",
-        "SUBMITTED",
-        "REJECTED",
+        "UNDER_REVIEW",
     ),
     (
         "bus_regulatory_submission",
         "status",
         "UNDER_REVIEW",
-        "REJECTED",
-    ),
-    (
-        "bus_regulatory_submission",
-        "status",
-        "QUESTIONS",
-        "REJECTED",
-    ),
-    (
-        "bus_regulatory_submission",
-        "status",
         "APPROVED",
+    ),
+    (
+        "bus_regulatory_submission",
+        "status",
+        "UNDER_REVIEW",
         "REJECTED",
     ),
     ("bus_regulatory_submission", "status", "DRAFT", "WITHDRAWN"),
@@ -136,12 +123,6 @@ const MODEL_EDGES: &[(&str, &str, &str, &str)] = &[
         "bus_regulatory_submission",
         "status",
         "QUESTIONS",
-        "WITHDRAWN",
-    ),
-    (
-        "bus_regulatory_submission",
-        "status",
-        "APPROVED",
         "WITHDRAWN",
     ),
 ];

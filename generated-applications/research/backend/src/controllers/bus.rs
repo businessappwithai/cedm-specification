@@ -309,6 +309,7 @@ pub async fn update(
         &meta.table_name,
         id,
         &body,
+        expected_version,
     )
     .await?;
 

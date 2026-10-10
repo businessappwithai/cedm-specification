@@ -341,7 +341,13 @@ async fn granted_windows(pool: &PgPool, principal: &Principal) -> AppResult<Vec<
                 FROM sys_window w
                 JOIN sys_access    a ON a.sys_window_id = w.sys_window_id
                 JOIN sys_user_roles ur ON ur.sys_role_id = a.sys_role_id
+                JOIN sys_role       sr ON sr.sys_role_id = ur.sys_role_id
+                JOIN sys_user       su ON su.sys_user_id = ur.sys_user_id
                WHERE ur.sys_user_id = $1
+                 AND COALESCE(ur.is_active, true) = true
+                 AND COALESCE(sr.is_active, true) = true
+                 AND COALESCE(su.is_active, false) = true
+                 AND COALESCE(su.is_locked, false) = false
                  AND COALESCE(w.is_active, true) = true
                  AND COALESCE(a.is_active, true) = true
                  AND COALESCE(a.is_exclude, false) = false
@@ -387,7 +393,11 @@ async fn granted_windows(pool: &PgPool, principal: &Principal) -> AppResult<Vec<
 /// with no `bus_` table behind it. A business window is named by its first
 /// tab's table, minus the `bus_` prefix, which is exactly the segment
 /// `/api/bus/{entity}` accepts.
-fn route_for(is_system: bool, description: Option<&str>, table_name: Option<&str>) -> Option<String> {
+fn route_for(
+    is_system: bool,
+    description: Option<&str>,
+    table_name: Option<&str>,
+) -> Option<String> {
     if is_system {
         return description
             .filter(|d| d.starts_with('/'))

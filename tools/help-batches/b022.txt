@@ -1,0 +1,193 @@
+@ InspectionSample
+a inspectionSampleId
+s: The identity of the sample drawn for inspection, separate from the lot it came from.
+u: Generated when the sample is selected; measurements and disposal records refer to it.
+a status
+v SELECTED: Drawn from the population and waiting to be tested.
+v IN_TESTING: Under test; measurements are being taken.
+v TESTED: Testing finished and results recorded.
+v REJECTED: Found unsuitable, for example damaged or mislabelled, and excluded. A final state.
+v DISPOSED: Discarded or consumed after testing. A final state.
+v CANCELLED: Withdrawn before testing. A final state.
+r qualityInspection
+n: Exactly one inspection: a sample is drawn for a particular inspection and has no meaning outside it.
+
+@ InsuranceClaim
+s: A request for payment or service under an insurance policy after a covered event.
+b: The claim is the moment the insurer's promise is tested. It records what happened, how much is claimed and what is decided, so the insurer pays what is owed, the customer can see why, and fraud and disputes can be reviewed.
+u: Raised by the claimant or on their behalf; assessed; approved, partly approved or denied; settled; read by claims handlers and finance.
+c: A claim is made under an InsurancePolicy by a claimant Party, may concern an incident, is broken into ClaimLines assessed against Coverages and is paid through Settlements.
+l: A claim is reported, goes under review and is approved, partially approved or denied. Approved claims are settled and closed; denied claims end there.
+x: A water-damage claim for 8,400 on a home policy, approved in part at 6,100 after assessment and settled by bank transfer.
+a insuranceClaimId
+s: The identity of the claim.
+u: Generated on registration; lines, settlements and correspondence refer to it.
+a claimNumber
+s: The number quoted by the claimant and the insurer.
+u: Allocated on registration; unique.
+a lossDate
+s: The date the loss or event happened.
+u: Entered from the claimant's report; checked against the policy period.
+a reportedAt
+s: When the claim was reported.
+u: Set on registration; some policies require reporting within a time limit.
+a claimedAmount
+s: The amount the claimant is asking for.
+u: Entered from the claim; not negative.
+a approvedAmount
+s: The amount the insurer has decided to pay.
+u: Set at decision; not negative and not above the claimed amount.
+a status
+s: Where the claim stands.
+u: Moved by claims handlers.
+v REPORTED: Received and registered.
+v UNDER_REVIEW: Being assessed.
+v APPROVED: Accepted for the claimed amount.
+v PARTIALLY_APPROVED: Accepted for less than the claimed amount.
+v DENIED: Refused, for example not covered. A final state.
+v SETTLED: Payment has been made.
+v CLOSED: Finished, with nothing further to do. A final state.
+r policy
+s: The policy under which the claim is made.
+u: Chosen at registration; its cover, limits and deductibles decide what can be paid.
+n: Exactly one policy: a claim is made against a particular contract of insurance.
+w: Decides cover, limits and deductibles for the assessment.
+r claimant
+s: The party making the claim.
+u: Set at registration; payment and correspondence go to this party unless a beneficiary is named.
+n: Exactly one claimant: every claim has a named person or organisation behind it.
+w: Identifies who is paid and who is contacted.
+r incident
+s: The business event that gave rise to the claim.
+u: Linked where the loss is recorded in another process, such as a transport incident.
+n: At most one incident; many claims arise from events recorded only in the claim itself.
+w: Provides supporting evidence for the assessment.
+r insuredParty
+s: The covered person or entity the claim concerns.
+u: Chosen at registration from the policy's insured parties.
+n: At most one insured party; a claim under a property policy may name none.
+w: Checks that the claimant's loss falls within the persons covered.
+r claimLines
+s: The items claimed, one line for each benefit, loss component or expense.
+u: Added at registration and assessed one by one.
+n: Any number of lines, usually several.
+w: Approval is decided line by line and summed to the claim.
+r settlements
+s: The payments made to settle the claim.
+u: Read to see what has been paid and what remains.
+n: Any number of settlements, since a claim may be paid in instalments.
+w: Settlement moves the claim towards closure.
+
+@ InsurancePolicy
+s: A contract that provides defined insurance cover in return for premium payments.
+b: The policy is the product the customer holds. It defines who is covered, for what, over which period and at what price, and everything else, from premiums to claims, hangs from it.
+u: Quoted, bound and issued by underwriting; maintained through its term; consulted when claims are made and premiums are collected.
+c: A policy is issued by an insurer (Organization) to policyholders, may rest on a Contract, and has Coverages, InsuredParties, Premiums, Underwriting evaluations and Claims.
+l: A policy begins as a quote, becomes active when accepted, may be suspended and restored, and ends expired or cancelled.
+x: Home policy HP-884201 with the insurer Northern Mutual, valid for twelve months from 1 June with an annual premium of 640.
+a insurancePolicyId
+s: The identity of the policy.
+u: Generated at quotation; coverages, premiums and claims refer to it.
+a policyNumber
+s: The number printed on the policy documents.
+u: Allocated by the insurer; unique.
+a policyType
+s: The kind of insurance, such as home, motor or life.
+u: Chosen at quotation; decides the available coverages and rating.
+a effectiveFrom
+s: The date cover starts.
+u: Agreed at binding; claims for losses before this date are not covered.
+a effectiveTo
+s: The date cover ends.
+u: Agreed at binding; must not be before the start date.
+a premium
+s: The price of the cover for the policy period.
+u: Calculated by rating and agreed at binding; billed through premium records.
+a status
+s: Whether the policy is a quote, in force or ended.
+u: Moved by underwriting and policy administration; claims are accepted under ACTIVE policies.
+v QUOTED: Offered but not yet accepted; no cover.
+v ACTIVE: In force.
+v SUSPENDED: Cover paused, for example for unpaid premium.
+v EXPIRED: The term has ended. A final state.
+v CANCELLED: Ended early, or withdrawn as a quote. A final state.
+r insurer
+s: The organisation that carries the risk and issues the policy.
+u: Set at quotation; its underwriting rules and capital stand behind the cover.
+n: Exactly one insurer: a policy is a contract with a single risk carrier (co-insurance is split into separate policies).
+w: Determines who must pay valid claims.
+r policyholders
+s: The parties who hold the contract and are responsible for premiums.
+u: Added at quotation; they receive documents and renewal notices.
+n: At least one policyholder: a policy needs someone to hold it, and joint holders are allowed.
+w: Identifies who may change or cancel the policy.
+r contract
+s: The legal contract on which the policy rests, when the cover is arranged by a wider agreement.
+u: Linked for group schemes and negotiated programmes.
+n: At most one contract; ordinary retail policies stand on their own terms.
+w: Brings the wider agreement's terms into the policy.
+r claims
+s: The claims made under the policy.
+u: Read to see a policy's claims history and remaining limits.
+n: Any number of claims over the policy's life, including none.
+w: Claims history affects renewal and pricing.
+r coverages
+s: The coverages, each insuring a particular risk with its own limit and deductible.
+u: Added at quotation; claim lines are assessed against them.
+n: Any number of coverages, usually several.
+w: Define what the policy actually pays for.
+r insuredParties
+s: The people or entities covered by the policy.
+u: Added at quotation and changed during the term.
+n: Any number of insured parties.
+w: Decide whose losses are covered and who is paid.
+r premiums
+s: The premium amounts billed for each period.
+u: Created by the billing schedule.
+n: Any number of premium records, one for each billing period.
+w: Unpaid premium can lead to suspension of cover.
+r underwritingEvaluations
+s: The underwriting evaluations made when the policy was quoted or renewed.
+u: Read to see the basis for acceptance and pricing.
+n: Any number of evaluations over the policy's life.
+w: Document why the risk was accepted on the terms offered.
+
+@ InsuredParty
+a insuredPartyId
+s: The identity of the insured role.
+u: Generated when the party is added to a policy.
+a insuredPartyCode
+s: The unique reference of this insured party within the insurer's systems.
+u: Allocated when added; quoted in claims.
+a roleType
+s: How the party is connected to the policy.
+u: Chosen when added; decides entitlement to cover and to payment.
+v INSURED: The person or thing whose risk is insured.
+v BENEFICIARY: The party entitled to be paid on a claim.
+v DEPENDENT: A person covered through the main insured.
+v COVERED_MEMBER: A member covered under a group policy.
+v OTHER: Any other covered role.
+a status
+v ACTIVE: Covered under the policy.
+v SUSPENDED: Cover paused for this party.
+v ENDED: No longer covered. A final state.
+r party
+s: The person or organisation holding the insured role.
+u: Chosen when added to the policy.
+n: Exactly one party: each role is held by a specific person or organisation.
+w: Identifies who is covered, or who is paid, under the policy.
+r policy
+s: The policy that this party is covered under.
+u: Set when added.
+n: Exactly one policy: an insured role exists only within a policy.
+w: Ties the party's cover to a policy's terms.
+r coverages
+s: The coverages that apply to this party.
+u: Linked when the policy specifies who each cover applies to.
+n: Any number of coverages.
+w: Decides which benefits the party can claim.
+r claims
+s: The claims that concern this party.
+u: Read to see the party's claims history.
+n: Any number of claims over the party's time on the policy.
+w: Claims history can affect renewal.

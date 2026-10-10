@@ -1,6 +1,6 @@
 //! The rules the *model* declared, and whether they reached the application.
 //!
-//! Generated: 2026-10-04T01:12:04.585Z
+//! Generated: 2026-10-10T02:40:36.835Z
 //! Project: legal
 //!
 //! Every other rules suite creates a rule through the API and then checks that
@@ -49,6 +49,8 @@ const MODEL_RULES: &[(&str, &str, &str)] = &[
     ("taskInvariantsBeforeUpdate", "bus_task", "UPDATE"),
     ("contractInvariantsBeforeCreate", "bus_contract", "CREATE"),
     ("contractInvariantsBeforeUpdate", "bus_contract", "UPDATE"),
+    ("agreementInvariantsBeforeCreate", "bus_agreement", "CREATE"),
+    ("agreementInvariantsBeforeUpdate", "bus_agreement", "UPDATE"),
     ("partyWorkflowsAfterUpdate", "bus_party", "UPDATE"),
     (
         "exchangeRateWorkflowsAfterUpdate",

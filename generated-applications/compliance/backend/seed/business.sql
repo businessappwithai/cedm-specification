@@ -200,19 +200,19 @@ VALUES ('6a6f6cba-6e6b-5df9-92a7-7bc0b3f5b6b2', 'Location 5', 'Location 5', 'FAC
 ON CONFLICT DO NOTHING;
 
 -- Exchange Rate (bus_exchange_rate)
-INSERT INTO bus_exchange_rate (id, from_currency, to_currency, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
+INSERT INTO bus_exchange_rate (id, from_currency_id, to_currency_id, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
 VALUES ('d5884061-c289-53c0-95e4-cda6f873d9ad', 'c163f976-e2c8-5b09-a563-e0e9fc1a572e', 'c163f976-e2c8-5b09-a563-e0e9fc1a572e', 10.50, 'SPOT', '2026-01-15T09:00:00Z', NULL, 'Source 1', 'DRAFT', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_exchange_rate (id, from_currency, to_currency, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
+INSERT INTO bus_exchange_rate (id, from_currency_id, to_currency_id, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
 VALUES ('8a3256d2-35af-5a95-b51d-1c925ab93755', 'ecff0493-7ec3-5307-ae58-983556e4b1b8', 'ecff0493-7ec3-5307-ae58-983556e4b1b8', 21.00, 'CONTRACT', '2026-02-15T09:00:00Z', NULL, 'Source 2', 'DRAFT', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_exchange_rate (id, from_currency, to_currency, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
+INSERT INTO bus_exchange_rate (id, from_currency_id, to_currency_id, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
 VALUES ('76d58f07-ebc0-511a-a38c-b2b245d5f1ed', '9b5cd031-6a56-538a-bee6-bb38c8a8f178', '9b5cd031-6a56-538a-bee6-bb38c8a8f178', 31.50, 'DAILY', '2026-03-15T09:00:00Z', NULL, 'Source 3', 'DRAFT', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_exchange_rate (id, from_currency, to_currency, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
+INSERT INTO bus_exchange_rate (id, from_currency_id, to_currency_id, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
 VALUES ('7899b758-8fd6-565c-a618-d5fbfd87641a', '74accc04-87db-5009-a1ff-fd6c240bcf6a', '74accc04-87db-5009-a1ff-fd6c240bcf6a', 42.00, 'MONTHLY', '2026-04-15T09:00:00Z', NULL, 'Source 4', 'DRAFT', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_exchange_rate (id, from_currency, to_currency, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
+INSERT INTO bus_exchange_rate (id, from_currency_id, to_currency_id, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
 VALUES ('f23dc19f-ab98-5090-9cd4-433106713975', 'a8d90608-5b51-5df9-8d02-027b1a3aa57d', 'a8d90608-5b51-5df9-8d02-027b1a3aa57d', 52.50, 'ACCOUNTING', '2026-05-15T09:00:00Z', NULL, 'Source 5', 'DRAFT', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
@@ -285,20 +285,20 @@ VALUES ('7b5b2531-2c98-5bc6-827c-6127134e1432', 'Code 5', 'Task 5', 'Description
 ON CONFLICT DO NOTHING;
 
 -- Policy (bus_policy)
-INSERT INTO bus_policy (id, code, name, description, policy_type, status, effective_from, effective_to, owner_id, doc_status, created_at, updated_at)
-VALUES ('4e5d0135-ebbe-5807-aedb-24e4281e7ff9', 'Policy 1', 'Policy 1', 'Description 1', 'Policy Type 1', 'DRAFT', NULL, NULL, 'fd8e6d1b-3bcc-5174-85c5-aa75ec02b7d0', 'final', NOW(), NOW())
+INSERT INTO bus_policy (id, code, name, description, policy_type, policy_version, status, effective_from, effective_to, owner_id, doc_status, created_at, updated_at)
+VALUES ('4e5d0135-ebbe-5807-aedb-24e4281e7ff9', 'Policy 1', 'Policy 1', 'Description 1', 'Policy Type 1', 'Policy Version 1', 'DRAFT', NULL, NULL, 'fd8e6d1b-3bcc-5174-85c5-aa75ec02b7d0', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_policy (id, code, name, description, policy_type, status, effective_from, effective_to, owner_id, doc_status, created_at, updated_at)
-VALUES ('0cb4c7a9-207b-541b-89b1-11d4f758ae6a', 'Policy 2', 'Policy 2', 'Description 2', 'Policy Type 2', 'DRAFT', NULL, NULL, 'f4d4dcd2-4890-5d7c-abfe-7a1a7addf087', 'final', NOW(), NOW())
+INSERT INTO bus_policy (id, code, name, description, policy_type, policy_version, status, effective_from, effective_to, owner_id, doc_status, created_at, updated_at)
+VALUES ('0cb4c7a9-207b-541b-89b1-11d4f758ae6a', 'Policy 2', 'Policy 2', 'Description 2', 'Policy Type 2', 'Policy Version 2', 'DRAFT', NULL, NULL, 'f4d4dcd2-4890-5d7c-abfe-7a1a7addf087', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_policy (id, code, name, description, policy_type, status, effective_from, effective_to, owner_id, doc_status, created_at, updated_at)
-VALUES ('892fb6c4-33dc-5a8d-8db0-a9b70337d757', 'Policy 3', 'Policy 3', 'Description 3', 'Policy Type 3', 'DRAFT', NULL, NULL, 'd9d1f95c-0ab8-5922-b9db-46539d79d0ee', 'final', NOW(), NOW())
+INSERT INTO bus_policy (id, code, name, description, policy_type, policy_version, status, effective_from, effective_to, owner_id, doc_status, created_at, updated_at)
+VALUES ('892fb6c4-33dc-5a8d-8db0-a9b70337d757', 'Policy 3', 'Policy 3', 'Description 3', 'Policy Type 3', 'Policy Version 3', 'DRAFT', NULL, NULL, 'd9d1f95c-0ab8-5922-b9db-46539d79d0ee', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_policy (id, code, name, description, policy_type, status, effective_from, effective_to, owner_id, doc_status, created_at, updated_at)
-VALUES ('25b7aa56-9ec3-535f-9a23-11417c5a333f', 'Policy 4', 'Policy 4', 'Description 4', 'Policy Type 4', 'DRAFT', NULL, NULL, 'bd6b294d-346f-5696-a4c3-0d00bc99a60e', 'final', NOW(), NOW())
+INSERT INTO bus_policy (id, code, name, description, policy_type, policy_version, status, effective_from, effective_to, owner_id, doc_status, created_at, updated_at)
+VALUES ('25b7aa56-9ec3-535f-9a23-11417c5a333f', 'Policy 4', 'Policy 4', 'Description 4', 'Policy Type 4', 'Policy Version 4', 'DRAFT', NULL, NULL, 'bd6b294d-346f-5696-a4c3-0d00bc99a60e', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_policy (id, code, name, description, policy_type, status, effective_from, effective_to, owner_id, doc_status, created_at, updated_at)
-VALUES ('96f224b1-43d8-567a-a8d3-8bea26cae1ab', 'Policy 5', 'Policy 5', 'Description 5', 'Policy Type 5', 'DRAFT', NULL, NULL, 'ee123a8d-a1ec-50a5-a32c-78b6290b9de5', 'final', NOW(), NOW())
+INSERT INTO bus_policy (id, code, name, description, policy_type, policy_version, status, effective_from, effective_to, owner_id, doc_status, created_at, updated_at)
+VALUES ('96f224b1-43d8-567a-a8d3-8bea26cae1ab', 'Policy 5', 'Policy 5', 'Description 5', 'Policy Type 5', 'Policy Version 5', 'DRAFT', NULL, NULL, 'ee123a8d-a1ec-50a5-a32c-78b6290b9de5', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
 -- Control (bus_control)
@@ -336,20 +336,20 @@ VALUES ('499fb41c-2eae-54b3-9391-7e941111df90', 'Risk 5', 'Risk 5', 'Description
 ON CONFLICT DO NOTHING;
 
 -- Audit Case (bus_audit_case)
-INSERT INTO bus_audit_case (id, effective_at, doc_status, created_at, updated_at)
-VALUES ('2cec9eb9-5b9a-5ac2-bd95-3c48fc2cf526', NULL, 'final', NOW(), NOW())
+INSERT INTO bus_audit_case (id, effective_at, case_number, title, scope, opened_on, closed_on, status, lead_auditor_id, doc_status, created_at, updated_at)
+VALUES ('2cec9eb9-5b9a-5ac2-bd95-3c48fc2cf526', NULL, 'Case Number 1', 'Audit Case 1', 'Scope 1', '2026-01-15', NULL, 'PLANNED', 'dd3588df-1060-54f9-b533-6474e9950d0b', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_audit_case (id, effective_at, doc_status, created_at, updated_at)
-VALUES ('2553c89d-dedd-5364-b70e-f24c2e60a912', NULL, 'final', NOW(), NOW())
+INSERT INTO bus_audit_case (id, effective_at, case_number, title, scope, opened_on, closed_on, status, lead_auditor_id, doc_status, created_at, updated_at)
+VALUES ('2553c89d-dedd-5364-b70e-f24c2e60a912', NULL, 'Case Number 2', 'Audit Case 2', 'Scope 2', '2026-02-15', NULL, 'PLANNED', '60caa376-c947-5072-ba9c-14379e338a10', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_audit_case (id, effective_at, doc_status, created_at, updated_at)
-VALUES ('732d659d-af26-5639-ae29-a546d86133a8', NULL, 'final', NOW(), NOW())
+INSERT INTO bus_audit_case (id, effective_at, case_number, title, scope, opened_on, closed_on, status, lead_auditor_id, doc_status, created_at, updated_at)
+VALUES ('732d659d-af26-5639-ae29-a546d86133a8', NULL, 'Case Number 3', 'Audit Case 3', 'Scope 3', '2026-03-15', NULL, 'PLANNED', '11add255-0e3c-5dba-91a1-8020b44ecfed', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_audit_case (id, effective_at, doc_status, created_at, updated_at)
-VALUES ('b831b81b-80fe-5d15-a233-0524061c77e3', NULL, 'final', NOW(), NOW())
+INSERT INTO bus_audit_case (id, effective_at, case_number, title, scope, opened_on, closed_on, status, lead_auditor_id, doc_status, created_at, updated_at)
+VALUES ('b831b81b-80fe-5d15-a233-0524061c77e3', NULL, 'Case Number 4', 'Audit Case 4', 'Scope 4', '2026-04-15', NULL, 'PLANNED', '14e6a5f5-f0af-5e24-8878-fdf9a39f964c', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_audit_case (id, effective_at, doc_status, created_at, updated_at)
-VALUES ('9eff9698-e927-57da-a11c-114d85a9051a', NULL, 'final', NOW(), NOW())
+INSERT INTO bus_audit_case (id, effective_at, case_number, title, scope, opened_on, closed_on, status, lead_auditor_id, doc_status, created_at, updated_at)
+VALUES ('9eff9698-e927-57da-a11c-114d85a9051a', NULL, 'Case Number 5', 'Audit Case 5', 'Scope 5', '2026-05-15', NULL, 'PLANNED', '51e4d6be-d507-520a-a049-13e5ef84c784', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
 -- Audit Event (bus_audit_event)

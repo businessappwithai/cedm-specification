@@ -209,6 +209,14 @@ ALTER TABLE bus_asset
 
 CREATE INDEX IF NOT EXISTS idx_bus_asset_doc_status ON bus_asset (doc_status);
 
+ALTER TABLE bus_meter
+  ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
+  ADD COLUMN IF NOT EXISTS workflow_run_id UUID,
+  ADD COLUMN IF NOT EXISTS doc_status VARCHAR(20) NOT NULL DEFAULT 'draft',
+  ADD COLUMN IF NOT EXISTS doc_status_message TEXT;
+
+CREATE INDEX IF NOT EXISTS idx_bus_meter_doc_status ON bus_meter (doc_status);
+
 ALTER TABLE bus_maintenance_plan
   ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
   ADD COLUMN IF NOT EXISTS workflow_run_id UUID,
@@ -464,6 +472,22 @@ ALTER TABLE bus_asset_status
   ADD COLUMN IF NOT EXISTS doc_status_message TEXT;
 
 CREATE INDEX IF NOT EXISTS idx_bus_asset_status_doc_status ON bus_asset_status (doc_status);
+
+ALTER TABLE bus_meter_meter_type
+  ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
+  ADD COLUMN IF NOT EXISTS workflow_run_id UUID,
+  ADD COLUMN IF NOT EXISTS doc_status VARCHAR(20) NOT NULL DEFAULT 'draft',
+  ADD COLUMN IF NOT EXISTS doc_status_message TEXT;
+
+CREATE INDEX IF NOT EXISTS idx_bus_meter_meter_type_doc_status ON bus_meter_meter_type (doc_status);
+
+ALTER TABLE bus_meter_status
+  ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
+  ADD COLUMN IF NOT EXISTS workflow_run_id UUID,
+  ADD COLUMN IF NOT EXISTS doc_status VARCHAR(20) NOT NULL DEFAULT 'draft',
+  ADD COLUMN IF NOT EXISTS doc_status_message TEXT;
+
+CREATE INDEX IF NOT EXISTS idx_bus_meter_status_doc_status ON bus_meter_status (doc_status);
 
 ALTER TABLE bus_maintenance_plan_maintenance_type
   ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
@@ -740,6 +764,14 @@ ALTER TABLE bus_asset
   DROP COLUMN IF EXISTS doc_status,
   DROP COLUMN IF EXISTS doc_status_message;
 
+DROP INDEX IF EXISTS idx_bus_meter_doc_status;
+
+ALTER TABLE bus_meter
+  DROP COLUMN IF EXISTS workflow_status,
+  DROP COLUMN IF EXISTS workflow_run_id,
+  DROP COLUMN IF EXISTS doc_status,
+  DROP COLUMN IF EXISTS doc_status_message;
+
 DROP INDEX IF EXISTS idx_bus_maintenance_plan_doc_status;
 
 ALTER TABLE bus_maintenance_plan
@@ -991,6 +1023,22 @@ ALTER TABLE bus_task_priority
 DROP INDEX IF EXISTS idx_bus_asset_status_doc_status;
 
 ALTER TABLE bus_asset_status
+  DROP COLUMN IF EXISTS workflow_status,
+  DROP COLUMN IF EXISTS workflow_run_id,
+  DROP COLUMN IF EXISTS doc_status,
+  DROP COLUMN IF EXISTS doc_status_message;
+
+DROP INDEX IF EXISTS idx_bus_meter_meter_type_doc_status;
+
+ALTER TABLE bus_meter_meter_type
+  DROP COLUMN IF EXISTS workflow_status,
+  DROP COLUMN IF EXISTS workflow_run_id,
+  DROP COLUMN IF EXISTS doc_status,
+  DROP COLUMN IF EXISTS doc_status_message;
+
+DROP INDEX IF EXISTS idx_bus_meter_status_doc_status;
+
+ALTER TABLE bus_meter_status
   DROP COLUMN IF EXISTS workflow_status,
   DROP COLUMN IF EXISTS workflow_run_id,
   DROP COLUMN IF EXISTS doc_status,

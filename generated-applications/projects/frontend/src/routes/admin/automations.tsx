@@ -59,6 +59,7 @@ const ENTITIES: string[] = [
   'Milestone',
   'ResourceAssignment',
   'Timesheet',
+  'ProjectCost',
   'ProfessionalEngagement',
   'PartyPartyType',
   'PartyStatus',
@@ -89,6 +90,8 @@ const ENTITIES: string[] = [
   'MilestoneStatus',
   'ResourceAssignmentStatus',
   'TimesheetStatus',
+  'ProjectCostCostType',
+  'ProjectCostStatus',
   'ProfessionalEngagementStatus',
 ];
 
@@ -109,7 +112,7 @@ const ENTITY_FIELDS: Record<string, string[]> = {
   'City': ['id', 'code', 'name', 'population', 'latitude', 'longitude', 'timezone', 'is_capital', 'country_id', 'state_province_id'],
   'Language': ['id', 'code', 'name'],
   'Currency': ['id', 'code', 'name', 'symbol', 'decimal_places', 'status'],
-  'ExchangeRate': ['id', 'from_currency', 'to_currency', 'rate', 'rate_type', 'effective_at', 'expires_at', 'source', 'status'],
+  'ExchangeRate': ['id', 'from_currency_id', 'to_currency_id', 'rate', 'rate_type', 'effective_at', 'expires_at', 'source', 'status'],
   'UnitOfMeasure': ['id', 'code', 'name', 'symbol', 'category', 'conversion_factor', 'base_unit_id', 'status'],
   'Calendar': ['id', 'code', 'name'],
   'Attachment': ['id', 'effective_at'],
@@ -120,6 +123,7 @@ const ENTITY_FIELDS: Record<string, string[]> = {
   'Milestone': ['id', 'code', 'name', 'target_date', 'status', 'project_id', 'project_phase_id'],
   'ResourceAssignment': ['id', 'resource_assignment_code', 'status', 'context_id'],
   'Timesheet': ['id', 'timesheet_code', 'status', 'context_id'],
+  'ProjectCost': ['id', 'cost_number', 'cost_type', 'amount', 'incurred_date', 'status', 'project_id', 'project_task_id', 'timesheet_id', 'currency_id'],
   'ProfessionalEngagement': ['id', 'engagement_number', 'name', 'status', 'start_date', 'end_date', 'client_id', 'project_id'],
   'PartyPartyType': ['id', 'code', 'name', 'description', 'sequence', 'is_active'],
   'PartyStatus': ['id', 'code', 'name', 'description', 'sequence', 'is_active'],
@@ -150,6 +154,8 @@ const ENTITY_FIELDS: Record<string, string[]> = {
   'MilestoneStatus': ['id', 'code', 'name', 'description', 'sequence', 'is_active'],
   'ResourceAssignmentStatus': ['id', 'code', 'name', 'description', 'sequence', 'is_active'],
   'TimesheetStatus': ['id', 'code', 'name', 'description', 'sequence', 'is_active'],
+  'ProjectCostCostType': ['id', 'code', 'name', 'description', 'sequence', 'is_active'],
+  'ProjectCostStatus': ['id', 'code', 'name', 'description', 'sequence', 'is_active'],
   'ProfessionalEngagementStatus': ['id', 'code', 'name', 'description', 'sequence', 'is_active'],
 };
 

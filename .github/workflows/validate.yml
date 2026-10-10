@@ -1,5 +1,11 @@
 name: Validate CEDM Specification
 
+# The specification's gates. The tools are TypeScript on Bun, reading YAML the
+# way the generators do (YAML 1.2), so a file the validator accepts is one the
+# generators read the same way. `bun tools/check.ts` runs every gate, the
+# derivation tools' `--check` modes included: the library is kept in the state a
+# re-run of each tool leaves it in, and this is what notices when it drifts.
+
 on:
   push:
     branches: [main]
@@ -16,16 +22,22 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
         with:
-          python-version: '3.12'
+          bun-version: "1.4.2"
 
-      - name: Install validation dependencies
-        run: python -m pip install -r requirements-dev.txt
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
 
-      - name: Validate CEDM model
-        run: python tools/validate.py
+      - name: Type-check the tools
+        run: bun run type-check:tools
 
-      - name: The model is YAML, and nothing carries the earlier notation
-        run: bash scripts/check-yaml-only.sh
+      - name: Lint and format the tools
+        run: bunx biome check tools tsconfig.tools.json
+
+      - name: Test the tools
+        run: bun run test:tools
+
+      - name: Every specification gate
+        run: bun run spec:check

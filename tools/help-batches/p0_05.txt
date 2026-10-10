@@ -1,0 +1,76 @@
+@ ConstructionProject
+a status
+v PLANNED: Approved but design has not begun.
+v DESIGN: Design and permitting are under way.
+v PROCUREMENT: Contractors and materials are being sourced.
+v CONSTRUCTION: Physical work is being carried out on site.
+v COMMISSIONING: Building work is done and systems are being tested and handed over.
+v COMPLETED: Handed over to the owner and closed. A final state.
+v CANCELLED: Stopped before completion, with work abandoned or the contract ended. A final state.
+@ ContractObligation
+a obligationType
+v DELIVERY: Goods or deliverables must be delivered.
+v PAYMENT: Money must be paid.
+v SERVICE: A service must be performed.
+v REPORTING: Information or reports must be supplied.
+v COMPLIANCE: A legal, regulatory or standards requirement must be met.
+v PERFORMANCE: A level of performance, such as a service level, must be achieved.
+v OTHER: Any other commitment that does not fit the listed kinds.
+a status
+v OPEN: Due but not yet started.
+v IN_PROGRESS: Being worked on by the responsible party, with fulfilment not yet shown.
+v FULFILLED: Met; evidence is on record. A final state.
+v BREACHED: Not met in time or at the required standard. A final state that may lead to remedies.
+v WAIVED: Released by the other party; no longer required. A final state.
+v CANCELLED: No longer applicable, for example because the contract changed. A final state.
+@ Control
+a name
+s: The short name of the control as it appears in the control register, such as Monthly bank reconciliation review.
+u: Written by the risk and compliance team when the control is defined; shown in registers, test plans and audit reports.
+a frequency
+v CONTINUOUS: Operates all the time, for example an automated system check.
+v DAILY: Performed every day.
+v WEEKLY: Performed every week.
+v MONTHLY: Performed every month.
+v QUARTERLY: Performed every quarter of the year.
+v ANNUAL: Performed once a year.
+v EVENT_DRIVEN: Performed when a particular event occurs.
+v AD_HOC: Performed as needed, with no fixed schedule.
+@ CorrectiveActionVerification
+a verificationNumber
+s: The unique reference number that quality staff and suppliers quote for this effectiveness check.
+u: Assigned when the verification is raised; used in approvals, audit trails and supplier correspondence.
+a result
+s: The verifier's conclusion on whether the action achieved its intended result.
+u: Recorded when verification completes; an effective result can support closing the action, while other results force further work or an exception.
+a status
+s: Where the verification is, from being raised through the check to completion, reopening or cancellation.
+u: Moved by the independent verifier; a verification can only complete once a result and findings are recorded.
+v OPEN: Raised but not started.
+v IN_PROGRESS: The verification is being carried out.
+v COMPLETED: Finished with a result and findings recorded. A final state.
+v REOPENED: Reopened because new evidence or a recurrence needs further verification.
+v CANCELLED: Withdrawn and not carried out. A final state.
+@ CorrectiveAction
+a correctiveActionId
+s: The permanent system identity of one corrective or preventive action.
+u: Generated on creation; verifications, nonconformances and audits refer to the action through it.
+a actionNumber
+s: The unique reference number by which people refer to the action in CAPA meetings and reports.
+u: Assigned when the action is raised; quoted in supplier communication, tracking dashboards and integrations.
+a actionType
+s: The purpose of the action: containing a problem, fixing the item, removing its cause, or preventing recurrence elsewhere.
+u: Chosen by the quality owner; decides what evidence is expected, who reviews it and how effectiveness is judged.
+a status
+v OPEN: Raised but not yet assigned.
+v ASSIGNED: Given to an owner, who has not started.
+v IN_PROGRESS: Being carried out by the owner, with implementation not yet finished.
+v VERIFICATION: Done and waiting for an effectiveness check.
+v COMPLETED: Done and, where required, verified effective. A final state.
+v CANCELLED: Withdrawn and not carried out. A final state.
+a dueDate
+s: The date by which the action should be implemented.
+u: Agreed when the action is assigned; drives reminders and escalation, and overdue counts in quality governance reports.
+a completedDate
+s: The date implementation was formally finished, which may differ from the verification date.
+u: Recorded when the action completes and required then; CAPA metrics measure time to complete against the due date.

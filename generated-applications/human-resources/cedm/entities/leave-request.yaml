@@ -1,0 +1,113 @@
+entity:
+  name: LeaveRequest
+  namespace: cedm.domain
+  kind: human_capital_leave_transaction
+  description: A governed employee request for absence over a defined period, preserving approval, cancellation, payroll and attendance consequences as auditable workflow evidence.
+  ui: {icon: calendar-off}
+  identity: {key: leaveRequestId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: leaveRequestId, type: uuid, required: true, immutable: true, help: {summary: The identity of the leave request., usage: Generated on creation; approvals and attendance records refer to it., businessMeaning: Identifies one absence request independently of later approval or cancellation., relationshipContext: Remains stable across lifecycle transitions.}}
+    - {name: requestNumber, type: string, required: true, unique: true, maxLength: 120, help: {summary: The reference number of the request., usage: Allocated on submission; unique; quoted in HR queries., businessMeaning: "Operational identifier for employees, managers and HR.", relationshipContext: Distinct from Employee or payroll identifiers.}}
+    - name: leaveType
+      type: enum
+      required: true
+      values: [ANNUAL, SICK, PARENTAL, UNPAID, COMPENSATORY, OTHER]
+      help:
+        summary: The category of absence the employee is asking for, which decides how it is paid and counted.
+        usage: Chosen by the employee when requesting; leave policy, payroll and entitlement checks use it to decide which balance is reduced.
+        valueSemantics:
+          ANNUAL: Paid holiday taken from the employee's annual entitlement.
+          SICK: Absence caused by illness or injury.
+          PARENTAL: Leave to care for a new child.
+          UNPAID: Absence without pay, agreed with the manager.
+          COMPENSATORY: Time off given in return for extra hours already worked.
+          OTHER: Any other approved absence, such as study or bereavement leave.
+        businessMeaning: Determines policy, entitlement and payroll treatment without embedding jurisdiction-specific rules.
+        relationshipContext: Approval and payroll effects depend on organization policy and Employment context.
+    - {name: startDate, type: date, required: true, help: {summary: The first calendar day on which the employee asks to be absent., usage: 'Entered by the employee; managers approve against team cover, and attendance and payroll begin counting absence from this date.', businessMeaning: Starts the requested absence interval., relationshipContext: Must be compatible with Employment eligibility and requested end date.}}
+    - {name: endDate, type: date, required: true, help: {summary: The last day of the absence., usage: Entered by the employee; must not be before the start date., businessMeaning: Closes the requested absence interval.}}
+    - {name: requestedUnits, type: decimal, required: false, precision: 12, scale: 4, help: {summary: "How much leave is requested, measured in the organisation's governed unit such as days or hours.", usage: Entered or computed from the dates; entitlement checks compare it with the available balance and payroll uses the approved quantity., businessMeaning: "Supports hours, days or other policy-defined leave quantities.", relationshipContext: Must reconcile to date interval and policy when supplied.}}
+    - name: status
+      type: enum
+      required: true
+      default: DRAFT
+      values: [DRAFT, SUBMITTED, APPROVED, REJECTED, CANCELLED]
+      help:
+        summary: Where the request is in the approval workflow, from drafting to a final decision.
+        usage: Moved by the employee and the approving manager; only APPROVED requests reduce entitlement and affect attendance or pay.
+        valueSemantics:
+          DRAFT: Being prepared by the employee and not yet visible to the approver.
+          SUBMITTED: Sent to the manager and waiting for a decision.
+          APPROVED: Granted by the manager. A final state.
+          REJECTED: Refused by the manager. A final state.
+          CANCELLED: Withdrawn by the employee. A final state.
+        businessMeaning: Distinguishes preparation, review and final authorization outcomes.
+        relationshipContext: APPROVED authorization may drive attendance and payroll but does not itself record actual absence.
+  relationships:
+    - {name: employee, target: Employee, cardinality: "1", ownership: reference, help: {cardinalityMeaning: 'Exactly one employee: a leave request is made by a specific person.', summary: Employee requesting leave., businessMeaning: Identifies whose absence is being authorized., usage: "Approval, scheduling, attendance and payroll.", workflowRole: Employee must be eligible under applicable policy.}}
+    - {name: employment, target: Employment, cardinality: "0..1", ownership: reference, help: {summary: Employment relationship under which leave is requested., businessMeaning: "Supplies employer, position and effective policy context.", usage: "Eligibility, payroll and reporting.", cardinalityMeaning: Optional only when the employee has a single unambiguous Employment., workflowRole: Requested dates must overlap eligible employment.}}
+    - {name: approval, target: Approval, cardinality: "0..1", ownership: reference, help: {summary: Approval evidence governing the request decision., businessMeaning: Preserves authorization independently of mutable request presentation., usage: "Workflow, audit and compliance.", cardinalityMeaning: Optional before a decision or where policy does not require formal approval., workflowRole: APPROVED status must reconcile to required approval evidence.}}
+    - {name: attendanceRecords, target: Attendance, cardinality: "0..*", ownership: reference, help: {summary: Actual attendance or absence evidence reconciled to this request., businessMeaning: Separates authorization from what actually occurred., usage: "Timekeeping, payroll and audit.", cardinalityMeaning: Zero or many records across the leave interval., workflowRole: LEAVE attendance must reconcile to employee and approved dates.}}
+  invariants:
+    - {id: LEAVE-REQUEST-001, rule: endDate must not precede startDate.}
+    - {id: LEAVE-REQUEST-002, rule: requestedUnits must be positive when supplied.}
+    - {id: LEAVE-REQUEST-003, rule: APPROVED requires applicable approval evidence whenever policy requires approval before absence or payroll effects.}
+    - {id: LEAVE-REQUEST-004, rule: "Approved or rejected history is not destructively rewritten; later changes use cancellation, amendment or follow-up evidence."}
+    - {id: LEAVE-REQUEST-EXE-001, rule: "End Date must not be earlier than start date.", violatedWhen: "start_date != null and end_date != null and end_date < start_date", message: "End Date cannot be earlier than start date."}
+  lifecycle:
+    title: Leave Request Lifecycle
+    attribute: status
+    states: [DRAFT, SUBMITTED, APPROVED, REJECTED, CANCELLED]
+    initial: DRAFT
+    terminal: [APPROVED, REJECTED, CANCELLED]
+    transitions:
+      - {from: DRAFT, to: SUBMITTED, action: submit}
+      - {from: DRAFT, to: CANCELLED, action: cancel}
+      - {from: SUBMITTED, to: APPROVED, action: approve}
+      - {from: SUBMITTED, to: REJECTED, action: reject}
+      - {from: SUBMITTED, to: CANCELLED, action: cancel}
+  workflows:
+    - name: ApprovalRequested
+      title: "Ask for a decision when a leave request is put forward"
+      description: "When a leave request is submitted, a task asks someone to decide on it."
+      when: "status == \"SUBMITTED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: decide on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "LEAVE-REQUEST-APPROVAL-{{id}}"
+              name: "Decide on leave request {{request_number}}"
+              description: "Leave request {{request_number}} is now {{status}}. Approve it, return it for change or reject it; the move you make is recorded on the record."
+              task_type: "APPROVAL"
+              status: "CREATED"
+              priority: "NORMAL"
+    - name: FollowUpRequired
+      title: "Follow up when a leave request is ended"
+      description: "When a leave request is rejected or cancelled, a task asks someone to settle what depended on it."
+      when: "(status == \"REJECTED\" or status == \"CANCELLED\") and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "LEAVE-REQUEST-FOLLOW-UP-{{id}}"
+              name: "Follow up on leave request {{request_number}}"
+              description: "Leave request {{request_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
+  help:
+    summary: Captures an auditable employee absence request and its approval outcome.
+    businessMeaning: LeaveRequest is the authorization transaction; Attendance records actual work or absence evidence and Payroll applies financial consequences.
+    usage: Employee self-service, manager approval, HR operations, scheduling, attendance, payroll and reporting.
+    relationshipContext: Employee is mandatory; Employment supplies policy context; Approval records authorization; Attendance reconciles actual absence.
+    lifecycle: Draft requests are submitted and then approved, rejected or cancelled; final outcomes remain historical evidence.
+    example: An employee requests three annual-leave days and approved Attendance records later reconcile the actual absence.
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-LEAVE-REQUEST}

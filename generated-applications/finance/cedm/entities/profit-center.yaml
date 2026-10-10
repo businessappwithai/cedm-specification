@@ -7,11 +7,17 @@ entity:
     icon: table
   identity: {key: profitCenterId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: profitCenterId, type: uuid, required: true, immutable: true, help: {summary: Stable ProfitCenter identity., businessMeaning: Identifies the governed ProfitCenter concept independently of labels., usage: "Planning, reporting and integration.", relationshipContext: Referenced by compatible financial planning processes., requiredMeaning: Required.}}
-  - {name: code, type: string, required: true, maxLength: 100, help: {summary: Governed business code., businessMeaning: Human/integration identifier., usage: Planning and reporting., relationshipContext: Unique within governing context., requiredMeaning: Required.}}
+    - {name: profitCenterId, type: uuid, required: true, immutable: true, help: {summary: 'The identity of the profit centre, constant when it is renamed.', usage: Generated on creation; transactions and reports refer to it.}}
+    - {name: code, type: string, required: true, maxLength: 100, help: {summary: 'The short code of the profit centre, such as PC-NORTH.', usage: 'Unique within the organisation; used in imports, budgets and reports.'}}
   relationships:
-  - {name: organization, target: Organization, cardinality: '1', ownership: reference, help: {summary: Governing organization., businessMeaning: Defines management/reporting boundary., usage: Planning and analysis., cardinalityMeaning: Exactly one Organization., workflowRole: References must use compatible organization context.}}
+    - {name: organization, target: Organization, cardinality: '1', ownership: reference, help: {summary: The organisation the profit centre belongs to., usage: Chosen when it is created., cardinalityMeaning: Exactly one organisation., workflowRole: Keeps profit analysis within the right company.}}
   invariants:
-  - {id: PROFITCENTER-001, rule: The record must not directly create or rewrite actual JournalEntry evidence.}
-  help: {summary: "A governed responsibility center used to analyze revenue, cost, and profitability independently of legal-account identity.", businessMeaning: Provides planning/management semantics separately from actual accounting evidence., usage: "Planning, control, management reporting and analysis.", relationshipContext: "Organization supplies governance; financial transactions remain authoritative for actuals."}
+    - {id: PROFITCENTER-001, rule: The record must not directly create or rewrite actual JournalEntry evidence.}
+  help:
+    summary: A responsibility centre used to analyse revenue, cost and profit independently of the legal accounts.
+    businessMeaning: A profit centre lets management see how a part of the business performs, such as a product line or region, whatever legal entity or account the money passes through. It supports management reporting only and never rewrites accounting entries.
+    usage: Defined by finance; chosen on transactions and budgets; read by management reports.
+    relationshipContext: A profit centre belongs to one organisation.
+    lifecycle: A profit centre is created, used while it is reported on, and left unused when the unit closes. Existing analysis keeps it.
+    example: The "Northern Region" profit centre reports revenue and cost for all sales and branches in that region.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-PROFIT-CENTER}

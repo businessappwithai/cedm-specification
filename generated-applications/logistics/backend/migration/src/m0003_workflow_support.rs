@@ -305,6 +305,14 @@ ALTER TABLE bus_route
 
 CREATE INDEX IF NOT EXISTS idx_bus_route_doc_status ON bus_route (doc_status);
 
+ALTER TABLE bus_stop
+  ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
+  ADD COLUMN IF NOT EXISTS workflow_run_id UUID,
+  ADD COLUMN IF NOT EXISTS doc_status VARCHAR(20) NOT NULL DEFAULT 'draft',
+  ADD COLUMN IF NOT EXISTS doc_status_message TEXT;
+
+CREATE INDEX IF NOT EXISTS idx_bus_stop_doc_status ON bus_stop (doc_status);
+
 ALTER TABLE bus_tracking_event
   ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
   ADD COLUMN IF NOT EXISTS workflow_run_id UUID,
@@ -328,6 +336,22 @@ ALTER TABLE bus_trip_segment
   ADD COLUMN IF NOT EXISTS doc_status_message TEXT;
 
 CREATE INDEX IF NOT EXISTS idx_bus_trip_segment_doc_status ON bus_trip_segment (doc_status);
+
+ALTER TABLE bus_driver
+  ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
+  ADD COLUMN IF NOT EXISTS workflow_run_id UUID,
+  ADD COLUMN IF NOT EXISTS doc_status VARCHAR(20) NOT NULL DEFAULT 'draft',
+  ADD COLUMN IF NOT EXISTS doc_status_message TEXT;
+
+CREATE INDEX IF NOT EXISTS idx_bus_driver_doc_status ON bus_driver (doc_status);
+
+ALTER TABLE bus_fuel_transaction
+  ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
+  ADD COLUMN IF NOT EXISTS workflow_run_id UUID,
+  ADD COLUMN IF NOT EXISTS doc_status VARCHAR(20) NOT NULL DEFAULT 'draft',
+  ADD COLUMN IF NOT EXISTS doc_status_message TEXT;
+
+CREATE INDEX IF NOT EXISTS idx_bus_fuel_transaction_doc_status ON bus_fuel_transaction (doc_status);
 
 ALTER TABLE bus_customer
   ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
@@ -593,6 +617,14 @@ ALTER TABLE bus_inventory_movement_movement_type
 
 CREATE INDEX IF NOT EXISTS idx_bus_inventory_movement_movement_type_doc_status ON bus_inventory_movement_movement_type (doc_status);
 
+ALTER TABLE bus_stop_stop_type
+  ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
+  ADD COLUMN IF NOT EXISTS workflow_run_id UUID,
+  ADD COLUMN IF NOT EXISTS doc_status VARCHAR(20) NOT NULL DEFAULT 'draft',
+  ADD COLUMN IF NOT EXISTS doc_status_message TEXT;
+
+CREATE INDEX IF NOT EXISTS idx_bus_stop_stop_type_doc_status ON bus_stop_stop_type (doc_status);
+
 ALTER TABLE bus_trip_status
   ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
   ADD COLUMN IF NOT EXISTS workflow_run_id UUID,
@@ -616,6 +648,22 @@ ALTER TABLE bus_trip_segment_status
   ADD COLUMN IF NOT EXISTS doc_status_message TEXT;
 
 CREATE INDEX IF NOT EXISTS idx_bus_trip_segment_status_doc_status ON bus_trip_segment_status (doc_status);
+
+ALTER TABLE bus_driver_status
+  ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
+  ADD COLUMN IF NOT EXISTS workflow_run_id UUID,
+  ADD COLUMN IF NOT EXISTS doc_status VARCHAR(20) NOT NULL DEFAULT 'draft',
+  ADD COLUMN IF NOT EXISTS doc_status_message TEXT;
+
+CREATE INDEX IF NOT EXISTS idx_bus_driver_status_doc_status ON bus_driver_status (doc_status);
+
+ALTER TABLE bus_fuel_transaction_status
+  ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
+  ADD COLUMN IF NOT EXISTS workflow_run_id UUID,
+  ADD COLUMN IF NOT EXISTS doc_status VARCHAR(20) NOT NULL DEFAULT 'draft',
+  ADD COLUMN IF NOT EXISTS doc_status_message TEXT;
+
+CREATE INDEX IF NOT EXISTS idx_bus_fuel_transaction_status_doc_status ON bus_fuel_transaction_status (doc_status);
 
 ALTER TABLE bus_customer_customer_type
   ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
@@ -948,6 +996,14 @@ ALTER TABLE bus_route
   DROP COLUMN IF EXISTS doc_status,
   DROP COLUMN IF EXISTS doc_status_message;
 
+DROP INDEX IF EXISTS idx_bus_stop_doc_status;
+
+ALTER TABLE bus_stop
+  DROP COLUMN IF EXISTS workflow_status,
+  DROP COLUMN IF EXISTS workflow_run_id,
+  DROP COLUMN IF EXISTS doc_status,
+  DROP COLUMN IF EXISTS doc_status_message;
+
 DROP INDEX IF EXISTS idx_bus_tracking_event_doc_status;
 
 ALTER TABLE bus_tracking_event
@@ -967,6 +1023,22 @@ ALTER TABLE bus_trip
 DROP INDEX IF EXISTS idx_bus_trip_segment_doc_status;
 
 ALTER TABLE bus_trip_segment
+  DROP COLUMN IF EXISTS workflow_status,
+  DROP COLUMN IF EXISTS workflow_run_id,
+  DROP COLUMN IF EXISTS doc_status,
+  DROP COLUMN IF EXISTS doc_status_message;
+
+DROP INDEX IF EXISTS idx_bus_driver_doc_status;
+
+ALTER TABLE bus_driver
+  DROP COLUMN IF EXISTS workflow_status,
+  DROP COLUMN IF EXISTS workflow_run_id,
+  DROP COLUMN IF EXISTS doc_status,
+  DROP COLUMN IF EXISTS doc_status_message;
+
+DROP INDEX IF EXISTS idx_bus_fuel_transaction_doc_status;
+
+ALTER TABLE bus_fuel_transaction
   DROP COLUMN IF EXISTS workflow_status,
   DROP COLUMN IF EXISTS workflow_run_id,
   DROP COLUMN IF EXISTS doc_status,
@@ -1236,6 +1308,14 @@ ALTER TABLE bus_inventory_movement_movement_type
   DROP COLUMN IF EXISTS doc_status,
   DROP COLUMN IF EXISTS doc_status_message;
 
+DROP INDEX IF EXISTS idx_bus_stop_stop_type_doc_status;
+
+ALTER TABLE bus_stop_stop_type
+  DROP COLUMN IF EXISTS workflow_status,
+  DROP COLUMN IF EXISTS workflow_run_id,
+  DROP COLUMN IF EXISTS doc_status,
+  DROP COLUMN IF EXISTS doc_status_message;
+
 DROP INDEX IF EXISTS idx_bus_trip_status_doc_status;
 
 ALTER TABLE bus_trip_status
@@ -1255,6 +1335,22 @@ ALTER TABLE bus_trip_segment_mode
 DROP INDEX IF EXISTS idx_bus_trip_segment_status_doc_status;
 
 ALTER TABLE bus_trip_segment_status
+  DROP COLUMN IF EXISTS workflow_status,
+  DROP COLUMN IF EXISTS workflow_run_id,
+  DROP COLUMN IF EXISTS doc_status,
+  DROP COLUMN IF EXISTS doc_status_message;
+
+DROP INDEX IF EXISTS idx_bus_driver_status_doc_status;
+
+ALTER TABLE bus_driver_status
+  DROP COLUMN IF EXISTS workflow_status,
+  DROP COLUMN IF EXISTS workflow_run_id,
+  DROP COLUMN IF EXISTS doc_status,
+  DROP COLUMN IF EXISTS doc_status_message;
+
+DROP INDEX IF EXISTS idx_bus_fuel_transaction_status_doc_status;
+
+ALTER TABLE bus_fuel_transaction_status
   DROP COLUMN IF EXISTS workflow_status,
   DROP COLUMN IF EXISTS workflow_run_id,
   DROP COLUMN IF EXISTS doc_status,

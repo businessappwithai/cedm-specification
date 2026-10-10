@@ -172,6 +172,10 @@ const RENDERED_FILES: &[(&str, &str)] = &[
         "src/controllers/records.rs.hbs",
         "src/controllers/records.rs",
     ),
+    (
+        "src/controllers/accounts.rs.hbs",
+        "src/controllers/accounts.rs",
+    ),
     ("src/controllers/report.rs.hbs", "src/controllers/report.rs"),
     ("src/controllers/rules.rs.hbs", "src/controllers/rules.rs"),
     ("src/controllers/ai.rs.hbs", "src/controllers/ai.rs"),
@@ -277,6 +281,10 @@ const RENDERED_FILES: &[(&str, &str)] = &[
     ("tests/requests/ai.rs.hbs", "tests/requests/ai.rs"),
     ("tests/requests/jobs.rs.hbs", "tests/requests/jobs.rs"),
     ("tests/requests/records.rs.hbs", "tests/requests/records.rs"),
+    (
+        "tests/requests/accounts.rs.hbs",
+        "tests/requests/accounts.rs",
+    ),
     ("tests/requests/rbac.rs.hbs", "tests/requests/rbac.rs"),
     (
         "tests/requests/workflow.rs.hbs",
@@ -326,6 +334,35 @@ const DIRECTORIES: &[&str] = &[
     "tests/requests",
     "tests/support",
 ];
+
+/// The lock's packages in cargo's own order, by name.
+///
+/// The template holds every entry in that order except the project's, whose
+/// name is the project's; left where the template puts it, the first
+/// `cargo build` of a generated app re-sorts it and the project's committed lock
+/// file shows as changed. The sort is stable, so two versions of one crate keep
+/// the template's order. `sortCargoLock` in `loco-backend.generator.ts` does the
+/// same.
+pub fn sort_cargo_lock(text: &str) -> String {
+    const MARKER: &str = "\n[[package]]\n";
+    let mut parts = text.split(MARKER);
+    let head = parts.next().unwrap_or_default();
+    let mut blocks: Vec<&str> = parts.collect();
+    let name_of = |block: &str| -> String {
+        block
+            .strip_prefix("name = \"")
+            .and_then(|rest| rest.split('"').next())
+            .unwrap_or_default()
+            .to_string()
+    };
+    blocks.sort_by_key(|block| name_of(block));
+    let bodies: Vec<String> = blocks
+        .iter()
+        .map(|block| format!("{MARKER}{}", block.trim_end_matches('\n')))
+        .collect();
+    let ending = if text.ends_with('\n') { "\n" } else { "" };
+    format!("{head}{}{ending}", bodies.join("\n"))
+}
 
 /// What one overlay run wrote, for the caller to report.
 #[derive(Debug, Default, Clone, Copy)]
@@ -663,6 +700,11 @@ pub fn emit(output_dir: &Path, context: &BackendContext, quiet: bool) -> Result<
 
     for (template, out) in RENDERED_FILES {
         let rendered = templates::render_file(&hb, &backend_templates.join(template), &value)?;
+        let rendered = if *out == "Cargo.lock" {
+            sort_cargo_lock(&rendered)
+        } else {
+            rendered
+        };
         write_file(&output_dir.join(out), &rendered)?;
         emitted.rendered += 1;
     }
@@ -856,6 +898,33 @@ pub fn format_sources(output_dir: &Path, quiet: bool) {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// Whatever a project is called, the lock it ships is in cargo's order, so
+    /// its first build does not rewrite it.
+    #[test]
+    fn the_shipped_lock_is_in_cargo_order() {
+        let template = std::fs::read_to_string(Path::new(env!("CARGO_MANIFEST_DIR")).join(
+            "../../packages/generator/templates/tanstack-astryx-loco/backend/Cargo.lock.hbs",
+        ))
+        .expect("the lock template");
+        for project in ["aardvark", "container_logistics", "zebra_works"] {
+            let rendered = sort_cargo_lock(
+                &template
+                    .replace("{{projectSnake}}", project)
+                    .replace("{{project.version}}", "1.0.0"),
+            );
+            let names: Vec<&str> = rendered
+                .split("\n[[package]]\nname = \"")
+                .skip(1)
+                .filter_map(|block| block.split('"').next())
+                .collect();
+            let mut sorted = names.clone();
+            sorted.sort();
+            assert_eq!(names, sorted, "{project}");
+            assert!(names.contains(&project));
+            assert_eq!(sort_cargo_lock(&rendered), rendered);
+        }
+    }
     use crate::category::{resolve_category_declarations, Category};
     use crate::context::ContextOptions;
     use crate::language::Language;

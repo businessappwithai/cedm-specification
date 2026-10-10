@@ -1,0 +1,50 @@
+@ Supplier
+a partyRoleId
+s: Points to the party role this supplier record specializes, tying the sourcing profile to the underlying party.
+u: Set once at creation and never reassigned; unique, so a party role has at most one supplier profile, and names and addresses are read through it.
+a supplierType
+s: Classifies what kind of organization or person the supplier is, for due diligence and reporting.
+u: Chosen at onboarding; it influences which qualification checks, tax treatment and spend reports apply to the supplier.
+v INDIVIDUAL: A natural person or sole trader supplying goods or services in their own name.
+v BUSINESS: A commercial company or partnership that supplies goods or services for profit.
+v GOVERNMENT: A public authority or agency supplying goods, services or licences, often under statutory terms.
+v INTERNAL: Another unit of the same enterprise supplying through intercompany arrangements.
+v OTHER: A supplier that fits none of the other types, such as a charity or association.
+a qualificationStatus
+s: Records whether the supplier has been vetted and cleared to receive orders under sourcing policy.
+u: Updated by procurement or compliance after due diligence; buyers check it before issuing requests for quotation or orders.
+v NOT_REVIEWED: No qualification review has been carried out for this supplier yet.
+v PENDING: A review is under way and the supplier is not yet cleared to receive orders.
+v QUALIFIED: The supplier has passed review and may be used for sourcing and ordering.
+v SUSPENDED: Qualification is temporarily withdrawn pending resolution of an issue.
+v DISQUALIFIED: The supplier failed or lost qualification and must not be used for new orders.
+a status
+s: The operational state of the supplier record, showing whether it can currently be dealt with.
+u: Set by procurement; ACTIVE suppliers appear in pickers, while blocked or retired ones are refused on new transactions.
+v ACTIVE: The supplier is open for business and may be selected on new orders and quotation requests.
+v INACTIVE: The supplier is dormant and hidden from selection but can be reactivated.
+v BLOCKED: New transactions are barred, for example during a dispute or compliance hold.
+v RETIRED: The relationship has ended and the record is kept for history only. A final state.
+
+@ SupplyPlanLine
+a plannedQuantity
+s: The quantity of the product that the plan expects to be available or replenished at the location on the planning date.
+u: Entered or calculated by planners; compared with demand and safety stock to drive replenishment orders.
+@ SupplyPlan
+a planNumber
+s: The unique business reference of a supply plan, such as SP-2026-Q3, used to find and discuss it.
+u: Assigned when the plan is created; quoted in planning reviews, approvals and replenishment documents, and never reused.
+a planningStart
+s: The first date of the horizon the plan covers for demand, supply and inventory.
+u: Set when the plan is drafted; plan lines dated before it are out of scope, and it must not be later than the end.
+a planningEnd
+s: The last date of the planning horizon, closing the period over which demand and supply are balanced.
+u: Set with the start date; it must not precede the start, and plans of successive horizons are chained by it.
+a status
+s: Shows how far the plan has progressed from drafting through approval to execution and closure.
+u: Advanced by planners and approvers; only approved or active plans release replenishment actions, and closed or cancelled ones are read-only.
+v DRAFT: The plan is being built and can be freely changed.
+v APPROVED: The plan has been signed off but is not yet being executed.
+v ACTIVE: The plan is being executed and its lines drive replenishment.
+v CLOSED: The horizon has ended and the plan is kept for review. A final state.
+v CANCELLED: The plan was abandoned without being completed. A final state.

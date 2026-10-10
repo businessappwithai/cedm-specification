@@ -1,0 +1,32 @@
+@ SupplierCreditNote
+a creditNoteNumber
+s: The reference printed on the credit document, used by the supplier and by payables staff.
+u: Entered from the supplier's document or assigned on recognition; unique; used to match the credit to statements and integrations.
+a creditNoteDate
+s: The effective date of the credit, which decides the accounting and tax period it falls in.
+u: Entered when the credit is recorded; payable aging and tax reporting use it, and it can differ from the application date.
+a status
+s: The stage of the credit from preparation and approval through posting, application against invoices, or cancellation.
+u: Starts as DRAFT; payables staff approve and post it, and the applied states follow the invoice applications made against it.
+v DRAFT: The credit is being prepared and has no accounting effect.
+v APPROVED: The credit is authorized but not yet posted to the ledger.
+v POSTED: The credit is recognized in accounts payable and is available to apply.
+v PARTIALLY_APPLIED: Part of the credit has been applied to invoices and some remains available.
+v FULLY_APPLIED: The whole credit has been used against invoices.
+v CANCELLED: The credit was withdrawn before posting and has no effect.
+v REVERSED: The posted credit was undone by a reversing entry.
+a currencyId
+s: The currency in which every amount on the credit note is expressed.
+u: Chosen when the credit is created, normally the original invoice currency; applying it to an invoice in another currency needs an exchange rate.
+a subtotal
+s: The credit value before tax, summed from the credit lines.
+u: Calculated from the lines; tax is computed on it and it is reconciled with the lines before posting.
+a taxAmount
+s: The tax reversed or adjusted by this credit, summed from the lines.
+u: Calculated from the credit lines; defaults to zero and is used in tax reporting and accounting.
+a totalAmount
+s: The total payable reduction the credit note represents, including tax.
+u: Calculated as subtotal plus tax; it is the most credit that can be applied to invoices and is shown on supplier statements.
+a amountUnapplied
+s: The credit still available, being the total less what active applications have consumed.
+u: Maintained as applications and reversals are recorded; payables staff use it to find credit to offset or request as a refund.

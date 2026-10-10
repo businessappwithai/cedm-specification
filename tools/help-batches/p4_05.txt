@@ -1,0 +1,59 @@
+@ Person
+a personId
+s: The stable identifier of the individual-person record, which never changes even if the person's name does.
+u: Generated on creation; individual identity processes and person-specific records refer to the person through this value.
+a title
+s: The honorific or personal title used before the person's name, such as Dr, Prof or Ms.
+u: Entered when known and optional; printed in letters, documents and formal presentation of the name.
+a givenName
+s: The person's first or given name, as it appears on their identity documents.
+u: Required; entered at registration and used with the family name for identity matching, documents and correspondence.
+a middleName
+s: Any middle or additional given names the person carries, when they are used officially.
+u: Optional; entered only when needed to tell people apart or to match identity documents and legal records.
+a familyName
+s: The person's family name or surname, as it appears on their identity documents.
+u: Required; entered at registration and used with the given name for identity matching, documents and correspondence.
+a preferredName
+s: The name the person likes to be called, which may differ from their legal given name.
+u: Optional; chosen by the person and used for greetings, display in screens and informal communication, never for legal documents.
+a dateOfBirth
+s: The person's date of birth, recorded where age or verified identity matters to a process.
+u: Optional and sensitive; collected only where needed, for example for age checks, payroll or identity verification.
+a gender
+s: The person's gender as recorded for the organisation's lawful purposes.
+u: Entered only where there is a need and a lawful basis, normally by the person; never used to decide eligibility.
+v FEMALE: The person identifies and is recorded as female.
+v MALE: The person identifies and is recorded as male.
+v NON_BINARY: The person identifies as neither exclusively male nor exclusively female.
+v OTHER: The person identifies in a way not covered by the other values.
+v UNSPECIFIED: The gender is not recorded, because it was not needed or the person chose not to say.
+@ Picking
+a status
+s: Shows how far the pick task has advanced, from planned and released through picking to completion or a problem.
+u: Updated by warehouse staff and handheld scanners; a pick can be finished only from the in-progress state.
+v PLANNED: The pick is created but not yet released to the floor, so nobody is working on it.
+v RELEASED: The pick has been released to warehouse staff and is ready to be started.
+v IN_PROGRESS: A picker has started collecting the goods from the source location.
+v PICKED: All the quantity was collected and moved to staging, ready for packing. A final state.
+v SHORT: Less than the required quantity was found, so the pick stops short and the shortfall needs a decision.
+v CANCELLED: The pick was called off before completion and no goods are moved. A final state.
+v EXCEPTION: Something prevented picking, such as damaged stock or a blocked location, and the task needs investigation.
+@ Policy
+a name
+s: The title of the policy as staff will see it in the policy library, such as Acceptable Use Policy.
+u: Set by the policy owner when drafting; shown in the policy library, audit reports and training material.
+a policyVersion
+s: The revision number of the policy text, such as 1.0 or 2.3, which tells readers which wording applies.
+u: Incremented by the owner at each revision, so audits and training can cite the exact version staff acknowledged.
+a status
+s: Shows where the policy is in its life, from draft through approval and enforcement to retirement.
+u: Moved by the owner and approvers; staff are held to a policy only while it is active.
+v DRAFT: The policy text is being written and is not yet binding or approved.
+v APPROVED: The policy has been formally approved but is not yet in force, awaiting its effective date.
+v ACTIVE: The policy is in force and staff and systems are expected to comply with it.
+v SUSPENDED: The policy is temporarily not enforced, for example while it is revised, and may be reinstated.
+v RETIRED: The policy has been withdrawn or replaced and no longer applies. A final state.
+a effectiveFrom
+s: The first date on which the policy applies and staff are expected to comply.
+u: Set at approval, usually in the future; the policy becomes enforceable from this date and not before.

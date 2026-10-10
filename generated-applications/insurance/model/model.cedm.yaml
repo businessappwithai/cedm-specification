@@ -12,9 +12,15 @@ application:
 imports:
   - module: common
   - entity: InsurancePolicy
+  - entity: Coverage
+  - entity: InsuredParty
+  - entity: Underwriting
+  - entity: Premium
   - entity: InsuranceClaim
+  - entity: ClaimLine
+  - entity: Settlement
 ui:
   categories:
     - name: Insurance
       icon: umbrella
-      entities: [InsurancePolicy, InsuranceClaim]
+      entities: [InsurancePolicy, Underwriting, InsuranceClaim, Settlement]

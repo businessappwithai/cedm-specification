@@ -921,6 +921,14 @@ ALTER TABLE bus_scenario_status
 
 CREATE INDEX IF NOT EXISTS idx_bus_scenario_status_doc_status ON bus_scenario_status (doc_status);
 
+ALTER TABLE bus_variance_basis
+  ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
+  ADD COLUMN IF NOT EXISTS workflow_run_id UUID,
+  ADD COLUMN IF NOT EXISTS doc_status VARCHAR(20) NOT NULL DEFAULT 'draft',
+  ADD COLUMN IF NOT EXISTS doc_status_message TEXT;
+
+CREATE INDEX IF NOT EXISTS idx_bus_variance_basis_doc_status ON bus_variance_basis (doc_status);
+
 ALTER TABLE bus_ledger_status
   ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
   ADD COLUMN IF NOT EXISTS workflow_run_id UUID,
@@ -1001,6 +1009,14 @@ ALTER TABLE bus_tax_rate_status
 
 CREATE INDEX IF NOT EXISTS idx_bus_tax_rate_status_doc_status ON bus_tax_rate_status (doc_status);
 
+ALTER TABLE bus_tax_rate_rate_basis
+  ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
+  ADD COLUMN IF NOT EXISTS workflow_run_id UUID,
+  ADD COLUMN IF NOT EXISTS doc_status VARCHAR(20) NOT NULL DEFAULT 'draft',
+  ADD COLUMN IF NOT EXISTS doc_status_message TEXT;
+
+CREATE INDEX IF NOT EXISTS idx_bus_tax_rate_rate_basis_doc_status ON bus_tax_rate_rate_basis (doc_status);
+
 ALTER TABLE bus_tax_registration_status
   ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
   ADD COLUMN IF NOT EXISTS workflow_run_id UUID,
@@ -1048,6 +1064,14 @@ ALTER TABLE bus_charge_status
   ADD COLUMN IF NOT EXISTS doc_status_message TEXT;
 
 CREATE INDEX IF NOT EXISTS idx_bus_charge_status_doc_status ON bus_charge_status (doc_status);
+
+ALTER TABLE bus_charge_charge_type
+  ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
+  ADD COLUMN IF NOT EXISTS workflow_run_id UUID,
+  ADD COLUMN IF NOT EXISTS doc_status VARCHAR(20) NOT NULL DEFAULT 'draft',
+  ADD COLUMN IF NOT EXISTS doc_status_message TEXT;
+
+CREATE INDEX IF NOT EXISTS idx_bus_charge_charge_type_doc_status ON bus_charge_charge_type (doc_status);
 
 ALTER TABLE bus_subscription_status
   ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
@@ -2028,6 +2052,14 @@ ALTER TABLE bus_scenario_status
   DROP COLUMN IF EXISTS doc_status,
   DROP COLUMN IF EXISTS doc_status_message;
 
+DROP INDEX IF EXISTS idx_bus_variance_basis_doc_status;
+
+ALTER TABLE bus_variance_basis
+  DROP COLUMN IF EXISTS workflow_status,
+  DROP COLUMN IF EXISTS workflow_run_id,
+  DROP COLUMN IF EXISTS doc_status,
+  DROP COLUMN IF EXISTS doc_status_message;
+
 DROP INDEX IF EXISTS idx_bus_ledger_status_doc_status;
 
 ALTER TABLE bus_ledger_status
@@ -2108,6 +2140,14 @@ ALTER TABLE bus_tax_rate_status
   DROP COLUMN IF EXISTS doc_status,
   DROP COLUMN IF EXISTS doc_status_message;
 
+DROP INDEX IF EXISTS idx_bus_tax_rate_rate_basis_doc_status;
+
+ALTER TABLE bus_tax_rate_rate_basis
+  DROP COLUMN IF EXISTS workflow_status,
+  DROP COLUMN IF EXISTS workflow_run_id,
+  DROP COLUMN IF EXISTS doc_status,
+  DROP COLUMN IF EXISTS doc_status_message;
+
 DROP INDEX IF EXISTS idx_bus_tax_registration_status_doc_status;
 
 ALTER TABLE bus_tax_registration_status
@@ -2151,6 +2191,14 @@ ALTER TABLE bus_billing_cycle_status
 DROP INDEX IF EXISTS idx_bus_charge_status_doc_status;
 
 ALTER TABLE bus_charge_status
+  DROP COLUMN IF EXISTS workflow_status,
+  DROP COLUMN IF EXISTS workflow_run_id,
+  DROP COLUMN IF EXISTS doc_status,
+  DROP COLUMN IF EXISTS doc_status_message;
+
+DROP INDEX IF EXISTS idx_bus_charge_charge_type_doc_status;
+
+ALTER TABLE bus_charge_charge_type
   DROP COLUMN IF EXISTS workflow_status,
   DROP COLUMN IF EXISTS workflow_run_id,
   DROP COLUMN IF EXISTS doc_status,

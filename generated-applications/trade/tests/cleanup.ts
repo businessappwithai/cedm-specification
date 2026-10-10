@@ -25,7 +25,7 @@
  * transaction, and the API refuses to delete it for every caller; those rows
  * are reported as kept rather than as failures.
  *
- * Generated: 2026-10-08T00:58:06.732Z
+ * Generated: 2026-10-10T09:27:16.541Z
  * Project: trade
  */
 

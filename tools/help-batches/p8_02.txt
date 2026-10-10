@@ -1,0 +1,36 @@
+@ SupplierQuotation
+a supplierQuotationId
+s: The permanent system identity of one supplier's quotation, independent of the supplier's own document number.
+u: Generated on creation and never changed; quotation lines, award decisions and resulting purchase orders refer to the offer through it.
+a quotationNumber
+s: The reference the supplier or the sourcing team uses to identify this quotation, such as Q-88214.
+u: Entered from the supplier's document; quoted in negotiation and order conversion, and unique per supplier where the supplier numbers its own offers.
+a submittedAt
+s: The moment the supplier's response was received or submitted to the buyer for the request for quotation.
+u: Recorded on receipt; compared with the request's closing time to judge late bids and to order offers chronologically.
+a totalAmount
+s: The overall price the supplier is offering across all quotation lines, in the quoted currency.
+u: Entered or summed from the lines; used for side-by-side bid comparison and approval thresholds, and should reconcile with the line prices.
+a status
+s: Where the quotation stands in evaluation, from receipt through award decision or lapse.
+u: Moves as the sourcing team reviews it; only an accepted quotation may be converted to purchase orders.
+v RECEIVED: The quotation has been logged but evaluation has not started.
+v UNDER_REVIEW: Buyers are comparing prices, terms and delivery against other bids.
+v ACCEPTED: The offer has been selected and may be converted into purchase orders.
+v REJECTED: The offer was declined and will not be ordered from. A final state.
+v EXPIRED: The validity date passed before the offer was accepted. A final state.
+v WITHDRAWN: The supplier retracted the offer. A final state.
+
+@ SupplierReturnLine
+r supplierReturn
+u: Used to group every returned line under one return document and to inherit its supplier, status and approval context.
+r purchaseOrderLine
+u: Used to trace the returned quantity back to the original commitment and to reverse its price and ordered quantity.
+r goodsReceiptLines
+u: Used to show which received lots are being sent back, so returned quantity cannot exceed what was actually accepted.
+r invoiceLines
+u: Used to find the supplier charges that must be reduced or credited when goods are returned after invoicing.
+r inventoryMovements
+u: Used to verify that stock leaving the warehouse for the supplier is recorded and reconciles with the quantity returned.
+r supplierCreditNoteLines
+u: Used to match the credit the supplier issues for this returned quantity against the approved credit amount.

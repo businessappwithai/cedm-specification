@@ -120,6 +120,7 @@
     "SalesOrderStatus",
     "BudgetStatus",
     "ScenarioStatus",
+    "VarianceBasis",
     "LedgerStatus",
     "FiscalPeriodStatus",
     "InvoiceLineMatchingStatus",
@@ -130,12 +131,14 @@
     "TaxCodeStatus",
     "TaxJurisdictionStatus",
     "TaxRateStatus",
+    "TaxRateRateBasis",
     "TaxRegistrationStatus",
     "TaxRuleTaxType",
     "TaxRuleStatus",
     "TaxTransactionStatus",
     "BillingCycleStatus",
     "ChargeStatus",
+    "ChargeChargeType",
     "SubscriptionStatus",
     "SubscriptionPlanStatus",
     "UsageRecordStatus",
@@ -168,6 +171,7 @@
     "BankAccountStatus (4)",
     "BillingCycleStatus (4)",
     "BudgetStatus (6)",
+    "ChargeChargeType (6)",
     "ChargeStatus (4)",
     "CreditNoteApplicationStatus (4)",
     "CreditNoteStatus (9)",
@@ -219,6 +223,7 @@
     "TaskTaskType (7)",
     "TaxCodeStatus (4)",
     "TaxJurisdictionStatus (4)",
+    "TaxRateRateBasis (2)",
     "TaxRateStatus (4)",
     "TaxRegistrationStatus (4)",
     "TaxRuleStatus (4)",
@@ -226,7 +231,8 @@
     "TaxTransactionStatus (4)",
     "UnitOfMeasureCategory (9)",
     "UnitOfMeasureStatus (3)",
-    "UsageRecordStatus (4)"
+    "UsageRecordStatus (4)",
+    "VarianceBasis (2)"
   ],
   "sagas": [
     "PartyExceptionRaised on Party (1 steps, rule)",
@@ -290,7 +296,7 @@
     "FiscalPeriod: CLOSED",
     "PaymentAllocation: REVERSED, CANCELLED",
     "PaymentInstruction: COMPLETED, CANCELLED",
-    "CreditNote: FULLY_APPLIED, REFUNDED, CANCELLED, REVERSED",
+    "CreditNote: CANCELLED, REVERSED",
     "CreditNoteApplication: REVERSED, CANCELLED",
     "TaxCode: COMPLETED, CANCELLED",
     "TaxJurisdiction: COMPLETED, CANCELLED",
@@ -308,5 +314,5 @@
     "Product: DISCONTINUED, RETIRED"
   ],
   "packageManager": "bun",
-  "generatedAt": "2026-10-08T00:56:04.447Z"
+  "generatedAt": "2026-10-10T09:25:59.543Z"
 }

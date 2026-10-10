@@ -1,0 +1,165 @@
+@ SupplyPlan
+s: A plan of expected demand, supply, stock and replenishment actions over a planning horizon.
+b: The supply plan turns forecasts and stock policy into what must be bought, made or moved and when. Keeping each plan with its period lets planners compare versions, release actions and see what was intended.
+u: Prepared by supply planners; approved by management; read by purchasing, production and warehouse.
+c: A plan may belong to an organisation, covers products and locations, and is broken into plan lines.
+l: A plan is drafted and approved, becomes active while being executed, and is closed at the end of its horizon. It may be cancelled before closing. Closed and cancelled are final.
+x: The Q4 plan for the northern warehouses covers October to December and is approved in September.
+a supplyPlanId
+s: The identity of the plan, constant for its life.
+u: Generated on creation; plan lines refer to it.
+a planNumber
+s: The number of the plan, such as SP-2026-Q4.
+u: Unique; quoted in planning meetings.
+a planningStart
+s: The first date the plan covers.
+u: Set when the plan is created.
+c: Compared with the end date.
+a planningEnd
+s: The last date the plan covers.
+u: Must not be before the start date.
+c: Defines the horizon.
+a status
+s: Where the plan is.
+u: Starts as DRAFT; moved by planners.
+v DRAFT: Being prepared.
+v APPROVED: Accepted and ready to run.
+v ACTIVE: Being executed; actions are released.
+v CLOSED: The horizon has ended. A final state.
+v CANCELLED: Dropped. A final state.
+r organization
+s: The organisation the plan is for.
+u: Chosen when the plan is created.
+n: At most one organisation.
+t: Decides whose stock and budget the plan uses.
+r products
+s: The products covered by the plan.
+u: Chosen when the plan is built.
+n: Any number of products.
+t: Limits the plan to the range.
+r locations
+s: The places covered by the plan.
+u: Chosen when the plan is built.
+n: Any number of locations.
+t: Limits the plan to the sites.
+
+@ SupplyPlanLine
+s: A quantity planned for a product at a location on a date within a supply plan.
+b: Each line is one planned action, such as the stock to hold or buy for a product at a site. Lines are released and fulfilled as the plan runs, so the plan can be compared with what happened.
+u: Created by planners or the planning run; released to purchasing or production; read to track fulfilment.
+c: A line belongs to one plan and names a product and a location.
+l: A line is planned, released for action and fulfilled. It may be cancelled. Fulfilled and cancelled are final.
+x: Plan 2,000 units of product P-14 at the Leeds warehouse for 15 November.
+a supplyPlanLineId
+s: The identity of the line, constant for its life.
+u: Generated on creation; fulfilment records refer to it.
+a planningDate
+u: Set when the line is created; actions are due by it.
+c: Falls inside the plan's horizon.
+a plannedQuantity
+s: The quantity the plan calls for.
+u: Entered or calculated; must not be negative.
+c: Compared with the quantity actually delivered.
+a safetyStockQuantity
+s: The buffer stock to hold in addition.
+u: Set from policy; must not be negative.
+c: Added to the planned quantity when ordering.
+a status
+s: Where the line is.
+u: Starts as PLANNED; moved as it is released and met.
+v PLANNED: Proposed and not yet acted on.
+v RELEASED: Passed to purchasing or production.
+v FULFILLED: The quantity has been supplied. A final state.
+v CANCELLED: No longer needed. A final state.
+r supplyPlan
+s: The plan the line belongs to.
+u: Set when the line is created.
+n: Exactly one plan.
+t: Places the action in a horizon.
+r product
+s: The product planned.
+u: Chosen when the line is created.
+n: Exactly one product.
+t: Decides what is bought or made.
+r location
+s: The location the quantity is planned for.
+u: Chosen when the line is created.
+n: Exactly one location.
+t: Decides where stock must be.
+
+@ Task
+s: A discrete unit of business work performed by a person, organisation, system or workflow participant.
+b: Tasks are how work is handed out and tracked, whether a person must act or a system step must run. Their type, status, owner and dates show what is waiting, what is stuck and what is done.
+u: Created by people or workflows; picked up by assignees; read by managers and reports.
+c: A task may belong to a workflow, an assignee, an organisation and a related document.
+l: A task is created, becomes ready, is assigned and worked, and ends completed, cancelled or failed. It may be blocked and resumed. All three end states are final.
+x: A task "Approve purchase order PO-5120" is assigned to a manager and completed the same day.
+a taskId
+s: The identity of the task, constant for its life.
+u: Generated on creation; workflow and audit records refer to it.
+a code
+s: The code of the task, such as TASK-0042.
+u: Used in lists and notifications.
+a name
+s: A short statement of the work.
+u: Shown on to-do lists.
+a description
+s: Details of what must be done.
+u: Read by the assignee.
+a taskType
+s: The kind of work the task is.
+u: Chosen when created; decides who or what performs it.
+v USER: Work done by a person.
+v SYSTEM: A step run automatically.
+v APPROVAL: A person must approve or refuse something.
+v DECISION: A choice that decides the path.
+v NOTIFICATION: A message to be sent.
+v SCRIPT: A script run by the system.
+v OTHER: Work that fits no other type.
+a status
+s: Where the task is.
+u: Starts as CREATED; moved as it is worked.
+v CREATED: Recorded and not yet ready.
+v READY: Ready to be picked up.
+v ASSIGNED: Given to someone.
+v IN_PROGRESS: Being worked.
+v BLOCKED: Cannot proceed until something is resolved.
+v COMPLETED: Done. A final state.
+v CANCELLED: No longer needed. A final state.
+v FAILED: Could not be done. A final state.
+a priority
+s: How urgent the task is.
+u: Set when created; used to order work.
+v LOW: Can wait.
+v NORMAL: Ordinary priority.
+v HIGH: Do ahead of normal work.
+v CRITICAL: Do immediately.
+a dueAt
+u: Set when created; overdue tasks are flagged.
+c: Compared with the completion time.
+a startedAt
+u: Set when work starts.
+c: Not later than the completion time.
+a completedAt
+u: Set when the task is completed; required for a completed task.
+c: Gives the time taken.
+r workflow
+s: The workflow the task is part of.
+u: Set when the task is created by a workflow.
+n: At most one workflow.
+t: Places the task in a larger process.
+r assignee
+s: The person responsible for the task.
+u: Chosen when assigned.
+n: At most one assignee.
+t: Decides whose list it is on.
+r organization
+s: The organisation the task is for.
+u: Chosen when it concerns a unit.
+n: At most one organisation.
+t: Groups tasks by unit.
+r relatedDocument
+s: The document the task concerns.
+u: Linked when the task is about a document.
+n: At most one document.
+t: Gives the assignee what to act on.

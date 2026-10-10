@@ -13,7 +13,7 @@
  * word, so a dropdown that lost an option or a state machine that lost an edge
  * fails a test instead of quietly shipping.
  *
- * Generated: 2026-10-04T01:11:34.418Z
+ * Generated: 2026-10-09T15:28:24.797Z
  * Project: ecommerce
  */
 
@@ -332,12 +332,11 @@ export const stateMachines: StateMachine[] = [
     tableName: "bus_shopping_cart",
     statusField: "status",
     initial: "ACTIVE",
-    terminal: ["EXPIRED"],
+    terminal: ["CHECKED_OUT", "ABANDONED", "EXPIRED"],
     edges: [
-      { from: "ACTIVE", to: "CHECKED_OUT", trigger: "mark_checked_out" },
-      { from: "CHECKED_OUT", to: "ABANDONED", trigger: "mark_abandoned" },
-      { from: "CHECKED_OUT", to: "EXPIRED", trigger: "expire" },
-      { from: "ABANDONED", to: "EXPIRED", trigger: "expire" },
+      { from: "ACTIVE", to: "CHECKED_OUT", trigger: "check_out" },
+      { from: "ACTIVE", to: "ABANDONED", trigger: "abandon" },
+      { from: "ACTIVE", to: "EXPIRED", trigger: "expire" },
     ],
   },
   {

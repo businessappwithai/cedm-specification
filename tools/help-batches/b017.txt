@@ -1,0 +1,169 @@
+@ Failure
+s: An observed failure of equipment or an asset, recording the symptom, when it occurred, its effect and the maintenance context.
+b: Reliability engineering starts with knowing what failed, when and how badly. A failure record keeps that observation separate from the repair work, so the history of what went wrong is not lost when it is fixed.
+u: Raised by operators or technicians when something breaks; linked to the repair work order; analysed for causes and trends.
+c: A failure concerns one piece of Equipment; repairs and cause analysis refer back to it.
+l: Finalised evidence is corrected by compensating or superseding records and never overwritten.
+x: A conveyor drive motor tripped on overload at 03:10 and stopped the line for forty minutes.
+a failureId
+s: The identity of the failure record.
+u: Generated when raised; repair orders and analyses refer to it.
+a effectiveAt
+s: When the failure occurred.
+u: Entered by the person reporting it; used to measure time between failures and downtime.
+r equipment
+s: The equipment that failed.
+u: Chosen when the failure is raised.
+n: Exactly one equipment item: a failure is always a failure of something specific.
+w: Builds the failure history of each machine.
+
+@ Farm
+s: A managed agricultural operation consisting of land, buildings, resources and production activities.
+b: A farm is the unit that plans what to grow or raise and answers for what it produces. Fields, crops and equipment are organised under it.
+u: Registered when an operation is established; read by agronomy, operations and sales.
+c: A farm stands at a Location, is owned by Parties, is divided into FarmFields and grows Crops.
+l: A farm is planned, goes active when production starts, may be inactive in a fallow period, and is retired when the operation ends.
+x: Greenfield Farm, a mixed crop and livestock operation of 340 hectares.
+a farmId
+s: The identity of the farm record.
+u: Generated on registration.
+a farmCode
+s: The code by which the farm is known in plans and reports.
+u: Unique; assigned at registration.
+a name
+s: The name of the farm.
+u: Shown in lists and on documents.
+a farmType
+s: The main kind of production the farm carries out.
+u: Chosen at registration; groups farms in reports.
+v CROP: Grows crops.
+v LIVESTOCK: Raises animals.
+v MIXED: Both crops and livestock.
+v AQUACULTURE: Farms fish or other aquatic species.
+v OTHER: Any other kind.
+a status
+s: Whether the farm is producing.
+u: Set by the operator.
+v PLANNED: Established on paper but not producing.
+v ACTIVE: In production.
+v INACTIVE: Temporarily not producing.
+v RETIRED: Operation ended. A final state.
+r location
+s: The land and site of the farm.
+u: Set at registration.
+n: Exactly one location: a farm is a place.
+w: Supplies address and boundaries.
+r owner
+s: The parties that own the farm.
+u: Recorded at registration.
+n: Any number of owners, including joint owners.
+w: Identifies who is entitled to the farm's output.
+r fields
+s: The fields that make up the farm.
+u: Added as land is surveyed.
+n: Any number of fields.
+w: Fields are managed as part of the farm.
+r crops
+s: The crops grown on the farm.
+u: Linked from planting plans.
+n: Any number of crops.
+w: Shows the farm's production mix.
+
+@ FarmField
+s: A defined area of agricultural land that is managed as a unit of production.
+b: Crops are planted, treated and harvested field by field. A field record lets the farm plan rotations and track yields for each area.
+u: Defined when land is surveyed; planted with crops; read for plans and harvest records.
+c: A field belongs to a Farm and is planted with Crops.
+l: A field is active while cropped, may be left fallow to recover, and becomes inactive when taken out of use.
+x: Field N-12, 18 hectares of clay loam, planted with winter wheat.
+a farmFieldId
+s: The identity of the field.
+u: Generated on creation.
+a fieldCode
+s: The code of the field within the farm, such as N-12.
+u: Assigned by the farm; used in work plans.
+a area
+s: The size of the field.
+u: Measured or surveyed; read with the unit.
+a areaUnit
+s: The unit in which the area is expressed.
+u: Chosen with the area.
+a soilType
+s: The main soil of the field.
+u: Entered from soil surveys; used in crop choice.
+a status
+s: What the field is doing.
+u: Set by the farm.
+v ACTIVE: In cultivation.
+v FALLOW: Resting without a crop to restore the soil.
+v INACTIVE: Out of use.
+r farm
+s: The farm the field belongs to.
+u: Set at creation.
+n: Exactly one farm: land is managed within a single holding.
+w: Rolls the field's results up to the farm.
+r crops
+s: The crops grown in the field.
+u: Linked as plantings are made.
+n: Any number of crops over time.
+w: Records the rotation history.
+
+@ Fee
+a feeId
+s: The identity of the fee.
+u: Generated on creation; invoices and payments refer to it.
+a feeCode
+s: The code of the fee type, such as TUITION-2026 or LAB.
+u: Chosen when the fee is assessed.
+a amount
+s: The amount charged.
+u: Calculated from the fee schedule.
+a dueDate
+s: The date payment is due.
+u: Set when assessed.
+a status
+v DRAFT: Being prepared; not yet charged.
+v ASSESSED: Charged to the student but not yet invoiced.
+v INVOICED: Included on an invoice.
+v PAID: Settled.
+v WAIVED: Excused by the institution.
+v CANCELLED: Withdrawn.
+r student
+n: Exactly one student: a fee is always charged to a specific learner.
+r currency
+n: Exactly one currency, so the amount is unambiguous.
+
+@ Filing
+s: A submission made to a court, regulator, registry or authority, with immutable evidence of what was submitted.
+b: Legal and regulatory duties are met by filing. The record shows what was filed, with whom and when, which is the proof that a duty was met on time.
+u: Created when a document is submitted; read when proving compliance or responding to the authority.
+c: A filing is directed to an external body and supported by documents.
+l: Finalised evidence is preserved; corrections or supersession are explicit filings.
+x: Annual accounts filed with the company registry on 28 June.
+a filingId
+s: The identity of the filing.
+u: Generated on creation.
+a occurredAt
+s: When the filing was submitted.
+u: Taken from the receipt; deadlines are checked against it.
+
+@ Finding
+s: An observation of a deficiency in a control, audit, compliance, quality or risk area that needs a decision or remediation.
+b: Audits are only useful if what they find is followed up. A finding states the problem, how serious it is and what has to be done, so it can be tracked to closure.
+u: Raised by auditors or reviewers; assigned for remediation; reviewed until closed.
+c: A finding may concern a Control or a Risk.
+l: Finalised evidence is not silently rewritten; corrections or supersession are explicit.
+x: Finding that bank reconciliations were reviewed late in three of twelve months.
+a findingId
+s: The identity of the finding.
+u: Generated when raised.
+a effectiveAt
+s: When the finding was raised.
+u: Set at issue.
+r control
+s: The control the finding is about.
+u: Set where a specific control failed.
+n: At most one control.
+w: Links the deficiency to the control to be fixed.
+r risk
+n: At most one risk, the exposure that the finding relates to.

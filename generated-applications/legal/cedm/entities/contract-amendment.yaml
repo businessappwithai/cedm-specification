@@ -7,19 +7,17 @@ entity:
     icon: file-check
   identity: {key: contractAmendmentId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: contractAmendmentId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of ContractAmendment., businessMeaning: Identifies one governed record independently of mutable labels or state., usage: "Governance, workflow, integration and audit.", relationshipContext: Referenced by related enterprise records., requiredMeaning: Required.}}
-  - {name: effectiveAt, type: datetime, required: false, help: {summary: Time at which this record becomes effective or evidentially applicable., businessMeaning: Establishes temporal business meaning., usage: "Lifecycle, audit and reporting.", relationshipContext: Does not rewrite earlier effective evidence., optionalMeaning: Optional when lifecycle does not require a separate effective timestamp.}}
+    - {name: contractAmendmentId, type: uuid, required: true, immutable: true, help: {summary: The identity of the amendment., usage: Generated on creation; version history and approvals refer to it.}}
+    - {name: effectiveAt, type: datetime, required: false, help: {summary: The date and time from which the amended terms apply., usage: Entered from the signed amendment; terms before this moment remain those of the earlier text.}}
   relationships:
-  - {name: contract, target: Contract, cardinality: '1', ownership: reference, help: {summary: Contract governed by this record., businessMeaning: Supplies legal/commercial agreement context., usage: Contract lifecycle and audit., cardinalityMeaning: Exactly one Contract., workflowRole: Changes preserve prior executed evidence and apply according to effective terms.}}
+    - {name: contract, target: Contract, cardinality: '1', ownership: reference, help: {summary: The contract that is being amended., usage: Set when the amendment is created., cardinalityMeaning: Exactly one contract; an amendment always modifies a single contract., workflowRole: Keeps the change attached to the agreement it changes.}}
   invariants:
-  - {id: CONTRACT-AMENDMENT-001, rule: Finalized historical evidence must not be silently rewritten; corrections or supersession require explicit governed records.}
+    - {id: CONTRACT-AMENDMENT-001, rule: Finalized historical evidence must not be silently rewritten; corrections or supersession require explicit governed records.}
   help:
-    summary: A governed change instrument that modifies defined Contract terms prospectively while preserving prior executed contract evidence.
-    purpose: Provide durable, implementation-neutral governance semantics for ContractAmendment.
-    businessMeaning: A governed change instrument that modifies defined Contract terms prospectively while preserving prior executed contract evidence.
-    whenUsed: Used in contracts, documents, governance, compliance, risk, legal, service, finance, or audit workflows where applicable.
-    howItRelates: Connects authoritative business records to controlled lifecycle, evidence, findings, and downstream remediation without replacing source transactions.
-    lifecycleUsage: Created under governance, reviewed or finalized where applicable, and retained or superseded with history preserved.
-    commonProcesses: Contract management, document control, audit, compliance assessment, risk governance, approval, and remediation.
-    commonExamples: Enterprise agreements, controlled records, audit evidence, compliance findings, and lifecycle changes.
+    summary: A change instrument that modifies defined terms of a contract from a given date, while the originally signed contract stays on record.
+    businessMeaning: 'Contracts change after they are signed: a price is revised, a scope extended. An amendment records exactly what changed and from when, so everyone can reconstruct which terms applied at any date without altering the signed original.'
+    usage: Raised when both parties agree to change a signed contract; read when someone needs the current or historical terms.
+    relationshipContext: Each amendment belongs to one Contract; the effective terms are the contract as signed plus its amendments in order.
+    lifecycle: Executed amendments are evidence and are not edited. A correction or replacement is recorded as another amendment.
+    example: Amendment 2 to a supply contract raises unit prices by 3% from 1 July.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-CONTRACT-AMENDMENT}

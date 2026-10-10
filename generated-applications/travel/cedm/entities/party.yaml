@@ -16,7 +16,6 @@ entity:
         businessMeaning: Identifies the real-world person or organization represented by this record without changing when the party changes roles or business relationships.
         usage: Used as the identity anchor for party roles, addresses, transactions, contracts, ownership, audit, and integrations.
         relationshipContext: PartyId identifies the root party; role-specific identifiers such as Customer.customerId must not be used as substitutes for party identity.
-        requiredMeaning: Required because every party must have one stable identity.
     - name: partyType
       type: enum
       required: true
@@ -29,7 +28,6 @@ entity:
         valueSemantics:
           PERSON: The party represents an individual human being.
           ORGANIZATION: The party represents a legal, commercial, governmental, nonprofit, or other organized body.
-        requiredMeaning: Required because the party's specialization and applicable business semantics depend on it.
     - name: displayName
       type: string
       required: true
@@ -39,7 +37,6 @@ entity:
         businessMeaning: Provides a consistent human-readable representation independent of whether the party is a person or organization.
         usage: Used in forms, search results, documents, transactions, reports, notifications, and user interfaces.
         relationshipContext: It is a presentation identity for the Party and does not replace legal names, person names, or organization registration names stored by specializations.
-        requiredMeaning: Required so every party can be unambiguously presented to users and business processes.
     - name: status
       type: enum
       required: true
@@ -55,7 +52,6 @@ entity:
           INACTIVE: The party is retained but is not normally eligible for new activity.
           BLOCKED: Business activity is restricted pending resolution of a business, risk, compliance, or operational condition.
           RETIRED: The party relationship is permanently ended for normal operational use while historical references remain valid.
-        requiredMeaning: Required because downstream processes must know whether participation is currently permitted.
     - name: externalReference
       type: string
       required: false
@@ -65,7 +61,6 @@ entity:
         businessMeaning: Preserves a cross-system identity that allows CEDM to reconcile a party with another master-data system.
         usage: Used for integrations, migration, reconciliation, EDI, synchronization, and external lookup.
         relationshipContext: It is not the canonical CEDM identity; Party.partyId remains the internal identity while externalReference provides interoperability context.
-        optionalMeaning: Optional when no external system identity exists or when the external identity is maintained elsewhere.
     - name: createdAt
       type: datetime
       required: true
@@ -75,7 +70,6 @@ entity:
         businessMeaning: Establishes the beginning of the CEDM record's audit history and supports chronology.
         usage: Used for audit, synchronization, data-quality analysis, retention, and operational reporting.
         relationshipContext: Describes the CEDM record lifecycle, not the date the real-world person or organization came into existence.
-        requiredMeaning: Required for traceability of master-data creation.
     - name: createdBy
       type: reference
       target: Party
@@ -86,7 +80,6 @@ entity:
         businessMeaning: Provides accountability for master-data creation.
         usage: Used by audit, security, governance, and investigation processes.
         relationshipContext: The target Party is an audit actor and should not be confused with the party being created.
-        optionalMeaning: Optional when the source system cannot provide an actor identity.
     - name: updatedAt
       type: datetime
       required: true
@@ -96,7 +89,6 @@ entity:
         businessMeaning: Establishes the most recent known modification point for synchronization and audit.
         usage: Used for change detection, integration, audit, caching, and reporting.
         relationshipContext: It describes modification of the CEDM record, not a change to the underlying real-world party.
-        requiredMeaning: Required for reliable change tracking.
     - name: updatedBy
       type: reference
       target: Party
@@ -107,7 +99,6 @@ entity:
         businessMeaning: Provides accountability for master-data changes.
         usage: Used by audit, security, governance, and investigation processes.
         relationshipContext: The target Party is an audit actor rather than the subject party.
-        optionalMeaning: Optional when an actor identity is unavailable.
   relationships:
     - name: person
       target: Person

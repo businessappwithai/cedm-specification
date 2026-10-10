@@ -1,0 +1,140 @@
+@ HotelReservation
+s: A booking of accommodation or hospitality services at a hotel for a guest and a stay.
+b: The reservation is the promise a hotel makes to a guest: a stay of given dates, for a number of people, at a property. Availability, revenue, check-in and billing all follow from it.
+u: Created when a guest or agent books; confirmed; used at check-in; completed at check-out or closed as cancelled or no-show; read by front desk, housekeeping and revenue management.
+c: A reservation is at one Hotel, for a guest (Party), and is assigned a HotelRoom when one is allocated.
+l: A reservation is requested, confirmed as reserved, checked in when the guest arrives and checked out when they leave. Before arrival it can be cancelled, and it ends as a no-show if the guest does not turn up.
+x: Reservation 884213 for two guests, three nights from 14 June, confirmed and later checked in to room 412.
+a hotelReservationId
+s: The identity of the reservation.
+u: Generated on booking; folios and housekeeping tasks refer to it.
+a reservationNumber
+s: The confirmation number given to the guest.
+u: Allocated at booking; unique; quoted at check-in and in correspondence.
+a checkIn
+s: The date the guest is due to arrive.
+u: Entered at booking; used to plan availability and arrival lists.
+a checkOut
+s: The date the guest is due to leave.
+u: Entered at booking; must be later than the check-in date. It determines the number of nights charged.
+a status
+s: Where the reservation stands from request to departure.
+u: Moved by reservations and the front desk.
+v REQUESTED: Asked for but not yet confirmed.
+v RESERVED: Confirmed; a room is held for the guest.
+v CHECKED_IN: The guest has arrived and is staying.
+v CHECKED_OUT: The guest has left and the stay is complete. A final state.
+v CANCELLED: Cancelled before arrival. A final state.
+v NO_SHOW: The guest did not arrive. A final state.
+a guestCount
+s: The number of people staying.
+u: Entered at booking; used to choose a room of suitable capacity and to price per person.
+r hotel
+s: The hotel where the stay takes place.
+u: Chosen at booking.
+n: Exactly one hotel: a reservation is for a stay at a single property.
+w: Determines rates, availability and rules.
+r room
+s: The room assigned to the stay.
+u: Assigned at or before arrival, often as late as check-in.
+n: At most one room; many reservations are made for a room type and assigned later.
+w: Links the stay to a specific unit for housekeeping and billing.
+r guest
+s: The person or organisation that is staying or paying.
+u: Set at booking.
+n: Exactly one guest: every reservation has a named lead guest.
+w: Identifies who to contact and to bill.
+
+@ HotelRoom
+s: An individual accommodation unit within a hotel.
+b: Rooms are what a hotel sells. Each room record carries its number, type, capacity and current state, so reservations, housekeeping and maintenance all work from the same picture of what is available.
+u: Created when the hotel is set up or extended; updated as guests arrive and leave and as the room is cleaned or serviced; read by the front desk and housekeeping.
+c: A room belongs to one Hotel and is occupied through HotelReservations.
+l: A room is available, can be reserved for a guest, becomes occupied at check-in, is cleaned after check-out and then returns to available. It can be taken out of service for repair.
+x: Room 412, a double room for up to three guests, currently being cleaned after check-out.
+a hotelRoomId
+s: The identity of the room record.
+u: Generated on creation; reservations and work orders refer to it.
+a roomNumber
+s: The number on the door.
+u: Entered when the room is set up; unique within the hotel and used by guests and staff.
+a roomType
+s: The category of the room, such as standard double, suite or accessible twin.
+u: Chosen when set up; reservations are sold by type and rates differ by it.
+a status
+s: What the room is doing now.
+u: Updated by the front desk and housekeeping; only AVAILABLE rooms can be allocated to arrivals.
+v AVAILABLE: Clean and ready to be sold or allocated.
+v OCCUPIED: A guest is staying in it.
+v RESERVED: Held for a confirmed reservation that has not yet arrived.
+v CLEANING: Vacated and being cleaned before it can be sold again.
+v OUT_OF_SERVICE: Unavailable because of repair or another problem.
+a capacity
+s: The maximum number of guests the room can accommodate.
+u: Set from the room's fit-out; used to choose a room for a party and to meet safety limits.
+r hotel
+s: The hotel the room belongs to.
+u: Set when the room is created.
+n: Exactly one hotel: a room is part of a single property.
+w: Rooms make up a hotel's inventory.
+r reservations
+s: The reservations that have used or will use the room.
+u: Read to see the room's booking calendar.
+n: Any number over the room's life.
+w: Show the room's occupancy and prevent double-booking.
+
+@ Identity
+s: An authentication identity or credential-bearing representation that a user or principal can sign in or act with.
+b: People and systems prove who they are in different ways: a password, a single sign-on account, an API key. Each way is an identity, with its own lifetime and status, so that access can be granted, suspended or revoked without deleting the user.
+u: Created when a user is given a way to authenticate; updated when it is suspended, renewed or revoked; read by the authentication service and security reviews.
+c: An identity belongs to one User; a user may have several identities.
+l: An identity is active, may be suspended and restored, and ends revoked or expired. Revoked and expired identities cannot be used again.
+x: A single sign-on identity from the corporate directory for a staff user, expiring when their contract ends.
+a identityId
+s: The identity of the credential record.
+u: Generated on creation; audit entries refer to it.
+a identityType
+s: The way in which this identity authenticates.
+u: Chosen when it is created; decides how the sign-in is checked.
+v PASSWORD: A password held by the application.
+v SSO: A single sign-on account from the organisation's identity provider.
+v OAUTH: An account at an external OAuth provider.
+v API_KEY: A key used by software to call the application.
+v CERTIFICATE: A client certificate.
+v BIOMETRIC: A fingerprint, face or similar trait.
+v OTHER: Any other mechanism.
+a externalSubject
+s: The identifier that the external identity provider uses for the person.
+u: Filled for SSO and OAuth identities; the sign-in is matched to the user through it.
+a status
+s: Whether the identity can currently be used.
+u: Set by security administrators or expiry processing; only ACTIVE identities authenticate.
+v ACTIVE: Can be used to sign in.
+v SUSPENDED: Temporarily blocked; can be restored.
+v REVOKED: Withdrawn on purpose and not reusable. A final state.
+v EXPIRED: Past its validity period. A final state.
+a issuedAt
+s: When the identity or credential was issued.
+u: Set on creation; used to enforce rotation.
+a expiresAt
+s: When the identity stops being valid.
+u: Set when issued; must not be before the issue time. After it, the status becomes EXPIRED.
+r user
+s: The user this identity authenticates.
+u: Set when the identity is created.
+n: Exactly one user: an identity always belongs to one account.
+w: A user's access is the sum of its active identities.
+
+@ Incident
+s: A record of an adverse, disruptive, security, operational, safety, compliance or other risk event that requires response and analysis.
+b: Incidents are how the organisation learns. A record that states what happened, when and how it was handled lets teams respond now and prevent repeats later, and shows regulators that it was managed.
+u: Raised by whoever notices; investigated and closed by the responsible team; analysed for trends.
+c: Incidents relate to the risks, controls, findings and cases that explain or follow from them.
+l: Finalised evidence and effective history are preserved. Reclassification, reassessment or settlement is recorded explicitly.
+x: A warehouse fire alarm triggered by a faulty charger, recorded with the response times and corrective actions.
+a incidentId
+s: The identity of the incident.
+u: Generated when raised; analyses and actions refer to it.
+a occurredAt
+s: When the incident occurred.
+u: Entered by the reporter; used for response timing and trend analysis.

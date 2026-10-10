@@ -1,0 +1,17 @@
+@ SubscriptionPlan
+a status
+s: Whether the plan is still being defined, on sale, retired after its run, or withdrawn.
+u: Starts as DRAFT; pricing managers activate it to offer it, and only an active plan can be chosen for new subscriptions.
+v DRAFT: The plan is being defined and cannot yet be sold.
+v ACTIVE: The plan is on offer and customers can subscribe to it.
+v COMPLETED: The plan has run its course and is no longer offered, though existing subscriptions keep their terms. A final state.
+v CANCELLED: The plan was withdrawn without ever being fully offered. A final state.
+
+@ Subscription
+a status
+s: Where the customer's subscription is in its life: being set up, running, finished or cancelled.
+u: Starts as DRAFT; account management activates it at sign-up, and billing and entitlements apply only while it is active.
+v DRAFT: The subscription is being set up and does not yet bill or grant access.
+v ACTIVE: The subscription is running; charges are billed and entitlements are granted.
+v COMPLETED: The subscription reached its end date or fulfilled its term. A final state.
+v CANCELLED: The subscription was ended early by the customer or the business. A final state.

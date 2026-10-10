@@ -390,14 +390,19 @@ INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, st
 VALUES ('a90873c0-8aa0-5bad-aa2f-dfbbbe3fd816', 'bus_control', 'status', 'INACTIVE', 'RETIRED', 'retire', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- RiskLifecycle: IDENTIFIED → ASSESSED (mark_assessed)
+-- RiskLifecycle: IDENTIFIED → ASSESSED (assess)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('dfb9cea7-4af7-52ee-b4c4-ae4c27f963f3', 'bus_risk', 'status', 'IDENTIFIED', 'ASSESSED', 'mark_assessed', TRUE, NOW())
+VALUES ('dfb9cea7-4af7-52ee-b4c4-ae4c27f963f3', 'bus_risk', 'status', 'IDENTIFIED', 'ASSESSED', 'assess', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- RiskLifecycle: ASSESSED → MITIGATING (mark_mitigating)
+-- RiskLifecycle: ASSESSED → MITIGATING (mitigate)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('d49019cd-78e2-58d0-9d8d-4e05cf18b035', 'bus_risk', 'status', 'ASSESSED', 'MITIGATING', 'mark_mitigating', TRUE, NOW())
+VALUES ('d49019cd-78e2-58d0-9d8d-4e05cf18b035', 'bus_risk', 'status', 'ASSESSED', 'MITIGATING', 'mitigate', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- RiskLifecycle: ASSESSED → ACCEPTED (accept)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('db2e5b1b-fee7-51d5-ab3c-305f3e35478a', 'bus_risk', 'status', 'ASSESSED', 'ACCEPTED', 'accept', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- RiskLifecycle: MITIGATING → ACCEPTED (accept)
@@ -410,24 +415,54 @@ INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, st
 VALUES ('b3e8aee0-e617-591e-8df6-44c2d30e2ac7', 'bus_risk', 'status', 'ACCEPTED', 'CLOSED', 'close', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- RiskLifecycle: IDENTIFIED → MATERIALIZED (mark_materialized)
+-- RiskLifecycle: MITIGATING → CLOSED (close)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('fc215e51-d2d4-5280-89fc-e11d652db939', 'bus_risk', 'status', 'IDENTIFIED', 'MATERIALIZED', 'mark_materialized', TRUE, NOW())
+VALUES ('84a89ae4-9464-5383-b403-198d1d1fe3d7', 'bus_risk', 'status', 'MITIGATING', 'CLOSED', 'close', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- RiskLifecycle: ASSESSED → MATERIALIZED (mark_materialized)
+-- RiskLifecycle: IDENTIFIED → MATERIALIZED (materialize)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('9284b828-4182-5816-bbb4-3d199fbb8d7d', 'bus_risk', 'status', 'ASSESSED', 'MATERIALIZED', 'mark_materialized', TRUE, NOW())
+VALUES ('fc215e51-d2d4-5280-89fc-e11d652db939', 'bus_risk', 'status', 'IDENTIFIED', 'MATERIALIZED', 'materialize', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- RiskLifecycle: MITIGATING → MATERIALIZED (mark_materialized)
+-- RiskLifecycle: ASSESSED → MATERIALIZED (materialize)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('a51b3c1a-5270-5746-bbab-cdb4f9e0b129', 'bus_risk', 'status', 'MITIGATING', 'MATERIALIZED', 'mark_materialized', TRUE, NOW())
+VALUES ('9284b828-4182-5816-bbb4-3d199fbb8d7d', 'bus_risk', 'status', 'ASSESSED', 'MATERIALIZED', 'materialize', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- RiskLifecycle: ACCEPTED → MATERIALIZED (mark_materialized)
+-- RiskLifecycle: MITIGATING → MATERIALIZED (materialize)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('6a2250de-cd95-5df4-a5a6-5dcf726d175b', 'bus_risk', 'status', 'ACCEPTED', 'MATERIALIZED', 'mark_materialized', TRUE, NOW())
+VALUES ('a51b3c1a-5270-5746-bbab-cdb4f9e0b129', 'bus_risk', 'status', 'MITIGATING', 'MATERIALIZED', 'materialize', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- RiskLifecycle: ACCEPTED → MATERIALIZED (materialize)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('6a2250de-cd95-5df4-a5a6-5dcf726d175b', 'bus_risk', 'status', 'ACCEPTED', 'MATERIALIZED', 'materialize', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- AuditCaseLifecycle: PLANNED → IN_PROGRESS (start)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('4585cc7e-33eb-5eaa-b404-f154aa9fea26', 'bus_audit_case', 'status', 'PLANNED', 'IN_PROGRESS', 'start', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- AuditCaseLifecycle: IN_PROGRESS → REPORTED (report)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('9e96333c-ef8c-5771-ad97-e2dd5ea946cc', 'bus_audit_case', 'status', 'IN_PROGRESS', 'REPORTED', 'report', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- AuditCaseLifecycle: REPORTED → CLOSED (close)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('2c153534-cb8c-5eda-a597-dac716ad3edd', 'bus_audit_case', 'status', 'REPORTED', 'CLOSED', 'close', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- AuditCaseLifecycle: PLANNED → CANCELLED (cancel)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('0073121b-ba98-5342-b9f8-bef2a788bc07', 'bus_audit_case', 'status', 'PLANNED', 'CANCELLED', 'cancel', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- AuditCaseLifecycle: IN_PROGRESS → CANCELLED (cancel)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('734cd7cf-a3e1-597e-8fe6-34abbc4d5394', 'bus_audit_case', 'status', 'IN_PROGRESS', 'CANCELLED', 'cancel', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- RiskTreatmentLifecycle: DRAFT → ACTIVE (activate)
@@ -628,6 +663,23 @@ VALUES ('8caedf65-f97b-5585-9cd0-8e9cc01d01f7', 'bus_risk', 'status', 'CLOSED', 
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
 VALUES ('ecdb166a-9042-5fc8-8502-9334b71ad0e0', 'bus_risk', 'status', 'MATERIALIZED', FALSE, TRUE, 60, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- AuditCaseLifecycle: states
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('89e0228d-6961-55d3-bab3-2bc1433e11df', 'bus_audit_case', 'status', 'PLANNED', TRUE, FALSE, 10, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('9865af8a-478b-5b25-921a-4a77ef410397', 'bus_audit_case', 'status', 'IN_PROGRESS', FALSE, FALSE, 20, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('68083a90-8063-5fe8-b786-c67f869a101b', 'bus_audit_case', 'status', 'REPORTED', FALSE, FALSE, 30, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('cd9a1736-89c2-5d54-9bda-2b4315f9cdde', 'bus_audit_case', 'status', 'CLOSED', FALSE, TRUE, 40, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('aec80bc8-7a1d-5962-b70f-b0592b60247f', 'bus_audit_case', 'status', 'CANCELLED', FALSE, TRUE, 50, TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- RiskTreatmentLifecycle: states

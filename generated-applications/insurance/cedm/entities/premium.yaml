@@ -1,0 +1,81 @@
+entity:
+  name: Premium
+  namespace: cedm.domain
+  kind: insurance_premium_transaction
+  description: A governed monetary premium obligation or installment assessed under an InsurancePolicy, distinct from the Invoice that may formalize the receivable and Payment that settles it.
+  ui: {icon: banknote}
+  identity: {key: premiumId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: premiumId, type: uuid, required: true, immutable: true, help: {summary: The identity of the premium record., usage: Generated when the premium is assessed; invoices and payments refer to it., businessMeaning: Identifies one policy premium assessment or installment independently of billing and payment records., relationshipContext: InsurancePolicy defines why the premium is owed.}}
+    - {name: premiumNumber, type: string, required: true, unique: true, maxLength: 120, help: {summary: 'The number of the premium notice, quoted to the policyholder.', usage: Allocated from a number series; unique., businessMeaning: Operational identifier for policy billing and reconciliation., relationshipContext: Distinct from policy and invoice numbers.}}
+    - {name: amount, type: decimal, required: true, precision: 20, scale: 4, help: {summary: The premium amount due for the period., usage: Calculated from the policy's rating; not negative., relationshipContext: "Expressed in the premium's currency; the invoice, if one is raised, repeats it.", businessMeaning: Premium value due under policy terms.}}
+    - {name: dueDate, type: date, required: false, help: {summary: The date by which the premium must be paid., usage: Set from the billing schedule; reminders and lapse rules run from it., businessMeaning: Supports policy billing and delinquency decisions., relationshipContext: Invoice payment terms may become authoritative after formal billing.}}
+    - name: status
+      type: enum
+      required: true
+      default: DRAFT
+      values: [DRAFT, DUE, INVOICED, PAID, WAIVED, CANCELLED]
+      help:
+        summary: Where this premium stands between being calculated, billed to the policyholder and settled, waived or withdrawn.
+        usage: Moved by policy billing and finance; PAID must be backed by settled payment evidence and the three closing states are final.
+        valueSemantics:
+          DRAFT: Calculated but not yet due and not yet billed to anyone.
+          DUE: Payable now; the due date has been assessed and collection can begin.
+          INVOICED: Included on an invoice to the policyholder and awaiting payment.
+          PAID: Received and reconciled against payment. A final state.
+          WAIVED: Excused by the insurer so no payment is expected. A final state.
+          CANCELLED: Withdrawn, for example because the policy was cancelled. A final state.
+        businessMeaning: "Distinguishes preparation, due, billed, settled, waived and cancelled states."
+        relationshipContext: PAID must reconcile to financial settlement evidence.
+  relationships:
+    - {name: policy, target: InsurancePolicy, cardinality: "1", ownership: reference, help: {cardinalityMeaning: 'Exactly one policy: a premium is the price of the cover under a specific policy.', summary: InsurancePolicy giving rise to this Premium., businessMeaning: Supplies contractual basis and coverage period., usage: "Policy billing and reconciliation.", workflowRole: Premium must be compatible with policy terms.}}
+    - {name: insuredParty, target: InsuredParty, cardinality: "0..1", ownership: reference, help: {summary: 'The insured party the premium is charged for, where cover is priced per person.', usage: Set for group and family policies., cardinalityMeaning: At most one insured party., workflowRole: Lets a premium be traced to the person it covers., businessMeaning: Supports member-specific pricing without making all premiums party-specific.}}
+    - {name: currency, target: Currency, cardinality: "1", ownership: reference, help: {cardinalityMeaning: 'Exactly one currency, so the amount is unambiguous.', summary: Currency of the premium amount., businessMeaning: Makes monetary obligation unambiguous., usage: "Billing, accounting and reporting.", workflowRole: Historical premium currency does not change after assessment.}}
+    - {name: invoice, target: Invoice, cardinality: "0..1", ownership: reference, help: {summary: Financial claim representing this premium., businessMeaning: Separates insurance premium assessment from accounts-receivable evidence., usage: "Billing, collection and accounting reconciliation.", cardinalityMeaning: Optional before invoicing or when aggregated billing applies., workflowRole: INVOICED and PAID states must reconcile to financial evidence under policy.}}
+  invariants:
+    - {id: PREMIUM-001, rule: amount must not be negative.}
+    - {id: PREMIUM-002, rule: InsuredParty must belong to the same InsurancePolicy when supplied.}
+    - {id: PREMIUM-003, rule: PAID status must reconcile to settled financial evidence under the billing policy.}
+    - {id: PREMIUM-004, rule: Historical billed premium evidence is not destructively rewritten; waivers and corrections remain explicit.}
+    - {id: PREMIUM-EXE-001, rule: "Amount cannot be negative.", violatedWhen: "amount != null and amount < 0", message: "Amount cannot be negative."}
+  lifecycle:
+    title: Premium Lifecycle
+    attribute: status
+    states: [DRAFT, DUE, INVOICED, PAID, WAIVED, CANCELLED]
+    initial: DRAFT
+    terminal: [PAID, WAIVED, CANCELLED]
+    transitions:
+      - {from: DRAFT, to: DUE, action: assess}
+      - {from: DRAFT, to: CANCELLED, action: cancel}
+      - {from: DUE, to: INVOICED, action: invoice}
+      - {from: DUE, to: WAIVED, action: waive}
+      - {from: DUE, to: CANCELLED, action: cancel}
+      - {from: INVOICED, to: PAID, action: mark_paid}
+      - {from: INVOICED, to: WAIVED, action: waive}
+  workflows:
+    - name: FollowUpRequired
+      title: "Follow up when a premium is ended"
+      description: "When a premium is cancelled, a task asks someone to settle what depended on it."
+      when: "status == \"CANCELLED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "PREMIUM-FOLLOW-UP-{{id}}"
+              name: "Follow up on premium {{premium_number}}"
+              description: "Premium {{premium_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
+  help:
+    summary: Represents a policy premium obligation while keeping receivable and payment evidence in finance entities.
+    businessMeaning: Premium explains the insurance charge; Invoice formalizes a financial claim; Payment settles it.
+    usage: Insurance billing, collections, policy servicing, accounting and audit.
+    relationshipContext: Policy is mandatory, optional InsuredParty supports member-level pricing, Currency defines value and Invoice provides receivable evidence.
+    lifecycle: Premium is prepared, becomes due, may be invoiced, then ends paid, waived or cancelled.
+    example: A quarterly policy premium becomes due, is invoiced, and is later marked paid after the invoice settlement is reconciled.
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-PREMIUM}

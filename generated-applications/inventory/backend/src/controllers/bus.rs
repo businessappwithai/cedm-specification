@@ -19,17 +19,17 @@ use serde_json::{json, Map, Value};
 use uuid::Uuid;
 
 use crate::errors::{AppError, AppResult};
-use crate::models::_entities::users;
 use crate::hooks;
+use crate::models::_entities::users;
 use crate::services::audit::{AuditEntry, AuditOperation, AuditService};
 use crate::services::authz;
 use crate::services::concurrency::{self, Refusal};
 use crate::services::dictionary::{ConcurrencyMode, DictionaryCache};
-use crate::services::field_meta::{self, FieldLayout};
 use crate::services::dynamic_repo::{
     DeleteResult, DynamicRepo, Filter, FilterOp, OrderDir, PaginationOptions, RawVersion,
     UpdateResult, WriteGuard,
 };
+use crate::services::field_meta::{self, FieldLayout};
 use crate::services::promotion::{
     PromotionOutcome, PromotionService, STATUS_DRAFT, STATUS_REJECTED,
 };
@@ -84,7 +84,12 @@ pub async fn list(
     let filters = filters_from(&params, &dictionary, &entity).await?;
 
     let mut result = repo
-        .find_all(&meta, &opts, &filters, params.get("search").map(String::as_str))
+        .find_all(
+            &meta,
+            &opts,
+            &filters,
+            params.get("search").map(String::as_str),
+        )
         .await?;
 
     // `total` is the count the query reported and is deliberately not
@@ -232,7 +237,10 @@ pub async fn create(
     let status =
         concurrency::transaction_status(ctx.db.get_postgres_connection_pool(), &meta, &row).await;
     attach_transaction_status(&mut row, status);
-    Ok(with_etag(&row, (StatusCode::CREATED, Json(row.clone())).into_response()))
+    Ok(with_etag(
+        &row,
+        (StatusCode::CREATED, Json(row.clone())).into_response(),
+    ))
 }
 
 /// `PUT`/`PATCH /api/bus/{entity}/{id}` — change a record.
@@ -301,6 +309,7 @@ pub async fn update(
         &meta.table_name,
         id,
         &body,
+        expected_version,
     )
     .await?;
 
@@ -315,7 +324,11 @@ pub async fn update(
     // below repeats the condition, so a record that becomes final in between
     // is refused just the same.
     if let Some(current) = before.as_ref() {
-        if meta.lifecycle.as_ref().is_some_and(|lifecycle| lifecycle.is_final(current)) {
+        if meta
+            .lifecycle
+            .as_ref()
+            .is_some_and(|lifecycle| lifecycle.is_final(current))
+        {
             return Err(concurrency::refusal(
                 ctx.db.get_postgres_connection_pool(),
                 &meta,
@@ -440,7 +453,11 @@ pub async fn remove(
     // included. The delete below repeats the condition, so a record that
     // becomes final in between is refused just the same.
     if let Some(current) = before.as_ref() {
-        if meta.lifecycle.as_ref().is_some_and(|lifecycle| lifecycle.is_final(current)) {
+        if meta
+            .lifecycle
+            .as_ref()
+            .is_some_and(|lifecycle| lifecycle.is_final(current))
+        {
             return Err(concurrency::refusal(
                 ctx.db.get_postgres_connection_pool(),
                 &meta,
@@ -632,9 +649,7 @@ pub async fn lookup(
         .column(&column)
         .ok_or_else(|| AppError::NotFound(format!("No column '{column}' on this entity")))?;
     let Some(target) = source.ref_table_name.clone() else {
-        return Err(AppError::BadRequest(format!(
-            "'{column}' is not a lookup"
-        )));
+        return Err(AppError::BadRequest(format!("'{column}' is not a lookup")));
     };
     let target_meta = dictionary.meta(&target).await?;
     let principal = authz::principal(ctx.db.get_postgres_connection_pool(), &auth.user).await?;
@@ -736,7 +751,10 @@ async fn verify_narrowing(
                     .column(&rule.by)
                     .map_or(rule.by.as_str(), |c| c.name.as_str());
                 return Err(AppError::Validation {
-                    message: format!("{} does not belong to the chosen {controlling}", column.name),
+                    message: format!(
+                        "{} does not belong to the chosen {controlling}",
+                        column.name
+                    ),
                     errors: vec![format!(
                         "{} does not belong to the chosen {controlling}",
                         column.name
@@ -824,7 +842,9 @@ fn parse_if_match(headers: &HeaderMap) -> AppResult<Precondition> {
         .trim_start_matches('v')
         .parse::<i32>()
         .map_err(|_| {
-            AppError::BadRequest(format!("Malformed If-Match header: expected \"v{{n}}\", got {raw}"))
+            AppError::BadRequest(format!(
+                "Malformed If-Match header: expected \"v{{n}}\", got {raw}"
+            ))
         })?;
     Ok(Precondition::Version(version))
 }
@@ -843,7 +863,9 @@ fn attach_transaction_status(row: &mut Value, status: Value) {
 fn with_etag(row: &Value, mut response: Response) -> Response {
     if let Some(version) = row.get("version").and_then(Value::as_i64) {
         if let Ok(value) = format!("\"v{version}\"").parse() {
-            response.headers_mut().insert(axum::http::header::ETAG, value);
+            response
+                .headers_mut()
+                .insert(axum::http::header::ETAG, value);
         }
     }
     response
@@ -961,7 +983,10 @@ async fn run_promotion(
     // no rules promotes unconditionally.
     let jdms = load_entity_jdms(ctx, &meta.table_name).await;
 
-    match promotion.promote(meta, row, operation, &jdms, previous).await {
+    match promotion
+        .promote(meta, row, operation, &jdms, previous)
+        .await
+    {
         Ok(outcome) => outcome,
         Err(err) => {
             crate::log_event!(entity_promotion_failed, error = ?err, table = meta.table_name);
@@ -1031,14 +1056,19 @@ async fn restore_columns(
         row.and_then(Value::as_i64)
             .and_then(|version| i32::try_from(version).ok())
     };
-    let (Some(written_version), Some(previous_version)) =
-        (version_of(written.get("version")), version_of(previous.get("version")))
-    else {
+    let (Some(written_version), Some(previous_version)) = (
+        version_of(written.get("version")),
+        version_of(previous.get("version")),
+    ) else {
         return;
     };
     let restored: Map<String, Value> = body
         .keys()
-        .filter_map(|column| previous.get(column).map(|value| (column.clone(), value.clone())))
+        .filter_map(|column| {
+            previous
+                .get(column)
+                .map(|value| (column.clone(), value.clone()))
+        })
         .collect();
     if restored.is_empty() {
         return;

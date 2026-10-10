@@ -1,0 +1,100 @@
+@ PartyRelationship
+s: A time-bound relationship between two parties that describes how they stand to each other in business, legal, household, employment or another way.
+b: Parties are connected to each other: a company to its subsidiary, a person to their employer, one household member to another. Recording the relationship, with its dates, lets the organisation see who is connected to whom and since when.
+u: Created when a relationship is established; ended when it stops; read by sales, compliance and customer service.
+c: A relationship runs from one Party to another.
+l: Code and identity stay stable, and the relationship's history is kept when it ends or changes.
+x: "Subsidiary of": Acme Ltd is a subsidiary of Acme Holdings from 1 January 2019.
+a partyRelationshipId
+s: The identity of the relationship.
+u: Generated on creation; documents and reports refer to it.
+a code
+s: The code of the relationship type or instance, such as SUBSIDIARY_OF.
+u: Chosen from the relationship list; used in queries and rules.
+a name
+s: A description of the relationship.
+u: Shown in party views.
+r fromParty
+s: The party at the origin of the relationship.
+u: Chosen when the relationship is created.
+n: Exactly one origin party: a relationship always starts at a particular party.
+w: Together with the other party it identifies the relationship.
+
+@ PartyRole
+a partyRoleId
+s: The identity of the role, separate from the identity of the party.
+u: Generated on creation; customer and supplier records refer to it.
+a partyId
+s: The party that holds the role.
+u: Set when the role is assigned and not changed.
+a roleType
+s: The kind of role the party plays.
+u: Chosen when the role is assigned; decides which specialised record (customer, supplier and so on) is expected.
+v CUSTOMER: Buys from the organisation.
+v SUPPLIER: Sells to the organisation.
+v EMPLOYEE: Works for the organisation.
+v PARTNER: A business partner or reseller.
+v CARRIER: Transports goods for the organisation.
+v AGENT: Acts on behalf of the organisation or its customers.
+v CONTRACTOR: Provides services under a contract.
+v OWNER: Owns property or a share in the organisation.
+v INVESTOR: Provides capital.
+v OTHER: Any other role.
+a code
+s: An optional code for the role.
+u: Used by integrations that identify the role separately from the party.
+a validFrom
+s: The first date on which the role applies.
+u: Set when the role is assigned.
+a validTo
+s: The last date on which the role applies.
+u: Set when the role ends.
+a status
+s: Whether the role is currently held.
+u: Set by master-data staff.
+v ACTIVE: The party currently holds the role.
+v INACTIVE: Dormant but may resume.
+v EXPIRED: Ended; kept for history. A final state.
+
+@ Payment
+a paymentId
+s: The identity of the payment, separate from the bank's reference.
+u: Generated on creation; allocations, ledger entries and bank matches refer to it.
+a paymentNumber
+s: The number under which the payment is recorded and quoted.
+u: Allocated from a number series; unique; shown on remittance advices and receipts.
+a direction
+s: Whether money is coming in or going out.
+u: Set when the payment is created; decides whose account is debited and credited.
+v RECEIPT: Money received from a payer.
+v DISBURSEMENT: Money paid out to a payee.
+a status
+s: How far the payment has progressed from preparation to clearing.
+u: Moved by treasury and the bank reconciliation process.
+v DRAFT: Being prepared; no financial effect.
+v APPROVED: Authorised but not yet recorded in the books.
+v POSTED: Recorded in the ledger but not yet confirmed by the bank.
+v CLEARED: Confirmed by bank evidence. A final state.
+v VOID: Cancelled and of no effect. A final state.
+v REVERSED: Cancelled after posting by a compensating entry. A final state.
+a paymentMethod
+s: How the money is moved.
+u: Chosen when the payment is created; decides processing and fees.
+v CASH: Notes and coins.
+v BANK_TRANSFER: An electronic transfer between bank accounts.
+v CARD: A payment card.
+v CHEQUE: A paper cheque.
+v DIRECT_DEBIT: A debit collected under a mandate.
+v OTHER: Any other method.
+
+@ PaymentAllocation
+a paymentAllocationId
+s: The identity of the allocation.
+u: Generated on creation; reversals and ledger entries refer to it.
+a status
+s: Whether the allocation is in effect.
+u: Moved by accounts receivable or payable.
+v DRAFT: Prepared but not yet applied.
+v ACTIVE: Applied; the invoice's outstanding amount is reduced.
+v REVERSED: Undone by a compensating record. A final state.
+v CANCELLED: Withdrawn before taking effect. A final state.

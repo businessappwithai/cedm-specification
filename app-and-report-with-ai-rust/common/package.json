@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "description": "The orchestrator's build, checks and published pages. The language, the generator and both CLIs are app-with-ai-rust, and the reporting platform is enterprise-reporting-rust, both checked out beside this repository.",
   "engines": {
-    "bun": ">=1.3.11"
+    "bun": ">=1.4.0"
   },
   "scripts": {
     "check": "bun run check:models && bun run type-check && bun run lint && bun run check:language-tools && bun run check:stacks && bun run check:clis && bun run check:pack",

@@ -1,0 +1,43 @@
+@ TaxTransaction
+a taxTransactionId
+s: The permanent system identity of one tax transaction, separate from the sales or purchase document it arose from.
+u: Generated on creation and never changed; tax returns, reconciliations and audit entries refer to the tax consequence through it.
+@ Team
+a teamId
+s: The permanent system identity of the team, unchanged when its name or code is edited.
+u: Generated on creation and never changed; assignments, memberships and ownership records refer to the team through it.
+a name
+s: The descriptive name of the team, such as Customer Support Tier 2.
+u: Entered by the organization administrator; shown in assignment pickers and reports, and may change without affecting the team's identity.
+
+@ TelecomService
+a serviceType
+s: The kind of connectivity or communication service delivered to the customer.
+u: Chosen when the service is set up; it determines the technical provisioning, usage records and tariffs that apply.
+v MOBILE: A cellular service tied to a handset or SIM, with voice, text and data.
+v FIXED: A fixed-line telephone service delivered to a premises.
+v BROADBAND: A fixed internet access service delivered to a premises.
+v VOICE: A voice-only calling service, not bundled with data.
+v DATA: A data-only connectivity service without voice calling.
+v IOT: Machine connectivity for devices and sensors rather than people.
+v OTHER: A telecommunications service that fits none of the other types.
+a status
+s: Where the service is in its life, from awaiting activation through use to suspension or termination.
+u: Moved by provisioning, billing and customer care; only active services can carry usage, and terminated ones are kept for history.
+v PENDING: The service has been ordered but is not yet switched on.
+v ACTIVE: The service is live and can carry traffic and be billed.
+v SUSPENDED: The service is temporarily switched off, for example for non-payment or on request.
+v TERMINATED: The service has been permanently ended. A final state.
+
+@ TelecomSubscription
+a status
+s: Where the subscription is in its term, from ordering through service to its end.
+u: Moved by activation, billing and the customer; only active subscriptions are billed, and cancelled or expired ones are closed.
+v PENDING: The subscription has been ordered but has not yet started.
+v ACTIVE: The subscription is running and being billed.
+v SUSPENDED: The subscription is paused, for example for non-payment.
+v CANCELLED: The subscription ended early at the customer's or provider's request. A final state.
+v EXPIRED: The subscription ran to the end of its term. A final state.
+a startDate
+s: The date on which the subscription's service and billing begin.
+u: Set when the subscription is ordered or activated; billing runs from it, and it must not be later than the end date.

@@ -1,6 +1,6 @@
 //! One record's trail and its notes.
 //!
-//! Generated: 2026-10-04T01:11:48.971Z
+//! Generated: 2026-10-09T15:28:49.084Z
 //! Project: food
 
 use serde_json::{json, Value};

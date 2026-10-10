@@ -319,19 +319,19 @@ VALUES ('34035007-9222-56aa-aaf3-1a2178ef12c8', 'Location 5', 'Location 5', 'FAC
 ON CONFLICT DO NOTHING;
 
 -- Exchange Rate (bus_exchange_rate)
-INSERT INTO bus_exchange_rate (id, from_currency, to_currency, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
+INSERT INTO bus_exchange_rate (id, from_currency_id, to_currency_id, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
 VALUES ('5e150932-8e3b-565c-9677-522c576fb469', '91eebd4a-5776-5658-b93b-814af62db62c', '91eebd4a-5776-5658-b93b-814af62db62c', 10.50, 'SPOT', '2026-01-15T09:00:00Z', NULL, 'Source 1', 'DRAFT', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_exchange_rate (id, from_currency, to_currency, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
+INSERT INTO bus_exchange_rate (id, from_currency_id, to_currency_id, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
 VALUES ('92bb51ba-8ae3-549b-a746-7380a6034518', 'f9a37b62-db88-5986-bdea-2851c4511020', 'f9a37b62-db88-5986-bdea-2851c4511020', 21.00, 'CONTRACT', '2026-02-15T09:00:00Z', NULL, 'Source 2', 'DRAFT', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_exchange_rate (id, from_currency, to_currency, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
+INSERT INTO bus_exchange_rate (id, from_currency_id, to_currency_id, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
 VALUES ('e8bf3c52-c15e-5587-81d4-03f5477a95b5', '8fb99a71-2cff-5af0-9bff-68dab9444d80', '8fb99a71-2cff-5af0-9bff-68dab9444d80', 31.50, 'DAILY', '2026-03-15T09:00:00Z', NULL, 'Source 3', 'DRAFT', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_exchange_rate (id, from_currency, to_currency, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
+INSERT INTO bus_exchange_rate (id, from_currency_id, to_currency_id, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
 VALUES ('3a162900-41ab-5c61-91ae-325fe426867f', '066e7180-a949-5c08-8110-f3d5124ba8f2', '066e7180-a949-5c08-8110-f3d5124ba8f2', 42.00, 'MONTHLY', '2026-04-15T09:00:00Z', NULL, 'Source 4', 'DRAFT', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_exchange_rate (id, from_currency, to_currency, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
+INSERT INTO bus_exchange_rate (id, from_currency_id, to_currency_id, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
 VALUES ('0842a0e0-1668-5cb6-b115-c63e68a71a79', 'd192a3a9-d527-5eda-b26a-53e0080545fd', 'd192a3a9-d527-5eda-b26a-53e0080545fd', 52.50, 'ACCOUNTING', '2026-05-15T09:00:00Z', NULL, 'Source 5', 'DRAFT', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
@@ -523,19 +523,19 @@ VALUES ('aa0d7da3-3f6d-500e-a9fc-e928a4bfb1b2', 5, 52.50, 52.50, 52.50, 52.50, '
 ON CONFLICT DO NOTHING;
 
 -- Discount Rule (bus_discount_rule)
-INSERT INTO bus_discount_rule (id, code, name, method, value, currency, priority, status, doc_status, created_at, updated_at)
+INSERT INTO bus_discount_rule (id, code, name, method, value, currency_id, priority, status, doc_status, created_at, updated_at)
 VALUES ('810a808c-2eb9-5351-8865-7e6f83195e6b', 'Discount Rule 1', 'Discount Rule 1', 'PERCENTAGE', 10.50, '91eebd4a-5776-5658-b93b-814af62db62c', 1, 'DRAFT', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_discount_rule (id, code, name, method, value, currency, priority, status, doc_status, created_at, updated_at)
+INSERT INTO bus_discount_rule (id, code, name, method, value, currency_id, priority, status, doc_status, created_at, updated_at)
 VALUES ('4707f0e9-1a54-5023-8897-620c4f18db2f', 'Discount Rule 2', 'Discount Rule 2', 'FIXED_AMOUNT', 21.00, 'f9a37b62-db88-5986-bdea-2851c4511020', 2, 'DRAFT', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_discount_rule (id, code, name, method, value, currency, priority, status, doc_status, created_at, updated_at)
+INSERT INTO bus_discount_rule (id, code, name, method, value, currency_id, priority, status, doc_status, created_at, updated_at)
 VALUES ('7988340e-7342-57a6-8792-5fc129d1443b', 'Discount Rule 3', 'Discount Rule 3', 'PERCENTAGE', 31.50, '8fb99a71-2cff-5af0-9bff-68dab9444d80', 3, 'DRAFT', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_discount_rule (id, code, name, method, value, currency, priority, status, doc_status, created_at, updated_at)
+INSERT INTO bus_discount_rule (id, code, name, method, value, currency_id, priority, status, doc_status, created_at, updated_at)
 VALUES ('bfd3e3db-61e2-57df-8b52-8cdae4752eea', 'Discount Rule 4', 'Discount Rule 4', 'FIXED_AMOUNT', 42.00, '066e7180-a949-5c08-8110-f3d5124ba8f2', 4, 'DRAFT', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_discount_rule (id, code, name, method, value, currency, priority, status, doc_status, created_at, updated_at)
+INSERT INTO bus_discount_rule (id, code, name, method, value, currency_id, priority, status, doc_status, created_at, updated_at)
 VALUES ('ace9d1c1-472e-595a-b364-ed1f0856b907', 'Discount Rule 5', 'Discount Rule 5', 'PERCENTAGE', 52.50, 'd192a3a9-d527-5eda-b26a-53e0080545fd', 5, 'DRAFT', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 

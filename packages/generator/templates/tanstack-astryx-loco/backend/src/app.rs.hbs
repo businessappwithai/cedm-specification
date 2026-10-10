@@ -87,6 +87,7 @@ impl Hooks for App {
             .prefix("/api")
             .add_route(controllers::auth::routes())
             .add_route(controllers::me::routes())
+            .add_route(controllers::accounts::routes())
             .add_route(controllers::bus::routes())
             .add_route(controllers::sys::routes())
             .add_route(controllers::audit::routes())

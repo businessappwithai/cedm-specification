@@ -1,0 +1,53 @@
+@ FuelTransaction
+a quantity
+s: The amount of fuel or energy supplied to the vehicle in this fill, stated in the transaction's unit of measure.
+u: Taken from the pump receipt or fuel-card feed; must be positive, and consumption and efficiency reports divide distance by it.
+a totalAmount
+s: The total price paid for the fuel or energy supplied, in the transaction's currency.
+u: Taken from the receipt or card statement and must not be negative; fleet cost allocation and payment reconciliation read it.
+a occurredAt
+s: The date and time at which the vehicle was actually fuelled.
+u: Captured from the pump or card feed rather than the entry time; efficiency, route and fraud checks compare it with vehicle movements.
+a odometerOrMeterReading
+s: The vehicle's odometer or usage-meter reading taken at the time of fuelling.
+u: Entered by the driver or read from telematics; consumption per distance and maintenance schedules depend on consecutive readings.
+
+@ GateEvent
+a occurredAt
+s: The moment the container, vehicle or visit passed through the gate or was processed there.
+u: Taken from the gate system's own timestamp; dwell time, security review and billing disputes are resolved against it.
+a direction
+s: Whether the movement entered the controlled area, left it, or passed between internal zones.
+u: Set by the gate system at capture; yard inventory and custody transfer change according to it.
+v IN: Entry into the controlled terminal area, which starts the subject's time inside.
+v OUT: Exit from the controlled terminal area, which ends the subject's time inside.
+v INTERNAL: A gate-controlled move between zones inside the terminal, with no entry or exit.
+v OTHER: Another governed gate occurrence that is neither entry, exit nor internal move.
+
+@ Gate
+a name
+s: The descriptive name of the gate, such as North Truck Gate, as staff and drivers know it.
+u: Entered at set-up and shown on operations screens and reports; it can change while the gate code stays the key.
+
+@ GoodsReceiptLine
+a goodsReceiptLineId
+s: The permanent identity of the receipt line, unchanged by corrections to its quantities or notes.
+u: Generated on creation; inventory movements, invoice matching lines and supplier returns refer to the line by this value.
+a lineNumber
+s: The position of the line within its goods receipt, used to cite it in documents and queries.
+u: Assigned in sequence when the line is added and unique within the receipt; printed on delivery paperwork and audit extracts.
+a receivedQuantity
+s: The quantity physically counted at the dock for this line, before any quality decision.
+u: Entered by receiving staff; it should equal accepted, rejected and pending-inspection quantities together, and drives order fulfilment.
+a acceptedQuantity
+s: The part of the received quantity that passed receiving controls and may be taken into stock.
+u: Set after inspection; it posts to inventory, counts toward purchase order fulfilment and is the basis for invoice matching.
+a rejectedQuantity
+s: The part of the received quantity refused because of damage, wrong item or failed quality checks.
+u: Entered with the rejection reason by quality staff; it opens supplier disputes and returns and never enters inventory.
+a pendingInspectionQuantity
+s: The part of the received quantity held aside until inspection or disposition decides its fate.
+u: Set at receipt and reduced as inspection moves quantities to accepted or rejected; zero when inspection is complete.
+a notes
+s: Free-text receiving remarks about this line, such as damage observed, carrier comments or partial shipment explanations.
+u: Written by receiving staff at the dock; read by quality, purchasing and auditors when reviewing the delivery.

@@ -109,10 +109,10 @@ catalog:
     - domain: logistics
       icon: truck
       capabilities: [transportation-management, fulfillment]
-      entities: [Carrier, Consignment, Delivery, DeliveryAttempt, FreightCharge, Fulfillment, Load, Route, TrackingEvent, Trip, TripSegment]
+      entities: [Carrier, Consignment, Delivery, DeliveryAttempt, FreightCharge, Fulfillment, Load, Route, Stop, TrackingEvent, Trip, TripSegment, Driver, FuelTransaction]
     - domain: container-logistics
       icon: container
-      entities: [Container, ContainerMovement, Yard, YardBlock, YardBay, YardTier, YardSlot]
+      entities: [Container, ContainerMovement, Yard, YardBlock, YardBay, YardTier, YardSlot, Port, Berth, Gate, GateEvent, ContainerVisit, Vessel, Voyage]
     - domain: manufacturing
       icon: factory
       capabilities: [manufacturing-management]
@@ -152,16 +152,16 @@ catalog:
       entities: [Agreement, ContractLine, ContractAmendment, ContractRenewal, ContractTermination, Renewal, LegalCase, LegalMatter]
     - domain: insurance
       icon: umbrella
-      entities: [InsurancePolicy, InsuranceClaim]
+      entities: [InsurancePolicy, Coverage, InsuredParty, Underwriting, Premium, InsuranceClaim, ClaimLine, Settlement]
     - domain: healthcare
       icon: stethoscope
-      entities: [HealthcarePatient, HealthcareProvider, HealthcareEncounter, HealthcareOrder, Diagnosis, Procedure, Medication, Prescription, Allergy, CarePlan]
+      entities: [HealthcarePatient, HealthcareProvider, Practitioner, Appointment, HealthcareEncounter, HealthcareOrder, Diagnosis, Procedure, Medication, Prescription, Allergy, CarePlan]
     - domain: life-sciences
       icon: flask-conical
       entities: [Compound, Experiment, Sample, ChemicalBatch]
     - domain: education
       icon: graduation-cap
-      entities: [EducationProgram, EducationCourse, EducationStudent, Enrollment]
+      entities: [EducationProgram, EducationCourse, Class, EducationStudent, Guardian, Enrollment, Assessment, Grade, Fee]
     - domain: retail
       icon: store
       entities: [Store, RetailSale, RetailSaleLine]
@@ -227,7 +227,7 @@ catalog:
       entities: [ProfessionalEngagement]
     - domain: research
       icon: microscope
-      entities: [ResearchProject]
+      entities: [ResearchProject, Protocol, Study, Assay, Observation, Result]
     - domain: regulatory
       icon: file-check
       entities: [RegulatorySubmission]

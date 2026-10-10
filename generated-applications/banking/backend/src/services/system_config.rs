@@ -25,7 +25,7 @@
 //! from configuration only. A setting that has to be read to open the
 //! connection cannot live behind the connection.
 //!
-//! Generated: 2026-10-04T01:11:18.923Z
+//! Generated: 2026-10-09T15:27:55.668Z
 //! Project: banking
 
 use std::sync::Arc;

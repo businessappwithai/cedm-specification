@@ -433,8 +433,8 @@ CREATE INDEX IF NOT EXISTS idx_bus_currency_name ON bus_currency (name);
 -- Exchange Rate (bus_exchange_rate)
 CREATE TABLE IF NOT EXISTS bus_exchange_rate (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid()
-  , from_currency UUID NOT NULL
-  , to_currency UUID NOT NULL
+  , from_currency_id UUID NOT NULL
+  , to_currency_id UUID NOT NULL
   , rate DECIMAL(18,6) NOT NULL
   , rate_type VARCHAR(255) NOT NULL
   , effective_at TIMESTAMPTZ NOT NULL
@@ -860,6 +860,31 @@ CREATE TABLE IF NOT EXISTS bus_route (
 --
 -- Composite declarations are the ones that were silently lost before the parser
 -- read the model's indexes at all: no convention can produce them.
+-- Stop (bus_stop)
+CREATE TABLE IF NOT EXISTS bus_stop (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid()
+  , sequence_number INTEGER NOT NULL
+  , stop_type VARCHAR(255) NOT NULL
+  , planned_arrival_at TIMESTAMPTZ
+  , planned_departure_at TIMESTAMPTZ
+  , route_id UUID NOT NULL
+  , location_id UUID NOT NULL
+  , created_at TIMESTAMPTZ DEFAULT NOW()
+  , updated_at TIMESTAMPTZ DEFAULT NOW()
+  , deleted_at TIMESTAMPTZ
+  , version INTEGER NOT NULL DEFAULT 1
+);
+
+-- Indexes.
+--
+-- `entity.indexes` is the merge of what the model declared in `indexes` and
+-- the conventional single-column ones (a column called `name`, and anything
+-- unique). It is merged rather than emitted from both sources because both name
+-- an index after its columns: two `CREATE INDEX IF NOT EXISTS` statements with
+-- the same name meant the second — the one carrying UNIQUE — was the no-op.
+--
+-- Composite declarations are the ones that were silently lost before the parser
+-- read the model's indexes at all: no convention can produce them.
 -- Tracking Event (bus_tracking_event)
 CREATE TABLE IF NOT EXISTS bus_tracking_event (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid()
@@ -917,6 +942,59 @@ CREATE TABLE IF NOT EXISTS bus_trip_segment (
   , trip_id UUID NOT NULL
   , origin_id UUID NOT NULL
   , vehicle_id UUID
+  , created_at TIMESTAMPTZ DEFAULT NOW()
+  , updated_at TIMESTAMPTZ DEFAULT NOW()
+  , deleted_at TIMESTAMPTZ
+  , version INTEGER NOT NULL DEFAULT 1
+);
+
+-- Indexes.
+--
+-- `entity.indexes` is the merge of what the model declared in `indexes` and
+-- the conventional single-column ones (a column called `name`, and anything
+-- unique). It is merged rather than emitted from both sources because both name
+-- an index after its columns: two `CREATE INDEX IF NOT EXISTS` statements with
+-- the same name meant the second — the one carrying UNIQUE — was the no-op.
+--
+-- Composite declarations are the ones that were silently lost before the parser
+-- read the model's indexes at all: no convention can produce them.
+-- Driver (bus_driver)
+CREATE TABLE IF NOT EXISTS bus_driver (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid()
+  , driver_code VARCHAR(120) NOT NULL UNIQUE
+  , license_number VARCHAR(160)
+  , status VARCHAR(255) NOT NULL
+  , person_id UUID NOT NULL
+  , created_at TIMESTAMPTZ DEFAULT NOW()
+  , updated_at TIMESTAMPTZ DEFAULT NOW()
+  , deleted_at TIMESTAMPTZ
+  , version INTEGER NOT NULL DEFAULT 1
+);
+
+-- Indexes.
+--
+-- `entity.indexes` is the merge of what the model declared in `indexes` and
+-- the conventional single-column ones (a column called `name`, and anything
+-- unique). It is merged rather than emitted from both sources because both name
+-- an index after its columns: two `CREATE INDEX IF NOT EXISTS` statements with
+-- the same name meant the second — the one carrying UNIQUE — was the no-op.
+--
+-- Composite declarations are the ones that were silently lost before the parser
+-- read the model's indexes at all: no convention can produce them.
+-- Fuel Transaction (bus_fuel_transaction)
+CREATE TABLE IF NOT EXISTS bus_fuel_transaction (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid()
+  , transaction_number VARCHAR(120) NOT NULL UNIQUE
+  , quantity DECIMAL(18,6) NOT NULL
+  , total_amount DECIMAL(18,6)
+  , occurred_at TIMESTAMPTZ NOT NULL
+  , odometer_or_meter_reading DECIMAL(18,6)
+  , status VARCHAR(255) NOT NULL
+  , vehicle_id UUID NOT NULL
+  , driver_id UUID
+  , location_id UUID
+  , unit_of_measure_id UUID NOT NULL
+  , currency_id UUID
   , created_at TIMESTAMPTZ DEFAULT NOW()
   , updated_at TIMESTAMPTZ DEFAULT NOW()
   , deleted_at TIMESTAMPTZ
@@ -1767,6 +1845,31 @@ CREATE TABLE IF NOT EXISTS bus_inventory_movement_movement_type (
 -- Composite declarations are the ones that were silently lost before the parser
 -- read the model's indexes at all: no convention can produce them.
 CREATE INDEX IF NOT EXISTS idx_bus_inventory_movement_movement_type_name ON bus_inventory_movement_movement_type (name);
+-- Stop Stop Type (bus_stop_stop_type)
+CREATE TABLE IF NOT EXISTS bus_stop_stop_type (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid()
+  , code VARCHAR(100) NOT NULL UNIQUE
+  , name VARCHAR(200) NOT NULL
+  , description TEXT
+  , sequence INTEGER NOT NULL
+  , is_active BOOLEAN NOT NULL
+  , created_at TIMESTAMPTZ DEFAULT NOW()
+  , updated_at TIMESTAMPTZ DEFAULT NOW()
+  , deleted_at TIMESTAMPTZ
+  , version INTEGER NOT NULL DEFAULT 1
+);
+
+-- Indexes.
+--
+-- `entity.indexes` is the merge of what the model declared in `indexes` and
+-- the conventional single-column ones (a column called `name`, and anything
+-- unique). It is merged rather than emitted from both sources because both name
+-- an index after its columns: two `CREATE INDEX IF NOT EXISTS` statements with
+-- the same name meant the second — the one carrying UNIQUE — was the no-op.
+--
+-- Composite declarations are the ones that were silently lost before the parser
+-- read the model's indexes at all: no convention can produce them.
+CREATE INDEX IF NOT EXISTS idx_bus_stop_stop_type_name ON bus_stop_stop_type (name);
 -- Trip Status (bus_trip_status)
 CREATE TABLE IF NOT EXISTS bus_trip_status (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid()
@@ -1842,6 +1945,56 @@ CREATE TABLE IF NOT EXISTS bus_trip_segment_status (
 -- Composite declarations are the ones that were silently lost before the parser
 -- read the model's indexes at all: no convention can produce them.
 CREATE INDEX IF NOT EXISTS idx_bus_trip_segment_status_name ON bus_trip_segment_status (name);
+-- Driver Status (bus_driver_status)
+CREATE TABLE IF NOT EXISTS bus_driver_status (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid()
+  , code VARCHAR(100) NOT NULL UNIQUE
+  , name VARCHAR(200) NOT NULL
+  , description TEXT
+  , sequence INTEGER NOT NULL
+  , is_active BOOLEAN NOT NULL
+  , created_at TIMESTAMPTZ DEFAULT NOW()
+  , updated_at TIMESTAMPTZ DEFAULT NOW()
+  , deleted_at TIMESTAMPTZ
+  , version INTEGER NOT NULL DEFAULT 1
+);
+
+-- Indexes.
+--
+-- `entity.indexes` is the merge of what the model declared in `indexes` and
+-- the conventional single-column ones (a column called `name`, and anything
+-- unique). It is merged rather than emitted from both sources because both name
+-- an index after its columns: two `CREATE INDEX IF NOT EXISTS` statements with
+-- the same name meant the second — the one carrying UNIQUE — was the no-op.
+--
+-- Composite declarations are the ones that were silently lost before the parser
+-- read the model's indexes at all: no convention can produce them.
+CREATE INDEX IF NOT EXISTS idx_bus_driver_status_name ON bus_driver_status (name);
+-- Fuel Transaction Status (bus_fuel_transaction_status)
+CREATE TABLE IF NOT EXISTS bus_fuel_transaction_status (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid()
+  , code VARCHAR(100) NOT NULL UNIQUE
+  , name VARCHAR(200) NOT NULL
+  , description TEXT
+  , sequence INTEGER NOT NULL
+  , is_active BOOLEAN NOT NULL
+  , created_at TIMESTAMPTZ DEFAULT NOW()
+  , updated_at TIMESTAMPTZ DEFAULT NOW()
+  , deleted_at TIMESTAMPTZ
+  , version INTEGER NOT NULL DEFAULT 1
+);
+
+-- Indexes.
+--
+-- `entity.indexes` is the merge of what the model declared in `indexes` and
+-- the conventional single-column ones (a column called `name`, and anything
+-- unique). It is merged rather than emitted from both sources because both name
+-- an index after its columns: two `CREATE INDEX IF NOT EXISTS` statements with
+-- the same name meant the second — the one carrying UNIQUE — was the no-op.
+--
+-- Composite declarations are the ones that were silently lost before the parser
+-- read the model's indexes at all: no convention can produce them.
+CREATE INDEX IF NOT EXISTS idx_bus_fuel_transaction_status_name ON bus_fuel_transaction_status (name);
 -- Customer Customer Type (bus_customer_customer_type)
 CREATE TABLE IF NOT EXISTS bus_customer_customer_type (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid()
@@ -2448,40 +2601,6 @@ END $$;
 -- a model whose FK column was typed as something other than UUID must not
 -- abort the whole migration.
 DO $$ BEGIN
-  ALTER TABLE bus_exchange_rate
-    ADD CONSTRAINT fk_bus_exchange_rate_currency_id
-    FOREIGN KEY (currency_id)
-    REFERENCES bus_currency(id)
-    ON DELETE SET NULL ON UPDATE CASCADE;
-EXCEPTION
-  WHEN duplicate_object THEN NULL;
-  WHEN undefined_column THEN NULL;
-  WHEN undefined_table THEN NULL;
-  WHEN datatype_mismatch THEN NULL;
-END $$;
-
--- The TypeScript migration wraps this in `.catch(() => {})`; the DO block is
--- how that same tolerance is expressed in plain SQL. Re-running a migration or
--- a model whose FK column was typed as something other than UUID must not
--- abort the whole migration.
-DO $$ BEGIN
-  ALTER TABLE bus_exchange_rate
-    ADD CONSTRAINT fk_bus_exchange_rate_currency_id
-    FOREIGN KEY (currency_id)
-    REFERENCES bus_currency(id)
-    ON DELETE SET NULL ON UPDATE CASCADE;
-EXCEPTION
-  WHEN duplicate_object THEN NULL;
-  WHEN undefined_column THEN NULL;
-  WHEN undefined_table THEN NULL;
-  WHEN datatype_mismatch THEN NULL;
-END $$;
-
--- The TypeScript migration wraps this in `.catch(() => {})`; the DO block is
--- how that same tolerance is expressed in plain SQL. Re-running a migration or
--- a model whose FK column was typed as something other than UUID must not
--- abort the whole migration.
-DO $$ BEGIN
   ALTER TABLE bus_unit_of_measure
     ADD CONSTRAINT fk_bus_unit_of_measure_unit_of_measure_id
     FOREIGN KEY (unit_of_measure_id)
@@ -2724,6 +2843,23 @@ DO $$ BEGIN
     ADD CONSTRAINT fk_bus_vehicle_location_id
     FOREIGN KEY (location_id)
     REFERENCES bus_location(id)
+    ON DELETE SET NULL ON UPDATE CASCADE;
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+  WHEN undefined_column THEN NULL;
+  WHEN undefined_table THEN NULL;
+  WHEN datatype_mismatch THEN NULL;
+END $$;
+
+-- The TypeScript migration wraps this in `.catch(() => {})`; the DO block is
+-- how that same tolerance is expressed in plain SQL. Re-running a migration or
+-- a model whose FK column was typed as something other than UUID must not
+-- abort the whole migration.
+DO $$ BEGIN
+  ALTER TABLE bus_fuel_transaction
+    ADD CONSTRAINT fk_bus_fuel_transaction_vehicle_id
+    FOREIGN KEY (vehicle_id)
+    REFERENCES bus_vehicle(id)
     ON DELETE SET NULL ON UPDATE CASCADE;
 EXCEPTION
   WHEN duplicate_object THEN NULL;
@@ -2992,6 +3128,40 @@ END $$;
 -- a model whose FK column was typed as something other than UUID must not
 -- abort the whole migration.
 DO $$ BEGIN
+  ALTER TABLE bus_stop
+    ADD CONSTRAINT fk_bus_stop_route_id
+    FOREIGN KEY (route_id)
+    REFERENCES bus_route(id)
+    ON DELETE SET NULL ON UPDATE CASCADE;
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+  WHEN undefined_column THEN NULL;
+  WHEN undefined_table THEN NULL;
+  WHEN datatype_mismatch THEN NULL;
+END $$;
+
+-- The TypeScript migration wraps this in `.catch(() => {})`; the DO block is
+-- how that same tolerance is expressed in plain SQL. Re-running a migration or
+-- a model whose FK column was typed as something other than UUID must not
+-- abort the whole migration.
+DO $$ BEGIN
+  ALTER TABLE bus_stop
+    ADD CONSTRAINT fk_bus_stop_location_id
+    FOREIGN KEY (location_id)
+    REFERENCES bus_location(id)
+    ON DELETE SET NULL ON UPDATE CASCADE;
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+  WHEN undefined_column THEN NULL;
+  WHEN undefined_table THEN NULL;
+  WHEN datatype_mismatch THEN NULL;
+END $$;
+
+-- The TypeScript migration wraps this in `.catch(() => {})`; the DO block is
+-- how that same tolerance is expressed in plain SQL. Re-running a migration or
+-- a model whose FK column was typed as something other than UUID must not
+-- abort the whole migration.
+DO $$ BEGIN
   ALTER TABLE bus_tracking_event
     ADD CONSTRAINT fk_bus_tracking_event_shipment_id
     FOREIGN KEY (shipment_id)
@@ -3081,6 +3251,91 @@ DO $$ BEGIN
     ADD CONSTRAINT fk_bus_trip_segment_vehicle_id
     FOREIGN KEY (vehicle_id)
     REFERENCES bus_vehicle(id)
+    ON DELETE SET NULL ON UPDATE CASCADE;
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+  WHEN undefined_column THEN NULL;
+  WHEN undefined_table THEN NULL;
+  WHEN datatype_mismatch THEN NULL;
+END $$;
+
+-- The TypeScript migration wraps this in `.catch(() => {})`; the DO block is
+-- how that same tolerance is expressed in plain SQL. Re-running a migration or
+-- a model whose FK column was typed as something other than UUID must not
+-- abort the whole migration.
+DO $$ BEGIN
+  ALTER TABLE bus_driver
+    ADD CONSTRAINT fk_bus_driver_person_id
+    FOREIGN KEY (person_id)
+    REFERENCES bus_person(id)
+    ON DELETE SET NULL ON UPDATE CASCADE;
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+  WHEN undefined_column THEN NULL;
+  WHEN undefined_table THEN NULL;
+  WHEN datatype_mismatch THEN NULL;
+END $$;
+
+-- The TypeScript migration wraps this in `.catch(() => {})`; the DO block is
+-- how that same tolerance is expressed in plain SQL. Re-running a migration or
+-- a model whose FK column was typed as something other than UUID must not
+-- abort the whole migration.
+DO $$ BEGIN
+  ALTER TABLE bus_fuel_transaction
+    ADD CONSTRAINT fk_bus_fuel_transaction_driver_id
+    FOREIGN KEY (driver_id)
+    REFERENCES bus_driver(id)
+    ON DELETE SET NULL ON UPDATE CASCADE;
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+  WHEN undefined_column THEN NULL;
+  WHEN undefined_table THEN NULL;
+  WHEN datatype_mismatch THEN NULL;
+END $$;
+
+-- The TypeScript migration wraps this in `.catch(() => {})`; the DO block is
+-- how that same tolerance is expressed in plain SQL. Re-running a migration or
+-- a model whose FK column was typed as something other than UUID must not
+-- abort the whole migration.
+DO $$ BEGIN
+  ALTER TABLE bus_fuel_transaction
+    ADD CONSTRAINT fk_bus_fuel_transaction_location_id
+    FOREIGN KEY (location_id)
+    REFERENCES bus_location(id)
+    ON DELETE SET NULL ON UPDATE CASCADE;
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+  WHEN undefined_column THEN NULL;
+  WHEN undefined_table THEN NULL;
+  WHEN datatype_mismatch THEN NULL;
+END $$;
+
+-- The TypeScript migration wraps this in `.catch(() => {})`; the DO block is
+-- how that same tolerance is expressed in plain SQL. Re-running a migration or
+-- a model whose FK column was typed as something other than UUID must not
+-- abort the whole migration.
+DO $$ BEGIN
+  ALTER TABLE bus_fuel_transaction
+    ADD CONSTRAINT fk_bus_fuel_transaction_unit_of_measure_id
+    FOREIGN KEY (unit_of_measure_id)
+    REFERENCES bus_unit_of_measure(id)
+    ON DELETE SET NULL ON UPDATE CASCADE;
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+  WHEN undefined_column THEN NULL;
+  WHEN undefined_table THEN NULL;
+  WHEN datatype_mismatch THEN NULL;
+END $$;
+
+-- The TypeScript migration wraps this in `.catch(() => {})`; the DO block is
+-- how that same tolerance is expressed in plain SQL. Re-running a migration or
+-- a model whose FK column was typed as something other than UUID must not
+-- abort the whole migration.
+DO $$ BEGIN
+  ALTER TABLE bus_fuel_transaction
+    ADD CONSTRAINT fk_bus_fuel_transaction_currency_id
+    FOREIGN KEY (currency_id)
+    REFERENCES bus_currency(id)
     ON DELETE SET NULL ON UPDATE CASCADE;
 EXCEPTION
   WHEN duplicate_object THEN NULL;
@@ -3228,9 +3483,12 @@ DROP TABLE IF EXISTS bus_freight_charge CASCADE;
 DROP TABLE IF EXISTS bus_fulfillment CASCADE;
 DROP TABLE IF EXISTS bus_load CASCADE;
 DROP TABLE IF EXISTS bus_route CASCADE;
+DROP TABLE IF EXISTS bus_stop CASCADE;
 DROP TABLE IF EXISTS bus_tracking_event CASCADE;
 DROP TABLE IF EXISTS bus_trip CASCADE;
 DROP TABLE IF EXISTS bus_trip_segment CASCADE;
+DROP TABLE IF EXISTS bus_driver CASCADE;
+DROP TABLE IF EXISTS bus_fuel_transaction CASCADE;
 DROP TABLE IF EXISTS bus_customer CASCADE;
 DROP TABLE IF EXISTS bus_sales_order_line CASCADE;
 DROP TABLE IF EXISTS bus_product CASCADE;
@@ -3264,9 +3522,12 @@ DROP TABLE IF EXISTS bus_vehicle_vehicle_type CASCADE;
 DROP TABLE IF EXISTS bus_vehicle_status CASCADE;
 DROP TABLE IF EXISTS bus_sales_order_status CASCADE;
 DROP TABLE IF EXISTS bus_inventory_movement_movement_type CASCADE;
+DROP TABLE IF EXISTS bus_stop_stop_type CASCADE;
 DROP TABLE IF EXISTS bus_trip_status CASCADE;
 DROP TABLE IF EXISTS bus_trip_segment_mode CASCADE;
 DROP TABLE IF EXISTS bus_trip_segment_status CASCADE;
+DROP TABLE IF EXISTS bus_driver_status CASCADE;
+DROP TABLE IF EXISTS bus_fuel_transaction_status CASCADE;
 DROP TABLE IF EXISTS bus_customer_customer_type CASCADE;
 DROP TABLE IF EXISTS bus_customer_credit_status CASCADE;
 DROP TABLE IF EXISTS bus_customer_status CASCADE;

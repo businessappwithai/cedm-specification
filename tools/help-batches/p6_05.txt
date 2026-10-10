@@ -1,0 +1,58 @@
+@ Sample
+a sampleType
+s: The category of the sample, saying what kind of material it is or what role it plays in the work.
+u: Chosen when the sample is registered; it decides handling and storage rules, which protocols apply, and how results are reported.
+v SPECIMEN: A portion taken from a larger whole in order to study it.
+v ALIQUOT: A measured part divided from a prepared parent sample.
+v COMPOUND: A sample of a chemical compound under study.
+v MATERIAL: A sample of a material or substance, such as a polymer or alloy.
+v BIOLOGICAL: Biological matter such as tissue, cells, blood or other fluid.
+v CHEMICAL: A chemical substance or mixture, such as a reagent or solvent.
+v ENVIRONMENTAL: Taken from the environment, such as water, soil or air.
+v CONTROL: A sample with a known result, used to check that a test is working.
+v REFERENCE: A certified standard that other samples are compared against.
+v OTHER: A sample that fits none of the other types.
+a unitOfMeasure
+s: The unit, such as mL, mg or units, in which the amount of this sample is stated.
+u: Chosen when the sample is registered; quantities are compared and converted using it, so it must suit the sample type.
+@ SamplingPlan
+a method
+s: The general way samples are picked from the population being inspected.
+u: Chosen when the plan is authored; it fixes how sampling is executed and makes selections reproducible and auditable.
+v CENSUS: Every applicable unit is inspected, with no sampling.
+v RANDOM: Units are picked at random from the eligible population.
+v SYSTEMATIC: Units are picked at a fixed interval, such as every tenth one.
+v STRATIFIED: The population is split into defined groups and samples are taken within each.
+v FIXED_SIZE: A set number of units is picked regardless of lot size.
+v PERCENTAGE: A defined proportion of the population is picked.
+v ACCEPTANCE_SAMPLING: Sample size and accept or reject limits come from a formal acceptance-sampling scheme.
+@ SamplingRule
+a status
+s: Whether this sampling rule may currently be chosen when a sample is drawn.
+u: Starts as DRAFT and is moved by quality owners; inspections only select ACTIVE rules, and retired rules stay as evidence of past inspections.
+v DRAFT: Being prepared and normally not selectable for inspection.
+v ACTIVE: Approved and available when sampling is carried out.
+v RETIRED: No longer chosen for new sampling but kept as evidence for past inspections. A final state.
+@ Scenario
+a scenarioId
+s: The permanent system identifier of one planning scenario.
+u: Generated on creation; budget and forecast lines refer to the scenario through it so versions can be compared side by side.
+a code
+s: The short code naming the scenario, such as BASE, UPSIDE or DOWNSIDE.
+u: Chosen by finance when the scenario is created, unique, and shown in planning screens and variance reports.
+a status
+s: Whether the scenario is still being defined, open for planning, or retired.
+u: Starts as DRAFT and is moved by finance; only ACTIVE scenarios accept new budget and forecast figures.
+v DRAFT: Being defined and not yet used in planning.
+v ACTIVE: Available for budgets and forecasts.
+v ARCHIVED: No longer used but kept for history. A final state.
+@ Scrap
+a quantity
+s: The amount of material or output written off as scrap in this record.
+u: Entered by the operator or supervisor; reduces inventory, feeds yield and variance reports, and is costed as production loss.
+a reasonCode
+s: The coded reason the material was scrapped, such as damaged, out of tolerance or contaminated.
+u: Chosen from the governed list when scrap is recorded; quality analysis and improvement work group losses by it.
+a scrappedAt
+s: The date and time the scrap loss took effect.
+u: Entered when the loss is recorded; it decides the cost period, supports genealogy tracing and is checked in audits.

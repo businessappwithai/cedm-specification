@@ -7,18 +7,16 @@ entity:
     icon: activity
   identity: {key: activityId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: activityId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Activity., businessMeaning: Identifies one governed Activity record., usage: "Transactions, integration, reporting and audit.", relationshipContext: Referenced by compatible cross-domain workflows., requiredMeaning: Required.}}
-  - {name: code, type: string, required: false, maxLength: 120, help: {summary: Business reference for Activity., businessMeaning: Human or integration-friendly reference where applicable., usage: "Search, exchange and reporting.", relationshipContext: Does not replace immutable identity., optionalMeaning: Optional when another transaction reference supplies business identity.}}
+    - {name: activityId, type: uuid, required: true, immutable: true, help: {summary: The permanent system identity of the activity., usage: 'Generated when the activity is logged; notes, follow-ups and reports refer to it.'}}
+    - {name: code, type: string, required: false, maxLength: 120, help: {summary: An optional reference number or code for the activity., usage: 'Used when an external system, such as a calendar or telephony system, supplies its own reference, so the same interaction is not logged twice.'}}
   relationships: []
   invariants:
-  - {id: ACTIVITY-001, rule: "Lifecycle changes, corrections and retries must preserve historical evidence and must not duplicate downstream commercial, physical or financial effects."}
+    - {id: ACTIVITY-001, rule: "Lifecycle changes, corrections and retries must preserve historical evidence and must not duplicate downstream commercial, physical or financial effects."}
   help:
-    summary: A governed CRM interaction or planned action such as a call, meeting, email, visit, or follow-up associated with commercial parties and opportunities.
-    purpose: Provide canonical implementation-neutral semantics for Activity across enterprise applications.
-    businessMeaning: A governed CRM interaction or planned action such as a call, meeting, email, visit, or follow-up associated with commercial parties and opportunities.
-    whenUsed: Used in CRM, sales, fulfillment, logistics, reporting, integration, or audit processes where this concept applies.
-    howItRelates: Connects to canonical parties, commercial transactions, logistics execution, and downstream evidence without replacing their authoritative records.
-    lifecycleUsage: Created and progressed through governed business workflow; completed history is retained and corrections are explicit.
-    commonProcesses: Commercial management, fulfillment, logistics execution, reconciliation, reporting, and audit.
-    commonExamples: Enterprise sales and supply-chain operations.
+    summary: A planned or completed customer-facing interaction, such as a call, meeting, email, visit or follow-up, recorded against a party or opportunity.
+    businessMeaning: Activities are the trail of contact behind a commercial relationship. They show what was done for a customer or prospect, by whom and what comes next, so sales and service teams do not work blind.
+    usage: Logged by sales and service staff as they plan or complete interactions, and by integrations such as email and calendar sync; read when preparing for a contact or reviewing account history.
+    relationshipContext: Activities connect to the commercial parties and opportunities they concern, which gives the interaction its business meaning.
+    lifecycle: An activity is planned, then completed when it happens or cancelled if it does not. Completed activities are history and are not rewritten; a follow-up is a new activity.
+    example: A product demo meeting with the buyer's procurement team, scheduled for Tuesday and logged as completed with a note to send a proposal.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-ACTIVITY}

@@ -1,6 +1,6 @@
 //! Authentication — the login every other suite depends on.
 //!
-//! Generated: 2026-10-04T01:12:36.309Z
+//! Generated: 2026-10-09T15:30:07.433Z
 //! Project: public-sector
 
 use serde_json::{json, Value};

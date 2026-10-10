@@ -24,6 +24,7 @@ const GRID_COLUMNS: string[] = [
   'display_name',
   'status',
   'external_reference',
+  'contract_id',
 ];
 const GRID_FIELDS: FieldMetadata[] = GRID_COLUMNS.map((column, index) => ({
   sys_field_id: `field-${column}`,

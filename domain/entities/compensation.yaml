@@ -1,0 +1,94 @@
+entity:
+  name: Compensation
+  namespace: cedm.domain
+  kind: human_capital_compensation
+  description: An effective-dated compensation arrangement governing how an Employment is remunerated, separate from payroll calculation and settlement.
+  ui: {icon: badge-dollar-sign}
+  identity: {key: compensationId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: compensationId, type: uuid, required: true, immutable: true, help: {summary: The identity of the compensation arrangement., usage: Generated on creation; payroll results refer to it so pay can be explained., businessMeaning: Identifies one effective-dated compensation record independently of later payroll results., relationshipContext: Employment identifies the working relationship; Compensation defines remuneration terms.}}
+    - {name: compensationCode, type: string, required: true, unique: true, maxLength: 120, help: {summary: 'The reference for the arrangement, used in HR approvals and payroll queries.', usage: Unique; assigned when the arrangement is created., businessMeaning: Operational identifier for compensation administration., relationshipContext: Distinct from payroll run or payment identifiers.}}
+    - name: basis
+      type: enum
+      required: true
+      values: [HOURLY, DAILY, MONTHLY, ANNUAL, FIXED, OTHER]
+      help:
+        summary: The unit in which the amount is expressed.
+        usage: Chosen when the arrangement is created; payroll uses it to turn the amount into pay for a period.
+        valueSemantics:
+          HOURLY: The amount is paid per hour worked.
+          DAILY: The amount is paid per day worked.
+          MONTHLY: The amount is a monthly salary.
+          ANNUAL: The amount is an annual salary.
+          FIXED: A fixed sum, such as a one-off or contract fee, not tied to time.
+          OTHER: Any other basis defined by the contract.
+        businessMeaning: Distinguishes rate and period semantics used by payroll and workforce planning.
+        relationshipContext: Does not itself define every payroll earning, deduction, tax or benefit rule.
+    - {name: amount, type: decimal, required: true, precision: 20, scale: 4, help: {summary: The agreed amount per pay basis., usage: Entered by HR; not negative. Payroll multiplies or prorates it by the basis., businessMeaning: Contractual or policy remuneration term rather than a payroll result., relationshipContext: Currency relationship defines monetary denomination.}}
+    - {name: effectiveFrom, type: date, required: true, help: {summary: The date from which the arrangement applies., usage: Set when the arrangement is agreed; payroll for earlier periods uses the arrangement then in force., businessMeaning: Establishes temporal applicability for payroll and HR decisions., relationshipContext: Must be compatible with the governing Employment period.}}
+    - {name: effectiveTo, type: date, required: false, help: {summary: The last date on which the arrangement applies., usage: Set when a later arrangement takes over; must not be before the start date., businessMeaning: Closes an arrangement without overwriting prior terms., relationshipContext: A successor Compensation may begin after this date.}}
+    - name: status
+      type: enum
+      required: true
+      default: DRAFT
+      values: [DRAFT, ACTIVE, SUPERSEDED, CANCELLED]
+      help:
+        summary: Whether the pay arrangement is still being prepared, in force, replaced or withdrawn.
+        usage: Moved by HR; only active arrangements feed payroll, and those used by completed payroll are never rewritten.
+        valueSemantics:
+          DRAFT: Being prepared; not yet used by payroll.
+          ACTIVE: In force for the employment and used by payroll.
+          SUPERSEDED: Replaced by a later arrangement; kept as history. A final state.
+          CANCELLED: Withdrawn before it took effect. A final state.
+        businessMeaning: Distinguishes preparation, current effectiveness, historical replacement and cancellation.
+        relationshipContext: Historical payroll continues to reference the terms effective at calculation time.
+  relationships:
+    - {name: employment, target: Employment, cardinality: "1", ownership: reference, help: {cardinalityMeaning: Exactly one employment; a compensation arrangement belongs to a single employment., summary: Employment relationship governed by these compensation terms., businessMeaning: Anchors remuneration to an employer-employee relationship., usage: "HCM, payroll and workforce planning.", workflowRole: Effective dates must be compatible with Employment eligibility.}}
+    - {name: currency, target: Currency, cardinality: "1", ownership: reference, help: {cardinalityMeaning: 'Exactly one currency, so the amount is unambiguous.', summary: Currency in which the amount is denominated., businessMeaning: Makes compensation value unambiguous., usage: "Payroll, budgeting and reporting.", workflowRole: Currency changes are represented as new effective-dated terms rather than rewriting history.}}
+    - {name: position, target: Position, cardinality: "0..1", ownership: reference, help: {summary: Position contextualizing the compensation arrangement., businessMeaning: Supports position-based pay structures without making Position the employment relationship., usage: "Compensation benchmarking and workforce planning.", cardinalityMeaning: Optional where compensation is not position-specific., workflowRole: Position changes may require compensation review.}}
+    - {name: payrollResults, target: Payroll, cardinality: "0..*", ownership: reference, help: {summary: Payroll results calculated using or reconciling to these terms., businessMeaning: Separates compensation policy from payroll calculation output., usage: "Payroll audit and reconciliation.", cardinalityMeaning: Zero or many payroll results., workflowRole: Payroll must use terms effective for its covered period.}}
+  invariants:
+    - {id: COMPENSATION-001, rule: amount must not be negative.}
+    - {id: COMPENSATION-002, rule: effectiveTo must not precede effectiveFrom.}
+    - {id: COMPENSATION-003, rule: Overlapping ACTIVE arrangements for the same Employment and compensation basis require explicit governed policy.}
+    - {id: COMPENSATION-004, rule: Historical compensation used by completed Payroll records must not be destructively rewritten.}
+    - {id: COMPENSATION-EXE-001, rule: "Effective To must not be earlier than effective from.", violatedWhen: "effective_from != null and effective_to != null and effective_to < effective_from", message: "Effective To cannot be earlier than effective from."}
+    - {id: COMPENSATION-EXE-002, rule: "Amount cannot be negative.", violatedWhen: "amount != null and amount < 0", message: "Amount cannot be negative."}
+  lifecycle:
+    title: Compensation Lifecycle
+    attribute: status
+    states: [DRAFT, ACTIVE, SUPERSEDED, CANCELLED]
+    initial: DRAFT
+    terminal: [SUPERSEDED, CANCELLED]
+    transitions:
+      - {from: DRAFT, to: ACTIVE, action: activate}
+      - {from: DRAFT, to: CANCELLED, action: cancel}
+      - {from: ACTIVE, to: SUPERSEDED, action: supersede}
+      - {from: ACTIVE, to: CANCELLED, action: cancel}
+  workflows:
+    - name: FollowUpRequired
+      title: "Follow up when a compensation is ended"
+      description: "When a compensation is cancelled, a task asks someone to settle what depended on it."
+      when: "status == \"CANCELLED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "COMPENSATION-FOLLOW-UP-{{id}}"
+              name: "Follow up on compensation {{id}}"
+              description: "Compensation {{id}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
+  help:
+    summary: An effective-dated agreement about how an employment is paid, separate from calculating and settling that pay.
+    businessMeaning: What someone is paid is a commitment that changes over time, such as a raise or a new pay basis. Keeping it as its own dated record shows what was agreed at any point and keeps it separate from the payroll runs that apply it.
+    usage: Created at hire and whenever pay changes; read by payroll when it calculates pay and by HR when it reviews compensation.
+    relationshipContext: Compensation belongs to one Employment, is expressed in a Currency, may be tied to a Position, and is applied by Payroll runs.
+    lifecycle: A compensation is drafted, becomes active on its start date, and is superseded when a newer arrangement replaces it or cancelled if never applied. Compensation used by completed payroll is never rewritten.
+    example: Annual salary of 72,000 EUR for a senior analyst from 1 January, superseding the previous 68,000 arrangement.
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-COMPENSATION}

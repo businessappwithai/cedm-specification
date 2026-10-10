@@ -1,0 +1,257 @@
+@ CustomsDeclaration
+s: A declaration of goods and trade information submitted to a customs authority so that the goods may cross a border.
+b: Crossing a border legally requires telling customs what is moving, what it is worth and why. The declaration is that statement; its outcome decides whether goods are released, inspected or held, and it is the evidence for duties and audits.
+u: Prepared by the declarant before goods arrive or leave; submitted to the authority; tracked until cleared; read by logistics, finance and compliance.
+c: A declaration is made by a Party (the declarant) to an Organization acting as the authority, may relate to a Shipment and is supported by Documents such as invoices and certificates.
+l: A declaration is drafted, submitted and accepted, may be selected for inspection, and ends cleared, rejected or cancelled. Clearance releases the goods.
+x: Import declaration CD-2026-88412 for a container of electronics from Shenzhen, accepted on arrival and cleared after document checks.
+a customsDeclarationId
+s: The identity of the declaration record.
+u: Generated on creation; documents, duty payments and shipment events refer to it.
+a declarationNumber
+s: The reference number of the declaration, as allocated by the customs system.
+u: Entered or received on submission; unique; quoted in all correspondence with the authority.
+a declarationType
+s: What kind of movement the declaration covers.
+u: Chosen when the declaration is prepared; decides the procedure, duties and documents required.
+v IMPORT: Goods entering the customs territory for free circulation.
+v EXPORT: Goods leaving the customs territory.
+v TRANSIT: Goods passing through the territory under customs control without being released into it.
+v TEMPORARY_IMPORT: Goods entering for a limited time and expected to leave again, such as trade-fair exhibits.
+v OTHER: Any procedure not listed above.
+a status
+s: Where the declaration stands with the authority.
+u: Updated as the authority responds; goods are released only when the declaration is CLEARED.
+v DRAFT: Being prepared by the declarant; not yet submitted.
+v SUBMITTED: Sent to the authority and awaiting acceptance.
+v ACCEPTED: Accepted for processing by the authority.
+v UNDER_INSPECTION: Selected for physical or document inspection; goods are held.
+v CLEARED: Approved; goods are released. A final state.
+v REJECTED: Refused by the authority; it must be corrected and resubmitted as a new declaration. A final state.
+v CANCELLED: Withdrawn by the declarant. A final state.
+a declaredValue
+s: The customs value of the goods, on which duties and taxes are calculated.
+u: Entered from the commercial invoice and adjusted by customs rules; zero or more.
+a currencyId
+s: The currency in which the declared value is stated.
+u: Taken from the invoice; the authority converts it using its own rates.
+a declarationDate
+s: The date the declaration was made.
+u: Entered on submission; duty rates and rules in force on this date apply.
+r declarant
+s: The party that makes the declaration.
+u: Chosen when it is prepared, usually the importer, exporter or their broker.
+n: Exactly one declarant, who is legally responsible for the accuracy of the declaration.
+w: Establishes who answers to the authority.
+r authority
+s: The customs authority to which the declaration is made.
+u: Chosen according to where the goods cross the border.
+n: Exactly one authority.
+w: Determines the rules and procedures that apply.
+r shipment
+s: The shipment whose goods are declared.
+u: Linked so that the shipment's movement waits on clearance.
+n: At most one shipment; a declaration may also cover goods not yet shipped.
+w: Clearance releases the shipment to continue.
+r documents
+s: The supporting documents submitted with the declaration.
+u: Attached before submission; read by the authority and in later audits.
+n: Any number, such as invoices, packing lists and certificates of origin.
+w: Provide the evidence for the declared facts.
+
+@ DataQualityAssessment
+s: An assessment of how good a dataset is, across dimensions such as completeness, validity, consistency and timeliness.
+b: Data is only as useful as it is trustworthy. A quality assessment records how a dataset was measured and what was found, so analysts and AI teams know whether they can rely on it.
+u: Run on a schedule or before important use of a dataset; read by data owners, analysts and governance reviewers.
+c: Each assessment concerns one Dataset; a dataset gathers many assessments over time.
+l: An assessment is drafted, active while checks run, completed when results are recorded, or cancelled if abandoned. Completed assessments are kept; a repeat is a new assessment.
+x: A completeness and validity assessment of the customer dataset, run before it feeds a churn model.
+a dataQualityAssessmentId
+s: The identity of the assessment.
+u: Generated on creation; findings and remediation tasks refer to it.
+a dataQualityAssessmentCode
+s: The unique reference for the assessment, such as DQA-2026-031.
+u: Used to cite the assessment in reports and approvals.
+a status
+s: How far the assessment has progressed.
+u: Moved by the assessor.
+v DRAFT: Being planned; criteria and scope are not yet fixed.
+v ACTIVE: Checks are running and results are being collected.
+v COMPLETED: Finished with results recorded.
+v CANCELLED: Abandoned before completion.
+r context
+s: The dataset that is being assessed.
+u: Set when the assessment is created and not changed.
+n: Exactly one dataset: an assessment always judges a specific collection of data.
+w: Attaches the findings to the data they describe.
+
+@ Dataset
+s: A governed collection of structured or unstructured data used for operations, analytics, reporting, research or AI.
+b: Organisations rely on many collections of data. Registering each as a dataset, with an owner, a sensitivity class and a quality record, is how they know what data they hold, who answers for it and who may use it.
+u: Registered by data owners; classified; assessed for quality; chosen as the source for reports and models.
+c: A dataset is owned by an Organization, has DataQualityAssessments and may train AIModels.
+l: A dataset is drafted, becomes active when published for use, is archived when it is kept only for reference and retired when no longer needed.
+x: The customer transactions dataset, owned by Finance, classified confidential and used to train the churn model.
+a datasetId
+s: The identity of the dataset record.
+u: Generated on registration; assessments and models refer to the dataset.
+a code
+s: The unique code by which the dataset is catalogued, such as CUST-TXN.
+u: Assigned by the data owner; used in catalogues and lineage.
+a name
+s: The descriptive name of the dataset.
+u: Shown in the data catalogue.
+a classification
+s: How sensitive the data is, which decides who may see it and how it must be protected.
+u: Set by the data owner; access rules and sharing decisions follow from it.
+v PUBLIC: May be shared with anyone.
+v INTERNAL: For use inside the organisation only.
+v CONFIDENTIAL: Restricted to people with a business need; disclosure would harm the organisation.
+v RESTRICTED: Tightly controlled; access is individually approved.
+v SENSITIVE: Contains personal or other specially protected data and is subject to legal controls.
+a format
+s: The technical format of the data, such as Parquet, CSV or documents.
+u: Entered at registration; helps consumers choose tools to read it.
+a status
+s: Whether the dataset is available for use.
+u: Set by the data owner.
+v DRAFT: Being assembled; not yet published.
+v ACTIVE: Published and available to authorised users.
+v ARCHIVED: Kept for reference only; not for new use.
+v RETIRED: No longer maintained or available.
+a ownerOrganizationId
+s: The organisation that owns and answers for the dataset.
+u: Set at registration; its owner approves access and quality remediation.
+r ownerOrganization
+s: The organisation that owns the dataset.
+u: Chosen at registration.
+n: At most one owner; a dataset without one is an open governance gap.
+w: Identifies who approves access and fixes problems.
+r qualityAssessments
+s: The quality assessments of the dataset.
+u: Read to judge fitness for use.
+n: Any number, accumulating over time.
+w: Shows the trend in data quality.
+r aiModels
+s: The AI models that use this dataset.
+u: Read to see the downstream effect of a data problem.
+n: Any number of models.
+w: Lets owners judge which models are affected by a change or defect.
+
+@ Delivery
+s: The record that shipped goods were handed over to a destination or recipient.
+b: A shipment is not finished when it leaves; it is finished when someone receives it. The delivery is the proof of that handover, which settles disputes and triggers invoicing.
+u: Created when the carrier confirms handover; read by customer service, finance and claims.
+c: Each delivery belongs to one Shipment and records its final handover.
+l: Changes and retries preserve the evidence and never duplicate downstream effects such as invoicing.
+x: Pallet delivery signed for by the receiving clerk at 14:20 on Thursday.
+a deliveryId
+s: The identity of the delivery record.
+u: Generated on creation; proof-of-delivery documents and invoices refer to it.
+a code
+s: The reference of the delivery, often the carrier's proof-of-delivery number.
+u: Entered on confirmation of handover; used in customer queries.
+r shipment
+n: Exactly one shipment: a delivery is the final handover of a single shipment.
+
+@ DeliveryAttempt
+s: An immutable record of one attempt to deliver a message or event payload to an integration endpoint.
+b: Integrations fail and retry. Recording each attempt, with its outcome, lets operators see what was tried, diagnose failures and prove a message was delivered.
+u: Written automatically for each attempt; read by integration operators and in incident reviews.
+c: Each attempt links a Message and the IntegrationEndpoint it was sent to.
+l: An attempt is final once recorded; the next try is a new attempt. Retries must not duplicate business effects downstream.
+x: Attempt 2 to post an order event to a partner's endpoint timed out after 30 seconds.
+a deliveryAttemptId
+s: The identity of the attempt.
+u: Generated for each attempt; logs and retry decisions refer to it.
+a occurredAt
+s: When the attempt was made.
+u: Set automatically; attempts are ordered by it when diagnosing a failure.
+r message
+n: Exactly one message: every attempt tries to deliver a particular message.
+r endpoint
+n: Exactly one endpoint: every attempt targets a specific destination.
+
+@ Department
+s: A unit of an organisation that groups people, positions, responsibilities and work.
+b: Departments are how people are organised day to day. They define reporting lines, budgets and responsibilities.
+u: Defined by HR and management; assigned to people and positions; used in reporting and approvals.
+c: A department belongs to an Organization (or one of its business units).
+l: Code and identity stay stable. Reorganisations are recorded explicitly so earlier reports do not change.
+x: The Accounts Payable department of the finance function.
+a departmentId
+s: The identity of the department.
+u: Generated on creation; people, positions and budgets refer to it.
+a code
+s: The short code of the department, such as FIN-AP.
+u: Used in postings and reports; kept stable.
+a name
+s: The name of the department.
+u: Shown in organisation charts and on documents.
+r organization
+s: The organisation the department belongs to.
+n: Exactly one organisation: a department is part of a single organisation.
+w: Places the department in the reporting structure.
+
+@ Deposit
+s: A deposit product or a deposit transaction: funds placed with a financial institution under agreed ownership and terms.
+b: Deposits are the bank's raw material and the customer's savings. A deposit record shows what was placed, by whom and on what terms, which interest, regulation and reporting depend on.
+u: Created when funds are placed; read by account servicing, interest calculation and compliance.
+c: A deposit is held with a financial institution for an owner and links to the account where it is held.
+l: Finalised financial evidence is corrected by compensating or superseding records and never by editing.
+x: A 12-month term deposit of 50,000 placed on 1 February at a fixed rate.
+a depositId
+s: The identity of the deposit.
+u: Generated on creation; interest postings and statements refer to it.
+a effectiveAt
+s: When the deposit took effect.
+u: Set when the funds are placed; interest runs from this moment.
+
+@ Diagnosis
+s: A clinical finding or condition identified during a healthcare assessment.
+b: A diagnosis is the clinical conclusion that explains a patient's problem. It drives treatment, coding for billing, and the patient's history.
+u: Recorded by clinicians during an encounter; read by the care team, coders and later clinicians.
+c: A diagnosis belongs to an encounter and to the patient being treated.
+l: Diagnoses are corrected by amendment; earlier entries remain as part of the clinical record.
+x: Type 2 diabetes mellitus, coded E11.9, recorded as the primary diagnosis at a clinic visit.
+a diagnosisId
+s: The identity of the diagnosis entry.
+u: Generated on creation; orders and billing refer to it.
+a codeSystem
+s: The coding system that the diagnosis code comes from, such as ICD-10.
+u: Chosen with the code; both are needed for the code to be meaningful.
+a code
+s: The code from the system that identifies the condition.
+u: Selected by the clinician; used for statistics and billing.
+a description
+s: The plain-language description of the condition.
+u: Entered or filled from the coding system; read by clinicians.
+a diagnosisType
+s: The role the diagnosis plays in the encounter.
+u: Chosen by the clinician when recording.
+v PRIMARY: The main condition that occasioned the encounter.
+v SECONDARY: An additional condition that affects care.
+v SUSPECTED: A condition thought likely but not yet confirmed.
+v HISTORICAL: A past condition that is still relevant to the record.
+v OTHER: Any diagnosis that does not fit the above.
+a onsetDate
+s: The date the condition began, when known.
+u: Entered by the clinician; used in the clinical timeline.
+r encounter
+s: The encounter in which the diagnosis was made.
+n: Exactly one encounter: each entry is made during a specific visit.
+r patient
+s: The patient who has the condition.
+n: Exactly one patient: a diagnosis always belongs to a person's record.
+
+@ DiscountRule
+a name
+s: The descriptive name of the rule, such as Volume discount 10%.
+a method
+v PERCENTAGE: The value is a percentage taken off the price.
+v FIXED_AMOUNT: The value is a fixed amount in the rule's currency taken off the price.
+a status
+v DRAFT: Being defined; not yet applied.
+v ACTIVE: Applied to qualifying prices and transactions.
+v INACTIVE: Temporarily not applied; can be reactivated.
+v RETIRED: No longer applied; kept so past prices can be explained.

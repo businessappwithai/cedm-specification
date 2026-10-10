@@ -17,6 +17,7 @@ pub mod bus_address;
 pub mod bus_address_address_type;
 pub mod bus_address_status;
 pub mod bus_agreement;
+pub mod bus_agreement_agreement_type;
 pub mod bus_attachment;
 pub mod bus_business_unit;
 pub mod bus_calendar;

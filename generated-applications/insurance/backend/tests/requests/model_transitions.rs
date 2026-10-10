@@ -1,6 +1,6 @@
 //! The state machines the *model* drew, and whether the API enforces them.
 //!
-//! Generated: 2026-10-04T08:30:03.805Z
+//! Generated: 2026-10-10T02:40:26.587Z
 //! Project: insurance
 //!
 //! `requests/rbac.rs` proves the topology guard works by seeding an edge of its
@@ -83,14 +83,40 @@ const MODEL_EDGES: &[(&str, &str, &str, &str)] = &[
     ("bus_insurance_policy", "status", "QUOTED", "CANCELLED"),
     ("bus_insurance_policy", "status", "ACTIVE", "CANCELLED"),
     ("bus_insurance_policy", "status", "SUSPENDED", "CANCELLED"),
+    ("bus_coverage", "status", "DRAFT", "ACTIVE"),
+    ("bus_coverage", "status", "DRAFT", "CANCELLED"),
+    ("bus_coverage", "status", "ACTIVE", "SUSPENDED"),
+    ("bus_coverage", "status", "SUSPENDED", "ACTIVE"),
+    ("bus_coverage", "status", "ACTIVE", "EXPIRED"),
+    ("bus_coverage", "status", "SUSPENDED", "EXPIRED"),
+    ("bus_coverage", "status", "ACTIVE", "CANCELLED"),
+    ("bus_coverage", "status", "SUSPENDED", "CANCELLED"),
+    ("bus_insured_party", "status", "ACTIVE", "SUSPENDED"),
+    ("bus_insured_party", "status", "SUSPENDED", "ACTIVE"),
+    ("bus_insured_party", "status", "ACTIVE", "ENDED"),
+    ("bus_insured_party", "status", "SUSPENDED", "ENDED"),
+    ("bus_underwriting", "status", "DRAFT", "IN_REVIEW"),
+    ("bus_underwriting", "status", "DRAFT", "WITHDRAWN"),
+    ("bus_underwriting", "status", "IN_REVIEW", "DECIDED"),
+    ("bus_underwriting", "status", "IN_REVIEW", "WITHDRAWN"),
+    ("bus_premium", "status", "DRAFT", "DUE"),
+    ("bus_premium", "status", "DRAFT", "CANCELLED"),
+    ("bus_premium", "status", "DUE", "INVOICED"),
+    ("bus_premium", "status", "DUE", "WAIVED"),
+    ("bus_premium", "status", "DUE", "CANCELLED"),
+    ("bus_premium", "status", "INVOICED", "PAID"),
+    ("bus_premium", "status", "INVOICED", "WAIVED"),
     ("bus_insurance_claim", "status", "REPORTED", "UNDER_REVIEW"),
+    ("bus_insurance_claim", "status", "REPORTED", "DENIED"),
     ("bus_insurance_claim", "status", "UNDER_REVIEW", "APPROVED"),
     (
         "bus_insurance_claim",
         "status",
-        "APPROVED",
+        "UNDER_REVIEW",
         "PARTIALLY_APPROVED",
     ),
+    ("bus_insurance_claim", "status", "UNDER_REVIEW", "DENIED"),
+    ("bus_insurance_claim", "status", "APPROVED", "SETTLED"),
     (
         "bus_insurance_claim",
         "status",
@@ -98,15 +124,16 @@ const MODEL_EDGES: &[(&str, &str, &str, &str)] = &[
         "SETTLED",
     ),
     ("bus_insurance_claim", "status", "SETTLED", "CLOSED"),
-    ("bus_insurance_claim", "status", "REPORTED", "DENIED"),
-    ("bus_insurance_claim", "status", "UNDER_REVIEW", "DENIED"),
-    ("bus_insurance_claim", "status", "APPROVED", "DENIED"),
-    (
-        "bus_insurance_claim",
-        "status",
-        "PARTIALLY_APPROVED",
-        "DENIED",
-    ),
+    ("bus_claim_line", "status", "SUBMITTED", "ASSESSED"),
+    ("bus_claim_line", "status", "SUBMITTED", "CANCELLED"),
+    ("bus_claim_line", "status", "ASSESSED", "APPROVED"),
+    ("bus_claim_line", "status", "ASSESSED", "DENIED"),
+    ("bus_claim_line", "status", "ASSESSED", "CANCELLED"),
+    ("bus_claim_line", "status", "APPROVED", "SETTLED"),
+    ("bus_settlement", "status", "DRAFT", "APPROVED"),
+    ("bus_settlement", "status", "DRAFT", "VOID"),
+    ("bus_settlement", "status", "APPROVED", "EXECUTED"),
+    ("bus_settlement", "status", "APPROVED", "VOID"),
 ];
 
 /// The entity and starting state of the first machine, for the live check.

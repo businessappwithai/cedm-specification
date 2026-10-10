@@ -5,9 +5,10 @@
 //! every business suite depends on — then the per-entity CRUD and rules
 //! modules, which are generated one per entity in the model.
 //!
-//! Generated: 2026-10-04T08:29:54.350Z
+//! Generated: 2026-10-10T02:40:11.820Z
 //! Project: healthcare
 
+mod accounts;
 mod ai;
 mod auth;
 mod concurrency;
@@ -33,6 +34,8 @@ mod crud_address_address_type;
 mod crud_address_status;
 mod crud_allergy;
 mod crud_allergy_status;
+mod crud_appointment;
+mod crud_appointment_status;
 mod crud_attachment;
 mod crud_business_unit;
 mod crud_calendar;
@@ -81,6 +84,8 @@ mod crud_person;
 mod crud_person_gender;
 mod crud_person_party_type;
 mod crud_person_status;
+mod crud_practitioner;
+mod crud_practitioner_status;
 mod crud_prescription;
 mod crud_prescription_status;
 mod crud_procedure;
@@ -99,6 +104,8 @@ mod rules_address_address_type;
 mod rules_address_status;
 mod rules_allergy;
 mod rules_allergy_status;
+mod rules_appointment;
+mod rules_appointment_status;
 mod rules_attachment;
 mod rules_business_unit;
 mod rules_calendar;
@@ -147,6 +154,8 @@ mod rules_person;
 mod rules_person_gender;
 mod rules_person_party_type;
 mod rules_person_status;
+mod rules_practitioner;
+mod rules_practitioner_status;
 mod rules_prescription;
 mod rules_prescription_status;
 mod rules_procedure;

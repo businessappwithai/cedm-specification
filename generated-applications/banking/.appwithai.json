@@ -64,7 +64,8 @@
     "BankTransactionTransactionType",
     "BankTransactionStatus",
     "BankLoanStatus",
-    "CreditStatus"
+    "CreditStatus",
+    "CreditReason"
   ],
   "categories": [
     "Foundation",
@@ -79,6 +80,7 @@
     "BankLoanStatus (7)",
     "BankTransactionStatus (4)",
     "BankTransactionTransactionType (7)",
+    "CreditReason (5)",
     "CreditStatus (4)",
     "CurrencyStatus (3)",
     "ExchangeRateRateType (6)",
@@ -124,9 +126,9 @@
     "Task: COMPLETED, CANCELLED, FAILED",
     "BankAccount: CLOSED",
     "BankTransaction: REVERSED, FAILED",
-    "BankLoan: CANCELLED",
+    "BankLoan: PAID_OFF, DEFAULTED, CANCELLED",
     "Credit: COMPLETED, CANCELLED"
   ],
   "packageManager": "bun",
-  "generatedAt": "2026-10-08T00:55:26.736Z"
+  "generatedAt": "2026-10-10T09:25:32.197Z"
 }

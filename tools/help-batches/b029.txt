@@ -1,0 +1,320 @@
+@ Lot
+a lotId
+s: The identity of the lot, which stays the same if its number is reissued.
+u: Generated on creation; balances, movements and inspections refer to it.
+a lotNumber
+s: The batch or lot number by which the quantity is traced, as printed on the label.
+u: Assigned at production or receipt; unique per product; used for recalls and first-expired-first-out picking.
+a manufacturedAt
+s: When the lot was produced.
+u: Entered at production or from the supplier's documents; the start of shelf life.
+a expiresAt
+s: When the lot must no longer be used or sold.
+u: Calculated from manufacture date and shelf life, or taken from the supplier; stock past it is blocked.
+a status
+s: Whether the lot may be used.
+u: Set by quality and inventory control; only usable statuses allow picking and shipping.
+v ACTIVE: In stock and usable under normal rules.
+v HOLD: Temporarily blocked, for example during an enquiry; it can be released again.
+v QUARANTINED: Held apart pending a quality decision.
+v RELEASED: Approved by quality for use.
+v EXPIRED: Past its expiry date. A final state.
+v REJECTED: Failed quality checks and not to be used. A final state.
+v CONSUMED: Fully used up. A final state.
+v CLOSED: Closed administratively with nothing left to track. A final state.
+r product
+s: The product that the lot is a batch of.
+u: Set when the lot is created.
+n: Exactly one product: a lot groups units of a single item.
+w: Gives the lot its specification and shelf life.
+r inventoryBalances
+s: The stock balances held in this lot.
+u: Read to see where the lot's quantity is stored.
+n: Any number of balances, one for each location holding some of the lot.
+w: Show how a lot is spread across locations.
+r inventoryMovements
+s: The stock movements that involve the lot.
+u: Read to trace the lot forwards to customers and backwards to its source.
+n: Any number of movements over the lot's life.
+w: Provide the traceability needed for recalls.
+
+@ MaintenancePlan
+s: A preventive or condition-based schedule and policy for maintaining assets.
+b: Equipment fails less and lasts longer when it is looked after on a plan. The plan states what to do and how often, so work orders are raised automatically instead of when something breaks.
+u: Defined by maintenance engineers; linked to assets and meters; read by planners who generate work orders from it.
+c: A plan applies to Assets and Products, and may be triggered by Meters.
+l: A plan is drafted, becomes active when approved, can be suspended, and is retired when replaced or no longer needed. Work orders already raised stay valid.
+x: Quarterly inspection of a forklift fleet: lubricate, check brakes and test the mast, every 500 operating hours.
+a maintenancePlanId
+s: The identity of the maintenance plan.
+u: Generated on creation; work orders refer to it.
+a code
+s: The code of the plan, such as PM-FORK-500.
+u: Unique; used on work orders and reports.
+a name
+s: The descriptive name of the plan.
+u: Shown in planners' lists.
+a maintenanceType
+s: The approach the plan takes to maintenance.
+u: Chosen at creation; decides how work is triggered.
+v PREVENTIVE: Work done at fixed intervals whether or not anything is wrong.
+v CONDITION_BASED: Work done when a measured condition crosses a threshold.
+v PREDICTIVE: Work done when analysis predicts a failure is likely.
+v INSPECTION: A check that may lead to further work.
+a frequencyValue
+s: How often the plan's work is due, in the unit given by the frequency unit.
+u: Entered by the engineer; positive. For example 500 with unit hours.
+a frequencyUnit
+s: The unit in which the frequency is measured.
+u: Chosen with the frequency value.
+v HOURS: Operating hours.
+v DAYS: Calendar days.
+v WEEKS: Calendar weeks.
+v MONTHS: Calendar months.
+v MILES: Distance travelled.
+v CYCLES: Operating cycles, such as starts or lifts.
+v OTHER: Any other measure.
+a status
+s: Whether the plan is generating work.
+u: Set by maintenance engineering.
+v DRAFT: Being prepared; not generating work.
+v ACTIVE: In force; work orders are raised from it.
+v SUSPENDED: Paused; no new work orders.
+v RETIRED: Withdrawn. A final state.
+r assets
+s: The assets the plan applies to.
+u: Linked when the plan is assigned.
+n: Any number of assets, since one plan covers a class of equipment.
+w: Determines which assets get work orders from the plan.
+r products
+s: The product types the plan applies to.
+u: Linked to apply the plan to every asset of a model.
+n: Any number of products.
+w: Lets one plan cover a whole equipment model.
+r meters
+n: Any number of meters, whose readings trigger usage-based work.
+
+@ MaintenanceWorkOrder
+s: A controlled instruction and record for inspecting, maintaining, correcting or repairing an asset: what work is required, who does it, when, and how it was completed.
+b: Maintenance is only effective if it is directed and recorded. The work order is the instruction to a technician and the evidence of what was done, which feeds cost, history and reliability analysis.
+u: Raised from a request, a plan or a failure; planned and assigned; executed; completed; read by planners, technicians and finance.
+c: A work order concerns an Asset, may come from a MaintenancePlan, is assigned to a Party, takes place at a Location, and may be based on a RepairEstimate or relate to a ServiceOrder.
+l: A work order is opened, planned, assigned and started, and ends completed. It can be put on hold and resumed, or cancelled before completion.
+x: Work order 10244: replace the hydraulic hose on forklift FL-07, assigned to a technician, scheduled for Tuesday and completed in two hours.
+a maintenanceWorkOrderId
+s: The identity of the work order.
+u: Generated on creation; parts issues and time bookings refer to it.
+a workOrderNumber
+s: The number printed on the job card.
+u: Allocated on creation; unique; used by technicians and in cost reports.
+a workType
+s: The kind of work.
+u: Chosen on creation; affects priority rules and reporting.
+v INSPECTION: A check of condition without repair.
+v PREVENTIVE: Planned work to prevent failure.
+v CORRECTIVE: Work to correct a defect found earlier.
+v REPAIR: Work to repair a failure.
+v EMERGENCY: Urgent work to restore a critical asset.
+a status
+s: Where the work stands.
+u: Moved by planners and technicians.
+v OPEN: Requested and waiting to be planned.
+v PLANNED: Scheduled for a date.
+v ASSIGNED: Given to a technician or crew.
+v IN_PROGRESS: Work has started.
+v ON_HOLD: Paused, for example waiting for parts.
+v COMPLETED: Done. A final state.
+v CANCELLED: Withdrawn. A final state.
+a priority
+s: How urgent the work is.
+u: Set at request; planners schedule in priority order.
+v LOW: Can wait until convenient.
+v NORMAL: To be done in the usual course.
+v HIGH: To be done soon.
+v CRITICAL: Needed at once because of safety or a stopped process.
+a requestedAt
+s: When the work was requested.
+u: Set on creation; response times are measured from it.
+a scheduledAt
+s: When the work is due to be done.
+u: Set when planned.
+a completedAt
+s: When the work was finished.
+u: Set on completion; used for downtime and cost.
+a description
+s: What needs to be done.
+u: Written by the requester or planner and read by the technician.
+r asset
+s: The asset the work is for.
+u: Chosen when raised.
+n: At most one asset; some work covers a location or a group.
+w: Adds to the asset's maintenance history.
+r maintenancePlan
+s: The plan the work order came from.
+u: Set for planned maintenance.
+n: At most one plan.
+w: Links recurring work to its policy.
+r assignee
+s: The person or team responsible for doing the work.
+u: Assigned by the planner.
+n: At most one assignee at a time.
+w: Gives accountability for execution.
+r location
+s: Where the work is done.
+u: Set when planned.
+n: At most one location.
+w: Helps dispatch.
+r repairEstimate
+s: The estimate the work is based on.
+u: Linked where a quote was approved.
+n: At most one estimate.
+w: Gives the cost baseline.
+r containerMovement
+n: Any number of container movements connected to the repair.
+r serviceOrder
+n: At most one service order, for work done under a customer service agreement.
+
+@ MaterialIssue
+s: A record that component material was issued, or staged, to a manufacturing work order, with the stock effect carried out by a stock movement.
+b: Production consumes material, and the books must show exactly which material went to which job. The issue states what was supplied to the work order, from which lot, and ties it to the stock movement that reduced inventory.
+u: Created when a storekeeper issues components to a job; read by production control, costing and traceability.
+c: An issue is for one ManufacturingWorkOrder and one Product, may follow a BOMComponent line, may name a Lot or SerialNumbers, and is posted through an InventoryMovement.
+x: 40 steel brackets from lot L240318 issued to work order MO-5512 for the bracket assembly.
+a materialIssueId
+s: The identity of the material issue.
+u: Generated on creation; the stock movement and the work order's cost refer to it.
+a issueNumber
+s: The document number of the issue, printed on the pick list.
+u: Allocated from a number series; unique; used by storekeepers and in audits.
+a quantity
+s: The quantity of the component issued to the work order.
+u: Entered at issue; the stock movement posts the same quantity and the work order's consumed quantity increases by it.
+a issuedAt
+s: When the material left the store for production.
+u: Set at issue; the consumption is costed as of this time.
+r workOrder
+s: The manufacturing work order that receives the material.
+u: Chosen when the issue is made.
+n: Exactly one work order: material is issued to one production job at a time.
+w: Adds the material to the job's actual consumption and cost.
+r bomComponent
+s: The bill-of-material line that the issue satisfies.
+u: Linked where the issue follows the bill; left empty for substitutions or extras.
+n: At most one component line.
+w: Lets production compare actual to planned consumption.
+r product
+s: The component product that is issued.
+u: Chosen when the issue is made.
+n: Exactly one product: each issue supplies a single item.
+w: Determines which stock is reduced.
+r lot
+s: The lot that the material is taken from.
+u: Chosen for lot-controlled components.
+n: At most one lot.
+w: Provides traceability from the finished goods back to the material lot.
+r serialNumbers
+s: The serialised units issued.
+u: Entered for serialised components.
+n: Any number of serial numbers, one for each unit issued.
+w: Gives unit-level traceability into the finished product.
+r inventoryMovement
+s: The stock movement that carried out the issue.
+u: Created when the issue is posted; read to trace the stock effect.
+n: Exactly one movement: each posted issue is one stock transaction.
+w: Keeps the stock ledger and the work order consistent.
+
+@ MediaContent
+s: A digital or physical media work that is managed for creation, licensing, publication or distribution.
+b: Media businesses live on content and the rights to it. This record identifies each work, its type and its stage, and ties it to the rights that allow it to be used.
+u: Created when a work is commissioned or acquired; moved through production and publication; read by publishing, licensing and finance.
+c: A work is owned by an Organization, supported by Documents and licensed through MediaRights.
+l: A work is drafted, produced, published, and then archived or retired. Rights and history remain after publication ends.
+x: A documentary film, produced in 2025 and published on the streaming platform in 2026.
+a mediaContentId
+s: The identity of the work.
+u: Generated on creation; rights and publications refer to it.
+a contentCode
+s: The catalogue code of the work.
+u: Unique; assigned by the content team and used by distributors and royalty systems.
+a title
+s: The title of the work.
+u: Shown on publications and in catalogues; can be changed without losing the work's identity.
+a contentType
+s: The form of the work.
+u: Chosen when the work is registered; decides workflows, formats and royalty rules.
+v VIDEO: A film, series or clip.
+v AUDIO: Music or spoken-word audio.
+v IMAGE: A photograph or illustration.
+v ARTICLE: A written article.
+v BOOK: A book or e-book.
+v PODCAST: A podcast episode or series.
+v GAME: A game.
+v OTHER: Any other kind of work.
+a status
+s: Where the work is in its life.
+u: Moved by the content team; only PUBLISHED works are shown to audiences.
+v DRAFT: Being created.
+v PRODUCED: Finished but not yet released.
+v PUBLISHED: Released to its audience.
+v ARCHIVED: Kept but no longer promoted.
+v RETIRED: Withdrawn from distribution. A final state.
+r owner
+s: The organisation that owns the work.
+u: Set at registration.
+n: At most one owner; works with shared or unclear ownership may have none recorded.
+w: Determines who may license and who is paid.
+r documents
+s: The documents that support the work, such as scripts and contracts.
+u: Attached during production and licensing.
+n: Any number of documents.
+w: Provide the paper trail for rights and approvals.
+r rights
+s: The rights and licences that apply to the work.
+u: Checked before publication or licensing.
+n: Any number of rights, such as one for each territory and medium.
+w: Publication is allowed only within these rights.
+
+@ MediaRight
+s: A right, licence, restriction or usage entitlement that applies to media content.
+b: Content may be used only as far as rights allow. Each right states what is permitted, where and for how long, so publication and licensing decisions can be checked.
+u: Recorded when a licence is acquired or granted; checked before content is published; read by licensing and legal.
+c: A right is for one MediaContent, held by a Party, and may rest on a Contract.
+l: A right is pending until it takes effect, active during its period, and ends expired or revoked.
+x: A licence to stream a documentary in Europe from 1 January for two years.
+a mediaRightId
+s: The identity of the right.
+u: Generated on creation; publications and royalty statements refer to it.
+a rightType
+s: The kind of right granted, such as streaming, broadcast, print or merchandise.
+u: Entered from the licence; publication in a medium requires a matching active right.
+a territory
+s: The territory in which the right applies.
+u: Entered from the licence; publication outside it is not permitted.
+a validFrom
+s: The first date on which the right applies.
+u: Entered from the licence.
+a validTo
+s: The last date on which the right applies.
+u: Entered from the licence; not before the start date.
+a status
+s: Whether the right is currently in effect.
+u: Moved by licensing staff or expiry processing; only ACTIVE rights permit use.
+v PENDING: Agreed but not yet in effect.
+v ACTIVE: In effect.
+v EXPIRED: Its period has ended. A final state.
+v REVOKED: Withdrawn before its period ended. A final state.
+r content
+s: The work the right applies to.
+u: Set when the right is recorded.
+n: Exactly one work: a right is a permission over a specific work.
+w: Decides what may be done with that work.
+r holder
+s: The party that holds the right.
+u: Set when the right is recorded.
+n: Exactly one holder: the right belongs to a specific licensee or licensor.
+w: Identifies who may exercise, or who has granted, the right.
+r contract
+s: The contract that grants the right.
+u: Linked where a written agreement exists.
+n: At most one contract.
+w: Provides the legal basis for the right.

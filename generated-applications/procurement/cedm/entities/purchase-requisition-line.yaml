@@ -11,93 +11,88 @@ entity:
     generated: true
     immutable: true
   attributes:
-  - name: purchaseRequisitionLineId
-    type: uuid
-    required: true
-    immutable: true
-    help:
-      summary: The immutable system identity of the requisition line.
-      usage: Used to trace the exact internal demand through approval, sourcing, purchase-order creation, fulfillment, and reporting.
-      relationshipContext: Identifies this demand line independently of the parent requisition, Product, or any later PurchaseOrderLine created from it.
-      requiredMeaning: Required because each procurement demand must remain individually traceable.
-  - name: lineNumber
-    type: integer
-    required: true
-    minimum: 1
-    help:
-      summary: The business sequence number identifying the demand line within its PurchaseRequisition.
-      usage: Used by requesters, approvers, buyers, documents, and integrations to refer to a specific requested item or service.
-      relationshipContext: Meaningful only within the containing requisition; it is not a global identifier.
-      requiredMeaning: Required for human-readable requisition processing.
-  - name: quantity
-    type: decimal
-    required: true
-    precision: 20
-    scale: 6
-    help:
-      summary: The quantity of goods, materials, assets, or service units requested by the requester.
-      usage: Used for approval, sourcing, supplier quotation, planning, and eventual conversion into a purchase commitment.
-      relationshipContext: Quantity requires Product and UnitOfMeasure context to be meaningful and may differ from the quantity eventually ordered.
-      requiredMeaning: Required because procurement demand must state the requested magnitude.
-  - name: requestedDate
-    type: date
-    required: false
-    help:
-      summary: The date by which the requester needs the requested goods or service to be available or completed.
-      usage: Used for prioritization, sourcing, purchasing lead-time analysis, supplier selection, and delivery planning.
-      relationshipContext: This is an internal need date and is distinct from the PurchaseOrder requestedDeliveryDate, Supplier promise date, and actual receipt date.
-      optionalMeaning: Optional when the requester has no fixed need-by date.
-  - name: description
-    type: string
-    required: true
-    maxLength: 1000
-    help:
-      summary: The human-readable description of the requested item or service, including requirements that may not be represented by the Product reference alone.
-      usage: Used by approvers and buyers to understand the demand, obtain quotations, clarify specifications, and communicate requirements to suppliers.
-      relationshipContext: Description supplements Product; it must not silently replace a known Product identity when standardized master data exists.
-      requiredMeaning: Required because procurement demand must remain understandable even when product master data is incomplete.
+    - name: purchaseRequisitionLineId
+      type: uuid
+      required: true
+      immutable: true
+      help:
+        summary: The immutable system identity of the requisition line.
+        usage: Used to trace the exact internal demand through approval, sourcing, purchase-order creation, fulfillment, and reporting.
+        relationshipContext: Identifies this demand line independently of the parent requisition, Product, or any later PurchaseOrderLine created from it.
+    - name: lineNumber
+      type: integer
+      required: true
+      minimum: 1
+      help:
+        summary: The business sequence number identifying the demand line within its PurchaseRequisition.
+        usage: Used by requesters, approvers, buyers, documents, and integrations to refer to a specific requested item or service.
+        relationshipContext: Meaningful only within the containing requisition; it is not a global identifier.
+    - name: quantity
+      type: decimal
+      required: true
+      precision: 20
+      scale: 6
+      help:
+        summary: The quantity of goods, materials, assets, or service units requested by the requester.
+        usage: Used for approval, sourcing, supplier quotation, planning, and eventual conversion into a purchase commitment.
+        relationshipContext: Quantity requires Product and UnitOfMeasure context to be meaningful and may differ from the quantity eventually ordered.
+    - name: requestedDate
+      type: date
+      required: false
+      help:
+        summary: The date by which the requester needs the requested goods or service to be available or completed.
+        usage: Used for prioritization, sourcing, purchasing lead-time analysis, supplier selection, and delivery planning.
+        relationshipContext: This is an internal need date and is distinct from the PurchaseOrder requestedDeliveryDate, Supplier promise date, and actual receipt date.
+    - name: description
+      type: string
+      required: true
+      maxLength: 1000
+      help:
+        summary: The human-readable description of the requested item or service, including requirements that may not be represented by the Product reference alone.
+        usage: Used by approvers and buyers to understand the demand, obtain quotations, clarify specifications, and communicate requirements to suppliers.
+        relationshipContext: Description supplements Product; it must not silently replace a known Product identity when standardized master data exists.
   relationships:
-  - name: requisition
-    target: PurchaseRequisition
-    cardinality: '1'
-    ownership: reference
-    inverse: lines
-    help:
-      summary: Identifies the PurchaseRequisition that owns this internal procurement demand.
-      usage: Supplies requester, organization, approval, supplier preference, and requisition lifecycle context.
-      cardinalityMeaning: Every requisition line belongs to exactly one PurchaseRequisition.
-      context: The parent requisition controls the internal authorization context; the line provides the measurable demand.
-  - name: product
-    target: Product
-    cardinality: 0..1
-    ownership: reference
-    help:
-      summary: Identifies the standardized Product being requested when the demand can be expressed using product master data.
-      usage: Enables sourcing, catalog selection, inventory checks, specification validation, and conversion to a PurchaseOrderLine.
-      cardinalityMeaning: Zero or one Product may be referenced because some requisitions begin as free-text or service requirements.
-      context: A missing Product does not invalidate the demand; it indicates that purchasing may need to identify or create the appropriate product definition.
-  - name: unitOfMeasure
-    target: UnitOfMeasure
-    cardinality: 0..1
-    ownership: reference
-    help:
-      summary: Defines the unit in which the requested quantity is expressed.
-      usage: Used to interpret quantities during approval, sourcing, quotation comparison, ordering, receipt, and conversion.
-      cardinalityMeaning: Zero or one unit may be specified; the product's default unit may be inherited where applicable.
-      context: UnitOfMeasure gives semantic meaning to quantity and supports conversion when the ordered unit differs from the requested unit.
-  - name: requestForQuotationLines
-    target: RequestForQuotationLine
-    cardinality: 0..*
-    ownership: reference
-    help: {summary: Sourcing requirement lines created from this approved demand., businessMeaning: Preserves exact demand-to-sourcing traceability including split sourcing., usage: "Sourcing reconciliation, award analysis, and audit.", cardinalityMeaning: One demand line may be sourced through multiple RFQ lines/events., context: Total active sourcing allocations must remain governed by approved demand and policy.}
+    - name: requisition
+      target: PurchaseRequisition
+      cardinality: '1'
+      ownership: reference
+      inverse: lines
+      help:
+        summary: Identifies the PurchaseRequisition that owns this internal procurement demand.
+        usage: Supplies requester, organization, approval, supplier preference, and requisition lifecycle context.
+        cardinalityMeaning: Every requisition line belongs to exactly one PurchaseRequisition.
+        context: The parent requisition controls the internal authorization context; the line provides the measurable demand.
+    - name: product
+      target: Product
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: Identifies the standardized Product being requested when the demand can be expressed using product master data.
+        usage: Enables sourcing, catalog selection, inventory checks, specification validation, and conversion to a PurchaseOrderLine.
+        cardinalityMeaning: Zero or one Product may be referenced because some requisitions begin as free-text or service requirements.
+        context: A missing Product does not invalidate the demand; it indicates that purchasing may need to identify or create the appropriate product definition.
+    - name: unitOfMeasure
+      target: UnitOfMeasure
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: Defines the unit in which the requested quantity is expressed.
+        usage: Used to interpret quantities during approval, sourcing, quotation comparison, ordering, receipt, and conversion.
+        cardinalityMeaning: Zero or one unit may be specified; the product's default unit may be inherited where applicable.
+        context: UnitOfMeasure gives semantic meaning to quantity and supports conversion when the ordered unit differs from the requested unit.
+    - name: requestForQuotationLines
+      target: RequestForQuotationLine
+      cardinality: 0..*
+      ownership: reference
+      help: {summary: Sourcing requirement lines created from this approved demand., businessMeaning: Preserves exact demand-to-sourcing traceability including split sourcing., usage: "Sourcing reconciliation, award analysis, and audit.", cardinalityMeaning: One demand line may be sourced through multiple RFQ lines/events., context: Total active sourcing allocations must remain governed by approved demand and policy.}
   invariants:
-  - id: PR-LINE-001
-    rule: quantity must be greater than zero.
-  - id: PR-LINE-002
-    rule: lineNumber must be unique within its PurchaseRequisition.
-  - id: PR-LINE-003
-    rule: A requestedDate, when supplied, must represent a date on or after the requisition date unless an authorized historical correction is being recorded.
-  - {id: PURCHASE-REQUISITION-LINE-EXE-001, rule: "Quantity cannot be negative.", violatedWhen: "quantity != null and quantity < 0", message: "Quantity cannot be negative."}
+    - id: PR-LINE-001
+      rule: quantity must be greater than zero.
+    - id: PR-LINE-002
+      rule: lineNumber must be unique within its PurchaseRequisition.
+    - id: PR-LINE-003
+      rule: A requestedDate, when supplied, must represent a date on or after the requisition date unless an authorized historical correction is being recorded.
+    - {id: PURCHASE-REQUISITION-LINE-EXE-001, rule: "Quantity cannot be negative.", violatedWhen: "quantity != null and quantity < 0", message: "Quantity cannot be negative."}
   help:
     summary: Represents one measurable internal procurement demand before it becomes an external supplier commitment.
     businessMeaning: PurchaseRequisitionLine is where a business need becomes specific enough for procurement to source, approve, compare, and eventually order. It is demand, not yet a purchase obligation.

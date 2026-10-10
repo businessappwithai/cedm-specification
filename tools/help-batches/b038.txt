@@ -1,0 +1,143 @@
+@ Premium
+a premiumId
+s: The identity of the premium record.
+u: Generated when the premium is assessed; invoices and payments refer to it.
+a premiumNumber
+s: The number of the premium notice, quoted to the policyholder.
+u: Allocated from a number series; unique.
+a amount
+s: The premium amount due for the period.
+u: Calculated from the policy's rating; not negative.
+c: Expressed in the premium's currency; the invoice, if one is raised, repeats it.
+a dueDate
+s: The date by which the premium must be paid.
+u: Set from the billing schedule; reminders and lapse rules run from it.
+a status
+s: Where the premium stands.
+u: Moved by policy billing and finance.
+v DRAFT: Calculated but not yet due.
+v DUE: Payable now.
+v INVOICED: Included on an invoice to the policyholder.
+v PAID: Received. A final state.
+v WAIVED: Excused by the insurer. A final state.
+v CANCELLED: Withdrawn, for example because the policy was cancelled. A final state.
+r policy
+n: Exactly one policy: a premium is the price of the cover under a specific policy.
+r insuredParty
+s: The insured party the premium is charged for, where cover is priced per person.
+u: Set for group and family policies.
+n: At most one insured party.
+w: Lets a premium be traced to the person it covers.
+r currency
+n: Exactly one currency, so the amount is unambiguous.
+
+@ Prescription
+s: An authorised instruction for a patient to receive or use a medication or therapy.
+b: The prescription turns a clinical decision into an instruction that pharmacists and nurses can follow safely: who gets what, how much, how often and for how long.
+u: Written by a prescriber after assessment; dispensed and administered; read by pharmacy, nursing and the patient.
+c: A prescription is for a HealthcarePatient, names a Medication and is issued by a HealthcareProvider.
+l: A prescription is drafted, becomes active when signed, and ends completed when the course is finished, discontinued by the prescriber, or cancelled if never used.
+x: Amoxicillin 500 mg, three times daily by mouth for seven days, prescribed after a chest infection diagnosis.
+a prescriptionId
+s: The identity of the prescription.
+u: Generated on creation; dispensing records refer to it.
+a prescriptionNumber
+s: The number printed on the prescription.
+u: Allocated on signing; unique; presented at the pharmacy.
+a dosage
+s: How much medication is given each time, such as 500 mg.
+u: Entered by the prescriber; checked against safe ranges.
+a frequency
+s: How often the dose is given, such as three times daily.
+u: Entered by the prescriber; drives the administration schedule.
+a route
+s: How the medication is given, such as oral, intravenous or topical.
+u: Chosen by the prescriber; must suit the medication's form.
+a startDate
+s: The first day of treatment.
+u: Set by the prescriber; defaults to today.
+a endDate
+s: The last day of treatment.
+u: Set by the prescriber; must not be before the start date.
+a status
+s: Where the prescription stands.
+u: Moved by the prescriber and pharmacy.
+v DRAFT: Being written; not yet valid.
+v ACTIVE: Signed and in force.
+v COMPLETED: The course is finished. A final state.
+v CANCELLED: Withdrawn before use. A final state.
+v DISCONTINUED: Stopped by the prescriber during treatment. A final state.
+r patient
+s: The patient who is to receive the medication.
+u: Set at creation.
+n: Exactly one patient: a prescription is for a specific person.
+w: Adds the prescription to the patient's record for interaction and allergy checks.
+r medication
+s: The medication prescribed.
+u: Chosen from the formulary.
+n: Exactly one medication.
+w: Defines the product to be dispensed.
+r prescriber
+s: The provider who issued the prescription.
+u: Set when signed.
+n: Exactly one prescriber, who is responsible for the instruction.
+w: Identifies who to contact about it.
+
+@ Pricing
+s: A pricing definition or decision context that establishes base prices and the conditions under which they apply, before discounts, promotions, quotes or orders.
+b: Price is not a single number: it depends on product, customer, quantity and date. A pricing definition holds those conditions so orders and quotes can find the right base price and explain it.
+u: Maintained by pricing managers; looked up when quotes and orders are priced.
+c: Quotes, orders and discount rules start from the base price that this definition gives.
+l: Changes and retries preserve historical evidence and do not duplicate commercial effects.
+x: The 2026 list price for the product family in the European market.
+a pricingId
+s: The identity of the pricing definition.
+u: Generated on creation; price lists and quotes refer to it.
+a code
+s: The reference of the pricing definition, such as LIST-EU-2026.
+u: Assigned by pricing managers; used to select the pricing.
+
+@ Procedure
+s: A clinical procedure that is planned or performed as part of healthcare delivery.
+b: Procedures are the interventions that change a patient's condition, from a blood draw to an operation. Recording them, with codes and times, supports care continuity, billing and quality review.
+u: Planned during an encounter; recorded when performed; read by clinicians, coders and billing.
+c: A procedure is part of a HealthcareEncounter, is for a HealthcarePatient and is carried out by a HealthcareProvider.
+l: A procedure is planned, in progress while performed, and completed; it can be cancelled before it happens.
+x: Appendectomy, coded in the procedure coding system and performed on 12 May during an inpatient stay.
+a procedureId
+s: The identity of the procedure record.
+u: Generated on creation.
+a codeSystem
+s: The coding system that the procedure code is from, such as CPT or SNOMED CT.
+u: Chosen with the code; both are needed to interpret it.
+a code
+s: The code that identifies the procedure.
+u: Selected by the clinician; used for billing and statistics.
+a description
+s: A plain-language description of the procedure.
+u: Entered or filled from the coding system.
+a status
+s: Where the procedure stands.
+u: Updated by the care team.
+v PLANNED: Scheduled but not yet started.
+v IN_PROGRESS: Being performed.
+v COMPLETED: Done. A final state.
+v CANCELLED: Not carried out. A final state.
+a performedAt
+s: When the procedure was performed.
+u: Recorded when it takes place.
+r encounter
+s: The encounter during which the procedure took place.
+u: Set at creation.
+n: Exactly one encounter: a procedure happens during one episode of care.
+w: Places the procedure in the clinical timeline.
+r patient
+s: The patient on whom the procedure is performed.
+u: Set at creation.
+n: Exactly one patient.
+w: Adds it to the patient's record.
+r performer
+s: The provider who performed or will perform the procedure.
+u: Set when assigned.
+n: At most one performer recorded here; the team may be recorded elsewhere.
+w: Identifies who is responsible for the procedure.

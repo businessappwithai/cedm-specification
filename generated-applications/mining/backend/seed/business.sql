@@ -200,19 +200,19 @@ VALUES ('964c4e27-19f0-5440-aa5f-e3e3d24398b9', 'Location 5', 'Location 5', 'FAC
 ON CONFLICT DO NOTHING;
 
 -- Exchange Rate (bus_exchange_rate)
-INSERT INTO bus_exchange_rate (id, from_currency, to_currency, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
+INSERT INTO bus_exchange_rate (id, from_currency_id, to_currency_id, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
 VALUES ('7dffab47-4cd6-5932-be50-1e19702049bf', '0f12789f-2435-5439-b8ae-833e9aecf98c', '0f12789f-2435-5439-b8ae-833e9aecf98c', 10.50, 'SPOT', '2026-01-15T09:00:00Z', NULL, 'Source 1', 'DRAFT', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_exchange_rate (id, from_currency, to_currency, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
+INSERT INTO bus_exchange_rate (id, from_currency_id, to_currency_id, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
 VALUES ('91b040b5-ff8e-5dd5-97e9-464ea1815a94', 'a782e65e-8835-5f95-96e9-fc01e8602c90', 'a782e65e-8835-5f95-96e9-fc01e8602c90', 21.00, 'CONTRACT', '2026-02-15T09:00:00Z', NULL, 'Source 2', 'DRAFT', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_exchange_rate (id, from_currency, to_currency, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
+INSERT INTO bus_exchange_rate (id, from_currency_id, to_currency_id, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
 VALUES ('e9e23c9e-b5de-5d75-bc21-68cab508871c', 'f166ce21-0b46-5b5b-9c14-fa39b1ddf379', 'f166ce21-0b46-5b5b-9c14-fa39b1ddf379', 31.50, 'DAILY', '2026-03-15T09:00:00Z', NULL, 'Source 3', 'DRAFT', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_exchange_rate (id, from_currency, to_currency, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
+INSERT INTO bus_exchange_rate (id, from_currency_id, to_currency_id, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
 VALUES ('109e1f7e-25d9-5aa8-b921-18d5fee84a3d', '25d398ce-8a6c-5be5-8863-c074c84e4c13', '25d398ce-8a6c-5be5-8863-c074c84e4c13', 42.00, 'MONTHLY', '2026-04-15T09:00:00Z', NULL, 'Source 4', 'DRAFT', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_exchange_rate (id, from_currency, to_currency, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
+INSERT INTO bus_exchange_rate (id, from_currency_id, to_currency_id, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
 VALUES ('14fcb223-7260-5b01-978d-0df8ba9f1a9d', '323ba444-6daf-5816-95f1-cbb570afcbe5', '323ba444-6daf-5816-95f1-cbb570afcbe5', 52.50, 'ACCOUNTING', '2026-05-15T09:00:00Z', NULL, 'Source 5', 'DRAFT', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
@@ -286,17 +286,17 @@ ON CONFLICT DO NOTHING;
 
 -- Mining Site (bus_mining_site)
 INSERT INTO bus_mining_site (id, site_code, name, resource_type, status, location_id, organization_id, doc_status, created_at, updated_at)
-VALUES ('44c3a521-14cb-54b5-a11a-1b337949f2d1', 'Site Code 1', 'Mining Site 1', 'Resource Type 1', 'DEVELOPMENT', '1acf9cfa-cb1c-5150-81f8-66a3dec29912', 'e8afd141-8a2f-5c02-9669-44ffe0b98894', 'final', NOW(), NOW())
+VALUES ('44c3a521-14cb-54b5-a11a-1b337949f2d1', 'Site Code 1', 'Mining Site 1', 'Resource Type 1', 'EXPLORATION', '1acf9cfa-cb1c-5150-81f8-66a3dec29912', 'e8afd141-8a2f-5c02-9669-44ffe0b98894', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_mining_site (id, site_code, name, resource_type, status, location_id, organization_id, doc_status, created_at, updated_at)
-VALUES ('7667d625-2ab9-52ea-8e1f-1b04e4af945b', 'Site Code 2', 'Mining Site 2', 'Resource Type 2', 'DEVELOPMENT', '05a84182-b296-581f-9e9c-f41b4689cb0d', 'e3d42616-ec18-59a4-9617-a5ce9d50de5f', 'final', NOW(), NOW())
+VALUES ('7667d625-2ab9-52ea-8e1f-1b04e4af945b', 'Site Code 2', 'Mining Site 2', 'Resource Type 2', 'EXPLORATION', '05a84182-b296-581f-9e9c-f41b4689cb0d', 'e3d42616-ec18-59a4-9617-a5ce9d50de5f', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_mining_site (id, site_code, name, resource_type, status, location_id, organization_id, doc_status, created_at, updated_at)
-VALUES ('45b7f347-3b13-5ec6-a882-f8e53d0fefbe', 'Site Code 3', 'Mining Site 3', 'Resource Type 3', 'DEVELOPMENT', '706b25a5-f21d-5208-8f8d-224ca9f0bfc1', '56e5440d-19d4-52b9-9aae-ae11193aee41', 'final', NOW(), NOW())
+VALUES ('45b7f347-3b13-5ec6-a882-f8e53d0fefbe', 'Site Code 3', 'Mining Site 3', 'Resource Type 3', 'EXPLORATION', '706b25a5-f21d-5208-8f8d-224ca9f0bfc1', '56e5440d-19d4-52b9-9aae-ae11193aee41', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_mining_site (id, site_code, name, resource_type, status, location_id, organization_id, doc_status, created_at, updated_at)
-VALUES ('5a57e861-f9a9-5fc5-b156-fee5eafce426', 'Site Code 4', 'Mining Site 4', 'Resource Type 4', 'DEVELOPMENT', '2e8e68d0-8467-54f9-a1fa-3e6a0f9df2b6', '156a4696-9a3e-5325-bbef-893995ad2377', 'final', NOW(), NOW())
+VALUES ('5a57e861-f9a9-5fc5-b156-fee5eafce426', 'Site Code 4', 'Mining Site 4', 'Resource Type 4', 'EXPLORATION', '2e8e68d0-8467-54f9-a1fa-3e6a0f9df2b6', '156a4696-9a3e-5325-bbef-893995ad2377', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_mining_site (id, site_code, name, resource_type, status, location_id, organization_id, doc_status, created_at, updated_at)
-VALUES ('bf9d0687-ccd0-5d15-92bf-7535917cabef', 'Site Code 5', 'Mining Site 5', 'Resource Type 5', 'DEVELOPMENT', '964c4e27-19f0-5440-aa5f-e3e3d24398b9', '657a3d85-5521-5e09-997f-9aa876bd0272', 'final', NOW(), NOW())
+VALUES ('bf9d0687-ccd0-5d15-92bf-7535917cabef', 'Site Code 5', 'Mining Site 5', 'Resource Type 5', 'EXPLORATION', '964c4e27-19f0-5440-aa5f-e3e3d24398b9', '657a3d85-5521-5e09-997f-9aa876bd0272', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;

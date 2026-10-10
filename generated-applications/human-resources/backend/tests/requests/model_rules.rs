@@ -1,6 +1,6 @@
 //! The rules the *model* declared, and whether they reached the application.
 //!
-//! Generated: 2026-10-04T01:11:56.572Z
+//! Generated: 2026-10-10T02:40:21.412Z
 //! Project: human-resources
 //!
 //! Every other rules suite creates a rule through the API and then checks that
@@ -49,12 +49,53 @@ const MODEL_RULES: &[(&str, &str, &str)] = &[
     ("taskInvariantsBeforeUpdate", "bus_task", "UPDATE"),
     ("positionInvariantsBeforeCreate", "bus_position", "CREATE"),
     ("positionInvariantsBeforeUpdate", "bus_position", "UPDATE"),
+    (
+        "employmentInvariantsBeforeCreate",
+        "bus_employment",
+        "CREATE",
+    ),
+    (
+        "employmentInvariantsBeforeUpdate",
+        "bus_employment",
+        "UPDATE",
+    ),
+    (
+        "compensationInvariantsBeforeCreate",
+        "bus_compensation",
+        "CREATE",
+    ),
+    (
+        "compensationInvariantsBeforeUpdate",
+        "bus_compensation",
+        "UPDATE",
+    ),
+    (
+        "leaveRequestInvariantsBeforeCreate",
+        "bus_leave_request",
+        "CREATE",
+    ),
+    (
+        "leaveRequestInvariantsBeforeUpdate",
+        "bus_leave_request",
+        "UPDATE",
+    ),
     ("payrollInvariantsBeforeCreate", "bus_payroll", "CREATE"),
     ("payrollInvariantsBeforeUpdate", "bus_payroll", "UPDATE"),
     ("partyWorkflowsAfterUpdate", "bus_party", "UPDATE"),
     (
         "exchangeRateWorkflowsAfterUpdate",
         "bus_exchange_rate",
+        "UPDATE",
+    ),
+    (
+        "compensationWorkflowsAfterUpdate",
+        "bus_compensation",
+        "UPDATE",
+    ),
+    ("attendanceWorkflowsAfterUpdate", "bus_attendance", "UPDATE"),
+    (
+        "leaveRequestWorkflowsAfterUpdate",
+        "bus_leave_request",
         "UPDATE",
     ),
     ("payrollWorkflowsAfterUpdate", "bus_payroll", "UPDATE"),

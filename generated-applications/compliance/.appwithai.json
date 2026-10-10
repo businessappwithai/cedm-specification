@@ -71,6 +71,7 @@
     "RiskLikelihood",
     "RiskImpact",
     "RiskStatus",
+    "AuditCaseStatus",
     "RiskTreatmentStatus"
   ],
   "categories": [
@@ -82,6 +83,7 @@
   "enums": [
     "AddressAddressType (7)",
     "AddressStatus (3)",
+    "AuditCaseStatus (5)",
     "ControlControlType (4)",
     "ControlFrequency (8)",
     "ControlStatus (4)",
@@ -114,6 +116,7 @@
   "sagas": [
     "PartyExceptionRaised on Party (1 steps, rule)",
     "ExchangeRateFollowUpRequired on ExchangeRate (1 steps, rule)",
+    "AuditCaseFollowUpRequired on AuditCase (1 steps, rule)",
     "RiskTreatmentFollowUpRequired on RiskTreatment (1 steps, rule)"
   ],
   "lastWriteWins": [],
@@ -130,8 +133,9 @@
     "Policy: RETIRED",
     "Control: RETIRED",
     "Risk: CLOSED, MATERIALIZED",
+    "AuditCase: CLOSED, CANCELLED",
     "RiskTreatment: COMPLETED, CANCELLED"
   ],
   "packageManager": "bun",
-  "generatedAt": "2026-10-08T00:55:30.630Z"
+  "generatedAt": "2026-10-10T09:25:35.003Z"
 }

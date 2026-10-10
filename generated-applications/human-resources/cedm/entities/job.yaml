@@ -7,19 +7,28 @@ entity:
     icon: briefcase
   identity: {key: jobId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: jobId, type: uuid, required: true, immutable: true, help: {summary: Stable job-definition identity., businessMeaning: Identifies reusable work definition., usage: "Workforce planning, recruiting, position and compensation processes.", relationshipContext: Positions may reference Job., requiredMeaning: Required.}}
-  - {name: code, type: string, required: true, unique: true, maxLength: 100, help: {summary: Governed job code., businessMeaning: Human/integration classification identifier., usage: HCM and reporting., relationshipContext: Independent of employee/position identity., requiredMeaning: Required.}}
-  - {name: title, type: string, required: true, maxLength: 300, help: {summary: Standard job title., businessMeaning: Names the reusable work role., usage: Organization design and HR., relationshipContext: Position may have contextual display title., requiredMeaning: Required.}}
-  - name: status
-    type: enum
-    required: true
-    values: [DRAFT, ACTIVE, INACTIVE, RETIRED]
-    help: {summary: Job-definition lifecycle., businessMeaning: Controls future position assignment., usage: HCM governance., relationshipContext: Historical employment remains valid., valueSemantics: {DRAFT: Being designed., ACTIVE: Available., INACTIVE: Temporarily unavailable., RETIRED: Closed to new use.}, requiredMeaning: Required.}
+    - {name: jobId, type: uuid, required: true, immutable: true, help: {summary: 'The stable identity of the job definition, constant for its whole life.', usage: 'Generated on creation; positions, assignments and audit entries refer to the job through this identifier rather than through its title.', businessMeaning: Identifies reusable work definition., relationshipContext: Positions may reference Job.}}
+    - {name: code, type: string, required: true, unique: true, maxLength: 100, help: {summary: "The job code in the organisation's job catalogue, such as ACC-SR.", usage: Unique; assigned by HR and used in reports and pay structures., businessMeaning: Human/integration classification identifier., relationshipContext: Independent of employee/position identity.}}
+    - {name: title, type: string, required: true, maxLength: 300, help: {summary: The standard title of the job., usage: 'Shown on job advertisements, contracts and organisation charts.', businessMeaning: Names the reusable work role., relationshipContext: Position may have contextual display title.}}
+    - name: status
+      type: enum
+      required: true
+      values: [DRAFT, ACTIVE, INACTIVE, RETIRED]
+      help:
+        summary: Whether the job definition is available for new positions.
+        usage: Set by HR; only ACTIVE jobs can be used to create positions.
+        valueSemantics:
+          DRAFT: Being written; not yet approved.
+          ACTIVE: Approved and available for positions.
+          INACTIVE: Temporarily not offered; existing positions continue.
+          RETIRED: Withdrawn; kept for history. A final state.
+        businessMeaning: Controls future position assignment.
+        relationshipContext: Historical employment remains valid.
   relationships:
-  - {name: positions, target: Position, cardinality: 0..*, ownership: reference, help: {summary: Organizational positions based on job definition., businessMeaning: Instantiates reusable work definition in organization structure., usage: Workforce planning., cardinalityMeaning: Zero or many Positions., workflowRole: Job lifecycle affects new position use but not historical employment.}}
+    - {name: positions, target: Position, cardinality: 0..*, ownership: reference, help: {summary: The positions that are instances of this job., usage: Read to see where in the organisation the job is used., cardinalityMeaning: 'Any number of positions, from none for a new job to many for a common one.', workflowRole: Changes to the job description flow to every position of the job., businessMeaning: Instantiates reusable work definition in organization structure.}}
   invariants:
-  - {id: JOB-001, rule: RETIRED Job cannot be newly assigned to a Position without governed reinstatement/migration.}
-  - {id: JOB-002, rule: Job definition changes must not rewrite historical Employment terms.}
+    - {id: JOB-001, rule: RETIRED Job cannot be newly assigned to a Position without governed reinstatement/migration.}
+    - {id: JOB-002, rule: Job definition changes must not rewrite historical Employment terms.}
   lifecycle:
     title: Job Lifecycle
     attribute: status
@@ -33,5 +42,11 @@ entity:
       - {from: DRAFT, to: RETIRED, action: retire}
       - {from: ACTIVE, to: RETIRED, action: retire}
       - {from: INACTIVE, to: RETIRED, action: retire}
-  help: {summary: Reusable definition of work in HCM., businessMeaning: "Job defines what work is; Position defines an organizational seat; Employment connects a person/employee to governed work arrangements.", usage: "Workforce planning, recruiting, position management and compensation.", relationshipContext: "Position instantiates Job; Employment remains transaction/relationship evidence."}
+  help:
+    summary: A reusable definition of work responsibilities, qualifications and classification that positions are created from and people are employed into.
+    businessMeaning: A job is the description of a kind of work, such as Accountant or Warehouse Operator, separate from any particular vacancy. Defining it once keeps titles, grades and requirements consistent across the many positions that share it.
+    usage: Defined by HR; used when positions are created and filled; read by recruiters, managers and compensation analysts.
+    relationshipContext: Positions are instances of a job.
+    lifecycle: A job is drafted, becomes active when approved for use, may be inactive while not needed, and is retired when withdrawn. Existing positions and history are kept.
+    example: The job "Senior Accountant", with responsibilities, required qualifications and pay grade, used by five positions across three departments.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-JOB}

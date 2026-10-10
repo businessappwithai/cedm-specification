@@ -1,6 +1,6 @@
 //! The state machines the *model* drew, and whether the API enforces them.
 //!
-//! Generated: 2026-10-04T08:30:58.136Z
+//! Generated: 2026-10-10T02:41:54.510Z
 //! Project: research
 //!
 //! `requests/rbac.rs` proves the topology guard works by seeding an edge of its
@@ -83,6 +83,47 @@ const MODEL_EDGES: &[(&str, &str, &str, &str)] = &[
     ("bus_research_project", "status", "PLANNED", "CANCELLED"),
     ("bus_research_project", "status", "ACTIVE", "CANCELLED"),
     ("bus_research_project", "status", "SUSPENDED", "CANCELLED"),
+    ("bus_protocol", "status", "DRAFT", "APPROVED"),
+    ("bus_protocol", "status", "APPROVED", "SUSPENDED"),
+    ("bus_protocol", "status", "SUSPENDED", "APPROVED"),
+    ("bus_protocol", "status", "DRAFT", "RETIRED"),
+    ("bus_protocol", "status", "APPROVED", "RETIRED"),
+    ("bus_protocol", "status", "SUSPENDED", "RETIRED"),
+    ("bus_study", "status", "PLANNED", "ACTIVE"),
+    ("bus_study", "status", "PLANNED", "CANCELLED"),
+    ("bus_study", "status", "ACTIVE", "SUSPENDED"),
+    ("bus_study", "status", "SUSPENDED", "ACTIVE"),
+    ("bus_study", "status", "ACTIVE", "COMPLETED"),
+    ("bus_study", "status", "SUSPENDED", "CANCELLED"),
+    ("bus_study", "status", "ACTIVE", "CANCELLED"),
+    ("bus_study", "status", "COMPLETED", "ARCHIVED"),
+    ("bus_assay", "status", "PLANNED", "RUNNING"),
+    ("bus_assay", "status", "PLANNED", "CANCELLED"),
+    ("bus_assay", "status", "RUNNING", "COMPLETED"),
+    ("bus_assay", "status", "RUNNING", "FAILED"),
+    ("bus_assay", "status", "RUNNING", "CANCELLED"),
+    ("bus_observation", "status", "RECORDED", "VERIFIED"),
+    ("bus_observation", "status", "RECORDED", "INVALIDATED"),
+    ("bus_result", "status", "DRAFT", "FINAL"),
+    ("bus_result", "status", "DRAFT", "INVALIDATED"),
+    ("bus_sample", "status", "PLANNED", "COLLECTED"),
+    ("bus_sample", "status", "COLLECTED", "RECEIVED"),
+    ("bus_sample", "status", "RECEIVED", "AVAILABLE"),
+    ("bus_sample", "status", "AVAILABLE", "IN_USE"),
+    ("bus_sample", "status", "IN_USE", "AVAILABLE"),
+    ("bus_sample", "status", "IN_USE", "CONSUMED"),
+    ("bus_sample", "status", "AVAILABLE", "CONSUMED"),
+    ("bus_sample", "status", "AVAILABLE", "DISPOSED"),
+    ("bus_sample", "status", "QUARANTINED", "DISPOSED"),
+    ("bus_sample", "status", "AVAILABLE", "LOST"),
+    ("bus_sample", "status", "IN_USE", "LOST"),
+    ("bus_sample", "status", "COLLECTED", "QUARANTINED"),
+    ("bus_sample", "status", "RECEIVED", "QUARANTINED"),
+    ("bus_sample", "status", "AVAILABLE", "QUARANTINED"),
+    ("bus_sample", "status", "QUARANTINED", "AVAILABLE"),
+    ("bus_sample", "status", "AVAILABLE", "ARCHIVED"),
+    ("bus_sample", "status", "ARCHIVED", "AVAILABLE"),
+    ("bus_sample", "status", "ARCHIVED", "DISPOSED"),
 ];
 
 /// The entity and starting state of the first machine, for the live check.

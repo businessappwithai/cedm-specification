@@ -11,112 +11,84 @@ entity:
     generated: true
     immutable: true
   attributes:
-  - name: identityId
-    type: uuid
-    required: true
-    immutable: true
-    help:
-      summary: Identifies the identity record associated with this Identity. The identifier connects this record to the corresponding
-        CEDM entity so related processes can resolve the correct business object.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Identity records, where applicable.
-      relationshipContext: Its meaning is specific to Identity; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: identityType
-    type: enum
-    required: true
-    values:
-    - PASSWORD
-    - SSO
-    - OAUTH
-    - API_KEY
-    - CERTIFICATE
-    - BIOMETRIC
-    - OTHER
-    help:
-      summary: Captures the business meaning of identity type for the Identity. It is interpreted together with the entity's
-        other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Identity records, where applicable.
-      relationshipContext: Its meaning is specific to Identity; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      valueSemantics:
-        PASSWORD: Represents the password state or classification in the context of Identity.
-        SSO: Represents the sso state or classification in the context of Identity.
-        OAUTH: Represents the oauth state or classification in the context of Identity.
-        API_KEY: Represents the api key state or classification in the context of Identity.
-        CERTIFICATE: Represents the certificate state or classification in the context of Identity.
-        BIOMETRIC: Represents the biometric state or classification in the context of Identity.
-        OTHER: Represents the other state or classification in the context of Identity.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: externalSubject
-    type: string
-    required: false
-    maxLength: 500
-    help:
-      summary: Captures the business meaning of external subject for the Identity. It is interpreted together with the entity's
-        other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Identity records, where applicable.
-      relationshipContext: Its meaning is specific to Identity; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
-  - name: status
-    type: enum
-    required: true
-    default: ACTIVE
-    values:
-    - ACTIVE
-    - SUSPENDED
-    - REVOKED
-    - EXPIRED
-    help:
-      summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record
-        is treated by related processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Identity records, where applicable.
-      relationshipContext: Its meaning is specific to Identity; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      valueSemantics:
-        ACTIVE: Represents the active state or classification in the context of Identity.
-        SUSPENDED: Represents the suspended state or classification in the context of Identity.
-        REVOKED: Represents the revoked state or classification in the context of Identity.
-        EXPIRED: Represents the expired state or classification in the context of Identity.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: issuedAt
-    type: datetime
-    required: false
-    help:
-      summary: Records when the issued event occurred. It establishes chronology, supports auditability, and helps coordinate
-        related lifecycle and process activities.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Identity records, where applicable.
-      relationshipContext: Its meaning is specific to Identity; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
-  - name: expiresAt
-    type: datetime
-    required: false
-    help:
-      summary: Records when the expires event occurred. It establishes chronology, supports auditability, and helps coordinate
-        related lifecycle and process activities.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Identity records, where applicable.
-      relationshipContext: Its meaning is specific to Identity; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+    - name: identityId
+      type: uuid
+      required: true
+      immutable: true
+      help:
+        summary: The identity of the credential record.
+        usage: Generated on creation; audit entries refer to it.
+    - name: identityType
+      type: enum
+      required: true
+      values:
+        - PASSWORD
+        - SSO
+        - OAUTH
+        - API_KEY
+        - CERTIFICATE
+        - BIOMETRIC
+        - OTHER
+      help:
+        summary: The authentication method this identity uses to prove who the user is when signing in or calling the application.
+        usage: Chosen by a security administrator when the identity is created; it decides which checks run at sign-in and which other fields must be filled.
+        valueSemantics:
+          PASSWORD: A secret password held and verified by the application itself.
+          SSO: A single sign-on account vouched for by the organisation's identity provider.
+          OAUTH: An account at an external OAuth provider that the application trusts to confirm the person.
+          API_KEY: A key presented by software to call the application on behalf of a service or integration.
+          CERTIFICATE: A client certificate whose private key proves identity, typically for machines or high-assurance staff access.
+          BIOMETRIC: A fingerprint, face scan or similar physical trait checked by a device or service.
+          OTHER: Any authentication mechanism not covered by the other types, described in the identity's notes.
+    - name: externalSubject
+      type: string
+      required: false
+      maxLength: 500
+      help:
+        summary: The identifier that the external identity provider uses for the person.
+        usage: Filled for SSO and OAuth identities; the sign-in is matched to the user through it.
+    - name: status
+      type: enum
+      required: true
+      default: ACTIVE
+      values:
+        - ACTIVE
+        - SUSPENDED
+        - REVOKED
+        - EXPIRED
+      help:
+        summary: Whether the identity can currently be used.
+        usage: Set by security administrators or expiry processing; only ACTIVE identities authenticate.
+        valueSemantics:
+          ACTIVE: Can be used to sign in.
+          SUSPENDED: Temporarily blocked; can be restored.
+          REVOKED: Withdrawn on purpose and not reusable. A final state.
+          EXPIRED: Past its validity period. A final state.
+    - name: issuedAt
+      type: datetime
+      required: false
+      help:
+        summary: When the identity or credential was issued.
+        usage: Set on creation; used to enforce rotation.
+    - name: expiresAt
+      type: datetime
+      required: false
+      help:
+        summary: When the identity stops being valid.
+        usage: Set when issued; must not be before the issue time. After it, the status becomes EXPIRED.
   relationships:
-  - name: user
-    target: User
-    cardinality: '1'
-    ownership: reference
-    help:
-      summary: Connects Identity to User so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about User records associated with a Identity.
-      cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+    - name: user
+      target: User
+      cardinality: '1'
+      ownership: reference
+      help:
+        summary: The user this identity authenticates.
+        usage: Set when the identity is created.
+        cardinalityMeaning: 'Exactly one user: an identity always belongs to one account.'
+        workflowRole: A user's access is the sum of its active identities.
   invariants:
-  - id: IDENTITY-001
-    rule: expiresAt must not precede issuedAt.
+    - id: IDENTITY-001
+      rule: expiresAt must not precede issuedAt.
   lifecycle:
     title: Identity Lifecycle
     attribute: status
@@ -131,17 +103,12 @@ entity:
       - {from: ACTIVE, to: EXPIRED, action: expire}
       - {from: SUSPENDED, to: EXPIRED, action: expire}
   help:
-    summary: Represents a security identity entity called Identity within the CEDM business model.
-    businessMeaning: Identity is a business concept with its own identity and lifecycle. It captures information that must
-      remain understandable independently of a database, API, or user interface.
-    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
-      change, or relate Identity records.
-    relationshipContext: The entity participates in a wider business graph through relationships with User. These relationships
-      provide the context needed to interpret the record rather than treating its fields as isolated database columns.
-    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must
-      preserve the declared business meaning and relationships.
-    example: A typical Identity record represents one identifiable business occurrence or master-data object that can be referenced
-      by related CEDM processes.
+    summary: An authentication identity or credential-bearing representation that a user or principal can sign in or act with.
+    businessMeaning: 'People and systems prove who they are in different ways: a password, a single sign-on account, an API key. Each way is an identity, with its own lifetime and status, so that access can be granted, suspended or revoked without deleting the user.'
+    usage: Created when a user is given a way to authenticate; updated when it is suspended, renewed or revoked; read by the authentication service and security reviews.
+    relationshipContext: An identity belongs to one User; a user may have several identities.
+    lifecycle: An identity is active, may be suspended and restored, and ends revoked or expired. Revoked and expired identities cannot be used again.
+    example: A single sign-on identity from the corporate directory for a staff user, expiring when their contract ends.
 specification:
   version: 0.1.0
   status: draft

@@ -1,0 +1,86 @@
+entity:
+  name: ServiceOrder
+  namespace: cedm.domain
+  kind: service_execution_order
+  description: A governed authorization to perform defined service work for a customer, asset, product, location or case, distinct from the request that initiated it and the evidence of completed work.
+  ui: {icon: clipboard-check}
+  identity: {key: serviceOrderId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: serviceOrderId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the service execution order., businessMeaning: Identifies one authorization to perform service work., usage: "Service operations, field service, billing, reporting and audit.", relationshipContext: "Distinct from request, case and maintenance work-order identities."}}
+    - {name: serviceOrderNumber, type: string, required: true, unique: true, maxLength: 120, help: {summary: 'The number of the service order, such as SVO-7710.', businessMeaning: Operational identifier used for scheduling and execution., usage: "Dispatch, customer communication, billing and integration.", relationshipContext: Stable across execution status changes.}}
+    - {name: description, type: string, required: true, maxLength: 4000, help: {summary: The text describing the service work that has been authorised for the customer., usage: 'Written by the planner or agent; technicians work from it, and it is shown to the customer and kept for audit.', businessMeaning: States what work the service provider is authorized to perform., relationshipContext: "Product, Asset and related request or case provide structured context."}}
+    - {name: scheduledStartAt, type: datetime, required: false, help: {summary: The planned date and time the work is due to begin., usage: 'Set by the dispatcher when the order is scheduled; used for dispatch and customer notices, and differs from actual start evidence.', businessMeaning: Scheduling commitment rather than actual work evidence., relationshipContext: May be governed by SLA and availability.}}
+    - name: status
+      type: enum
+      required: true
+      default: DRAFT
+      values: [DRAFT, APPROVED, SCHEDULED, IN_PROGRESS, COMPLETED, CANCELLED]
+      help:
+        summary: The stage of the service order from scope to completed work.
+        usage: Starts as DRAFT and is moved by the planner and technician; it decides when work is dispatched and when billing may follow.
+        valueSemantics:
+          DRAFT: The work scope is still being prepared.
+          APPROVED: The work has been authorised and awaits scheduling.
+          SCHEDULED: A date and technician have been set for the work.
+          IN_PROGRESS: The authorised service is being performed.
+          COMPLETED: The work is done and kept as history. A final state.
+          CANCELLED: The order was withdrawn through the governed workflow. A final state.
+        businessMeaning: Controls authorization, scheduling and execution progression.
+        relationshipContext: Completion does not erase related case or maintenance evidence.
+  relationships:
+    - {name: serviceRequest, target: ServiceRequest, cardinality: "0..1", ownership: reference, help: {summary: Request authorizing or motivating this order., businessMeaning: Preserves intake-to-execution traceability., usage: Service workflow and audit., cardinalityMeaning: "Optional when order comes from a case, contract or planned service process.", workflowRole: Request and order remain distinct lifecycle records.}}
+    - {name: serviceCase, target: ServiceCase, cardinality: "0..1", ownership: reference, help: {cardinalityMeaning: At most one case; empty for work not tied to a case., summary: Case whose resolution requires this service order., businessMeaning: Connects execution work to the broader managed issue., usage: "Case resolution and reporting.", workflowRole: Completed order contributes evidence but does not automatically close the case.}}
+    - {name: customer, target: Customer, cardinality: "0..1", ownership: reference, help: {summary: Customer receiving the service., businessMeaning: Supplies commercial service context., usage: "Entitlement, billing and service history.", cardinalityMeaning: Optional for internal service., workflowRole: Customer must agree with applicable contract or entitlement.}}
+    - {name: asset, target: Asset, cardinality: "0..1", ownership: reference, help: {summary: Asset on which service is performed., businessMeaning: Connects service execution to durable equipment history., usage: "Field service, warranty, maintenance and audit.", cardinalityMeaning: Optional when work is not asset-specific., workflowRole: Asset eligibility and lifecycle constrain execution.}}
+    - {name: product, target: Product, cardinality: "0..1", ownership: reference, help: {summary: Product or service definition relevant to the order., businessMeaning: Supplies standardized offering or equipment context., usage: "Service catalog, billing and reporting.", cardinalityMeaning: Optional when Asset or free-form scope is sufficient., workflowRole: Product status can constrain new work.}}
+    - {name: serviceContract, target: ServiceContract, cardinality: "0..1", ownership: reference, help: {summary: Service contract governing commercial coverage., businessMeaning: Explains contractual basis for execution., usage: "Coverage, billing and compliance.", cardinalityMeaning: Optional for ad-hoc service., workflowRole: Contract must be effective at authorization time when used.}}
+    - {name: entitlement, target: Entitlement, cardinality: "0..1", ownership: reference, help: {summary: Entitlement consumed or relied upon by this order., businessMeaning: Explains eligibility for covered service., usage: "Authorization, usage consumption and billing.", cardinalityMeaning: Optional for billable or non-entitled work., workflowRole: Entitlement must be active and in scope when applied.}}
+    - {name: serviceLevelAgreement, target: ServiceLevelAgreement, cardinality: "0..1", ownership: reference, help: {cardinalityMeaning: 'At most one agreement, which sets the time targets for the work.', summary: SLA governing execution commitment., businessMeaning: Defines measurable service targets., usage: "Scheduling, escalation and compliance.", workflowRole: Applied terms are retained for historical measurement.}}
+    - {name: maintenanceWorkOrder, target: MaintenanceWorkOrder, cardinality: "0..1", ownership: reference, help: {summary: Maintenance execution record produced when service work is maintenance-oriented., businessMeaning: Separates commercial service authorization from technical maintenance execution., usage: "EAM, field service, costing and audit.", cardinalityMeaning: Optional outside asset maintenance., workflowRole: Completion states must reconcile without conflating the two records.}}
+  invariants:
+    - {id: SERVICE-ORDER-001, rule: "At least one governed business context such as ServiceRequest, ServiceCase, ServiceContract or Customer must justify the order."}
+    - {id: SERVICE-ORDER-002, rule: COMPLETED ServiceOrder is immutable execution history; corrections use follow-up or reversal evidence appropriate to the affected domain.}
+    - {id: SERVICE-ORDER-003, rule: Entitlement and ServiceContract references must be effective and in scope at authorization time.}
+  lifecycle:
+    title: Service Order Lifecycle
+    attribute: status
+    states: [DRAFT, APPROVED, SCHEDULED, IN_PROGRESS, COMPLETED, CANCELLED]
+    initial: DRAFT
+    terminal: [COMPLETED, CANCELLED]
+    transitions:
+      - {from: DRAFT, to: APPROVED, action: approve}
+      - {from: DRAFT, to: CANCELLED, action: cancel}
+      - {from: APPROVED, to: SCHEDULED, action: schedule}
+      - {from: APPROVED, to: IN_PROGRESS, action: start}
+      - {from: APPROVED, to: CANCELLED, action: cancel}
+      - {from: SCHEDULED, to: IN_PROGRESS, action: start}
+      - {from: SCHEDULED, to: CANCELLED, action: cancel}
+      - {from: IN_PROGRESS, to: COMPLETED, action: complete}
+      - {from: IN_PROGRESS, to: CANCELLED, action: cancel}
+  workflows:
+    - name: FollowUpRequired
+      title: "Follow up when a service order is ended"
+      description: "When a service order is cancelled, a task asks someone to settle what depended on it."
+      when: "status == \"CANCELLED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "SERVICE-ORDER-FOLLOW-UP-{{id}}"
+              name: "Follow up on service order {{service_order_number}}"
+              description: "Service order {{service_order_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
+  help:
+    summary: Authorizes and tracks execution of service work without conflating intake, commercial coverage or maintenance evidence.
+    businessMeaning: ServiceOrder is the service-execution authorization; ServiceRequest is intake, ServiceCase coordinates issues, and MaintenanceWorkOrder records EAM execution when relevant.
+    usage: Field service, customer service, depot repair, installation, professional service, billing and audit.
+    relationshipContext: Customer, Asset and Product define scope while ServiceContract, Entitlement and SLA govern coverage and commitments.
+    lifecycle: Orders progress from draft authorization through scheduling and execution to completion or cancellation.
+    example: An entitled customer case creates a ServiceOrder for an on-site repair, which in turn links to the technical MaintenanceWorkOrder.
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-SERVICE-ORDER}

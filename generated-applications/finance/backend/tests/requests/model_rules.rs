@@ -1,6 +1,6 @@
 //! The rules the *model* declared, and whether they reached the application.
 //!
-//! Generated: 2026-10-04T01:11:44.690Z
+//! Generated: 2026-10-10T02:40:00.590Z
 //! Project: finance
 //!
 //! Every other rules suite creates a rule through the API and then checks that
@@ -81,6 +81,18 @@ const MODEL_RULES: &[(&str, &str, &str)] = &[
         "bus_budget_line",
         "UPDATE",
     ),
+    ("varianceInvariantsBeforeCreate", "bus_variance", "CREATE"),
+    ("varianceInvariantsBeforeUpdate", "bus_variance", "UPDATE"),
+    (
+        "fiscalPeriodInvariantsBeforeCreate",
+        "bus_fiscal_period",
+        "CREATE",
+    ),
+    (
+        "fiscalPeriodInvariantsBeforeUpdate",
+        "bus_fiscal_period",
+        "UPDATE",
+    ),
     (
         "invoiceLineInvariantsBeforeCreate",
         "bus_invoice_line",
@@ -131,8 +143,12 @@ const MODEL_RULES: &[(&str, &str, &str)] = &[
         "bus_credit_note_application",
         "UPDATE",
     ),
+    ("taxRateInvariantsBeforeCreate", "bus_tax_rate", "CREATE"),
+    ("taxRateInvariantsBeforeUpdate", "bus_tax_rate", "UPDATE"),
     ("taxRuleInvariantsBeforeCreate", "bus_tax_rule", "CREATE"),
     ("taxRuleInvariantsBeforeUpdate", "bus_tax_rule", "UPDATE"),
+    ("chargeInvariantsBeforeCreate", "bus_charge", "CREATE"),
+    ("chargeInvariantsBeforeUpdate", "bus_charge", "UPDATE"),
     (
         "assetDepreciationInvariantsBeforeCreate",
         "bus_asset_depreciation",

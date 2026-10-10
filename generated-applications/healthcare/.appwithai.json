@@ -32,6 +32,8 @@
     "Task",
     "HealthcarePatient",
     "HealthcareProvider",
+    "Practitioner",
+    "Appointment",
     "HealthcareEncounter",
     "HealthcareOrder",
     "Diagnosis",
@@ -65,6 +67,8 @@
     "HealthcarePatientStatus",
     "HealthcareProviderProviderType",
     "HealthcareProviderStatus",
+    "PractitionerStatus",
+    "AppointmentStatus",
     "HealthcareEncounterEncounterType",
     "HealthcareEncounterStatus",
     "HealthcareOrderStatus",
@@ -84,6 +88,7 @@
     "AddressAddressType (7)",
     "AddressStatus (3)",
     "AllergyStatus (4)",
+    "AppointmentStatus (6)",
     "CarePlanStatus (4)",
     "CurrencyStatus (3)",
     "DiagnosisDiagnosisType (5)",
@@ -108,6 +113,7 @@
     "PersonGender (5)",
     "PersonPartyType (2)",
     "PersonStatus (4)",
+    "PractitionerStatus (5)",
     "PrescriptionStatus (5)",
     "ProcedureStatus (4)",
     "TaskPriority (4)",
@@ -119,6 +125,7 @@
   "sagas": [
     "PartyExceptionRaised on Party (1 steps, rule)",
     "ExchangeRateFollowUpRequired on ExchangeRate (1 steps, rule)",
+    "AppointmentFollowUpRequired on Appointment (1 steps, rule)",
     "HealthcareEncounterFollowUpRequired on HealthcareEncounter (1 steps, rule)",
     "HealthcareEncounterCompletionConfirmed on HealthcareEncounter (1 steps, rule)",
     "HealthcareOrderFollowUpRequired on HealthcareOrder (1 steps, rule)",
@@ -140,7 +147,10 @@
     "ExchangeRate: EXPIRED, CANCELLED",
     "UnitOfMeasure: RETIRED",
     "Task: COMPLETED, CANCELLED, FAILED",
+    "HealthcarePatient: DECEASED, MERGED",
     "HealthcareProvider: RETIRED",
+    "Practitioner: RETIRED",
+    "Appointment: COMPLETED, CANCELLED, NO_SHOW",
     "HealthcareEncounter: COMPLETED, CANCELLED",
     "HealthcareOrder: COMPLETED, CANCELLED",
     "Procedure: COMPLETED, CANCELLED",
@@ -150,5 +160,5 @@
     "CarePlan: COMPLETED, CANCELLED"
   ],
   "packageManager": "bun",
-  "generatedAt": "2026-10-08T00:56:13.159Z"
+  "generatedAt": "2026-10-10T09:26:05.282Z"
 }

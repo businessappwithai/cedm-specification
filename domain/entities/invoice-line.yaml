@@ -7,132 +7,131 @@ entity:
     icon: receipt
   identity: {key: invoiceLineId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: invoiceLineId, type: uuid, required: true, immutable: true, help: {summary: Immutable identity of the original invoice line, businessMeaning: Identifies the historical billed detail independently of later credits or corrections., usage: "Used for billing, audit, matching, credit and reconciliation.", relationshipContext: CreditNoteLine and SupplierCreditNoteLine may reference this identity as source evidence., workflowRole: Stable root reference for the line lifecycle., requiredMeaning: Required for financial traceability.}}
-  - {name: lineNumber, type: integer, required: true, minimum: 1, help: {summary: Sequence number within the invoice., businessMeaning: Identifies the line for documents and reconciliation., usage: Used in invoice presentation and audit., relationshipContext: Unique within Invoice and distinct from CreditNoteLine and SupplierCreditNoteLine numbering., workflowRole: Supports deterministic document reconstruction., requiredMeaning: Required.}}
-  - {name: quantity, type: decimal, required: false, precision: 20, scale: 6, help: {summary: Originally billed quantity., businessMeaning: Preserves the historical quantity on the original claim., usage: "Used for billing, matching and return eligibility.", relationshipContext: CustomerReturnLine or SupplierReturnLine may reference eligible quantities and CreditNoteLine or SupplierCreditNoteLine may credit an eligible portion., workflowRole: Provides source quantity evidence., optionalMeaning: Optional for purely monetary lines.}}
-  - name: unitPrice
-    type: Money
-    required: false
-    help:
-      summary: Transaction-time billed price per unit.
-      businessMeaning: Captures the price actually used to value the invoice line, not today's master price.
-      usage: Supports invoice calculation, audit, price variance, settlement and credit calculation.
-      relationshipContext: Customer or supplier credit lines may preserve this as source valuation evidence; later pricing changes do not rewrite it.
-      workflowRole: Provides authoritative historical pricing evidence for the invoice line.
-      optionalMeaning: Optional for non-quantity monetary lines.
-  - {name: grossAmount, type: Money, required: true, help: {summary: Gross monetary value before line discount and tax., businessMeaning: Original calculated value of the billed line., usage: Used for invoice reconciliation and credit evidence., relationshipContext: Credit adjustment lines do not mutate this historical amount., workflowRole: Feeds original line calculation., requiredMeaning: Required.}}
-  - {name: discountAmount, type: Money, required: true, default: 0, help: {summary: Discount originally applied to the line., businessMeaning: Historical line-level commercial reduction., usage: "Used for reproducibility, tax and credit calculation.", relationshipContext: Return credits use original discount evidence where policy requires., workflowRole: Contributes to original taxable and net values., requiredMeaning: "Required, including zero."}}
-  - {name: taxableAmount, type: Money, required: true, help: {summary: Original taxable base of the invoice line., businessMeaning: Amount subjected to the original tax treatment., usage: Used for tax audit and credit calculation., relationshipContext: Credit adjustment tax evidence may derive from this historical treatment., workflowRole: Provides source tax basis., requiredMeaning: Required.}}
-  - {name: taxAmount, type: Money, required: true, default: 0, help: {summary: Tax originally recognized on the line., businessMeaning: Historical tax component of the claim., usage: "Used for tax reporting, accounting and credit calculation.", relationshipContext: A credit line may reverse an eligible portion without editing this amount., workflowRole: Provides source tax evidence., requiredMeaning: "Required, including zero."}}
-  - {name: netAmount, type: Money, required: true, help: {summary: Original net financial value of the line after discount and applicable tax treatment., businessMeaning: Historical line contribution to the Invoice total., usage: "Used for billing, accounting and credit reference.", relationshipContext: Credit adjustment lines record a separate reduction rather than changing netAmount., workflowRole: Provides immutable source value., requiredMeaning: Required.}}
-  - name: pricingEvidence
-    type: object
-    required: false
-    help:
-      summary: Snapshot of material pricing inputs used to determine the invoice line amount.
-      businessMeaning: Preserves source, effective date, and approved commercial context needed to reproduce pricing even when master data changes.
-      usage: Supports audit, dispute resolution, recalculation, credit calculation and integration.
-      workflowRole: Links the invoice result to the effective transaction price without making the posted invoice depend on mutable pricing master data.
-  - name: discountEvidence
-    type: object
-    required: false
-    help:
-      summary: Snapshot of the discount policy inputs and result used on the invoice line.
-      businessMeaning: Preserves the applied discount rule/version, method, base, rate or fixed amount, and resulting discount.
-      usage: Supports audit and prevents later DiscountRule changes from altering historical calculations or credits.
-      workflowRole: Provides reproducible discount calculation evidence.
-  - name: taxEvidence
-    type: object
-    required: false
-    help:
-      summary: Snapshot of the tax determination inputs and result used on the invoice line.
-      businessMeaning: Preserves tax rule/version, jurisdiction, rate, taxable base, rounding and calculated tax.
-      usage: Supports tax audit, compliance, dispute resolution and credit-note tax calculation.
-      workflowRole: Prevents later TaxRule changes from rewriting posted invoice tax.
-  - {name: description, type: string, required: false, maxLength: 1000, help: {summary: Human-readable description of the original billed line., businessMeaning: Describes the billed good or service., usage: Used on documents and audit., relationshipContext: Complements Product and source transaction references., workflowRole: Supports document presentation., optionalMeaning: Optional descriptive context.}}
-  - name: matchingStatus
-    type: enum
-    required: true
-    default: NOT_APPLICABLE
-    values: [NOT_APPLICABLE, UNMATCHED, MATCHED, PARTIALLY_MATCHED, EXCEPTION, WAIVED]
-    help:
-      summary: Procurement matching state of the invoice line.
-      businessMeaning: Indicates whether the line agrees with applicable purchase and receipt evidence.
-      usage: Used for accounts payable controls and reconciliation.
-      relationshipContext: Independent from CreditNote and SupplierCreditNote status; a credit may correct a posted line after matching.
-      workflowRole: Controls matching approval before posting.
-      valueSemantics:
-        NOT_APPLICABLE: The matching status of the invoice line is not applicable; set it when that is what the business means for this record.
-        UNMATCHED: The matching status of the invoice line is unmatched; set it when that is what the business means for this record.
-        MATCHED: The matching status of the invoice line is matched; set it when that is what the business means for this record.
-        PARTIALLY_MATCHED: The matching status of the invoice line is partially matched; set it when that is what the business means for this record.
-        EXCEPTION: The matching status of the invoice line is exception; set it when that is what the business means for this record.
-        WAIVED: The matching status of the invoice line is waived; set it when that is what the business means for this record.
+    - {name: invoiceLineId, type: uuid, required: true, immutable: true, help: {summary: Immutable identity of the original invoice line, businessMeaning: Identifies the historical billed detail independently of later credits or corrections., usage: "Used for billing, audit, matching, credit and reconciliation.", relationshipContext: CreditNoteLine and SupplierCreditNoteLine may reference this identity as source evidence., workflowRole: Stable root reference for the line lifecycle.}}
+    - {name: lineNumber, type: integer, required: true, minimum: 1, help: {summary: 'The position of this line within its invoice, starting at one and used to reference the line.', usage: Assigned in sequence when the line is added; it fixes the order of lines on the printed invoice and lets credits and audit entries point to one line., businessMeaning: Identifies the line for documents and reconciliation., relationshipContext: Unique within Invoice and distinct from CreditNoteLine and SupplierCreditNoteLine numbering., workflowRole: Supports deterministic document reconstruction.}}
+    - {name: quantity, type: decimal, required: false, precision: 20, scale: 6, help: {summary: 'The number of units originally billed on this line, in the unit of the billed product or service.', usage: 'Set when the line is created; invoice matching, credit notes and return-eligibility checks compare other quantities against it.', businessMeaning: Preserves the historical quantity on the original claim., relationshipContext: CustomerReturnLine or SupplierReturnLine may reference eligible quantities and CreditNoteLine or SupplierCreditNoteLine may credit an eligible portion., workflowRole: Provides source quantity evidence.}}
+    - name: unitPrice
+      type: Money
+      required: false
+      help:
+        summary: Transaction-time billed price per unit.
+        businessMeaning: Captures the price actually used to value the invoice line, not today's master price.
+        usage: Supports invoice calculation, audit, price variance, settlement and credit calculation.
+        relationshipContext: Customer or supplier credit lines may preserve this as source valuation evidence; later pricing changes do not rewrite it.
+        workflowRole: Provides authoritative historical pricing evidence for the invoice line.
+    - {name: grossAmount, type: Money, required: true, help: {summary: Gross monetary value before line discount and tax., businessMeaning: Original calculated value of the billed line., usage: Used for invoice reconciliation and credit evidence., relationshipContext: Credit adjustment lines do not mutate this historical amount., workflowRole: Feeds original line calculation.}}
+    - {name: discountAmount, type: Money, required: true, default: 0, help: {summary: The money value of the discount originally applied to this line before tax., usage: Recorded when the line is calculated; tax and credit calculations reuse it so a later credit reproduces the original charge exactly., businessMeaning: Historical line-level commercial reduction., relationshipContext: Return credits use original discount evidence where policy requires., workflowRole: Contributes to original taxable and net values.}}
+    - {name: taxableAmount, type: Money, required: true, help: {summary: Original taxable base of the invoice line., businessMeaning: Amount subjected to the original tax treatment., usage: Used for tax audit and credit calculation., relationshipContext: Credit adjustment tax evidence may derive from this historical treatment., workflowRole: Provides source tax basis.}}
+    - {name: taxAmount, type: Money, required: true, default: 0, help: {summary: Tax originally recognized on the line., businessMeaning: Historical tax component of the claim., usage: "Used for tax reporting, accounting and credit calculation.", relationshipContext: A credit line may reverse an eligible portion without editing this amount., workflowRole: Provides source tax evidence.}}
+    - {name: netAmount, type: Money, required: true, help: {summary: Original net financial value of the line after discount and applicable tax treatment., businessMeaning: Historical line contribution to the Invoice total., usage: "Used for billing, accounting and credit reference.", relationshipContext: Credit adjustment lines record a separate reduction rather than changing netAmount., workflowRole: Provides immutable source value.}}
+    - name: pricingEvidence
+      type: object
+      required: false
+      help:
+        summary: Snapshot of material pricing inputs used to determine the invoice line amount.
+        businessMeaning: Preserves source, effective date, and approved commercial context needed to reproduce pricing even when master data changes.
+        usage: Supports audit, dispute resolution, recalculation, credit calculation and integration.
+        workflowRole: Links the invoice result to the effective transaction price without making the posted invoice depend on mutable pricing master data.
+    - name: discountEvidence
+      type: object
+      required: false
+      help:
+        summary: Snapshot of the discount policy inputs and result used on the invoice line.
+        businessMeaning: Preserves the applied discount rule/version, method, base, rate or fixed amount, and resulting discount.
+        usage: Supports audit and prevents later DiscountRule changes from altering historical calculations or credits.
+        workflowRole: Provides reproducible discount calculation evidence.
+    - name: taxEvidence
+      type: object
+      required: false
+      help:
+        summary: Snapshot of the tax determination inputs and result used on the invoice line.
+        businessMeaning: Preserves tax rule/version, jurisdiction, rate, taxable base, rounding and calculated tax.
+        usage: Supports tax audit, compliance, dispute resolution and credit-note tax calculation.
+        workflowRole: Prevents later TaxRule changes from rewriting posted invoice tax.
+    - {name: description, type: string, required: false, maxLength: 1000, help: {summary: 'The text describing what was billed on this line, as it appeared on the invoice.', usage: 'Copied from the product or typed by the biller; it is printed on invoice documents and read in audit, and is kept even if the product later changes.', businessMeaning: Describes the billed good or service., relationshipContext: Complements Product and source transaction references., workflowRole: Supports document presentation.}}
+    - name: matchingStatus
+      type: enum
+      required: true
+      default: NOT_APPLICABLE
+      values: [NOT_APPLICABLE, UNMATCHED, MATCHED, PARTIALLY_MATCHED, EXCEPTION, WAIVED]
+      help:
+        summary: Whether the line has been checked against the order and receipt it bills for.
+        usage: Set by the three-way matching process; lines in EXCEPTION block payment until they are resolved or waived.
+        valueSemantics:
+          NOT_APPLICABLE: The line does not need matching, for example a sales invoice line.
+          UNMATCHED: Not yet compared with the purchase order and goods receipt.
+          MATCHED: Quantity and price agree with the order and receipt within tolerance.
+          PARTIALLY_MATCHED: Some of the line's quantity or amount agrees; the rest does not.
+          EXCEPTION: A difference outside tolerance needs a decision.
+          WAIVED: The difference was accepted by an authorised approver.
+        businessMeaning: Indicates whether the line agrees with applicable purchase and receipt evidence.
+        relationshipContext: Independent from CreditNote and SupplierCreditNote status; a credit may correct a posted line after matching.
+        workflowRole: Controls matching approval before posting.
   relationships:
-  - name: invoice
-    target: Invoice
-    cardinality: '1'
-    ownership: reference
-    help: {summary: Parent invoice containing the original claim line., businessMeaning: Provides financial document context., usage: "Supports billing, settlement, adjustment and audit.", workflowRole: Parent claim owns the line's historical calculation.}
-  - name: product
-    target: Product
-    cardinality: 0..1
-    ownership: reference
-    help: {summary: Product or service identified by the original invoice line., businessMeaning: Identifies what was billed without making current product master data a live dependency of posted history., usage: "Supports billing, fulfillment and return traceability.", workflowRole: Supplies source item context.}
-  - name: unitOfMeasure
-    target: UnitOfMeasure
-    cardinality: 0..1
-    ownership: reference
-    help: {summary: Unit in which the original quantity was billed., businessMeaning: Defines measurement semantics for the historical quantity., usage: "Supports billing, fulfillment and return conversion.", workflowRole: Provides source measurement context for eligible credits.}
-  - name: purchaseOrderLine
-    target: PurchaseOrderLine
-    cardinality: 0..1
-    ownership: reference
-    help: {summary: Procurement line associated with a purchase invoice line., businessMeaning: Connects payable billing to the original procurement commitment., usage: Supports three-way matching and supplier-return traceability., workflowRole: Supplies source procurement evidence.}
-  - name: goodsReceiptLines
-    target: GoodsReceiptLine
-    cardinality: 0..*
-    ownership: reference
-    help: {summary: Accepted receipt lines supporting the original purchase invoice., businessMeaning: Connects billed quantity to accepted fulfillment evidence., usage: Supports three-way matching and supplier-return eligibility., workflowRole: Provides receipt evidence.}
-  - name: discountRule
-    target: DiscountRule
-    cardinality: 0..1
-    ownership: reference
-    help: {summary: Discount policy referenced by the original line., businessMeaning: Identifies the policy source while discountEvidence preserves the transaction-time result., usage: Supports audit and controlled recalculation., workflowRole: Supplies original discount policy context.}
-  - name: taxRule
-    target: TaxRule
-    cardinality: 0..*
-    ownership: reference
-    help: {summary: Tax policies referenced by the original line., businessMeaning: Identifies governing tax treatment while taxEvidence preserves historical results., usage: Supports tax compliance and audit., workflowRole: Supplies original tax policy context.}
-  - name: creditNoteLines
-    target: CreditNoteLine
-    cardinality: 0..*
-    ownership: reference
-    help: {summary: Customer credit adjustment lines that credit part or all of this original invoice line., businessMeaning: Provides traceable customer-side reduction evidence without changing original values., usage: "Supports customer returns, billing corrections, tax adjustments and audit.", cardinalityMeaning: An invoice line may have no credits or multiple controlled credits., workflowRole: Active posted credits contribute to invoice-level customer adjustment projections through CreditNoteApplication.}
-  - name: supplierCreditNoteLines
-    target: SupplierCreditNoteLine
-    cardinality: 0..*
-    ownership: reference
-    help: {summary: Supplier credit adjustment lines that reduce a purchase invoice claim after return or other authorized supplier concession., businessMeaning: Provides traceable supplier-side reduction evidence without changing original invoice values., usage: "Supports supplier returns, payable corrections, tax adjustments and audit.", cardinalityMeaning: A purchase invoice line may have no supplier credits or multiple controlled credits., workflowRole: Active posted supplier credits contribute to payable reconciliation through SupplierCreditNoteApplication.}
+    - name: invoice
+      target: Invoice
+      cardinality: '1'
+      ownership: reference
+      help: {summary: Parent invoice containing the original claim line., businessMeaning: Provides financial document context., usage: "Supports billing, settlement, adjustment and audit.", workflowRole: Parent claim owns the line's historical calculation.}
+    - name: product
+      target: Product
+      cardinality: 0..1
+      ownership: reference
+      help: {summary: Product or service identified by the original invoice line., businessMeaning: Identifies what was billed without making current product master data a live dependency of posted history., usage: "Supports billing, fulfillment and return traceability.", workflowRole: Supplies source item context.}
+    - name: unitOfMeasure
+      target: UnitOfMeasure
+      cardinality: 0..1
+      ownership: reference
+      help: {summary: Unit in which the original quantity was billed., businessMeaning: Defines measurement semantics for the historical quantity., usage: "Supports billing, fulfillment and return conversion.", workflowRole: Provides source measurement context for eligible credits.}
+    - name: purchaseOrderLine
+      target: PurchaseOrderLine
+      cardinality: 0..1
+      ownership: reference
+      help: {summary: Procurement line associated with a purchase invoice line., businessMeaning: Connects payable billing to the original procurement commitment., usage: Supports three-way matching and supplier-return traceability., workflowRole: Supplies source procurement evidence.}
+    - name: goodsReceiptLines
+      target: GoodsReceiptLine
+      cardinality: 0..*
+      ownership: reference
+      help: {summary: Accepted receipt lines supporting the original purchase invoice., businessMeaning: Connects billed quantity to accepted fulfillment evidence., usage: Supports three-way matching and supplier-return eligibility., workflowRole: Provides receipt evidence.}
+    - name: discountRule
+      target: DiscountRule
+      cardinality: 0..1
+      ownership: reference
+      help: {summary: Discount policy referenced by the original line., businessMeaning: Identifies the policy source while discountEvidence preserves the transaction-time result., usage: Supports audit and controlled recalculation., workflowRole: Supplies original discount policy context.}
+    - name: taxRule
+      target: TaxRule
+      cardinality: 0..*
+      ownership: reference
+      help: {summary: Tax policies referenced by the original line., businessMeaning: Identifies governing tax treatment while taxEvidence preserves historical results., usage: Supports tax compliance and audit., workflowRole: Supplies original tax policy context.}
+    - name: creditNoteLines
+      target: CreditNoteLine
+      cardinality: 0..*
+      ownership: reference
+      help: {summary: Customer credit adjustment lines that credit part or all of this original invoice line., businessMeaning: Provides traceable customer-side reduction evidence without changing original values., usage: "Supports customer returns, billing corrections, tax adjustments and audit.", cardinalityMeaning: An invoice line may have no credits or multiple controlled credits., workflowRole: Active posted credits contribute to invoice-level customer adjustment projections through CreditNoteApplication.}
+    - name: supplierCreditNoteLines
+      target: SupplierCreditNoteLine
+      cardinality: 0..*
+      ownership: reference
+      help: {summary: Supplier credit adjustment lines that reduce a purchase invoice claim after return or other authorized supplier concession., businessMeaning: Provides traceable supplier-side reduction evidence without changing original invoice values., usage: "Supports supplier returns, payable corrections, tax adjustments and audit.", cardinalityMeaning: A purchase invoice line may have no supplier credits or multiple controlled credits., workflowRole: Active posted supplier credits contribute to payable reconciliation through SupplierCreditNoteApplication.}
   invariants:
-  - {id: INVOICE-LINE-001, rule: lineNumber must be unique within the invoice.}
-  - {id: INVOICE-LINE-002, rule: quantity must be greater than zero when supplied.}
-  - {id: INVOICE-LINE-003, rule: All monetary calculation components must use the invoice currency unless an explicitly governed multi-currency calculation exists.}
-  - {id: INVOICE-LINE-004, rule: "grossAmount, discountAmount, taxableAmount, taxAmount and netAmount must reconcile according to the invoice calculation and rounding policy."}
-  - {id: INVOICE-LINE-005, rule: "If a DiscountRule is used, discountEvidence must preserve the material rule/version inputs and calculated result required for reproducibility."}
-  - {id: INVOICE-LINE-006, rule: "If a TaxRule is used, taxEvidence must preserve the material rule/version, jurisdiction, rate, taxable base and calculated result required for reproducibility."}
-  - {id: INVOICE-LINE-007, rule: "Changes to Product, UnitOfMeasure, DiscountRule, TaxRule, Currency or pricing policy must not silently rewrite an issued or posted InvoiceLine."}
-  - {id: INVOICE-LINE-008, rule: A purchase invoice line requiring three-way matching may become MATCHED only when applicable PurchaseOrderLine and accepted GoodsReceiptLine evidence satisfy configured quantity and price tolerances.}
-  - {id: INVOICE-LINE-009, rule: EXCEPTION or WAIVED matching requires auditable reason and authorization according to policy.}
-  - {id: INVOICE-LINE-010, rule: "Posted InvoiceLine corrections require controlled CreditNote, SupplierCreditNote, debit or other authorized adjustment workflows rather than destructive mutation."}
-  - {id: INVOICE-LINE-011, rule: "A CreditNoteLine or SupplierCreditNoteLine linked to this InvoiceLine must remain within eligible source quantity/value and applicable return, pricing, tax and approval policy."}
-  - {id: INVOICE-LINE-012, rule: "Posting either customer or supplier credit adjustment never changes this line's historical quantity, unit price, discount, tax or net amount."}
-  - {id: INVOICE-LINE-EXE-001, rule: "Quantity cannot be negative.", violatedWhen: "quantity != null and quantity < 0", message: "Quantity cannot be negative."}
-  - {id: INVOICE-LINE-EXE-002, rule: "Unit Price cannot be negative.", violatedWhen: "unit_price != null and unit_price < 0", message: "Unit Price cannot be negative."}
-  - {id: INVOICE-LINE-EXE-003, rule: "Gross Amount cannot be negative.", violatedWhen: "gross_amount != null and gross_amount < 0", message: "Gross Amount cannot be negative."}
-  - {id: INVOICE-LINE-EXE-004, rule: "Discount Amount cannot be negative.", violatedWhen: "discount_amount != null and discount_amount < 0", message: "Discount Amount cannot be negative."}
-  - {id: INVOICE-LINE-EXE-005, rule: "Taxable Amount cannot be negative.", violatedWhen: "taxable_amount != null and taxable_amount < 0", message: "Taxable Amount cannot be negative."}
-  - {id: INVOICE-LINE-EXE-006, rule: "Tax Amount cannot be negative.", violatedWhen: "tax_amount != null and tax_amount < 0", message: "Tax Amount cannot be negative."}
+    - {id: INVOICE-LINE-001, rule: lineNumber must be unique within the invoice.}
+    - {id: INVOICE-LINE-002, rule: quantity must be greater than zero when supplied.}
+    - {id: INVOICE-LINE-003, rule: All monetary calculation components must use the invoice currency unless an explicitly governed multi-currency calculation exists.}
+    - {id: INVOICE-LINE-004, rule: "grossAmount, discountAmount, taxableAmount, taxAmount and netAmount must reconcile according to the invoice calculation and rounding policy."}
+    - {id: INVOICE-LINE-005, rule: "If a DiscountRule is used, discountEvidence must preserve the material rule/version inputs and calculated result required for reproducibility."}
+    - {id: INVOICE-LINE-006, rule: "If a TaxRule is used, taxEvidence must preserve the material rule/version, jurisdiction, rate, taxable base and calculated result required for reproducibility."}
+    - {id: INVOICE-LINE-007, rule: "Changes to Product, UnitOfMeasure, DiscountRule, TaxRule, Currency or pricing policy must not silently rewrite an issued or posted InvoiceLine."}
+    - {id: INVOICE-LINE-008, rule: A purchase invoice line requiring three-way matching may become MATCHED only when applicable PurchaseOrderLine and accepted GoodsReceiptLine evidence satisfy configured quantity and price tolerances.}
+    - {id: INVOICE-LINE-009, rule: EXCEPTION or WAIVED matching requires auditable reason and authorization according to policy.}
+    - {id: INVOICE-LINE-010, rule: "Posted InvoiceLine corrections require controlled CreditNote, SupplierCreditNote, debit or other authorized adjustment workflows rather than destructive mutation."}
+    - {id: INVOICE-LINE-011, rule: "A CreditNoteLine or SupplierCreditNoteLine linked to this InvoiceLine must remain within eligible source quantity/value and applicable return, pricing, tax and approval policy."}
+    - {id: INVOICE-LINE-012, rule: "Posting either customer or supplier credit adjustment never changes this line's historical quantity, unit price, discount, tax or net amount."}
+    - {id: INVOICE-LINE-EXE-001, rule: "Quantity cannot be negative.", violatedWhen: "quantity != null and quantity < 0", message: "Quantity cannot be negative."}
+    - {id: INVOICE-LINE-EXE-002, rule: "Unit Price cannot be negative.", violatedWhen: "unit_price != null and unit_price < 0", message: "Unit Price cannot be negative."}
+    - {id: INVOICE-LINE-EXE-003, rule: "Gross Amount cannot be negative.", violatedWhen: "gross_amount != null and gross_amount < 0", message: "Gross Amount cannot be negative."}
+    - {id: INVOICE-LINE-EXE-004, rule: "Discount Amount cannot be negative.", violatedWhen: "discount_amount != null and discount_amount < 0", message: "Discount Amount cannot be negative."}
+    - {id: INVOICE-LINE-EXE-005, rule: "Taxable Amount cannot be negative.", violatedWhen: "taxable_amount != null and taxable_amount < 0", message: "Taxable Amount cannot be negative."}
+    - {id: INVOICE-LINE-EXE-006, rule: "Tax Amount cannot be negative.", violatedWhen: "tax_amount != null and tax_amount < 0", message: "Tax Amount cannot be negative."}
   help:
     summary: Represents one immutable financial claim line with reproducible calculation evidence and explicit customer and supplier adjustment references.
     businessMeaning: InvoiceLine is the historical financial result. Current Product, DiscountRule, TaxRule, UOM and pricing master data are inputs to future transactions, not live dependencies of a posted line. CreditNoteLine and SupplierCreditNoteLine record later reductions separately.

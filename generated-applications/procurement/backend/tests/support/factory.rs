@@ -8,7 +8,7 @@
 //! randomness — and carry a per-run token so they never collide with the rows
 //! an earlier run left behind.
 //!
-//! Generated: 2026-10-04T01:12:28.125Z
+//! Generated: 2026-10-10T04:18:48.602Z
 //! Project: procurement
 
 #![allow(dead_code)]
@@ -124,6 +124,12 @@ pub fn build_record(entity: &EntityMeta) -> Map<String, Value> {
         if field.field_type == FieldType::Reference {
             continue;
         }
+        // A record begins in its machine's initial state; any other string is a
+        // record the transition guard would never let it leave.
+        if let Some(initial) = entity.initial_state(field.name) {
+            payload.insert(field.name.to_string(), json!(initial));
+            continue;
+        }
         payload.insert(field.name.to_string(), value_for(field));
     }
     payload
@@ -177,13 +183,29 @@ async fn create_tracked(
     created
 }
 
-async fn create_inner(
+/// A record `entity` would accept, without posting it: its fields and, for each
+/// foreign key, a row it may point at — created first when the table is empty.
+///
+/// `build_record` leaves references out, which is right for a payload a test
+/// completes itself and wrong for one handed to the application whole: a rule's
+/// `create-record` action inserts exactly the `createData` it was given, so a
+/// required reference left out is an insert the database refuses.
+pub async fn build_record_with_parents(
     request: &TestServer,
     token: &str,
     entity: &EntityMeta,
-    overrides: &[(&str, Value)],
+) -> Map<String, Value> {
+    let mut in_flight: HashSet<&'static str> = HashSet::new();
+    in_flight.insert(entity.route);
+    payload_with_parents(request, token, entity, &mut in_flight).await
+}
+
+async fn payload_with_parents(
+    request: &TestServer,
+    token: &str,
+    entity: &EntityMeta,
     in_flight: &mut HashSet<&'static str>,
-) -> Option<Value> {
+) -> Map<String, Value> {
     let mut payload = build_record(entity);
 
     for fk in entity.foreign_keys() {
@@ -209,6 +231,18 @@ async fn create_inner(
             payload.insert(fk.name.to_string(), json!(id));
         }
     }
+
+    payload
+}
+
+async fn create_inner(
+    request: &TestServer,
+    token: &str,
+    entity: &EntityMeta,
+    overrides: &[(&str, Value)],
+    in_flight: &mut HashSet<&'static str>,
+) -> Option<Value> {
+    let mut payload = payload_with_parents(request, token, entity, in_flight).await;
 
     for (key, value) in overrides {
         payload.insert((*key).to_string(), value.clone());

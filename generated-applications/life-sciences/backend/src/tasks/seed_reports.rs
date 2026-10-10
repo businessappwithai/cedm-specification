@@ -15,7 +15,7 @@
 //! ordering matters only so the reports have something to answer with when
 //! somebody opens one.
 //!
-//! Generated: 2026-10-04T01:12:07.419Z
+//! Generated: 2026-10-09T15:29:20.653Z
 //! Project: life-sciences
 
 use loco_rs::prelude::*;

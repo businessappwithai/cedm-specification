@@ -3,7 +3,7 @@
  *
  * User registration with email, password, and name
  *
- * Generated: 2026-10-04T01:13:07.407Z
+ * Generated: 2026-10-09T15:31:01.442Z
  * Project: telecommunications
  */
 

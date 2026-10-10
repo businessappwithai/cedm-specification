@@ -1,0 +1,134 @@
+entity:
+  name: Dataset
+  namespace: cedm.domain
+  kind: data_entity
+  description: A governed collection of structured or unstructured data used for operations, analytics, reporting, research, or AI.
+  ui:
+    icon: table
+  identity:
+    key: datasetId
+    type: uuid
+    generated: true
+    immutable: true
+  attributes:
+    - name: datasetId
+      type: uuid
+      required: true
+      immutable: true
+      help:
+        summary: The identity of the dataset record.
+        usage: Generated on registration; assessments and models refer to the dataset.
+    - name: code
+      type: string
+      required: true
+      unique: true
+      maxLength: 100
+      help:
+        summary: The unique code by which the dataset is catalogued, such as CUST-TXN.
+        usage: Assigned by the data owner; used in catalogues and lineage.
+    - name: name
+      type: string
+      required: true
+      maxLength: 300
+      help:
+        summary: The descriptive name by which the dataset is known in the data catalogue.
+        usage: Chosen by the data owner when the dataset is registered; analysts search and recognise datasets by it, so it should be specific.
+    - name: classification
+      type: enum
+      required: true
+      values:
+        - PUBLIC
+        - INTERNAL
+        - CONFIDENTIAL
+        - RESTRICTED
+        - SENSITIVE
+      help:
+        summary: How sensitive the data is, which decides who may see it and how it must be protected.
+        usage: Set by the data owner; access rules and sharing decisions follow from it.
+        valueSemantics:
+          PUBLIC: May be shared with anyone.
+          INTERNAL: For use inside the organisation only.
+          CONFIDENTIAL: Restricted to people with a business need; disclosure would harm the organisation.
+          RESTRICTED: Tightly controlled; access is individually approved.
+          SENSITIVE: Contains personal or other specially protected data and is subject to legal controls.
+    - name: format
+      type: string
+      required: false
+      maxLength: 100
+      help:
+        summary: The technical format of the data, such as Parquet, CSV or documents.
+        usage: Entered at registration; helps consumers choose tools to read it.
+    - name: status
+      type: enum
+      required: true
+      default: DRAFT
+      values:
+        - DRAFT
+        - ACTIVE
+        - ARCHIVED
+        - RETIRED
+      help:
+        summary: Whether the dataset is being assembled, published for use, kept only for reference, or withdrawn.
+        usage: Set by the data owner; only an active dataset is offered to users for new work, and archived or retired ones stay for history.
+        valueSemantics:
+          DRAFT: Being assembled; not yet published.
+          ACTIVE: Published and available to authorised users.
+          ARCHIVED: Kept for reference only; not for new use.
+          RETIRED: No longer maintained or available.
+    - name: ownerOrganizationId
+      type: reference
+      target: Organization
+      required: false
+      help:
+        summary: The organisation that owns and answers for the dataset.
+        usage: Set at registration; its owner approves access and quality remediation.
+  relationships:
+    - name: ownerOrganization
+      target: Organization
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The organisation that owns the dataset.
+        usage: Chosen at registration.
+        cardinalityMeaning: At most one owner; a dataset without one is an open governance gap.
+        workflowRole: Identifies who approves access and fixes problems.
+    - name: qualityAssessments
+      target: DataQualityAssessment
+      cardinality: 0..*
+      ownership: aggregate
+      help:
+        summary: The quality assessments of the dataset.
+        usage: Read to judge fitness for use.
+        cardinalityMeaning: Any number, accumulating over time.
+        workflowRole: Shows the trend in data quality.
+    - name: aiModels
+      target: AIModel
+      cardinality: 0..*
+      ownership: reference
+      help:
+        summary: The AI models that use this dataset.
+        usage: Read to see the downstream effect of a data problem.
+        cardinalityMeaning: Any number of models.
+        workflowRole: Lets owners judge which models are affected by a change or defect.
+  lifecycle:
+    title: Dataset Lifecycle
+    attribute: status
+    states: [DRAFT, ACTIVE, ARCHIVED, RETIRED]
+    initial: DRAFT
+    terminal: [ARCHIVED, RETIRED]
+    transitions:
+      - {from: DRAFT, to: ACTIVE, action: activate}
+      - {from: ACTIVE, to: ARCHIVED, action: archive}
+      - {from: DRAFT, to: RETIRED, action: retire}
+      - {from: ACTIVE, to: RETIRED, action: retire}
+  help:
+    summary: A governed collection of structured or unstructured data used for operations, analytics, reporting, research or AI.
+    businessMeaning: Organisations rely on many collections of data. Registering each as a dataset, with an owner, a sensitivity class and a quality record, is how they know what data they hold, who answers for it and who may use it.
+    usage: Registered by data owners; classified; assessed for quality; chosen as the source for reports and models.
+    relationshipContext: A dataset is owned by an Organization, has DataQualityAssessments and may train AIModels.
+    lifecycle: A dataset is drafted, becomes active when published for use, is archived when it is kept only for reference and retired when no longer needed.
+    example: The customer transactions dataset, owned by Finance, classified confidential and used to train the churn model.
+specification:
+  version: 0.1.0
+  status: draft
+  identifier: CEDM-ENTITY-DATASET

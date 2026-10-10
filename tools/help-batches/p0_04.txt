@@ -1,0 +1,68 @@
+@ City
+u: Loaded from the GeoNames reference data rather than typed by users; chosen on addresses, locations and offices, and read to sort, filter and map records by place.
+a name
+s: The city's name in English, as it is written on addresses and in place lists.
+u: Loaded with the reference data; shown in lists, pickers and address lines, and narrowed by the country and state chosen.
+a population
+s: The population figure recorded in the GeoNames registry when the data was loaded.
+u: Used to rank and size cities in lists and pickers; it is an approximate registry value, not a current census count.
+a latitude
+s: The city's north-south position in decimal degrees, with north positive and south negative.
+u: Loaded with the reference data; paired with longitude to place the city on maps and measure distances.
+a longitude
+s: The city's east-west position in decimal degrees, with east positive and west negative.
+u: Loaded with the reference data; paired with latitude to place the city on maps and measure distances.
+a isCapital
+s: Marks the city as the capital of its country in the reference data.
+u: Loaded with the reference data; lists use it to highlight or sort capitals first when people choose a city.
+@ ClaimLine
+a claimLineId
+s: The permanent system identity of one line of an insurance claim.
+u: Generated on creation; settlements and adjudication decisions refer to the line through it.
+a lineNumber
+s: The position of the line within its claim, used to refer to it in conversation and documents.
+u: Assigned in sequence when lines are added; unique within the parent claim, and quoted to claimants and in integrations.
+a description
+s: A plain statement of the benefit, loss item or expense the claimant is asking to be paid for.
+u: Written at submission; the adjudicator reads it to judge the line against the coverage and to explain a decision.
+a claimedAmount
+s: The amount the claimant requests for this line, before any assessment.
+u: Entered at submission and never negative; compared with the approved amount to show how much was reduced or declined.
+a approvedAmount
+s: The amount the insurer agrees to pay for this line after adjudication.
+u: Set by the adjudicator when the line is approved and never negative; it drives reserves and the settlement that follows.
+a status
+s: Where the line stands in adjudication, from receipt through a decision to settlement or cancellation.
+u: Moved by claims staff as the line is assessed and decided; settlement only follows an approval, and decisions are retained.
+v SUBMITTED: Line was received and awaits assessment by claims staff.
+v ASSESSED: Review is underway or completed without final decision.
+v APPROVED: Benefit was approved and is awaiting payment.
+v DENIED: Benefit was denied and no payment will be made. A final state.
+v SETTLED: Approved benefit has been paid and reconciled to a settlement. A final state.
+v CANCELLED: Line was withdrawn or cancelled before a decision was paid. A final state.
+@ Class
+a classId
+s: The permanent system identity of one scheduled class offering.
+u: Generated on creation; enrolments, attendance and assessments refer to the class through it.
+a name
+s: The name of the offering as students and instructors see it, such as Biology 101, Autumn Section B.
+u: Entered when the class is planned; shown in timetables, learner portals and reports.
+a startDate
+s: The first day on which teaching for the class takes place.
+u: Set when scheduling; enrolment eligibility is judged against it and it must not come after the end date.
+a status
+s: Where the offering is, from planning through enrolment and teaching to completion or cancellation.
+u: Moved by the school administrator as the term proceeds; enrolment is only accepted while open, and attendance only once teaching begins.
+v DRAFT: Being planned; not yet visible to students.
+v OPEN: Open for enrolment, with teaching not yet begun.
+v IN_PROGRESS: Teaching has started and attendance and assessments are being recorded.
+v COMPLETED: Finished; results are final and kept as delivery evidence. A final state.
+v CANCELLED: Called off before completion. A final state.
+@ Compensation
+a status
+s: Whether the pay arrangement is still being prepared, in force, replaced or withdrawn.
+u: Moved by HR; only active arrangements feed payroll, and those used by completed payroll are never rewritten.
+v DRAFT: Being prepared; not yet used by payroll.
+v ACTIVE: In force for the employment and used by payroll.
+v SUPERSEDED: Replaced by a later arrangement; kept as history. A final state.
+v CANCELLED: Withdrawn before it took effect. A final state.

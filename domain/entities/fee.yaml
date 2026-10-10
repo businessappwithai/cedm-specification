@@ -1,0 +1,81 @@
+entity:
+  name: Fee
+  namespace: cedm.domain
+  kind: education_fee
+  description: A governed education charge assessed to an EducationStudent or Enrollment, separate from the Invoice that may formalize the financial claim and the Payment that settles it.
+  ui: {icon: receipt}
+  identity: {key: feeId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: feeId, type: uuid, required: true, immutable: true, help: {summary: The identity of the fee., usage: Generated on creation; invoices and payments refer to it., businessMeaning: Identifies one education charge independently of invoice and payment records., relationshipContext: Invoice may later formalize the receivable claim.}}
+    - {name: feeCode, type: string, required: true, maxLength: 120, help: {summary: 'The code of the fee type, such as TUITION-2026 or LAB.', usage: Chosen when the fee is assessed., businessMeaning: "Identifies tuition, laboratory, transport or other governed education charge category.", relationshipContext: Code may repeat across students while feeId remains unique.}}
+    - {name: amount, type: decimal, required: true, precision: 20, scale: 4, help: {summary: "The monetary value of the fee, charged to the student in the fee's currency.", usage: 'Calculated from the fee schedule when assessed; it must not be negative, and credits are modelled explicitly.', businessMeaning: Education charge value before or alongside invoice creation., relationshipContext: Currency relationship makes value unambiguous.}}
+    - {name: dueDate, type: date, required: false, help: {summary: The date by which the student or payer is expected to settle the fee., usage: Set when the fee is assessed from the term calendar; collections and aging reports read it to find overdue charges., businessMeaning: Supports collection and aging without replacing invoice payment terms., relationshipContext: Invoice terms may provide authoritative receivable due date after invoicing.}}
+    - name: status
+      type: enum
+      required: true
+      default: DRAFT
+      values: [DRAFT, ASSESSED, INVOICED, PAID, WAIVED, CANCELLED]
+      help:
+        summary: Where the education fee stands, from preparation and assessment through invoicing to settlement, waiver or cancellation.
+        usage: Moved by student accounts and billing staff; reports read it to separate open charges from settled ones.
+        valueSemantics:
+          DRAFT: Being prepared; not yet charged to the student.
+          ASSESSED: Charged to the student but not yet invoiced.
+          INVOICED: Included on an invoice that now carries the receivable claim.
+          PAID: Settled, with payment evidence reconciled against the invoice. A final state.
+          WAIVED: Excused by the institution, so the student owes nothing. A final state.
+          CANCELLED: Withdrawn because it was raised in error or no longer applies. A final state.
+        businessMeaning: Distinguishes preparation, assessment, billing, settlement and waived/cancelled outcomes.
+        relationshipContext: PAID normally reconciles through Invoice and Payment evidence rather than direct mutation.
+  relationships:
+    - {name: student, target: EducationStudent, cardinality: "1", ownership: reference, help: {cardinalityMeaning: 'Exactly one student: a fee is always charged to a specific learner.', summary: Student to whom the fee is assessed., businessMeaning: Establishes education account responsibility., usage: "Student accounts, billing and reporting.", workflowRole: Student status and fee policy constrain new assessments.}}
+    - {name: enrollment, target: Enrollment, cardinality: "0..1", ownership: reference, help: {summary: Enrollment giving rise to the fee., businessMeaning: Connects charge to program/course participation., usage: "Tuition, course fees and reconciliation.", cardinalityMeaning: Optional for student-level fees not tied to one enrollment., workflowRole: Enrollment context must belong to the same student.}}
+    - {name: currency, target: Currency, cardinality: "1", ownership: reference, help: {cardinalityMeaning: 'Exactly one currency, so the amount is unambiguous.', summary: Currency of the assessed amount., businessMeaning: Makes monetary value unambiguous., usage: "Billing, accounting and reporting.", workflowRole: Currency remains historical after assessment.}}
+    - {name: invoice, target: Invoice, cardinality: "0..1", ownership: reference, help: {summary: Financial claim containing or representing this fee., businessMeaning: Separates education charge assessment from formal receivable evidence., usage: "Billing, collection, payment and accounting reconciliation.", cardinalityMeaning: Optional before invoicing or where grouped billing policy applies., workflowRole: INVOICED and PAID states must reconcile to financial evidence under policy.}}
+  invariants:
+    - {id: FEE-001, rule: amount must not be negative; credits or reversals require explicit governed financial semantics.}
+    - {id: FEE-002, rule: Enrollment must belong to the same EducationStudent when supplied.}
+    - {id: FEE-003, rule: PAID status must reconcile to settled financial evidence under the organization's billing policy.}
+    - {id: FEE-004, rule: Assessed or invoiced fee history is not destructively rewritten; waivers and corrections remain explicit evidence.}
+    - {id: FEE-EXE-001, rule: "Amount cannot be negative.", violatedWhen: "amount != null and amount < 0", message: "Amount cannot be negative."}
+  lifecycle:
+    title: Education Fee Lifecycle
+    attribute: status
+    states: [DRAFT, ASSESSED, INVOICED, PAID, WAIVED, CANCELLED]
+    initial: DRAFT
+    terminal: [PAID, WAIVED, CANCELLED]
+    transitions:
+      - {from: DRAFT, to: ASSESSED, action: assess}
+      - {from: DRAFT, to: CANCELLED, action: cancel}
+      - {from: ASSESSED, to: INVOICED, action: invoice}
+      - {from: ASSESSED, to: WAIVED, action: waive}
+      - {from: ASSESSED, to: CANCELLED, action: cancel}
+      - {from: INVOICED, to: PAID, action: mark_paid}
+      - {from: INVOICED, to: WAIVED, action: waive}
+  workflows:
+    - name: FollowUpRequired
+      title: "Follow up when a fee is ended"
+      description: "When a fee is cancelled, a task asks someone to settle what depended on it."
+      when: "status == \"CANCELLED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "FEE-FOLLOW-UP-{{id}}"
+              name: "Follow up on fee {{id}}"
+              description: "Fee {{id}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
+  help:
+    summary: Represents an education-specific charge while keeping receivable and settlement evidence in finance entities.
+    businessMeaning: Fee explains why a student is charged; Invoice records the financial claim; Payment records settlement.
+    usage: Tuition, school fees, student accounts, billing, collections, reporting and audit.
+    relationshipContext: EducationStudent is mandatory, Enrollment may supply academic cause, Currency defines value and Invoice provides financial claim evidence.
+    lifecycle: Fees progress from draft to assessed and possibly invoiced, then paid, waived or cancelled with history retained.
+    example: A laboratory Fee is assessed to an enrolled student, included in an Invoice and later marked paid after financial settlement.
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-FEE}

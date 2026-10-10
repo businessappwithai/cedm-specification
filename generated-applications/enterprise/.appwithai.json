@@ -120,11 +120,12 @@
     "ExchangeRate: EXPIRED, CANCELLED",
     "UnitOfMeasure: RETIRED",
     "Task: COMPLETED, CANCELLED, FAILED",
+    "ERP: RETIRED",
     "OrganizationMembership: COMPLETED, CANCELLED",
     "Approval: COMPLETED, CANCELLED",
     "Assignment: COMPLETED, CANCELLED",
-    "BusinessTransaction: COMPLETED, CANCELLED, REVERSED"
+    "BusinessTransaction: CANCELLED, REVERSED"
   ],
   "packageManager": "bun",
-  "generatedAt": "2026-10-08T00:55:59.553Z"
+  "generatedAt": "2026-10-10T09:25:55.496Z"
 }

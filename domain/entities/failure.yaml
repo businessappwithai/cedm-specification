@@ -7,19 +7,18 @@ entity:
     icon: activity
   identity: {key: failureId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: failureId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Failure., businessMeaning: Identifies one governed Failure record independently of mutable state., usage: "Operations, finance, integration, reporting and audit.", relationshipContext: Referenced by compatible lifecycle and transaction records., requiredMeaning: Required.}}
-  - {name: effectiveAt, type: datetime, required: false, help: {summary: Effective timestamp for the record., businessMeaning: Establishes temporal applicability or evidence cutoff., usage: "Lifecycle, reconciliation and reporting.", relationshipContext: Historical evidence before this time remains intact., optionalMeaning: Optional where the concept uses another effective period.}}
+    - {name: failureId, type: uuid, required: true, immutable: true, help: {summary: The identity of the failure record., usage: Generated when raised; repair orders and analyses refer to it.}}
+    - {name: effectiveAt, type: datetime, required: false, help: {summary: When the failure occurred., usage: Entered by the person reporting it; used to measure time between failures and downtime.}}
   relationships:
-  - {name: equipment, target: Equipment, cardinality: '1', ownership: reference, help: {summary: Equipment experiencing failure., businessMeaning: Defines affected maintainable object., usage: Reliability and maintenance., cardinalityMeaning: Exactly one Equipment., workflowRole: May trigger MaintenanceWorkOrder but does not itself prove repair.}}
+    - {name: equipment, target: Equipment, cardinality: '1', ownership: reference, help: {summary: The equipment that failed., usage: Chosen when the failure is raised., cardinalityMeaning: 'Exactly one equipment item: a failure is always a failure of something specific.', workflowRole: Builds the failure history of each machine., businessMeaning: Defines affected maintainable object.}}
   invariants:
-  - {id: FAILURE-001, rule: Finalized lifecycle or financial evidence must be corrected by explicit compensating or superseding records rather than silent history rewrite.}
+    - {id: FAILURE-001, rule: Finalized lifecycle or financial evidence must be corrected by explicit compensating or superseding records rather than silent history rewrite.}
   help:
-    summary: A governed observed equipment or asset failure recording symptom, occurrence, effect, and maintenance context without overwriting repair evidence.
-    purpose: Provide canonical enterprise semantics for Failure.
-    businessMeaning: A governed observed equipment or asset failure recording symptom, occurrence, effect, and maintenance context without overwriting repair evidence.
-    whenUsed: Used in asset, maintenance, treasury, banking, credit-risk, accounting, integration, and audit workflows where applicable.
-    howItRelates: Connects operational or financial lifecycle evidence to canonical masters while keeping accounting, bank, and physical records authoritative in their own domains.
-    lifecycleUsage: Created under governed conditions, progressed or finalized with audit history, and corrected through explicit subsequent evidence.
-    commonProcesses: Asset lifecycle, maintenance, treasury operations, bank reconciliation, lending, accounting, reporting, and audit.
+    summary: An observed failure of equipment or an asset, recording the symptom, when it occurred, its effect and the maintenance context.
+    businessMeaning: Reliability engineering starts with knowing what failed, when and how badly. A failure record keeps that observation separate from the repair work, so the history of what went wrong is not lost when it is fixed.
+    usage: Raised by operators or technicians when something breaks; linked to the repair work order; analysed for causes and trends.
+    relationshipContext: A failure concerns one piece of Equipment; repairs and cause analysis refer back to it.
+    lifecycle: Finalised evidence is corrected by compensating or superseding records and never overwritten.
+    example: A conveyor drive motor tripped on overload at 03:10 and stopped the line for forty minutes.
     commonExamples: Enterprise fixed assets, equipment reliability, bank close, FX, deposits, interest, and secured lending.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-FAILURE}

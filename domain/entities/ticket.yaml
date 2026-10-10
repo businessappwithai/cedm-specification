@@ -1,0 +1,84 @@
+entity:
+  name: Ticket
+  namespace: cedm.domain
+  kind: service_work_item
+  description: A governed operational service work item assigned to a queue or responsible party to investigate, communicate, resolve, or coordinate a ServiceCase or ServiceRequest.
+  ui: {icon: ticket}
+  identity: {key: ticketId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: ticketId, type: uuid, required: true, immutable: true, help: {summary: 'The identity of the ticket, constant for its life.', businessMeaning: Identifies one operational service work item independently of its parent case or request., usage: "Queues, assignment, escalation, reporting and audit.", relationshipContext: Remains stable across reassignment and status changes.}}
+    - {name: ticketNumber, type: string, required: true, unique: true, maxLength: 120, help: {summary: 'The unique reference of the ticket, such as TK-20418, quoted by customers and support staff.', usage: 'Assigned when the ticket is raised; used in queues, messages and SLA reports, and never reused.', businessMeaning: Operational identifier used by service teams and integrations., relationshipContext: Distinct from case and request numbers.}}
+    - {name: summary, type: string, required: true, maxLength: 500, help: {summary: A one-line statement of the problem or work the ticket asks for., usage: 'Entered when the ticket is raised; shown in queues and lists, so it should let an agent grasp the issue at a glance.', businessMeaning: Defines the operational responsibility represented by the ticket., relationshipContext: Parent case or request provides broader business context.}}
+    - {name: priority, type: enum, required: true, default: NORMAL, values: [LOW, NORMAL, HIGH, URGENT], help: {summary: How urgently the ticket's work should be handled compared with other open tickets., usage: Set at creation and adjusted by the service desk; queues sort by it and SLA targets may depend on it., valueSemantics: {LOW: Minor impact that can wait behind other work., NORMAL: 'Standard urgency, handled in normal queue order.', HIGH: Significant impact that needs prompt attention., URGENT: Severe impact needing immediate action ahead of everything else.}, businessMeaning: Guides queue ordering and escalation., relationshipContext: May inherit from but need not equal parent case priority.}}
+    - name: status
+      type: enum
+      required: true
+      default: NEW
+      values: [NEW, ASSIGNED, IN_PROGRESS, PENDING, RESOLVED, CLOSED, CANCELLED]
+      help:
+        summary: Where the ticket stands from being raised through work to resolution and closure.
+        usage: Moved by agents and the service desk; closed and cancelled tickets accept no further work.
+        valueSemantics:
+          NEW: The ticket was raised and nobody has looked at it yet.
+          ASSIGNED: The ticket has been given to a queue or person but work has not begun.
+          IN_PROGRESS: An agent is actively working on the ticket.
+          PENDING: Work is paused while waiting for the customer or a third party.
+          RESOLVED: A fix or answer has been given and awaits confirmation.
+          CLOSED: The resolution is confirmed and the ticket is finished. A final state.
+          CANCELLED: The ticket was withdrawn without action. A final state.
+        businessMeaning: Records whether work awaits assignment, is active, waits on a dependency, or is complete.
+        relationshipContext: Parent case and request remain separate aggregates.
+  relationships:
+    - {name: serviceCase, target: ServiceCase, cardinality: "0..1", ownership: reference, help: {summary: Service case coordinated by this ticket., businessMeaning: Places the work item within a durable customer or service issue., usage: "Case coordination and reporting.", cardinalityMeaning: Optional when ticket originates directly from a request., workflowRole: Ticket outcome contributes to case resolution.}}
+    - {name: serviceRequest, target: ServiceRequest, cardinality: "0..1", ownership: reference, help: {summary: Service request directly giving rise to this ticket., businessMeaning: Preserves intake-to-work traceability., usage: "Service execution and audit.", cardinalityMeaning: Optional when case alone provides context., workflowRole: At least one of ServiceCase or ServiceRequest must provide governing context.}}
+    - {name: assignee, target: Party, cardinality: "0..1", ownership: reference, help: {summary: Party currently responsible for the work., businessMeaning: Supports governed reassignment while retaining ticket identity., usage: "Queues, workload, escalation and audit.", cardinalityMeaning: Optional while unassigned., workflowRole: ASSIGNED or IN_PROGRESS normally requires a responsible party or governed queue.}}
+    - {name: serviceLevelAgreement, target: ServiceLevelAgreement, cardinality: "0..1", ownership: reference, help: {cardinalityMeaning: 'At most one agreement, which sets the time targets for the ticket.', summary: SLA applied to this ticket when ticket-level targets are measured., businessMeaning: Defines operational response or resolution commitment., usage: "Deadline and breach management.", workflowRole: Applied SLA version remains historical.}}
+  invariants:
+    - {id: TICKET-001, rule: Every Ticket must reference a ServiceCase or ServiceRequest as governing service context.}
+    - {id: TICKET-002, rule: CLOSED or CANCELLED tickets are immutable historical work evidence except through explicit corrective follow-up records.}
+    - {id: TICKET-003, rule: Resolution must preserve who performed the work and the evidence supporting the outcome.}
+  lifecycle:
+    title: Ticket Lifecycle
+    attribute: status
+    states: [NEW, ASSIGNED, IN_PROGRESS, PENDING, RESOLVED, CLOSED, CANCELLED]
+    initial: NEW
+    terminal: [CLOSED, CANCELLED]
+    transitions:
+      - {from: NEW, to: ASSIGNED, action: assign}
+      - {from: NEW, to: CANCELLED, action: cancel}
+      - {from: ASSIGNED, to: IN_PROGRESS, action: start}
+      - {from: ASSIGNED, to: CANCELLED, action: cancel}
+      - {from: IN_PROGRESS, to: PENDING, action: pend}
+      - {from: PENDING, to: IN_PROGRESS, action: resume}
+      - {from: IN_PROGRESS, to: RESOLVED, action: resolve}
+      - {from: PENDING, to: RESOLVED, action: resolve}
+      - {from: RESOLVED, to: CLOSED, action: close}
+      - {from: IN_PROGRESS, to: CANCELLED, action: cancel}
+      - {from: PENDING, to: CANCELLED, action: cancel}
+  workflows:
+    - name: FollowUpRequired
+      title: "Follow up when a ticket is ended"
+      description: "When a ticket is cancelled, a task asks someone to settle what depended on it."
+      when: "status == \"CANCELLED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "TICKET-FOLLOW-UP-{{id}}"
+              name: "Follow up on ticket {{ticket_number}}"
+              description: "Ticket {{ticket_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
+  help:
+    summary: Represents assignable operational work within service management.
+    businessMeaning: Ticket is a team work item, not the durable customer issue or the commercial execution authorization.
+    usage: Help desk, customer service, technical support, escalation, queue management and audit.
+    relationshipContext: ServiceCase or ServiceRequest provides business context, Party provides responsibility, and SLA may govern timing.
+    lifecycle: New tickets are assigned, worked, may pend, and finish through resolved-to-closed or cancellation.
+    example: A ServiceCase creates separate network and billing Tickets so each team can own work while the case remains one customer issue.
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-TICKET}

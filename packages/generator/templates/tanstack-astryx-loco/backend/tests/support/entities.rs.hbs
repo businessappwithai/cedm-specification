@@ -220,7 +220,28 @@ pub fn is_managed(column: &str) -> bool {
     )
 }
 
+/// `(table, column, initial state)` for every column a state machine the model
+/// drew governs — the same resolution `requests/model_transitions.rs` asserts
+/// against. Such a column is not free text: the API refuses a move the diagram
+/// does not draw, so a suite that writes an arbitrary string into it tests the
+/// transition guard instead of what it set out to test.
+pub const STATE_COLUMNS: &[(&str, &str, &str)] = &[
+{{#each compiledWorkflows}}
+    ("{{tableName}}", "{{statusField}}", "{{initial}}"),
+{{/each}}
+];
+
 impl EntityMeta {
+    /// The state a new record starts in, when a state machine governs `column`.
+    pub fn initial_state(&self, column: &str) -> Option<&'static str> {
+        STATE_COLUMNS
+            .iter()
+            .find(|(table, governed, initial)| {
+                *table == self.table_name && *governed == column && !initial.is_empty()
+            })
+            .map(|(_, _, initial)| *initial)
+    }
+
     /// The fields a caller may actually write.
     ///
     /// Everything else on this type filters through here, so a server-managed
@@ -236,8 +257,10 @@ impl EntityMeta {
 
     /// The first free-text field, for "does it persist what I sent?" assertions.
     pub fn first_text_field(&self) -> Option<&FieldMeta> {
-        self.writable_fields()
-            .find(|f| matches!(f.field_type, FieldType::String | FieldType::Text))
+        self.writable_fields().find(|f| {
+            matches!(f.field_type, FieldType::String | FieldType::Text)
+                && self.initial_state(f.name).is_none()
+        })
     }
 
     /// The first numeric field, for the rules suites' range checks.

@@ -5,9 +5,10 @@
 //! every business suite depends on — then the per-entity CRUD and rules
 //! modules, which are generated one per entity in the model.
 //!
-//! Generated: 2026-10-04T08:30:58.110Z
+//! Generated: 2026-10-10T02:41:54.494Z
 //! Project: research
 
+mod accounts;
 mod ai;
 mod auth;
 mod concurrency;
@@ -31,6 +32,8 @@ mod workflow;
 mod crud_address;
 mod crud_address_address_type;
 mod crud_address_status;
+mod crud_assay;
+mod crud_assay_status;
 mod crud_attachment;
 mod crud_business_unit;
 mod crud_calendar;
@@ -48,6 +51,8 @@ mod crud_legal_entity;
 mod crud_location;
 mod crud_location_location_type;
 mod crud_location_status;
+mod crud_observation;
+mod crud_observation_status;
 mod crud_organization;
 mod crud_organization_organization_type;
 mod crud_organization_party_type;
@@ -63,9 +68,18 @@ mod crud_person;
 mod crud_person_gender;
 mod crud_person_party_type;
 mod crud_person_status;
+mod crud_protocol;
+mod crud_protocol_status;
 mod crud_research_project;
 mod crud_research_project_status;
+mod crud_result;
+mod crud_result_status;
+mod crud_sample;
+mod crud_sample_sample_type;
+mod crud_sample_status;
 mod crud_state_province;
+mod crud_study;
+mod crud_study_status;
 mod crud_task;
 mod crud_task_priority;
 mod crud_task_status;
@@ -77,6 +91,8 @@ mod crud_unit_of_measure_status;
 mod rules_address;
 mod rules_address_address_type;
 mod rules_address_status;
+mod rules_assay;
+mod rules_assay_status;
 mod rules_attachment;
 mod rules_business_unit;
 mod rules_calendar;
@@ -94,6 +110,8 @@ mod rules_legal_entity;
 mod rules_location;
 mod rules_location_location_type;
 mod rules_location_status;
+mod rules_observation;
+mod rules_observation_status;
 mod rules_organization;
 mod rules_organization_organization_type;
 mod rules_organization_party_type;
@@ -109,9 +127,18 @@ mod rules_person;
 mod rules_person_gender;
 mod rules_person_party_type;
 mod rules_person_status;
+mod rules_protocol;
+mod rules_protocol_status;
 mod rules_research_project;
 mod rules_research_project_status;
+mod rules_result;
+mod rules_result_status;
+mod rules_sample;
+mod rules_sample_sample_type;
+mod rules_sample_status;
 mod rules_state_province;
+mod rules_study;
+mod rules_study_status;
 mod rules_task;
 mod rules_task_priority;
 mod rules_task_status;

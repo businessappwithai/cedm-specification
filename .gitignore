@@ -14,6 +14,7 @@ coverage/
 !packages/yamltecture/test/*.test.ts
 !packages/**/__tests__/*.test.ts
 !packages/**/__tests__/*.spec.ts
+!tools/__tests__/*.test.ts
 !generated-projects/**/*.test.ts
 !generated-projects/**/*.spec.ts
 # The chat's own suites: unit, security and end to end. The rule above kept

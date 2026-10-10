@@ -21,7 +21,7 @@
 //! If that migration changes, this changes with it, or the mismatch surfaces as
 //! a runtime `DbErr` on the first query rather than as a compile error here.
 //!
-//! Generated: 2026-10-04T01:12:18.364Z
+//! Generated: 2026-10-09T15:29:35.325Z
 //! Project: manufacturing
 
 use sea_orm::entity::prelude::*;
@@ -35,6 +35,7 @@ pub struct Model {
     #[sea_orm(primary_key, auto_increment = false)]
     pub id: Uuid,
     pub code: String,
+    pub bom_version: String,
     pub status: String,
     pub effective_from: Option<Date>,
     pub effective_to: Option<Date>,

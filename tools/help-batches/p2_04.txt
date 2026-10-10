@@ -1,0 +1,47 @@
+@ GoodsReceipt
+a status
+s: How far the receipt has progressed from preparation through counting and inspection to a final decision.
+u: Moved by warehouse and quality staff; accounts payable matches invoices only against receipts that were accepted.
+v DRAFT: Being prepared before the delivery is confirmed.
+v RECEIVED: Delivery confirmed and counted at the dock.
+v INSPECTION_PENDING: Held until a quality inspection is done.
+v ACCEPTED: All received quantity accepted into stock. A final state.
+v PARTIALLY_ACCEPTED: Some quantity accepted and the rest rejected. A final state.
+v REJECTED: Refused entirely and returned or held. A final state.
+v CANCELLED: Withdrawn before receipt was confirmed. A final state.
+a receivedQuantity
+s: The total quantity counted at the dock across all lines of the receipt.
+u: Calculated from the receipt lines rather than typed in; purchasing compares it with the ordered quantity.
+
+@ GovernmentCase
+a governmentCaseId
+s: The permanent identity of the case, kept for its whole life from draft to closure.
+u: Generated on creation; tasks, documents, decisions and audit entries refer to the case by this value.
+a status
+s: Where the case stands, from preparation through review to a decision or withdrawal.
+u: Moved by caseworkers as the matter is submitted, assessed and decided; applicants and auditors read it to follow progress.
+v DRAFT: Being prepared by or for the applicant.
+v OPEN: Submitted and awaiting review.
+v UNDER_REVIEW: Being assessed by a caseworker against the rules that apply.
+v APPROVED: The matter was decided in the applicant's favour.
+v DENIED: The matter was refused. A final state.
+v CLOSED: Completed after approval. A final state.
+v CANCELLED: Withdrawn before a decision. A final state.
+a openedAt
+s: The date and time at which the case was submitted and formally opened.
+u: Set on submission; statutory service deadlines and ageing reports run from this moment.
+
+@ Grade
+a gradeId
+s: The permanent identity of one learner's result, kept even when the score or grade value is corrected.
+u: Generated when the result is first recorded; transcripts, gradebooks and certificates refer to it by this value.
+a gradeValue
+s: The grade as the learner sees it, such as A, 72 percent or Pass, as defined by the grading scheme.
+u: Entered or derived from the score by the teacher; shown in gradebooks and transcripts and fixed once the grade is final.
+
+@ Guardian
+a status
+s: Whether the guardian relationship to the student currently applies.
+u: Set by administration when the relationship starts or ends; only active guardians are contacted or asked for consent.
+r party
+s: The person or organisation who holds the guardian role.

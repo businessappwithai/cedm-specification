@@ -89,11 +89,12 @@ const ENTITIES: string[] = [
   'ContractStatus',
   'ContractObligationObligationType',
   'ContractObligationStatus',
+  'AgreementAgreementType',
   'RenewalStatus',
 ];
 
 const ENTITY_FIELDS: Record<string, string[]> = {
-  'Party': ['id', 'party_type', 'display_name', 'status', 'external_reference', 'contract_id'],
+  'Party': ['id', 'party_type', 'display_name', 'status', 'external_reference', 'contract_id', 'agreement_id'],
   'Person': ['id', 'party_id', 'title', 'given_name', 'middle_name', 'family_name', 'preferred_name', 'date_of_birth', 'gender', 'nationality_id', 'party_type', 'display_name', 'status', 'external_reference'],
   'Organization': ['id', 'party_id', 'code', 'name', 'organization_type', 'status', 'legal_name', 'registration_number', 'tax_identifier', 'party_type', 'display_name', 'external_reference', 'person_id', 'parent_organization_id'],
   'PartyRole': ['id', 'party_id', 'role_type', 'code', 'valid_from', 'valid_to', 'status', 'person_id', 'organization_id'],
@@ -109,7 +110,7 @@ const ENTITY_FIELDS: Record<string, string[]> = {
   'City': ['id', 'code', 'name', 'population', 'latitude', 'longitude', 'timezone', 'is_capital', 'country_id', 'state_province_id'],
   'Language': ['id', 'code', 'name'],
   'Currency': ['id', 'code', 'name', 'symbol', 'decimal_places', 'status'],
-  'ExchangeRate': ['id', 'from_currency', 'to_currency', 'rate', 'rate_type', 'effective_at', 'expires_at', 'source', 'status'],
+  'ExchangeRate': ['id', 'from_currency_id', 'to_currency_id', 'rate', 'rate_type', 'effective_at', 'expires_at', 'source', 'status'],
   'UnitOfMeasure': ['id', 'code', 'name', 'symbol', 'category', 'conversion_factor', 'base_unit_id', 'status'],
   'Calendar': ['id', 'code', 'name'],
   'Attachment': ['id', 'effective_at'],
@@ -117,7 +118,7 @@ const ENTITY_FIELDS: Record<string, string[]> = {
   'Contract': ['id', 'contract_number', 'title', 'contract_type', 'status', 'effective_from', 'effective_to', 'signed_at', 'auto_renew', 'owner_organization_id'],
   'ContractClause': ['id', 'effective_at', 'contract_id'],
   'ContractObligation': ['id', 'code', 'description', 'obligation_type', 'status', 'due_date', 'contract_id', 'responsible_party_id'],
-  'Agreement': ['id', 'occurred_at'],
+  'Agreement': ['id', 'occurred_at', 'agreement_number', 'title', 'agreement_type', 'effective_from', 'effective_to'],
   'ContractLine': ['id', 'effective_at', 'contract_id'],
   'ContractAmendment': ['id', 'effective_at', 'contract_id'],
   'ContractRenewal': ['id', 'effective_at', 'contract_id'],
@@ -150,6 +151,7 @@ const ENTITY_FIELDS: Record<string, string[]> = {
   'ContractStatus': ['id', 'code', 'name', 'description', 'sequence', 'is_active'],
   'ContractObligationObligationType': ['id', 'code', 'name', 'description', 'sequence', 'is_active'],
   'ContractObligationStatus': ['id', 'code', 'name', 'description', 'sequence', 'is_active'],
+  'AgreementAgreementType': ['id', 'code', 'name', 'description', 'sequence', 'is_active'],
   'RenewalStatus': ['id', 'code', 'name', 'description', 'sequence', 'is_active'],
 };
 

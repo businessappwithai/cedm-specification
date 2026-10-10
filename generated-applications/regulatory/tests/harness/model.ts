@@ -13,7 +13,7 @@
  * word, so a dropdown that lost an option or a state machine that lost an edge
  * fails a test instead of quietly shipping.
  *
- * Generated: 2026-10-04T01:12:45.491Z
+ * Generated: 2026-10-09T15:30:23.893Z
  * Project: regulatory
  */
 
@@ -312,22 +312,18 @@ export const stateMachines: StateMachine[] = [
     tableName: "bus_regulatory_submission",
     statusField: "status",
     initial: "DRAFT",
-    terminal: ["REJECTED", "WITHDRAWN"],
+    terminal: ["APPROVED", "REJECTED", "WITHDRAWN"],
     edges: [
       { from: "DRAFT", to: "SUBMITTED", trigger: "submit" },
       { from: "SUBMITTED", to: "UNDER_REVIEW", trigger: "review" },
-      { from: "UNDER_REVIEW", to: "QUESTIONS", trigger: "mark_questions" },
-      { from: "QUESTIONS", to: "APPROVED", trigger: "approve" },
-      { from: "DRAFT", to: "REJECTED", trigger: "reject" },
-      { from: "SUBMITTED", to: "REJECTED", trigger: "reject" },
+      { from: "UNDER_REVIEW", to: "QUESTIONS", trigger: "query" },
+      { from: "QUESTIONS", to: "UNDER_REVIEW", trigger: "respond" },
+      { from: "UNDER_REVIEW", to: "APPROVED", trigger: "approve" },
       { from: "UNDER_REVIEW", to: "REJECTED", trigger: "reject" },
-      { from: "QUESTIONS", to: "REJECTED", trigger: "reject" },
-      { from: "APPROVED", to: "REJECTED", trigger: "reject" },
       { from: "DRAFT", to: "WITHDRAWN", trigger: "withdraw" },
       { from: "SUBMITTED", to: "WITHDRAWN", trigger: "withdraw" },
       { from: "UNDER_REVIEW", to: "WITHDRAWN", trigger: "withdraw" },
       { from: "QUESTIONS", to: "WITHDRAWN", trigger: "withdraw" },
-      { from: "APPROVED", to: "WITHDRAWN", trigger: "withdraw" },
     ],
   },
 ];

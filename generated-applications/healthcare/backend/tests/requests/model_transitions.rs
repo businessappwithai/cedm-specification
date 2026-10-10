@@ -1,6 +1,6 @@
 //! The state machines the *model* drew, and whether the API enforces them.
 //!
-//! Generated: 2026-10-04T08:29:54.364Z
+//! Generated: 2026-10-10T02:40:11.832Z
 //! Project: healthcare
 //!
 //! `requests/rbac.rs` proves the topology guard works by seeding an edge of its
@@ -75,11 +75,11 @@ const MODEL_EDGES: &[(&str, &str, &str, &str)] = &[
     ("bus_task", "status", "ASSIGNED", "FAILED"),
     ("bus_task", "status", "IN_PROGRESS", "FAILED"),
     ("bus_task", "status", "BLOCKED", "FAILED"),
+    ("bus_healthcare_patient", "status", "ACTIVE", "INACTIVE"),
+    ("bus_healthcare_patient", "status", "INACTIVE", "ACTIVE"),
     ("bus_healthcare_patient", "status", "ACTIVE", "DECEASED"),
-    ("bus_healthcare_patient", "status", "DECEASED", "MERGED"),
-    ("bus_healthcare_patient", "status", "DECEASED", "INACTIVE"),
     ("bus_healthcare_patient", "status", "INACTIVE", "DECEASED"),
-    ("bus_healthcare_patient", "status", "MERGED", "INACTIVE"),
+    ("bus_healthcare_patient", "status", "ACTIVE", "MERGED"),
     ("bus_healthcare_patient", "status", "INACTIVE", "MERGED"),
     ("bus_healthcare_provider", "status", "ACTIVE", "INACTIVE"),
     ("bus_healthcare_provider", "status", "INACTIVE", "ACTIVE"),
@@ -88,6 +88,23 @@ const MODEL_EDGES: &[(&str, &str, &str, &str)] = &[
     ("bus_healthcare_provider", "status", "ACTIVE", "RETIRED"),
     ("bus_healthcare_provider", "status", "INACTIVE", "RETIRED"),
     ("bus_healthcare_provider", "status", "SUSPENDED", "RETIRED"),
+    ("bus_practitioner", "status", "DRAFT", "ACTIVE"),
+    ("bus_practitioner", "status", "ACTIVE", "SUSPENDED"),
+    ("bus_practitioner", "status", "SUSPENDED", "ACTIVE"),
+    ("bus_practitioner", "status", "ACTIVE", "INACTIVE"),
+    ("bus_practitioner", "status", "INACTIVE", "ACTIVE"),
+    ("bus_practitioner", "status", "DRAFT", "RETIRED"),
+    ("bus_practitioner", "status", "ACTIVE", "RETIRED"),
+    ("bus_practitioner", "status", "SUSPENDED", "RETIRED"),
+    ("bus_practitioner", "status", "INACTIVE", "RETIRED"),
+    ("bus_appointment", "status", "SCHEDULED", "CONFIRMED"),
+    ("bus_appointment", "status", "SCHEDULED", "CHECKED_IN"),
+    ("bus_appointment", "status", "CONFIRMED", "CHECKED_IN"),
+    ("bus_appointment", "status", "CHECKED_IN", "COMPLETED"),
+    ("bus_appointment", "status", "SCHEDULED", "CANCELLED"),
+    ("bus_appointment", "status", "CONFIRMED", "CANCELLED"),
+    ("bus_appointment", "status", "SCHEDULED", "NO_SHOW"),
+    ("bus_appointment", "status", "CONFIRMED", "NO_SHOW"),
     (
         "bus_healthcare_encounter",
         "status",

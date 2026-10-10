@@ -12,113 +12,107 @@ entity:
     generated: true
     immutable: true
   attributes:
-  - name: warehouseId
-    type: uuid
-    required: true
-    immutable: true
-    help:
-      summary: The immutable system identity of the warehouse.
-      usage: Used to connect inventory, receiving, picking, shipping, capacity, and operational records to the same warehouse.
-      relationshipContext: Identifies the warehouse specialization independently of its physical Location and business-facing warehouseCode.
-      requiredMeaning: Required because warehouse operations need one stable identity.
-  - name: locationId
-    type: reference
-    target: Location
-    required: true
-    unique: true
-    immutable: true
-    help:
-      summary: Identifies the Location record that supplies the address and geographic context for the warehouse.
-      usage: Used for routing, delivery, tax, service coverage, mapping, and operational location management.
-      relationshipContext: Warehouse specializes Location; this reference connects warehouse-specific operational semantics with the reusable CEDM location model rather than duplicating address data.
-      requiredMeaning: Required because a warehouse must have a defined physical or operational location.
-  - name: warehouseCode
-    type: string
-    required: true
-    unique: true
-    maxLength: 100
-    help:
-      summary: The organization-assigned business code used by warehouse personnel and systems to identify the facility.
-      usage: Used in inventory documents, receiving, picking, shipping, integrations, labels, reports, and warehouse routing.
-      relationshipContext: It is a human/system operational identifier and should not be confused with warehouseId or the Location identity.
-      requiredMeaning: Required because warehouse operations need a concise stable business reference.
-  - name: warehouseType
-    type: enum
-    required: true
-    values: [GENERAL, COLD_STORAGE, BONDED, DISTRIBUTION, RETAIL, OTHER]
-    help:
-      summary: Classifies the operating model and handling characteristics of the warehouse.
-      usage: Drives storage rules, temperature controls, customs controls, fulfillment workflows, capacity planning, and reporting.
-      relationshipContext: Type describes operational capability and regulatory context; it does not by itself define individual storage locations or inventory status.
-      valueSemantics:
-        GENERAL: A warehouse supporting ordinary storage and handling requirements without a specialized operating classification.
-        COLD_STORAGE: A facility or controlled area designed to maintain inventory within specified low-temperature conditions.
-        BONDED: A facility operating under customs or bonded-storage controls where goods may remain subject to customs restrictions.
-        DISTRIBUTION: A facility optimized for inbound receipt, order fulfillment, consolidation, cross-docking, and outbound distribution.
-        RETAIL: A warehouse or backroom operation primarily supporting retail-store or direct retail fulfillment.
-        OTHER: A warehouse whose operating model is not adequately represented by the standard classifications.
-      requiredMeaning: Required because operational processes depend on facility capabilities and controls.
-  - name: capacity
-    type: decimal
-    required: false
-    precision: 20
-    scale: 4
-    help:
-      summary: The nominal storage or handling capacity of the warehouse under a defined capacity measurement convention.
-      usage: Used for capacity planning, utilization reporting, allocation, expansion analysis, and operational constraints.
-      relationshipContext: Capacity must be interpreted with the warehouse's UnitOfMeasure and storage model; a bare number does not establish whether capacity means pallets, cubic volume, container slots, weight, or another measure.
-      optionalMeaning: Optional when capacity is managed at detailed InventoryLocation or slot level instead of as a warehouse aggregate.
-  - name: status
-    type: enum
-    required: true
-    default: ACTIVE
-    values: [PLANNED, ACTIVE, SUSPENDED, CLOSED]
-    help:
-      summary: The operating lifecycle state of the warehouse and whether it can participate in normal inventory processes.
-      usage: Controls receiving, storage, picking, shipping, allocation, and operational reporting.
-      relationshipContext: Warehouse status describes facility availability; InventoryLocation status and InventoryMovement events govern detailed stock behavior within the facility.
-      valueSemantics:
-        PLANNED: The facility is being prepared and is not yet available for normal warehouse operations.
-        ACTIVE: The facility is operational and may accept the business processes allowed by its capabilities.
-        SUSPENDED: Operations are temporarily restricted, for example because of maintenance, safety, regulatory, staffing, or operational conditions.
-        CLOSED: The warehouse has ceased normal operations and should not receive new inventory transactions except controlled closure activities.
-      requiredMeaning: Required because inventory processes need to know whether the facility can operate.
+    - name: warehouseId
+      type: uuid
+      required: true
+      immutable: true
+      help:
+        summary: The identity of the warehouse, constant for its life.
+        usage: Used to connect inventory, receiving, picking, shipping, capacity, and operational records to the same warehouse.
+        relationshipContext: Identifies the warehouse specialization independently of its physical Location and business-facing warehouseCode.
+    - name: locationId
+      type: reference
+      target: Location
+      required: true
+      unique: true
+      immutable: true
+      help:
+        summary: Identifies the Location record that supplies the address and geographic context for the warehouse.
+        usage: Used for routing, delivery, tax, service coverage, mapping, and operational location management.
+        relationshipContext: Warehouse specializes Location; this reference connects warehouse-specific operational semantics with the reusable CEDM location model rather than duplicating address data.
+    - name: warehouseCode
+      type: string
+      required: true
+      unique: true
+      maxLength: 100
+      help:
+        summary: The organization-assigned business code used by warehouse personnel and systems to identify the facility.
+        usage: Used in inventory documents, receiving, picking, shipping, integrations, labels, reports, and warehouse routing.
+        relationshipContext: It is a human/system operational identifier and should not be confused with warehouseId or the Location identity.
+    - name: warehouseType
+      type: enum
+      required: true
+      values: [GENERAL, COLD_STORAGE, BONDED, DISTRIBUTION, RETAIL, OTHER]
+      help:
+        summary: Classifies the operating model and handling characteristics of the warehouse.
+        usage: Drives storage rules, temperature controls, customs controls, fulfillment workflows, capacity planning, and reporting.
+        relationshipContext: Type describes operational capability and regulatory context; it does not by itself define individual storage locations or inventory status.
+        valueSemantics:
+          GENERAL: A warehouse supporting ordinary storage and handling requirements without a specialized operating classification.
+          COLD_STORAGE: A facility or controlled area designed to maintain inventory within specified low-temperature conditions.
+          BONDED: A facility operating under customs or bonded-storage controls where goods may remain subject to customs restrictions.
+          DISTRIBUTION: A facility optimized for inbound receipt, order fulfillment, consolidation, cross-docking, and outbound distribution.
+          RETAIL: A warehouse or backroom operation primarily supporting retail-store or direct retail fulfillment.
+          OTHER: A warehouse whose operating model is not adequately represented by the standard classifications.
+    - name: capacity
+      type: decimal
+      required: false
+      precision: 20
+      scale: 4
+      help:
+        summary: The nominal storage or handling capacity of the warehouse under a defined capacity measurement convention.
+        usage: Used for capacity planning, utilization reporting, allocation, expansion analysis, and operational constraints.
+        relationshipContext: Capacity must be interpreted with the warehouse's UnitOfMeasure and storage model; a bare number does not establish whether capacity means pallets, cubic volume, container slots, weight, or another measure.
+    - name: status
+      type: enum
+      required: true
+      default: PLANNED
+      values: [PLANNED, ACTIVE, SUSPENDED, CLOSED]
+      help:
+        summary: The operating lifecycle state of the warehouse and whether it can participate in normal inventory processes.
+        usage: Controls receiving, storage, picking, shipping, allocation, and operational reporting.
+        relationshipContext: Warehouse status describes facility availability; InventoryLocation status and InventoryMovement events govern detailed stock behavior within the facility.
+        valueSemantics:
+          PLANNED: The facility is being prepared and is not yet available for normal warehouse operations.
+          ACTIVE: The facility is operational and may accept the business processes allowed by its capabilities.
+          SUSPENDED: Operations are temporarily restricted, for example because of maintenance, safety, regulatory, staffing, or operational conditions.
+          CLOSED: The warehouse has ceased normal operations and should not receive new inventory transactions except controlled closure activities.
   relationships:
-  - name: location
-    target: Location
-    cardinality: '1'
-    ownership: reference
-    help:
-      summary: Associates the warehouse with its physical or operational Location.
-      usage: Provides geographic, address, routing, service-area, and site context for warehouse operations.
-      cardinalityMeaning: Exactly one Location supplies the warehouse's primary location context.
-      context: Location is the reusable geographic concept; Warehouse adds inventory-handling capabilities and operational lifecycle.
-  - name: inventoryLocations
-    target: InventoryLocation
-    cardinality: 0..*
-    ownership: aggregate
-    help:
-      summary: Contains the inventory-managed sublocations through which stock is stored, staged, picked, or otherwise controlled within the warehouse.
-      usage: Supports bin-level or area-level inventory, receiving, put-away, picking, replenishment, transfers, and stock counting.
-      cardinalityMeaning: A warehouse may have zero or many InventoryLocations; a newly planned facility may have none before its storage structure is configured.
-      context: Warehouse is the facility-level container; InventoryLocation is the operational stock-holding granularity. InventoryMovement changes stock between these locations or into/out of the warehouse.
-  - name: zones
-    target: WarehouseZone
-    cardinality: 0..*
-    ownership: aggregate
-    help: {summary: Operational areas within the warehouse., businessMeaning: Groups storage and handling locations by process/control purpose., usage: "Receiving, putaway, picking, quarantine, staging and shipping.", cardinalityMeaning: Zero or many zones depending on warehouse configuration., workflowRole: Zone controls guide eligible InventoryLocations and WMS execution.}
-  - {name: docks, target: Dock, cardinality: "0..*", ownership: aggregate, help: {summary: Loading and receiving resources of warehouse., businessMeaning: Provides controlled inbound/outbound execution positions., usage: "Dock scheduling, receiving, shipping and cross-dock.", cardinalityMeaning: Zero or many docks., workflowRole: Dock eligibility constrains shipment execution.}}
-  - {name: waves, target: Wave, cardinality: 0..*, ownership: reference, help: {summary: Warehouse work-release waves., businessMeaning: Groups executable warehouse tasks., usage: Labor and fulfillment orchestration., cardinalityMeaning: Zero or many waves., workflowRole: Wave does not itself alter inventory.}}
+    - name: location
+      target: Location
+      cardinality: '1'
+      ownership: reference
+      help:
+        summary: Associates the warehouse with its physical or operational Location.
+        usage: Provides geographic, address, routing, service-area, and site context for warehouse operations.
+        cardinalityMeaning: Exactly one Location supplies the warehouse's primary location context.
+        context: Location is the reusable geographic concept; Warehouse adds inventory-handling capabilities and operational lifecycle.
+    - name: inventoryLocations
+      target: InventoryLocation
+      cardinality: 0..*
+      ownership: aggregate
+      help:
+        summary: Contains the inventory-managed sublocations through which stock is stored, staged, picked, or otherwise controlled within the warehouse.
+        usage: Supports bin-level or area-level inventory, receiving, put-away, picking, replenishment, transfers, and stock counting.
+        cardinalityMeaning: A warehouse may have zero or many InventoryLocations; a newly planned facility may have none before its storage structure is configured.
+        context: Warehouse is the facility-level container; InventoryLocation is the operational stock-holding granularity. InventoryMovement changes stock between these locations or into/out of the warehouse.
+    - name: zones
+      target: WarehouseZone
+      cardinality: 0..*
+      ownership: aggregate
+      help: {summary: Operational areas within the warehouse., businessMeaning: Groups storage and handling locations by process/control purpose., usage: "Receiving, putaway, picking, quarantine, staging and shipping.", cardinalityMeaning: Zero or many zones depending on warehouse configuration., workflowRole: Zone controls guide eligible InventoryLocations and WMS execution.}
+    - {name: docks, target: Dock, cardinality: "0..*", ownership: aggregate, help: {cardinalityMeaning: 'Any number of docks serve a warehouse, each used for loading or unloading.', summary: Loading and receiving resources of warehouse., businessMeaning: Provides controlled inbound/outbound execution positions., usage: "Dock scheduling, receiving, shipping and cross-dock.", workflowRole: Dock eligibility constrains shipment execution.}}
+    - {name: waves, target: Wave, cardinality: 0..*, ownership: reference, help: {cardinalityMeaning: Any number of waves are released over the life of a warehouse., summary: Warehouse work-release waves., businessMeaning: Groups executable warehouse tasks., usage: Labor and fulfillment orchestration., workflowRole: Wave does not itself alter inventory.}}
   invariants:
-  - id: WAREHOUSE-001
-    rule: warehouseCode must be unique within the organization's warehouse operating context.
-  - id: WAREHOUSE-002
-    rule: An ACTIVE warehouse must have an operational Location.
-  - id: WAREHOUSE-003
-    rule: A CLOSED warehouse must not accept new normal receiving, put-away, or shipping transactions unless an explicit closure workflow permits them.
-  - id: WAREHOUSE-004
-    rule: Capacity values must be non-negative when supplied and must have an explicitly defined measurement convention.
-  - {id: WAREHOUSE-EXE-001, rule: "Capacity cannot be negative.", violatedWhen: "capacity != null and capacity < 0", message: "Capacity cannot be negative."}
+    - id: WAREHOUSE-001
+      rule: warehouseCode must be unique within the organization's warehouse operating context.
+    - id: WAREHOUSE-002
+      rule: An ACTIVE warehouse must have an operational Location.
+    - id: WAREHOUSE-003
+      rule: A CLOSED warehouse must not accept new normal receiving, put-away, or shipping transactions unless an explicit closure workflow permits them.
+    - id: WAREHOUSE-004
+      rule: Capacity values must be non-negative when supplied and must have an explicitly defined measurement convention.
+    - {id: WAREHOUSE-EXE-001, rule: "Capacity cannot be negative.", violatedWhen: "capacity != null and capacity < 0", message: "Capacity cannot be negative."}
   lifecycle:
     title: Warehouse Lifecycle
     attribute: status

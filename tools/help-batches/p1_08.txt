@@ -1,0 +1,47 @@
+@ Entitlement
+a effectiveFrom
+s: The first date on which the customer may use the covered service under this right.
+u: Set when the entitlement is granted; coverage checks refuse service before it, and it must fall inside the contract period.
+a effectiveTo
+s: The last date on which the covered service may be used under this right.
+u: Set from the contract end or a shorter grant; coverage checks refuse service after it, and renewals start from it.
+a usageLimit
+s: The most covered service the customer may consume under this right, in the unit the contract defines.
+u: Set from the contract terms; each authorised service order draws it down, and the entitlement is exhausted when it is reached.
+a status
+s: Whether the right is being set up, usable, paused, used up, lapsed or ended early.
+u: Moved by service administration; new covered work is authorised only while ACTIVE, and past service orders keep their evidence.
+@ Escalation
+a status
+s: Whether the escalation is waiting to be picked up, being handled, resolved or withdrawn.
+u: Moved by the escalation process and the person receiving it; unresolved ones are watched by supervisors.
+v PENDING: Raised and waiting for the receiving person or team to pick it up.
+v ACTIVE: Being handled by the person or level it was escalated to.
+v COMPLETED: Resolved, with the outcome recorded. A final state.
+v CANCELLED: Withdrawn because it was no longer needed. A final state.
+@ Event
+a occurredAt
+s: The date and time the event actually happened at its source, not when it was received.
+u: Set by the publisher; consumers order and correlate events by it, and audit uses it to rebuild what happened when.
+@ Experiment
+a experimentId
+s: The stable identity of the experiment, constant for its whole life.
+u: Generated on creation; measurements, results and review records refer to it so findings stay traceable to one investigation.
+a title
+s: The short title that says what the experiment sets out to test.
+u: Entered by the researcher when the experiment is planned; shown in lists and reports, so it should name the question under test.
+a status
+s: Whether the experiment is planned, running, finished, failed, stopped or filed away.
+u: Updated by the researcher as work proceeds; results count only once it is COMPLETED, and failed or cancelled ones are kept.
+v PLANNED: Designed and approved but not yet started.
+v RUNNING: Under way, with measurements being taken or materials in use.
+v COMPLETED: Finished with results recorded and ready for review.
+v FAILED: Could not be completed validly, for example through equipment or contamination problems. A final state.
+v CANCELLED: Stopped before completion and not to be resumed. A final state.
+v ARCHIVED: Closed, reviewed and filed for the record. A final state.
+a startedAt
+s: The date and time work on the experiment actually began.
+u: Set by the researcher when the first step starts; not before the plan was approved, and it anchors duration calculations.
+a completedAt
+s: The date and time the experiment finished and its results were recorded.
+u: Set at completion; never before the start time, and used to calculate duration and decide when results can be reviewed.

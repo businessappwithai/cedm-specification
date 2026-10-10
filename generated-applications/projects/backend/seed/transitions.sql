@@ -425,19 +425,34 @@ INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, st
 VALUES ('9757b4c7-0abe-5fce-baa8-0b8ebff9ad40', 'bus_project_task', 'status', 'BLOCKED', 'CANCELLED', 'cancel', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- MilestoneLifecycle: PLANNED → AT_RISK (mark_at_risk)
+-- MilestoneLifecycle: PLANNED → AT_RISK (flag_at_risk)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('11d1849e-2f44-508d-bbf3-24a54755484a', 'bus_milestone', 'status', 'PLANNED', 'AT_RISK', 'mark_at_risk', TRUE, NOW())
+VALUES ('11d1849e-2f44-508d-bbf3-24a54755484a', 'bus_milestone', 'status', 'PLANNED', 'AT_RISK', 'flag_at_risk', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- MilestoneLifecycle: AT_RISK → ACHIEVED (mark_achieved)
+-- MilestoneLifecycle: AT_RISK → PLANNED (recover)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('443d14ca-d639-50d5-a833-97d8af343e1c', 'bus_milestone', 'status', 'AT_RISK', 'ACHIEVED', 'mark_achieved', TRUE, NOW())
+VALUES ('b607d5a0-d20a-560a-ab63-efbae1bac488', 'bus_milestone', 'status', 'AT_RISK', 'PLANNED', 'recover', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- MilestoneLifecycle: ACHIEVED → MISSED (mark_missed)
+-- MilestoneLifecycle: PLANNED → ACHIEVED (achieve)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('072d13c1-cb99-5748-8607-f569b8837340', 'bus_milestone', 'status', 'ACHIEVED', 'MISSED', 'mark_missed', TRUE, NOW())
+VALUES ('086fb66b-8587-51b1-8d7e-f0ef95492c6c', 'bus_milestone', 'status', 'PLANNED', 'ACHIEVED', 'achieve', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- MilestoneLifecycle: AT_RISK → ACHIEVED (achieve)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('443d14ca-d639-50d5-a833-97d8af343e1c', 'bus_milestone', 'status', 'AT_RISK', 'ACHIEVED', 'achieve', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- MilestoneLifecycle: PLANNED → MISSED (miss)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('6783f0cf-83b4-5d6e-8837-9a7efcb433d0', 'bus_milestone', 'status', 'PLANNED', 'MISSED', 'miss', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- MilestoneLifecycle: AT_RISK → MISSED (miss)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('fbcaa5c8-f769-5f14-b40a-539d67c750c0', 'bus_milestone', 'status', 'AT_RISK', 'MISSED', 'miss', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- MilestoneLifecycle: PLANNED → CANCELLED (cancel)
@@ -448,16 +463,6 @@ ON CONFLICT DO NOTHING;
 -- MilestoneLifecycle: AT_RISK → CANCELLED (cancel)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
 VALUES ('5b7d95ea-79da-5817-91db-1f3af50c9a97', 'bus_milestone', 'status', 'AT_RISK', 'CANCELLED', 'cancel', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- MilestoneLifecycle: ACHIEVED → CANCELLED (cancel)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('1a941c63-27b9-5e6a-82e5-a332a3e1c410', 'bus_milestone', 'status', 'ACHIEVED', 'CANCELLED', 'cancel', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- MilestoneLifecycle: MISSED → CANCELLED (cancel)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('624b40ff-fbfd-52dc-a679-78fa583730fc', 'bus_milestone', 'status', 'MISSED', 'CANCELLED', 'cancel', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- ResourceAssignmentLifecycle: DRAFT → ACTIVE (activate)
@@ -498,6 +503,31 @@ ON CONFLICT DO NOTHING;
 -- TimesheetLifecycle: ACTIVE → CANCELLED (cancel)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
 VALUES ('ef287aa4-9e36-5b71-b3d2-dee61603f346', 'bus_timesheet', 'status', 'ACTIVE', 'CANCELLED', 'cancel', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- ProjectCostLifecycle: DRAFT → APPROVED (approve)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('e259ef6c-74c5-5463-83bd-1d377a66ae1a', 'bus_project_cost', 'status', 'DRAFT', 'APPROVED', 'approve', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- ProjectCostLifecycle: DRAFT → CANCELLED (cancel)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('80abaa2e-4000-5dbe-8fd7-8bacfa643f18', 'bus_project_cost', 'status', 'DRAFT', 'CANCELLED', 'cancel', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- ProjectCostLifecycle: APPROVED → POSTED (post)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('f980ff58-ec6e-5f8c-8d82-01402a2bd854', 'bus_project_cost', 'status', 'APPROVED', 'POSTED', 'post', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- ProjectCostLifecycle: APPROVED → CANCELLED (cancel)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('0868039e-2e91-5157-9b6e-cf29cd47c05d', 'bus_project_cost', 'status', 'APPROVED', 'CANCELLED', 'cancel', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- ProjectCostLifecycle: POSTED → REVERSED (reverse)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('2e82d970-8c2b-500a-8d5b-137e50db3b8d', 'bus_project_cost', 'status', 'POSTED', 'REVERSED', 'reverse', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- ProfessionalEngagementLifecycle: PROPOSED → ACTIVE (activate)
@@ -726,10 +756,10 @@ INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field
 VALUES ('b43ee560-fa2c-57d7-9794-c1130b1dc1a5', 'bus_milestone', 'status', 'AT_RISK', FALSE, FALSE, 20, TRUE, NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
-VALUES ('fbde17e1-c60e-5191-8633-42029635d7b5', 'bus_milestone', 'status', 'ACHIEVED', FALSE, FALSE, 30, TRUE, NOW())
+VALUES ('fbde17e1-c60e-5191-8633-42029635d7b5', 'bus_milestone', 'status', 'ACHIEVED', FALSE, TRUE, 30, TRUE, NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
-VALUES ('ed042328-ff6a-5f20-ab8f-713d3636d13c', 'bus_milestone', 'status', 'MISSED', FALSE, FALSE, 40, TRUE, NOW())
+VALUES ('ed042328-ff6a-5f20-ab8f-713d3636d13c', 'bus_milestone', 'status', 'MISSED', FALSE, TRUE, 40, TRUE, NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
 VALUES ('571bf7a0-962d-5381-93fa-5ff62331b0a2', 'bus_milestone', 'status', 'CANCELLED', FALSE, TRUE, 50, TRUE, NOW())
@@ -761,6 +791,23 @@ VALUES ('f02e8e74-96ff-5aad-9831-eebc59d068ac', 'bus_timesheet', 'status', 'COMP
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
 VALUES ('be59e737-5fb7-511b-97b6-b9f3fc929369', 'bus_timesheet', 'status', 'CANCELLED', FALSE, TRUE, 40, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- ProjectCostLifecycle: states
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('f295596d-63c4-5ece-ad5c-fd843ef42342', 'bus_project_cost', 'status', 'DRAFT', TRUE, FALSE, 10, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('165e5271-db5c-507e-a5a9-27cc32609fd1', 'bus_project_cost', 'status', 'APPROVED', FALSE, FALSE, 20, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('94b2608a-de4b-5237-ae81-bb5f14003e16', 'bus_project_cost', 'status', 'POSTED', FALSE, FALSE, 30, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('b0da12f4-8b32-5dd4-b5eb-2955338aa945', 'bus_project_cost', 'status', 'REVERSED', FALSE, TRUE, 40, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('c3c82ace-9ac0-570c-97f6-740b9a9d75b7', 'bus_project_cost', 'status', 'CANCELLED', FALSE, TRUE, 50, TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- ProfessionalEngagementLifecycle: states

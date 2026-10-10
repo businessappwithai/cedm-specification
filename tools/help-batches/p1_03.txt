@@ -1,0 +1,26 @@
+@ DataQualityAssessment
+a status
+s: How far the assessment has progressed from planning through checking to a recorded result.
+u: Moved by the assessor as work proceeds; only a completed assessment is relied on when judging whether the dataset can be used.
+v DRAFT: Being planned; the criteria and scope are not yet fixed.
+v ACTIVE: Checks are running and results are being collected.
+v COMPLETED: Finished with results recorded for the dataset. A final state.
+v CANCELLED: Abandoned before completion, so no result stands. A final state.
+@ Dataset
+a name
+s: The descriptive name by which the dataset is known in the data catalogue.
+u: Chosen by the data owner when the dataset is registered; analysts search and recognise datasets by it, so it should be specific.
+a status
+s: Whether the dataset is being assembled, published for use, kept only for reference, or withdrawn.
+u: Set by the data owner; only an active dataset is offered to users for new work, and archived or retired ones stay for history.
+@ Department
+a name
+s: The name of the department as the organisation calls it, such as Finance or Field Operations.
+u: Entered by an administrator; shown in organisation charts, on documents and in reports that group people and costs by department.
+r organization
+u: Chosen when the department is created; reporting lines, headcount and budgets roll up through the organisation it belongs to.
+@ Diagnosis
+r encounter
+u: Set when the clinician records the finding; it shows when and in which visit the condition was identified, and who was involved.
+r patient
+u: Set from the encounter when the diagnosis is recorded; it adds the condition to the patient's history and drives treatment and coding.

@@ -1,0 +1,45 @@
+@ InventoryLocation
+a status
+v ACTIVE: Open for receiving, storing and picking.
+v BLOCKED: Temporarily barred from movements, for example for a count or a quality hold; it can be unblocked.
+v INACTIVE: Not in use; no stock should be placed there, though it can be reactivated.
+r handlingUnits
+n: Any number of handling units, such as pallets or cartons, that are currently in the location.
+
+@ InventoryReservation
+r product
+n: Exactly one product: a reservation commits stock of a single item.
+
+@ InventoryTransfer
+r sourceLocation
+n: Exactly one source: a transfer takes stock from a single location, and a multi-source move is several transfers.
+r targetLocation
+n: Exactly one target: a transfer delivers stock to a single location, and a multi-target move is several transfers.
+
+@ Invoice
+a invoiceNumber
+s: The number printed on the invoice, by which customer and supplier refer to it.
+a invoiceType
+v SALES: An invoice the organisation issues to a customer for goods or services supplied.
+v PURCHASE: An invoice the organisation receives from a supplier.
+v CREDIT_NOTE: A document that reduces what is owed under an earlier invoice.
+v DEBIT_NOTE: A document that increases what is owed under an earlier invoice.
+a status
+v DRAFT: Being prepared; not yet sent and not yet part of the receivables.
+v ISSUED: Sent or recorded; the amount is now owed and due by its due date.
+v PARTIALLY_PAID: Part of the amount has been settled by payments or credits.
+v PAID: Fully settled. A final state.
+v OVERDUE: Past its due date with an amount still outstanding.
+v CANCELLED: Withdrawn before it became effective. A final state.
+v VOID: Cancelled after issue by a controlled process that keeps the original on record. A final state.
+
+@ InvoiceLine
+a matchingStatus
+s: Whether the line has been checked against the order and receipt it bills for.
+u: Set by the three-way matching process; lines in EXCEPTION block payment until they are resolved or waived.
+v NOT_APPLICABLE: The line does not need matching, for example a sales invoice line.
+v UNMATCHED: Not yet compared with the purchase order and goods receipt.
+v MATCHED: Quantity and price agree with the order and receipt within tolerance.
+v PARTIALLY_MATCHED: Some of the line's quantity or amount agrees; the rest does not.
+v EXCEPTION: A difference outside tolerance needs a decision.
+v WAIVED: The difference was accepted by an authorised approver.

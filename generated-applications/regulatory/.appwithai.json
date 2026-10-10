@@ -102,8 +102,8 @@
     "ExchangeRate: EXPIRED, CANCELLED",
     "UnitOfMeasure: RETIRED",
     "Task: COMPLETED, CANCELLED, FAILED",
-    "RegulatorySubmission: REJECTED, WITHDRAWN"
+    "RegulatorySubmission: APPROVED, REJECTED, WITHDRAWN"
   ],
   "packageManager": "bun",
-  "generatedAt": "2026-10-08T00:57:28.697Z"
+  "generatedAt": "2026-10-10T09:26:53.339Z"
 }

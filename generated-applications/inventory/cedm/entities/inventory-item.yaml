@@ -1,0 +1,81 @@
+entity:
+  name: InventoryItem
+  namespace: cedm.domain
+  kind: inventory_master_entity
+  description: A governed inventory-control profile that states how a Product is stocked, measured, replenished and controlled independently of current quantity.
+  ui: {icon: package-check}
+  identity: {key: inventoryItemId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: inventoryItemId, type: uuid, required: true, immutable: true, help: {summary: 'The stable identity of the inventory-control profile for one product, constant for its whole life.', usage: 'Generated on creation; integrations, planning runs, reports and audit entries refer to the profile through it rather than by product code.', businessMeaning: Identifies one governed InventoryItem independently of Product and changing stock state., relationshipContext: Product identifies what is stocked; InventoryItem governs how it is controlled.}}
+    - {name: itemCode, type: string, required: true, unique: true, maxLength: 120, help: {summary: The stock-keeping code under which the product is managed in inventory., usage: Assigned when the item is set up and unique; used by the warehouse and in replenishment and count documents., businessMeaning: Operational code used to identify the stock-control profile., relationshipContext: Distinct from Product SKU where a separate inventory identifier is required.}}
+    - name: status
+      type: enum
+      required: true
+      default: DRAFT
+      values: [DRAFT, ACTIVE, BLOCKED, DISCONTINUED]
+      help:
+        summary: Whether the product may currently be stocked and moved.
+        usage: Set by inventory control; movements are allowed only for ACTIVE items.
+        valueSemantics:
+          DRAFT: Being set up; not yet stocked.
+          ACTIVE: Available for stocking and movements.
+          BLOCKED: Temporarily barred from movements, for example pending a quality issue; it can be unblocked.
+          DISCONTINUED: No longer stocked; the item is kept for history. A final state.
+        businessMeaning: Separates setup, active use, temporary block and permanent discontinuation.
+        relationshipContext: Historical balances and movements remain valid after blocking or discontinuation.
+    - {name: safetyStockQuantity, type: decimal, required: false, precision: 20, scale: 6, help: {summary: The minimum buffer of stock the business wants to keep on hand to absorb demand or supply variation., usage: 'Set by planners per item; replenishment and shortage planning treat falling below it as an exception, and it must not be negative.', businessMeaning: Target stock retained to absorb uncertainty rather than current on-hand quantity., relationshipContext: Interpreted in the stocking UOM.}}
+    - {name: reorderPointQuantity, type: decimal, required: false, precision: 20, scale: 6, help: {summary: The stock level at which a new purchase or production order should be considered to avoid running out., usage: 'Set by planners from lead time and demand; replenishment, MRP and exception reports compare available stock with it, and it is normally above safety stock.', businessMeaning: Planning trigger rather than an inventory event., relationshipContext: Compared with governed available or projected quantity in the stocking UOM.}}
+    - {name: allowNegativeInventory, type: boolean, required: true, default: false, help: {summary: 'Whether stock of this item may be issued while recorded stock is zero, leaving the balance below zero for a time.', usage: 'Set by inventory governance; when false, an issue larger than available stock is refused, and when true it is allowed and reported as an exception.', businessMeaning: Explicit exception policy for shortage posting., relationshipContext: Does not remove reconciliation and attributable movement requirements.}}
+  relationships:
+    - {name: product, target: Product, cardinality: "1", ownership: reference, help: {summary: The product this inventory profile governs., usage: Set when the item is created., cardinalityMeaning: 'Exactly one product: the profile says how that product is stocked.', workflowRole: Separates how a product is described from how it is stocked., businessMeaning: Product defines material identity while InventoryItem defines stock-control behavior.}}
+    - {name: stockingUom, target: UnitOfMeasure, cardinality: "1", ownership: reference, help: {summary: The unit of measure in which the product is counted and stocked., usage: Set when the item is created; all quantities for the item are expressed in it., cardinalityMeaning: 'Exactly one stocking unit, so that every quantity is unambiguous.', workflowRole: Other units are converted to this one for balances., businessMeaning: Makes safety stock and reorder thresholds unambiguous.}}
+    - {name: organization, target: Organization, cardinality: "0..1", ownership: reference, help: {summary: Organization for which this inventory profile applies., businessMeaning: Allows organization-specific control of the same Product., usage: Multi-company inventory policy and reporting., cardinalityMeaning: Optional when policy is enterprise-wide., workflowRole: Organization changes affect future operations rather than historical movement ownership.}}
+    - {name: balances, target: InventoryBalance, cardinality: "0..*", ownership: reference, help: {summary: Current stock-state projections governed by this item., businessMeaning: Separates control policy from current quantity., usage: "Availability, replenishment and reconciliation.", cardinalityMeaning: Zero or many location or lot balances., workflowRole: Balance changes derive from movements and reservations.}}
+    - {name: movements, target: InventoryMovement, cardinality: "0..*", ownership: reference, help: {usage: Read to explain the item's stock history., cardinalityMeaning: 'Any number of movements, all in the stocking unit once converted.', summary: Inventory events executed under this item profile., businessMeaning: Connects stock-control policy to immutable movement history., workflowRole: Each movement must satisfy item status and negative-stock policy at posting time.}}
+  invariants:
+    - {id: INVENTORY-ITEM-001, rule: safetyStockQuantity and reorderPointQuantity must be non-negative when supplied.}
+    - {id: INVENTORY-ITEM-002, rule: An ACTIVE InventoryItem must reference an eligible Product and valid stocking UnitOfMeasure.}
+    - {id: INVENTORY-ITEM-003, rule: "BLOCKED or DISCONTINUED prevents new ordinary stock transactions except governed correction, return, disposal or reconciliation flows."}
+    - {id: INVENTORY-ITEM-004, rule: Historical InventoryMovement and InventoryBalance evidence must not be rewritten because InventoryItem policy changes.}
+    - {id: INVENTORY-ITEM-EXE-001, rule: "Safety Stock Quantity cannot be negative.", violatedWhen: "safety_stock_quantity != null and safety_stock_quantity < 0", message: "Safety Stock Quantity cannot be negative."}
+    - {id: INVENTORY-ITEM-EXE-002, rule: "Reorder Point Quantity cannot be negative.", violatedWhen: "reorder_point_quantity != null and reorder_point_quantity < 0", message: "Reorder Point Quantity cannot be negative."}
+  lifecycle:
+    title: Inventory Item Lifecycle
+    attribute: status
+    states: [DRAFT, ACTIVE, BLOCKED, DISCONTINUED]
+    initial: DRAFT
+    terminal: [DISCONTINUED]
+    transitions:
+      - {from: DRAFT, to: ACTIVE, action: activate}
+      - {from: ACTIVE, to: BLOCKED, action: block}
+      - {from: BLOCKED, to: ACTIVE, action: unblock}
+      - {from: DRAFT, to: DISCONTINUED, action: discontinue}
+      - {from: ACTIVE, to: DISCONTINUED, action: discontinue}
+      - {from: BLOCKED, to: DISCONTINUED, action: discontinue}
+  workflows:
+    - name: ExceptionRaised
+      title: "Raise a task when a inventory item is stopped"
+      description: "When a inventory item is blocked, a high-priority task asks someone to resolve it."
+      when: "status == \"BLOCKED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: resolve"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "INVENTORY-ITEM-EXCEPTION-{{id}}"
+              name: "Resolve inventory item {{id}}"
+              description: "Inventory item {{id}} is now {{status}}. Find out why it stopped and move it on or close it."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "HIGH"
+  help:
+    summary: Governs how a Product participates in inventory without duplicating Product identity or current stock quantities.
+    businessMeaning: InventoryItem is the inventory-control master. Product says what the item is; InventoryBalance says how much is currently present; InventoryMovement explains how quantity changed.
+    usage: Inventory setup, WMS, replenishment, manufacturing, maintenance spares, fulfillment, planning, audit and integration.
+    relationshipContext: Links Product and UnitOfMeasure policy to InventoryBalance and InventoryMovement evidence and may be scoped to an Organization.
+    lifecycle: Draft setup becomes active, may be temporarily blocked, and can be discontinued without destroying historical stock evidence.
+    example: A bearing Product is activated as an InventoryItem in pieces with a safety stock of 20 and reorder point of 40.
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-INVENTORY-ITEM}

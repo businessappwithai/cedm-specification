@@ -4,7 +4,7 @@
 # ==========================================
 
 # Build stage - Pure Bun
-FROM oven/bun:1.3 AS builder
+FROM oven/bun:1.4 AS builder
 
 WORKDIR /app
 
@@ -26,7 +26,7 @@ RUN bun install --frozen-lockfile && bun pm cache rm
 RUN bun run build
 
 # Production stage - Runtime only
-FROM oven/bun:1.3-slim
+FROM oven/bun:1.4-slim
 
 WORKDIR /app
 

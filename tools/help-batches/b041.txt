@@ -1,0 +1,103 @@
+@ ProductCategory
+s: A node in the product taxonomy that organises products for assortment, reporting, purchasing, sales, stock and analysis.
+b: Categories let people browse and report on products in groups, such as Power Tools within Hardware. They make the catalogue navigable and let rules and reports apply to a whole group instead of product by product.
+u: Maintained by product management; chosen on each product; read by navigation, reports and rules.
+c: Categories form a tree through parent and child categories, and group Products.
+l: A category is active while used, can be inactive for a time, and is retired when withdrawn. Products keep their history.
+x: "Cordless tools", a child of "Power tools", containing drills and drivers.
+a productCategoryId
+s: The identity of the category, constant when it is renamed or moved.
+u: Generated on creation; products and child categories refer to it.
+a code
+s: The code of the category, such as PT-CORDLESS.
+u: Unique; used in imports and reports.
+a name
+s: The name of the category as shown in navigation.
+u: Shown in catalogues and filters.
+a description
+s: A description of what belongs in the category.
+u: Helps product managers classify consistently.
+a status
+s: Whether the category is in use.
+u: Set by product management; only ACTIVE categories are offered for new products.
+v ACTIVE: Available for classifying products.
+v INACTIVE: Temporarily not offered; can be reactivated.
+v RETIRED: No longer used; kept for history. A final state.
+r parentCategory
+s: The category that contains this one.
+u: Chosen to place the category in the tree.
+n: At most one parent; a top-level category has none.
+w: Lets reports roll up from sub-categories to broader groups.
+r childCategories
+s: The categories directly beneath this one.
+u: Read to expand a group in navigation.
+n: Any number, including none for a leaf category.
+w: The tree seen from the top.
+r products
+u: Read to list the products in the category.
+n: Any number of products.
+
+@ ProductLifecycle
+s: A dated record of a change in a product's lifecycle status, with the reason, so it is clear why and when a product became eligible or ineligible for trade.
+b: A product's status changes, such as from active to discontinued, and the reasons matter. Keeping each change as an effective-dated record allows the status on any past date to be reproduced.
+u: Created whenever a product's lifecycle status changes; read by product management, compliance and audit.
+c: Each record belongs to one Product.
+l: Records are history and are not edited; a further change is a new record.
+x: On 1 March the product was changed from ACTIVE to DISCONTINUED because the supplier ended production.
+a productLifecycleId
+s: The identity of the lifecycle record.
+u: Generated on creation.
+a effectiveAt
+s: When the new status took effect.
+u: Set by the user making the change; the status on any date is the latest record effective by then.
+a lifecycleStatus
+s: The status the product moved to.
+u: Chosen when the change is made.
+v DRAFT: The product is being set up.
+v ACTIVE: The product is available for ordinary trading.
+v DISCONTINUED: The product is being phased out.
+v BLOCKED: The product is temporarily barred from trading.
+v RETIRED: The product is permanently removed from the catalogue.
+a reason
+s: Why the status changed.
+u: Written by the user making the change; read in audits and when the product is questioned.
+r product
+s: The product whose status changed.
+u: Set when the record is created.
+n: Exactly one product: each record is part of one product's history.
+w: Builds the product's status history.
+
+@ ProductVariant
+s: A variation of a product, such as a size or colour, that can be bought, sold, made or stocked on its own while belonging to its parent product family.
+b: Shoppers choose a size and colour, and warehouses stock them separately, but they are still one product. A variant holds that distinction without duplicating the parent's description, category and rules.
+u: Created by product management for each combination of options; chosen on orders and stock; read by merchandisers and the warehouse.
+c: A variant belongs to one Product and may carry its own Brand.
+l: A variant is drafted, becomes active, can be blocked, and ends discontinued or retired. Parent product rules still apply.
+x: The "Blue, size M" variant of a cotton t-shirt, with its own SKU.
+a productVariantId
+s: The identity of the variant.
+u: Generated on creation; stock and order lines refer to it.
+a code
+s: The code of the variant.
+u: Unique; assigned by product management.
+a sku
+s: The stock-keeping unit of the variant.
+u: Printed on labels and scanned in the warehouse.
+a status
+s: Whether the variant can be traded.
+u: Set by product management; only ACTIVE variants can be ordered.
+v DRAFT: Being set up.
+v ACTIVE: Available for trading.
+v BLOCKED: Temporarily barred from trading.
+v DISCONTINUED: Being phased out. A final state.
+v RETIRED: Removed from the catalogue. A final state.
+r product
+s: The parent product.
+u: Set on creation.
+n: Exactly one product: a variant is a variation of a single product family.
+w: Passes the family's definition, category and rules down to the variant.
+r brand
+s: The brand of the variant, when it differs from the product's.
+u: Set where a variant is sold under a different brand.
+n: At most one brand.
+w: Allows variant-level branding.
