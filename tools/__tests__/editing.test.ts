@@ -4,10 +4,7 @@ import { afterAll, describe, expect, mock, spyOn, test } from "bun:test";
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import {
-  deriveText as deriveLogic,
-  executableInvariants,
-} from "../derive-business-logic";
+import { deriveText as deriveLogic, executableInvariants } from "../derive-business-logic";
 import { derive, deriveText as deriveWorkflows } from "../derive-workflows";
 import { enrichText } from "../enrich-dictionary";
 import { main as applyHelp } from "../help-apply";
@@ -77,7 +74,9 @@ describe("derive-business-logic", () => {
     const rules = entity.invariants.map((i: { violatedWhen: string }) => i.violatedWhen);
     expect(rules).toContain("start_date != null and end_date != null and end_date < start_date");
     expect(rules).toContain("travel_cost != null and travel_cost < 0");
-    expect(rules).toContain("discount_percent != null and (discount_percent < 0 or discount_percent > 100)");
+    expect(rules).toContain(
+      "discount_percent != null and (discount_percent < 0 or discount_percent > 100)"
+    );
     expect(rules).toContain('status == "CANCELLED" and cancellation_reason == null');
     expect(deriveLogic(once)).toBe(once);
     // Everything the author wrote is still there, line for line.
@@ -113,15 +112,24 @@ describe("derive-workflows", () => {
   test("raises a task for each kind of state that needs a person, edge-triggered", () => {
     const withLifecycle = deriveLogic(ENTITY);
     const workflows = derive(parseYaml(withLifecycle).entity);
-    expect(workflows.map((w) => w.name)).toEqual(["ExceptionRaised", "FollowUpRequired", "CompletionConfirmed"]);
+    expect(workflows.map((w) => w.name)).toEqual([
+      "ExceptionRaised",
+      "FollowUpRequired",
+      "CompletionConfirmed",
+    ]);
     expect(workflows[0]?.when).toBe('status == "ON_HOLD" and status != _previous_status');
-    expect(workflows[0]?.steps[0]?.properties.fields.name).toBe("Resolve service visit {{visit_number}}");
+    expect(workflows[0]?.steps[0]?.properties.fields.name).toBe(
+      "Resolve service visit {{visit_number}}"
+    );
     const once = deriveWorkflows(withLifecycle);
     expect(deriveWorkflows(once)).toBe(once);
   });
 
   test("an entity that states its own workflows is left alone", () => {
-    const authored = ENTITY.replace("  help:\n    summary: One visit", "  workflows: []\n  help:\n    summary: One visit");
+    const authored = ENTITY.replace(
+      "  help:\n    summary: One visit",
+      "  workflows: []\n  help:\n    summary: One visit"
+    );
     expect(deriveWorkflows(deriveLogic(authored))).toBe(deriveLogic(authored));
   });
 });
@@ -131,18 +139,30 @@ describe("enrich-dictionary", () => {
     const out = enrichText(ENTITY);
     const entity = parseYaml(out).entity;
     const visit = entity.attributes.find((a: { name: string }) => a.name === "visitNumber");
-    expect(visit.help.summary).toBe("The visit number of the service visit: a value the business records on it.");
+    expect(visit.help.summary).toBe(
+      "The visit number of the service visit: a value the business records on it."
+    );
     expect(visit.help.requiredMeaning).toBeUndefined();
     const status = entity.attributes.find((a: { name: string }) => a.name === "status");
     expect(status.help.valueSemantics.DRAFT).toBe("Being planned.");
-    expect(Object.keys(status.help.valueSemantics)).toEqual(["DRAFT", "SCHEDULED", "ON_HOLD", "COMPLETED", "CANCELLED"]);
-    expect(entity.relationships[0].help.cardinalityMeaning).toBe("A service visit has at most one person in this role.");
+    expect(Object.keys(status.help.valueSemantics)).toEqual([
+      "DRAFT",
+      "SCHEDULED",
+      "ON_HOLD",
+      "COMPLETED",
+      "CANCELLED",
+    ]);
+    expect(entity.relationships[0].help.cardinalityMeaning).toBe(
+      "A service visit has at most one person in this role."
+    );
     expect(enrichText(out)).toBe(out);
   });
 
   test("an entity with no ui block gets an icon chosen from its name", () => {
     const out = enrichText(ENTITY.replace("  ui:\n    icon: wrench\n", ""));
-    expect(parseYaml(out).entity.ui.icon).toBe(iconFor("ServiceVisit", "field_service_transaction"));
+    expect(parseYaml(out).entity.ui.icon).toBe(
+      iconFor("ServiceVisit", "field_service_transaction")
+    );
   });
 });
 
@@ -151,7 +171,9 @@ describe("help-apply", () => {
     const before = entityPaths().map((file) => readFileSync(file, "utf-8"));
     const log = spyOn(console, "log").mockImplementation(() => {});
     try {
-      expect(applyHelp([path.join(import.meta.dir, "..", "help-batches", "b001.txt"), "--dry-run"])).toBe(0);
+      expect(
+        applyHelp([path.join(import.meta.dir, "..", "help-batches", "b001.txt"), "--dry-run"])
+      ).toBe(0);
     } finally {
       log.mockRestore();
     }
@@ -198,7 +220,16 @@ describe("lines", () => {
   });
 
   test("spans apply last first, so earlier ones keep their places", () => {
-    expect(applySpans(["a", "b", "c"], [[1, 1, ["x"]], [2, 3, ["y"]], [0, 0, ["z"]]])).toEqual(["z", "a", "x", "b", "y"]);
+    expect(
+      applySpans(
+        ["a", "b", "c"],
+        [
+          [1, 1, ["x"]],
+          [2, 3, ["y"]],
+          [0, 0, ["z"]],
+        ]
+      )
+    ).toEqual(["z", "a", "x", "b", "y"]);
   });
 });
 
@@ -218,7 +249,9 @@ describe("small pieces", () => {
     expect(kindClass("sales_order_line")).toBe("line");
     expect(kindClasses(undefined)).toEqual(["entity"]);
     expect(iconFor("PurchaseInvoice", "transaction")).toBe("receipt");
-    expect(valueMeaning("Account", "status", "ACTIVE")).toContain("The status of the account is active");
+    expect(valueMeaning("Account", "status", "ACTIVE")).toContain(
+      "The status of the account is active"
+    );
     expect(cap("visit")).toBe("Visit");
   });
 

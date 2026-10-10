@@ -17,7 +17,9 @@ import { repairLine } from "../repair-flow-text";
 
 describe("reading and writing YAML", () => {
   test("every entity file round-trips byte for byte, so an edit touches only its own lines", () => {
-    const changed = entityPaths().filter((file) => renderDocument(readDocument(file)) !== readFileSync(file, "utf-8"));
+    const changed = entityPaths().filter(
+      (file) => renderDocument(readDocument(file)) !== readFileSync(file, "utf-8")
+    );
     expect(changed).toEqual([]);
   });
 
@@ -36,7 +38,23 @@ describe("writing a scalar by hand", () => {
   });
 
   test("anything another reader would take for something else is quoted", () => {
-    for (const value of ["ON", "no", "~", "null", "1", "01", "1.0", "2024-01-01", "1:30", "a: b", "-x", "#x", "it's", "[x]", ""]) {
+    for (const value of [
+      "ON",
+      "no",
+      "~",
+      "null",
+      "1",
+      "01",
+      "1.0",
+      "2024-01-01",
+      "1:30",
+      "a: b",
+      "-x",
+      "#x",
+      "it's",
+      "[x]",
+      "",
+    ]) {
       const written = flowScalar(value);
       expect(written).not.toBe(value);
       expect(parse(`[${written}]`)).toEqual([value]);
@@ -53,10 +71,12 @@ describe("writing a scalar by hand", () => {
 
 describe("help shapes (HELP-001)", () => {
   test("names become placeholders: entity, own name and targets", () => {
-    expect(shape("The code of the sales order line.", "SalesOrderLine", "code", [])).toBe("The @ of #.");
-    expect(shape("Links to the StateProvince of the address.", "Address", "region", ["StateProvince"])).toBe(
-      "Links to # of #."
+    expect(shape("The code of the sales order line.", "SalesOrderLine", "code", [])).toBe(
+      "The @ of #."
     );
+    expect(
+      shape("Links to the StateProvince of the address.", "Address", "region", ["StateProvince"])
+    ).toBe("Links to # of #.");
   });
 
   test("a letter outside ASCII is part of a word, so a name inside one is not swapped", () => {
@@ -68,16 +88,23 @@ describe("help shapes (HELP-001)", () => {
     const template = [...legacy].find((s) => s.startsWith("# is a business concept"));
     expect(template).toBeDefined();
     const text = (template as string).replace("#", "Widget");
-    const rows = [{ where: "Widget", key: "businessMeaning", shape: shape(text, "Widget", null, []), value: text }];
+    const rows = [
+      {
+        where: "Widget",
+        key: "businessMeaning",
+        shape: shape(text, "Widget", null, []),
+        value: text,
+      },
+    ];
     expect(fillerRows(rows, legacy)).toHaveLength(1);
   });
 });
 
 describe("repairing text a flow mapping split", () => {
   test("fragments are folded back into the text before them, and the line quoted", () => {
-    expect(repairLine("    - {id: X-1, rule: requires customer, currency, product and tax context.}")).toBe(
-      '    - {id: X-1, rule: "requires customer, currency, product and tax context."}'
-    );
+    expect(
+      repairLine("    - {id: X-1, rule: requires customer, currency, product and tax context.}")
+    ).toBe('    - {id: X-1, rule: "requires customer, currency, product and tax context."}');
   });
 
   test("a value that is not text is written back exactly as it was spelled", () => {
@@ -104,7 +131,9 @@ describe("deriving a lifecycle from status values", () => {
     expect(plan?.transitions).toContainEqual(["ACTIVE", "SUSPENDED", "suspend"]);
     expect(plan?.transitions).toContainEqual(["SUSPENDED", "ACTIVE", "resume"]);
     // A terminal state has no way out.
-    expect(plan?.transitions.some(([from]) => from === "COMPLETED" || from === "CANCELLED")).toBe(false);
+    expect(plan?.transitions.some(([from]) => from === "COMPLETED" || from === "CANCELLED")).toBe(
+      false
+    );
   });
 
   test("one value is not a lifecycle", () => {
@@ -186,13 +215,17 @@ describe("reading a wheel", () => {
   }
 
   test("stored and deflated entries read back as written", () => {
-    const wheel = new Wheel(zip({ "a/stored.json": '{"x": 1}', "a/deflated.json": "é".repeat(500) }));
+    const wheel = new Wheel(
+      zip({ "a/stored.json": '{"x": 1}', "a/deflated.json": "é".repeat(500) })
+    );
     expect(wheel.text("a/stored.json")).toBe('{"x": 1}');
     expect(wheel.text("a/deflated.json")).toBe("é".repeat(500));
     expect(() => wheel.text("missing")).toThrow("the wheel has no missing");
   });
 
   test("something that is not a zip is refused", () => {
-    expect(() => new Wheel(Buffer.from("not a zip at all, just text"))).toThrow("not a zip archive");
+    expect(() => new Wheel(Buffer.from("not a zip at all, just text"))).toThrow(
+      "not a zip archive"
+    );
   });
 });
