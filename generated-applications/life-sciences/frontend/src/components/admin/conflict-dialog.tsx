@@ -15,6 +15,12 @@
  * A record in a final state is a completed transaction and closed to every
  * save, so for `RECORD_FINAL` refresh is the only action, and the reason is
  * stated rather than left to be inferred from a missing button.
+ *
+ * A delete is refused for the same two reasons and opens the same dialog
+ * (`action="delete"`): there is nothing of the person's to compare, so it
+ * names the fields that changed since they opened the record, and the way
+ * forward is to delete the record as it now stands — never one in a final
+ * state.
  */
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -34,6 +40,8 @@ export interface ConflictDialogProps {
   /** Whether the screen shows a field. Columns it does not show are not compared. */
   shows?: (field: string) => boolean;
   busy?: boolean;
+  /** What was refused: a save (the default) or a delete. */
+  action?: "save" | "delete";
   onRefresh: () => void;
   onOverwrite: () => void;
   onClose: () => void;
@@ -60,6 +68,7 @@ export function ConflictDialog({
   labelOf = (field) => field,
   shows = () => true,
   busy = false,
+  action = "save",
   onRefresh,
   onOverwrite,
   onClose,
@@ -70,12 +79,13 @@ export function ConflictDialog({
   // A row is worth showing only when the two sides differ and the person can
   // see the field: an internal column that changed (a rule's bookkeeping) is
   // a row of dashes that says nothing.
+  const isDelete = action === "delete";
   const fields = conflict.changedFields.filter(
     (field) =>
       field !== "version" &&
       field !== "updated_at" &&
       shows(field) &&
-      display(mine[field]) !== display(conflict.current[field])
+      (isDelete || display(mine[field]) !== display(conflict.current[field]))
   );
 
   const who = conflict.changedBy ?? translate("conflict.anotherUser");
@@ -88,7 +98,9 @@ export function ConflictDialog({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>
-            {isFinal ? translate("conflict.titleFinal") : translate("conflict.title")}
+            {isFinal
+              ? translate("conflict.titleFinal")
+              : translate(isDelete ? "conflict.titleDelete" : "conflict.title")}
           </DialogTitle>
         </DialogHeader>
 
@@ -101,7 +113,14 @@ export function ConflictDialog({
             </p>
           ) : null}
 
-          {!isFinal && fields.length > 0 ? (
+          {!isFinal && isDelete && fields.length > 0 ? (
+            <p>
+              <strong>{translate("conflict.changedSinceRead")}:</strong>{" "}
+              {fields.map((field) => labelOf(field)).join(", ")}
+            </p>
+          ) : null}
+
+          {!isFinal && !isDelete && fields.length > 0 ? (
             <table className="w-full border-collapse text-left">
               <caption className="sr-only">{translate("conflict.comparison")}</caption>
               <thead>
@@ -123,7 +142,11 @@ export function ConflictDialog({
             </table>
           ) : null}
 
-          {isFinal ? <p>{translate("conflict.finalExplained")}</p> : null}
+          {isFinal ? (
+            <p>
+              {translate(isDelete ? "conflict.finalExplainedDelete" : "conflict.finalExplained")}
+            </p>
+          ) : null}
         </div>
 
         <DialogFooter>
@@ -132,7 +155,7 @@ export function ConflictDialog({
           </Button>
           {!isFinal && conflict.overwritable ? (
             <Button variant="destructive" onClick={onOverwrite} disabled={busy} isLoading={busy}>
-              {translate("conflict.overwrite")}
+              {translate(isDelete ? "conflict.deleteAnyway" : "conflict.overwrite")}
             </Button>
           ) : null}
         </DialogFooter>

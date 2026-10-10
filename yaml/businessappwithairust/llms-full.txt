@@ -710,9 +710,13 @@ who changed it and when, the columns that changed, and the record's status, so
 the screen offers *Refresh to latest* or *Overwrite with my changes* without a
 second request. An overwrite names the version the refusal reported.
 
+A delete is a write like any other. It names the version it was read at, and
+one made against a replaced version is refused the same way, with the record as
+it now stands; *Delete it anyway* names the version the refusal reported.
+
 An entity's `concurrency` decides what a save that names no version means:
 
-| Value | A save without `If-Match` |
+| Value | A save or delete without `If-Match` |
 |---|---|
 | `optimistic` (default) | refused with **428** — a client that never read the record cannot overwrite it blind |
 | `last-write-wins` | accepted — for an append-only log or a counter nobody edits by hand |
@@ -721,8 +725,8 @@ A save that does name a version is checked either way. In CEDM the key is
 `persistence.concurrency`.
 
 **A final state closes the record.** A record whose status is one of its state
-machine's `final` states is a completed transaction: every update is refused
-with **409 `RECORD_FINAL`**, for every caller, the master role included, and
+machine's `final` states is a completed transaction: every update and every
+delete is refused with **409 `RECORD_FINAL`**, for every caller, the master role included, and
 whatever the entity's `concurrency`. `EML158` (info) says so when an entity
 with final states is declared `last-write-wins`.
 

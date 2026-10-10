@@ -135,6 +135,19 @@ fn read_model(path: &Path) -> Result<records::ModelRecords> {
     yaml_model::read_model_yaml(&text).with_context(|| format!("reading {}", path.display()))
 }
 
+/// `, last-write-wins` for an entity that declares it; nothing for the default.
+///
+/// Optimistic locking is every entity's unless the model says otherwise, so
+/// only the exception is worth a word in a listing — the same one the
+/// TypeScript CLI prints.
+fn concurrency_note(entity: &model::Entity) -> &'static str {
+    if entity.concurrency.as_deref() == Some("last-write-wins") {
+        ", last-write-wins"
+    } else {
+        ""
+    }
+}
+
 fn info(input: &Path) -> Result<()> {
     let lang = Language::load()?;
     let records = read_model(input)?;
@@ -152,10 +165,11 @@ fn info(input: &Path) -> Result<()> {
     println!("\n📊 Entities:");
     for entity in &parsed.entities {
         println!(
-            "   • {} → {} ({} attributes)",
+            "   • {} → {} ({} attributes{})",
             entity.name,
             entity.bus_table(),
-            entity.attributes.len()
+            entity.attributes.len(),
+            concurrency_note(entity)
         );
     }
 
@@ -206,9 +220,10 @@ fn generate(args: &GenerateArgs) -> Result<()> {
         println!("📊 Entities found:");
         for entity in &parsed.entities {
             println!(
-                "   • {} ({} attributes)",
+                "   • {} ({} attributes{})",
                 entity.name,
-                entity.attributes.len()
+                entity.attributes.len(),
+                concurrency_note(entity)
             );
         }
         println!("\n🗂️  Entity categories ({}):", categories.len());

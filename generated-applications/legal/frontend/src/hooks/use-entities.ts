@@ -1,7 +1,7 @@
 /**
  * TanStack Query Hooks for Entity CRUD Operations
  *
- * Generated: 2026-10-09T15:29:17.793Z
+ * Generated: 2026-10-10T08:30:41.544Z
  */
 
 import {
@@ -379,112 +379,12 @@ export function useCreateEntity<T extends EntityRecord = EntityRecord>(
   });
 }
 
-export function useUpdateEntity<T extends EntityRecord = EntityRecord>(
-  entity: string
-) {
-  const queryClient = useQueryClient();
-
-  type MutationVariables = { id: string; data: Partial<T>; version?: number };
-  type MutationContext = {
-    previousDetail?: unknown;
-    previousList?: unknown;
-  };
-
-  return useMutation<T, ApiError, MutationVariables, MutationContext>({
-    mutationFn: ({ id, data, version }) =>
-      apiClient.patch<T>(`/bus/${entity}/${id}`, data, {
-        headers: version ? { 'If-Match': `"v${version}"` } : undefined,
-      }),
-    onMutate: async ({ id, data, version }) => {
-      // Cancel outgoing refetches
-      await queryClient.cancelQueries({ queryKey: entityKeys.detail(entity, id) });
-      await queryClient.cancelQueries({ queryKey: entityKeys.lists() });
-
-      // Snapshot previous values
-      const previousDetail = queryClient.getQueryData(entityKeys.detail(entity, id));
-      const previousList = queryClient.getQueryData(entityKeys.lists());
-
-      // Optimistically update detail
-      queryClient.setQueryData(entityKeys.detail(entity, id), (old: any) => ({
-        ...old,
-        ...data,
-        version: version ? version + 1 : (old?.version || 0) + 1,
-      }));
-
-      // Optimistically update list
-      queryClient.setQueryData(entityKeys.lists(), (old: any) => ({
-        ...old,
-        data: old?.data?.map((item: any) =>
-          item.id === id || item.sys_table_id === id
-            ? { ...item, ...data, version: version ? version + 1 : (item.version || 0) + 1 }
-            : item
-        ),
-      }));
-
-      // Return context with previous data
-      return { previousDetail, previousList };
-    },
-    onError: (err, variables, context) => {
-      // Rollback to previous values on error
-      queryClient.setQueryData(entityKeys.detail(entity, variables.id), context?.previousDetail);
-      queryClient.setQueryData(entityKeys.lists(), context?.previousList);
-      const errorMessage = Array.isArray(err.message) ? err.message.join(', ') : err.message;
-      toast.error(`${translate('entities.updateFailed' as any)}: ${errorMessage}`);
-    },
-    onSettled: (_data, _error, variables) => {
-      // Refetch to ensure server state
-      if (variables) {
-        queryClient.invalidateQueries({ queryKey: entityKeys.detail(entity, variables.id) });
-      }
-      queryClient.invalidateQueries({ queryKey: entityKeys.lists() });
-    },
-  });
-}
-
-export function useDeleteEntity(entity: string) {
-  const queryClient = useQueryClient();
-
-  type MutationContext = {
-    previousDetail?: unknown;
-    previousList?: unknown;
-  };
-
-  return useMutation<void, ApiError, string, MutationContext>({
-    mutationFn: (id) => apiClient.delete(`/bus/${entity}/${id}`),
-    onMutate: async (id) => {
-      // Cancel outgoing refetches
-      await queryClient.cancelQueries({ queryKey: entityKeys.detail(entity, id) });
-      await queryClient.cancelQueries({ queryKey: entityKeys.lists() });
-
-      // Snapshot previous values
-      const previousDetail = queryClient.getQueryData(entityKeys.detail(entity, id));
-      const previousList = queryClient.getQueryData(entityKeys.lists());
-
-      // Optimistically remove from detail cache
-      queryClient.setQueryData(entityKeys.detail(entity, id), null);
-
-      // Optimistically remove from list
-      queryClient.setQueryData(entityKeys.lists(), (old: any) => ({
-        ...old,
-        data: old?.data?.filter((item: any) => item.id !== id && item.sys_table_id !== id),
-      }));
-
-      // Return context with previous data
-      return { previousDetail, previousList };
-    },
-    onError: (err, id, context) => {
-      // Rollback to previous values on error
-      queryClient.setQueryData(entityKeys.detail(entity, id), context?.previousDetail);
-      queryClient.setQueryData(entityKeys.lists(), context?.previousList);
-      const errorMessage = Array.isArray(err.message) ? err.message.join(', ') : err.message;
-      toast.error(`${translate('entities.deleteFailed' as any)}: ${errorMessage}`);
-    },
-    onSettled: () => {
-      // Refetch to ensure server state
-      queryClient.invalidateQueries({ queryKey: entityKeys.lists() });
-    },
-  });
-}
+// Updates and deletes are not hooks here. Both name the version the record was
+// read at (`If-Match`, `lib/concurrency.ts`) and answer a refusal with the
+// conflict dialog, which needs the record on screen — so they live where that
+// record is: `components/admin/ad-detail-shell.tsx` and `workflow-state-bar.tsx`.
+// A hook that wrote without the version would be refused (428) by every
+// optimistic table, or overwrite blind on a last-write-wins one.
 
 // ============================================================================
 // Prefetch Utilities

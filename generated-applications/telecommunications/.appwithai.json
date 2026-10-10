@@ -105,6 +105,21 @@
     "TelecomSubscriptionFollowUpRequired on TelecomSubscription (1 steps, rule)",
     "CustomerExceptionRaised on Customer (1 steps, rule)"
   ],
+  "lastWriteWins": [],
+  "finalStates": [
+    "Party: RETIRED",
+    "Organization: RETIRED",
+    "PartyRole: EXPIRED",
+    "Address: RETIRED",
+    "Location: CLOSED, RETIRED",
+    "Currency: RETIRED",
+    "ExchangeRate: EXPIRED, CANCELLED",
+    "UnitOfMeasure: RETIRED",
+    "Task: COMPLETED, CANCELLED, FAILED",
+    "TelecomService: TERMINATED",
+    "TelecomSubscription: CANCELLED, EXPIRED",
+    "Customer: RETIRED"
+  ],
   "packageManager": "bun",
-  "generatedAt": "2026-10-09T15:31:02.009Z"
+  "generatedAt": "2026-10-10T08:32:29.346Z"
 }

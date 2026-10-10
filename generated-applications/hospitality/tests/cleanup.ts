@@ -20,7 +20,12 @@
  *   --dry-run    Report what would be deleted without deleting it.
  *   --yes        Skip the confirmation prompt for --all.
  *
- * Generated: 2026-10-09T15:28:59.327Z
+ * Every delete sends `If-Match: *` — removing test data is deliberate, whatever
+ * version a row reached. A row in a final state of its lifecycle is a completed
+ * transaction, and the API refuses to delete it for every caller; those rows
+ * are reported as kept rather than as failures.
+ *
+ * Generated: 2026-10-10T08:30:21.294Z
  * Project: hospitality
  */
 
@@ -48,6 +53,8 @@ const DELETE_BATCH = 25;
 interface Outcome {
   entity: string;
   deleted: number;
+  /** Rows in a final state: completed transactions, which are not deleted. */
+  kept: number;
   failed: number;
 }
 
@@ -57,12 +64,18 @@ async function deleteIds(
   ids: string[]
 ): Promise<Outcome> {
   let deleted = 0;
+  let kept = 0;
   let failed = 0;
 
   for (let offset = 0; offset < ids.length; offset += DELETE_BATCH) {
     const batch = ids.slice(offset, offset + DELETE_BATCH);
     const results = await Promise.allSettled(
-      batch.map((id) => client.delete(`/bus/${route}/${id}`, { allowFailure: true }))
+      batch.map((id) =>
+        client.delete<{ error?: string }>(`/bus/${route}/${id}`, {
+          allowFailure: true,
+          headers: { "If-Match": "*" },
+        })
+      )
     );
 
     for (const result of results) {
@@ -72,13 +85,19 @@ async function deleteIds(
         (result.value.ok || result.value.status === 404)
       ) {
         deleted += 1;
+      } else if (
+        result.status === "fulfilled" &&
+        result.value.status === 409 &&
+        result.value.data?.error === "RECORD_FINAL"
+      ) {
+        kept += 1;
       } else {
         failed += 1;
       }
     }
   }
 
-  return { entity: route, deleted, failed };
+  return { entity: route, deleted, kept, failed };
 }
 
 /** Every id currently in a bus_ table, paged out. */
@@ -194,6 +213,7 @@ async function main(): Promise<void> {
     const entity = entities.find((e) => e.route === item.route);
     console.log(
       `  ✓ ${(entity?.displayName ?? item.route).padEnd(28)} deleted ${outcome.deleted}` +
+        (outcome.kept > 0 ? ` (${outcome.kept} kept: final)` : "") +
         (outcome.failed > 0 ? ` (${outcome.failed} failed)` : "")
     );
   }
@@ -211,11 +231,16 @@ async function main(): Promise<void> {
   }
 
   const deleted = outcomes.reduce((sum, o) => sum + o.deleted, 0);
+  const kept = outcomes.reduce((sum, o) => sum + o.kept, 0);
   const failed = outcomes.reduce((sum, o) => sum + o.failed, 0);
 
   if (manifest && failed === 0) await clearManifest();
 
-  console.log(`\n  ${deleted} deleted, ${failed} failed\n`);
+  console.log(`\n  ${deleted} deleted, ${kept} kept, ${failed} failed\n`);
+  if (kept > 0) {
+    console.log("  Rows in a final state are completed transactions: the application");
+    console.log("  refuses to delete them, for every caller. They stay.\n");
+  }
   if (failed > 0) {
     console.log("  Some rows could not be deleted — they may be referenced by");
     console.log("  records outside the manifest. Re-run with --all to clear those.\n");

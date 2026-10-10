@@ -69,7 +69,7 @@ export function WorkflowStateBar({
     // a move made on a record someone has since changed is refused rather than
     // applied to a state the person never saw.
     mutationFn: (step: Move) =>
-      apiClient.patch(
+      apiClient.patch<Record<string, unknown>>(
         `${endpoint}/${recordId}`,
         { [step.statusField]: step.to },
         { headers: ifMatch(record) }

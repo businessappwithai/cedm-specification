@@ -114,6 +114,25 @@
     "AssayFollowUpRequired on Assay (1 steps, rule)",
     "SampleExceptionRaised on Sample (1 steps, rule)"
   ],
+  "lastWriteWins": [],
+  "finalStates": [
+    "Party: RETIRED",
+    "Organization: RETIRED",
+    "PartyRole: EXPIRED",
+    "Address: RETIRED",
+    "Location: CLOSED, RETIRED",
+    "Currency: RETIRED",
+    "ExchangeRate: EXPIRED, CANCELLED",
+    "UnitOfMeasure: RETIRED",
+    "Task: COMPLETED, CANCELLED, FAILED",
+    "ResearchProject: ARCHIVED, CANCELLED",
+    "Protocol: RETIRED",
+    "Study: CANCELLED, ARCHIVED",
+    "Assay: COMPLETED, FAILED, CANCELLED",
+    "Observation: VERIFIED, INVALIDATED",
+    "Result: FINAL, INVALIDATED",
+    "Sample: CONSUMED, DISPOSED, LOST"
+  ],
   "packageManager": "bun",
-  "generatedAt": "2026-10-10T02:41:57.121Z"
+  "generatedAt": "2026-10-10T08:31:56.141Z"
 }

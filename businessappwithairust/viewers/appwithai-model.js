@@ -7246,7 +7246,7 @@ var appwithai_language_default = {
         "deleted_by"
       ],
       declaringOne: 'Redundant, and it used to be fatal: the column reached CREATE TABLE twice and PostgreSQL refused the statement with `column "created_at" specified more than once`, so the generated application could not open its database. The generator now drops the model\'s definition and keeps its own; EML103 reports the line.',
-      version: 'The optimistic-lock counter. Every write that changes a row advances it, and every read returns it as an ETag (`"v<n>"`). An update names the version it was read at in `If-Match`; one made against a replaced version is refused with 409 `VERSION_CONFLICT`, carrying the record as it now stands, who changed it and when, the columns that differ and the record\'s status, and the screen offers to refresh or to overwrite. An update with no `If-Match` is 428 on an `optimistic` entity and accepted on a `last-write-wins` one. A record in a final state of its state machine is closed: every update is 409 `RECORD_FINAL`, the master role included.',
+      version: 'The optimistic-lock counter. Every write that changes a row advances it, and every read returns it as an ETag (`"v<n>"`). An update names the version it was read at in `If-Match`; one made against a replaced version is refused with 409 `VERSION_CONFLICT`, carrying the record as it now stands, who changed it and when, the columns that differ and the record\'s status, and the screen offers to refresh or to overwrite. An update or delete with no `If-Match` is 428 on an `optimistic` entity and accepted on a `last-write-wins` one. A delete is held to the same version check. A record in a final state of its state machine is closed: every update and every delete is 409 `RECORD_FINAL`, the master role included.',
       concurrencyKey: "The entity's `concurrency` (`optimistic`, the default, or `last-write-wins`), compiled to `sys_table.concurrency_mode`. In CEDM it is `persistence.concurrency`.",
       checkerCodes: {
         EML103: "A column the generator manages, declared in the model - the declaration is ignored.",
@@ -7319,7 +7319,7 @@ var appwithai_language_default = {
       EML152: "warning — an entity with no help text at all.",
       EML153: "warning — columns with no help text, reported once per entity.",
       EML155: "An index names a column its entity does not declare. The index is left out of the DDL, because a migration that cannot apply is worse than a missing index.",
-      EML158: "info — an entity declared `concurrency: last-write-wins` whose state machine has final states. Records in a final state stay closed: a completed transaction refuses every update, whatever the entity's concurrency.",
+      EML158: "info — an entity declared `concurrency: last-write-wins` whose state machine has final states. Records in a final state stay closed: a completed transaction refuses every update and every delete, whatever the entity's concurrency.",
       EML500: "A state machine bound to an entity with no status/state/stage column at all - the machine has nothing to track."
     },
     reportDesigns: {

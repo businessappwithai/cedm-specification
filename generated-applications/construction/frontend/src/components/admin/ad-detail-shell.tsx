@@ -33,6 +33,7 @@ import {
   withoutResponseKeys,
 } from "@/lib/concurrency";
 import { embedIntent, notifySaved } from "@/lib/embed";
+import { translate } from "@/lib/translations";
 import { ConflictDialog } from "./conflict-dialog";
 import { ADRecordNav } from "./ad-record-nav";
 import { ADToolbar } from "./ad-toolbar";
@@ -701,6 +702,14 @@ export function ADDetailShell({
   const canGoPrev = globalIndex > 0;
   const canGoNext = globalIndex < totalCount - 1;
 
+  // A record in a final state is a completed transaction: the API refuses to
+  // change or delete it for every caller, so the screen offers neither. The
+  // record's own read says so (`transactionStatus`), as the state bar reads it.
+  const isClosed = transactionStatusOf(currentRecord)?.isFinal === true;
+  useEffect(() => {
+    if (isClosed) setIsEditing(false);
+  }, [isClosed]);
+
   // Reset form when record changes
   useEffect(() => {
     if (currentRecord) {
@@ -715,6 +724,7 @@ export function ADDetailShell({
     code: ConcurrencyCode;
     conflict: VersionConflict;
     mine: AnyRecord;
+    action: "save" | "delete";
   } | null>(null);
 
   const saveMutation = useMutation({
@@ -739,7 +749,12 @@ export function ADDetailShell({
     },
     onError: (err: any, variables) => {
       if (isConcurrencyError(err)) {
-        setConflict({ code: err.error, conflict: err.conflict, mine: variables.data });
+        setConflict({
+          code: err.error,
+          conflict: err.conflict,
+          mine: variables.data,
+          action: "save",
+        });
         return;
       }
       const specific = Array.isArray(err?.errors) ? (err.errors as string[]) : null;
@@ -751,15 +766,27 @@ export function ADDetailShell({
     },
   });
 
+  // A delete names the version it was read at, exactly as a save does: the
+  // record on screen is the one being deleted, not whatever it has become.
   const deleteMutation = useMutation({
-    mutationFn: () => apiClient.delete(`${level.endpoint}/${recordId}`),
+    mutationFn: ({ readAt }: { readAt: AnyRecord | null }) =>
+      apiClient.delete(`${level.endpoint}/${recordId}`, { headers: ifMatch(readAt) }),
     onSuccess: () => {
       notifySaved("delete", null, recordId);
+      setConflict(null);
+      setConfirmingDelete(false);
       toast.success("Deleted");
       queryClient.invalidateQueries({ queryKey: ["ad-detail-list", level.endpoint] });
       navigate({ to: buildAdminListUrl(parentContext, level) as never });
     },
-    onError: (err: any) => toast.error(err?.message ?? "Failed"),
+    onError: (err: any) => {
+      setConfirmingDelete(false);
+      if (isConcurrencyError(err)) {
+        setConflict({ code: err.error, conflict: err.conflict, mine: {}, action: "delete" });
+        return;
+      }
+      toast.error(err?.message ?? translate("form.deleteFailed"));
+    },
   });
 
   // Record navigation — URL changes to reflect the selected sibling
@@ -827,7 +854,10 @@ export function ADDetailShell({
           refetch();
           refreshDropdowns(queryClient);
         }}
-        onEdit={() => setIsEditing(true)}
+        onEdit={() => {
+          if (!isClosed) setIsEditing(true);
+        }}
+        canEdit={!isClosed}
         onCancelEdit={() => {
           setIsEditing(false);
           if (currentRecord) {
@@ -1052,7 +1082,7 @@ export function ADDetailShell({
         onOpenChange={setConfirmingDelete}
         title={`Delete ${level.label}`}
         itemName={currentName}
-        onConfirm={() => deleteMutation.mutate()}
+        onConfirm={() => deleteMutation.mutate({ readAt: currentRecord ?? null })}
         isConfirming={deleteMutation.isPending}
       />
 
@@ -1079,7 +1109,8 @@ export function ADDetailShell({
               (candidate) => candidate.column_name === field
             )
           }
-          busy={saveMutation.isPending}
+          action={conflict.action}
+          busy={saveMutation.isPending || deleteMutation.isPending}
           onRefresh={() => {
             // The refusal carries the record as it now stands: show it, and
             // drop the edits that were made against the older one.
@@ -1091,10 +1122,12 @@ export function ADDetailShell({
             setConflict(null);
           }}
           onOverwrite={() =>
-            saveMutation.mutate({
-              data: conflict.mine,
-              readAt: conflict.conflict.current as AnyRecord,
-            })
+            conflict.action === "delete"
+              ? deleteMutation.mutate({ readAt: conflict.conflict.current as AnyRecord })
+              : saveMutation.mutate({
+                  data: conflict.mine,
+                  readAt: conflict.conflict.current as AnyRecord,
+                })
           }
           onClose={() => setConflict(null)}
         />

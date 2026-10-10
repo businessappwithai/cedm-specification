@@ -78,6 +78,13 @@ export interface EmlEntity {
    * business.
    */
   help?: string;
+  /**
+   * How two people's saves of one record are reconciled — the entity's
+   * `concurrency`. `optimistic` (the default) makes every update and delete
+   * name the version it read; `last-write-wins` accepts one that names none. A
+   * record in a final state of the entity's state machine is closed either way.
+   */
+  concurrency: "optimistic" | "last-write-wins";
 }
 
 export interface EmlRelationship {
@@ -163,8 +170,13 @@ export interface EmlWorkflow {
   states: string[];
   /** The state a new record starts in (state machines). */
   initial?: string;
-  /** States with no way out (state machines). */
+  /** States with no way out (state machines). A record in one is closed. */
   final?: string[];
+  /**
+   * The column the machine drives (state machines): the first of `status`,
+   * `state`, `stage` the entity declares, as the generator resolves it.
+   */
+  statusField?: string;
   transitions: EmlTransition[];
   guards: EmlGuard[];
   triggers: EmlTrigger[];

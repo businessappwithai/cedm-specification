@@ -91,7 +91,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
          the WASM overlay's footprint, blanking ISO timestamps first. A
          "2026-08-22" would survive that blanking and make the two copies differ
          whenever the pair of runs straddles midnight. -->
-    <div class="stamp">Manual for version 1.0.0 &middot; generated <time datetime="2026-10-10T02:41:31.939Z">2026-10-10T02:41:31.939Z</time></div>
+    <div class="stamp">Manual for version 1.0.0 &middot; generated <time datetime="2026-10-10T08:31:32.108Z">2026-10-10T08:31:32.108Z</time></div>
   </header>
 
       <nav class="toc" aria-label="Contents">
@@ -208,6 +208,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Address <span class="group">Foundation</span></h3>
       <p class="lede">A structured postal or physical address for a party or location, held once so it can be reused wherever it is needed. Addresses are reusable master data, yet an address printed on an issued invoice or shipment is historical evidence. This entity therefore holds the current address while documents keep their own copy of what was printed. Created when a party or location needs an address, selected when documents are prepared, and retired when it is no longer valid; read by invoicing, shipping, tax and mailing processes. An address is placed through its Country, optional StateProvince and City, so it follows the geography lists, and may be used by a Party or a Location. Addresses are active, can be made inactive and reactivated, and are retired when finished with. Retirement stops new use but never removes the address from past documents. A customer moves its billing address; the customer record now points to the new active address while already issued invoices keep the address that applied when they were issued. Address create/update → validate country/geography → validate Party/Location dependency → select effective address → transaction captures address evidence → later master-data changes affect future selection only.</p>
       <p class="meta">Stored as <code>bus_address</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -472,6 +473,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       </ul>
       <h4>Lifecycle &mdash; AddressLifecycle</h4>
       <p>A record starts at <code>ACTIVE</code> and finishes at <code>RETIRED</code>. These are the moves it may make, and no others:</p>
+      <p>A record that reaches that final state is a completed transaction: the application refuses every change to it and every deletion of it, for every role, an administrator included.</p>
       <table>
         <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
         <tbody>
@@ -496,6 +498,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Address Address Type <span class="group">Reference Data</span></h3>
       <p class="lede">The values of address address type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_address_address_type</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -601,6 +604,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Address Status <span class="group">Reference Data</span></h3>
       <p class="lede">The values of address status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_address_status</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -706,6 +710,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Attachment <span class="group">Foundation</span></h3>
       <p class="lede">A file or other content attached to an enterprise record, with its content identity and provenance kept for audit. Supporting documents, photos and scans back up decisions. Keeping them as governed records, rather than loose files, proves what was attached to what and when, and lets the same content be recognised if it is attached twice. Added when a user or system attaches evidence to a record; read when someone needs to see or verify the supporting document. An attachment is linked to the record it supports; the same file may be attached to more than one. Once attached, the content is evidence and is not silently replaced; a corrected file is attached as a new record. A signed delivery note PDF is attached to a shipment record by the driver&#39;s handheld at delivery.</p>
       <p class="meta">Stored as <code>bus_attachment</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -755,6 +760,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Business Unit <span class="group">Foundation</span></h3>
       <p class="lede">A major business, division, product line or operating segment within an organisation. Business units are how a large organisation divides its activity for management and reporting. They let results, budgets and responsibility be assigned to a meaningful segment rather than to the organisation as a whole. Defined by management and finance; assigned to people, transactions and budgets; read when reporting by segment. Each business unit belongs to one Organization and groups the work and results of one part of it. A business unit keeps its code and identity stable. Reorganisations are recorded explicitly so earlier reports are not silently changed. The Consumer Electronics division of a manufacturer, with its own budget and profit target.</p>
       <p class="meta">Stored as <code>bus_business_unit</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -836,6 +842,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Calendar <span class="group">Foundation</span></h3>
       <p class="lede">A calendar that defines business dates, working days, holidays and time-control rules used for planning and operations. Whether a date counts as a working day is not obvious: it depends on region, industry and company. A calendar states that explicitly, so due dates, delivery promises and schedules all agree. Maintained by administrators; referenced by schedulers, service-level calculations and planning when they need to know which days count. Locations, teams, contracts and schedules point to the calendar that governs their working days. A calendar&#39;s code and identity stay stable. Changes to holidays apply from their effective date and do not rewrite history. The German national business calendar, with weekends and public holidays marked non-working.</p>
       <p class="meta">Stored as <code>bus_calendar</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -899,6 +906,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>City <span class="group">Foundation</span></h3>
       <p class="lede">Loaded from the GeoNames reference data rather than typed by users; chosen on addresses, locations and offices, and read to sort, filter and map records by place. A city: every national capital and every city of 750 thousand or more, from GeoNames, linked to its country and, for the United States and Canada, to its state or province. A city: every national capital and every city of 750 thousand or more, from GeoNames, linked to its country and, for the United States and Canada, to its state or province. Chosen from the list wherever a record needs a place, code or currency; maintained by an administrator when a registry changes.</p>
       <p class="meta">Stored as <code>bus_city</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -1066,6 +1074,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Contact Point <span class="group">Foundation</span></h3>
       <p class="lede">A communication endpoint for a party, such as an email address, telephone number, web address or other channel. Reaching someone requires a specific address. A contact point holds each one with its own status, so messages go to working endpoints and old ones are not lost. Added when a party gives an email, phone or other channel; read by communications, notifications and service processes. Each contact point belongs to one Party, which may have several. Code and identity stay stable, and an endpoint that is retired remains in history. The billing team&#39;s email address invoices@acme.example, recorded for a customer.</p>
       <p class="meta">Stored as <code>bus_contact_point</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -1147,6 +1156,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Country <span class="group">Foundation</span></h3>
       <p class="lede">Read by address forms, tax and trade rules, localization and reports; changed only by an administrator when the ISO registry changes. A country or territory from the ISO 3166-1 registry, used consistently for addresses, tax, trade, localization, compliance and reporting. A country or territory from the ISO 3166-1 registry, used consistently for addresses, tax, trade, localization, compliance and reporting. Chosen from the list wherever a record needs a place, code or currency; maintained by an administrator when a registry changes.</p>
       <p class="meta">Stored as <code>bus_country</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -1273,6 +1283,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Currency <span class="group">Foundation</span></h3>
       <p class="lede">Defines the monetary denomination that gives financial amounts their business meaning. Currency is not an amount. It defines the denomination in which an amount is stated and provides the reference needed for pricing, billing, settlement, banking, and accounting. Central to Product pricing, SalesOrder, Invoice, Payment, PaymentAllocation, BankTransaction, JournalEntry, ExchangeRate, and financial reporting. Product may carry reference pricing. SalesOrder establishes commercial amounts. Invoice establishes claims. Payment establishes settlement. PaymentAllocation applies settlement to claims. BankTransaction supplies external evidence. JournalEntry records accounting recognition. ExchangeRate provides auditable conversion between Currency denominations. Price → SalesOrder → Invoice → Payment → PaymentAllocation → BankTransaction reconciliation → JournalEntry. When currencies differ, an approved ExchangeRate and explicit rounding/conversion policy must be used; Currency master data never substitutes for an exchange-rate record. Currency is activated for use, may become inactive, and may eventually be retired. Lifecycle changes affect future transactions only and preserve historical financial evidence. A SalesOrder is denominated in USD and an Invoice is issued in USD. A customer pays in EUR. Payment records EUR, PaymentAllocation records the approved ExchangeRate and conversion context needed to settle the USD invoice, BankTransaction provides bank evidence in EUR, and accounting retains the rate used rather than later recalculating the historical settlement.</p>
       <p class="meta">Stored as <code>bus_currency</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -1380,6 +1391,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       </ul>
       <h4>Lifecycle &mdash; CurrencyLifecycle</h4>
       <p>A record starts at <code>ACTIVE</code> and finishes at <code>RETIRED</code>. These are the moves it may make, and no others:</p>
+      <p>A record that reaches that final state is a completed transaction: the application refuses every change to it and every deletion of it, for every role, an administrator included.</p>
       <table>
         <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
         <tbody>
@@ -1396,6 +1408,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Currency Status <span class="group">Reference Data</span></h3>
       <p class="lede">The values of currency status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_currency_status</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -1501,6 +1514,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Department <span class="group">Foundation</span></h3>
       <p class="lede">A unit of an organisation that groups people, positions, responsibilities and work. Departments are how people are organised day to day. They define reporting lines, budgets and responsibilities. Defined by HR and management; assigned to people and positions; used in reporting and approvals. A department belongs to an Organization (or one of its business units). Code and identity stay stable. Reorganisations are recorded explicitly so earlier reports do not change. The Accounts Payable department of the finance function.</p>
       <p class="meta">Stored as <code>bus_department</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -1582,6 +1596,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Exchange Rate <span class="group">Foundation</span></h3>
       <p class="lede">Represents an auditable conversion rate between two currencies for a defined time and business purpose. ExchangeRate is the conversion context between Currency denominations; it is not itself money, a payment, or an accounting entry. Used by multi-currency orders, invoices, payments, payment allocations, bank reconciliation, accounting, consolidation, and financial reporting. Currency defines denominations. Money carries amount plus currency. ExchangeRate provides the conversion between two Money values. PaymentAllocation and accounting consume the rate when cross-currency conversion is permitted. Source Money + source Currency → select valid ExchangeRate by rate type/effective time/source → convert → target Money → preserve ExchangeRate reference and rounding result. The selected rate becomes historical evidence of the conversion decision. Rate is created or imported, activated for its validity window, expires or is cancelled, while historical transactions retain the original rate reference. A customer invoice is USD 1,000 and payment is EUR. An approved EUR-to-USD ExchangeRate is selected according to settlement policy. The Payment remains EUR, the Invoice remains USD, PaymentAllocation records the conversion context, and accounting retains the rate used rather than later recalculating the historical settlement.</p>
       <p class="meta">Stored as <code>bus_exchange_rate</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -1729,6 +1744,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       </ul>
       <h4>Lifecycle &mdash; ExchangeRateLifecycle</h4>
       <p>A record starts at <code>DRAFT</code> and finishes at <code>EXPIRED</code> or <code>CANCELLED</code>. These are the moves it may make, and no others:</p>
+      <p>A record that reaches a final state is a completed transaction: the application refuses every change to it and every deletion of it, for every role, an administrator included.</p>
       <table>
         <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
         <tbody>
@@ -1755,6 +1771,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Exchange Rate Rate Type <span class="group">Reference Data</span></h3>
       <p class="lede">The values of exchange rate rate type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_exchange_rate_rate_type</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -1860,6 +1877,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Exchange Rate Status <span class="group">Reference Data</span></h3>
       <p class="lede">The values of exchange rate status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_exchange_rate_status</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -1965,6 +1983,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Language <span class="group">Foundation</span></h3>
       <p class="lede">A language used for localisation, communication preferences, content and reporting. People read and write in different languages. A language record lets the application offer translations, remember preferences and tag content with the language it is written in. Loaded from the standard language registry; chosen on user profiles, documents and messages. Parties, users and content refer to a language; the language itself depends on nothing. Code and identity stay stable, and history is never silently rewritten. English, with code en.</p>
       <p class="meta">Stored as <code>bus_language</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -2028,6 +2047,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Legal Entity <span class="group">Foundation</span></h3>
       <p class="lede">A legally recognised organisation or person that can hold rights and obligations, registrations, contracts, assets, liabilities or filings. Contracts are signed and taxes are paid by legal entities, not by business units. Knowing exactly which entity is involved determines liability, reporting and registration duties. Registered when an entity is formed or acquired; referenced by contracts, filings and ledgers. Contracts, filings and accounting books refer to the legal entity. Finalised evidence and effective history are preserved; changes such as name changes or mergers are recorded explicitly. Acme Holdings GmbH, a limited company registered in Germany.</p>
       <p class="meta">Stored as <code>bus_legal_entity</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -2077,6 +2097,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Location <span class="group">Foundation</span></h3>
       <p class="lede">A physical or logical place where resources, activities, stock, services or organisational operations are situated. Almost everything in a business happens somewhere. The location is the shared reference for that: sites, warehouses, stores, offices, ports and even virtual places, arranged in a hierarchy so addresses, stock and assets can all point to the same place. Created when a place becomes relevant; arranged under parent locations; referenced by assets, stock, facilities and addresses; read by logistics, facilities and reporting. A location may sit within a parent Location with children beneath it, has an Address and may belong to an Organization. A location is planned, becomes active when in use, may be inactive for a time, and is closed or retired when no longer used. History and references remain valid. The Rotterdam distribution centre, a warehouse location within the Netherlands site, with its own address. Location create → validate hierarchy/address/organization → activate → use in operational transactions → status change/closure → validate dependent resources and prevent incompatible future use → preserve historical transaction context.</p>
       <p class="meta">Stored as <code>bus_location</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -2211,6 +2232,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       </ul>
       <h4>Lifecycle &mdash; LocationLifecycle</h4>
       <p>A record starts at <code>PLANNED</code> and finishes at <code>CLOSED</code> or <code>RETIRED</code>. These are the moves it may make, and no others:</p>
+      <p>A record that reaches a final state is a completed transaction: the application refuses every change to it and every deletion of it, for every role, an administrator included.</p>
       <table>
         <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
         <tbody>
@@ -2230,6 +2252,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Location Location Type <span class="group">Reference Data</span></h3>
       <p class="lede">The values of location location type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_location_location_type</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -2335,6 +2358,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Location Status <span class="group">Reference Data</span></h3>
       <p class="lede">The values of location status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_location_status</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -2440,6 +2464,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Milestone <span class="group">Foundation</span></h3>
       <p class="lede">A significant planned achievement or checkpoint in a project or process. A project&#39;s progress is judged against its milestones. Naming each checkpoint and its target date lets sponsors see whether the work is on track without reading every task. Set by the project manager at planning; updated as the date approaches; read by sponsors and steering groups. A milestone belongs to one Project and is reached by completing a set of ProjectTasks. A milestone is planned, may be flagged at risk and recover, and ends achieved, missed or cancelled. &quot;Go-live&quot; for a system implementation, targeted for 1 September and flagged at risk in July.</p>
       <p class="meta">Stored as <code>bus_milestone</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -2560,6 +2585,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       </ul>
       <h4>Lifecycle &mdash; MilestoneLifecycle</h4>
       <p>A record starts at <code>PLANNED</code> and finishes at <code>ACHIEVED</code> or <code>MISSED</code> or <code>CANCELLED</code>. These are the moves it may make, and no others:</p>
+      <p>A record that reaches a final state is a completed transaction: the application refuses every change to it and every deletion of it, for every role, an administrator included.</p>
       <table>
         <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
         <tbody>
@@ -2588,6 +2614,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Milestone Status <span class="group">Reference Data</span></h3>
       <p class="lede">The values of milestone status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_milestone_status</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -2693,6 +2720,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Organization <span class="group">Foundation</span></h3>
       <p class="lede">Organization is the organizational specialization of Party, not an independent party identity or business role. Party identifies who the organization is; Organization describes intrinsic organizational structure; PartyRole describes how it participates; Customer and Supplier provide commercial behavior. Used across sales, procurement, finance, logistics, contracts, compliance, HR, and enterprise hierarchy. Party → Organization provides identity specialization. Party → PartyRole provides participation. Customer/Supplier must not create duplicate Party identities. Create/maintain Party → create Organization specialization → establish organizational hierarchy → assign PartyRole → apply specialized commercial qualification → permit transactions. Master-data changes affect future eligibility and presentation while historical transactions retain their original context. Organization follows its own master-data lifecycle while remaining subordinate to Party identity consistency. Retirement does not delete historical transactions or roles. One company exists as one Party and one Organization specialization, while holding CUSTOMER and SUPPLIER PartyRoles with separate commercial controls.</p>
       <p class="meta">Stored as <code>bus_organization</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -2918,6 +2946,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       </ul>
       <h4>Lifecycle &mdash; OrganizationLifecycle</h4>
       <p>A record starts at <code>DRAFT</code> and finishes at <code>RETIRED</code>. These are the moves it may make, and no others:</p>
+      <p>A record that reaches that final state is a completed transaction: the application refuses every change to it and every deletion of it, for every role, an administrator included.</p>
       <table>
         <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
         <tbody>
@@ -2936,6 +2965,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Organization Organization Type <span class="group">Reference Data</span></h3>
       <p class="lede">The values of organization organization type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_organization_organization_type</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -3041,6 +3071,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Organization Party Type <span class="group">Reference Data</span></h3>
       <p class="lede">The values of organization party type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_organization_party_type</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -3146,6 +3177,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Organization Status <span class="group">Reference Data</span></h3>
       <p class="lede">The values of organization status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_organization_status</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -3251,6 +3283,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Party <span class="group">Foundation</span></h3>
       <p class="lede">The foundational CEDM business concept for an identifiable person or organization participating in business. Party separates who an actor is from the roles that actor performs. The same party can be a customer, supplier, employee, owner, provider, or contract party without creating duplicate identities. Used as the identity foundation for onboarding, customer management, procurement, sales, finance, logistics, HR, healthcare, contracts, compliance, and audit. Party connects to Person or Organization for intrinsic identity details and to PartyRole for business roles. Transactions and domain entities should reference the appropriate role when role-specific behavior matters. Party identity is long-lived. Operational eligibility is controlled by status, while historical relationships and transactions remain referentially valid. One organization may be represented by a single Party and simultaneously participate as Customer and Supplier in different business relationships.</p>
       <p class="meta">Stored as <code>bus_party</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -3350,6 +3383,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       </ul>
       <h4>Lifecycle &mdash; PartyLifecycle</h4>
       <p>A record starts at <code>ACTIVE</code> and finishes at <code>RETIRED</code>. These are the moves it may make, and no others:</p>
+      <p>A record that reaches that final state is a completed transaction: the application refuses every change to it and every deletion of it, for every role, an administrator included.</p>
       <table>
         <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
         <tbody>
@@ -3377,6 +3411,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Party Party Type <span class="group">Reference Data</span></h3>
       <p class="lede">The values of party party type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_party_party_type</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -3482,6 +3517,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Party Relationship <span class="group">Foundation</span></h3>
       <p class="lede">A time-bound relationship between two parties that describes how they stand to each other in business, legal, household, employment or another way. Parties are connected to each other: a company to its subsidiary, a person to their employer, one household member to another. Recording the relationship, with its dates, lets the organisation see who is connected to whom and since when. Created when a relationship is established; ended when it stops; read by sales, compliance and customer service. A relationship runs from one Party to another. Code and identity stay stable, and the relationship&#39;s history is kept when it ends or changes. &quot;Subsidiary of&quot;: Acme Ltd is a subsidiary of Acme Holdings from 1 January 2019.</p>
       <p class="meta">Stored as <code>bus_party_relationship</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -3563,6 +3599,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Party Role <span class="group">Foundation</span></h3>
       <p class="lede">The bridge between stable Party identity and contextual business participation. Party answers who the actor is; PartyRole answers how that actor participates; Customer and Supplier add role-specific commercial behavior. Foundation for sales, procurement, employment, logistics, ownership, contracts, finance, and relationship management. Customer and Supplier specialize PartyRole. Party identity is never duplicated in those specializations. Transaction entities should retain the role context that was effective when the transaction was created or confirmed. Party onboarding → PartyRole creation → role-specific qualification/controls → transaction eligibility → transaction creation → transaction lifecycle. Role changes affect future eligibility but preserve historical role attribution. Create role → validate scope/eligibility → activate → optionally inactivate/expire → preserve historical references. A role ending does not end the Party or unrelated roles. One organization can be a Customer and Supplier simultaneously. Its Party record is shared; each PartyRole has its own roleType, scope, lifecycle, and specialized controls. A SalesOrder references the Customer role while a PurchaseOrder references the Supplier role.</p>
       <p class="meta">Stored as <code>bus_party_role</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -3711,6 +3748,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       </ul>
       <h4>Lifecycle &mdash; PartyRoleLifecycle</h4>
       <p>A record starts at <code>ACTIVE</code> and finishes at <code>EXPIRED</code>. These are the moves it may make, and no others:</p>
+      <p>A record that reaches that final state is a completed transaction: the application refuses every change to it and every deletion of it, for every role, an administrator included.</p>
       <table>
         <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
         <tbody>
@@ -3735,6 +3773,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Party Role Role Type <span class="group">Reference Data</span></h3>
       <p class="lede">The values of party role role type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_party_role_role_type</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -3840,6 +3879,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Party Role Status <span class="group">Reference Data</span></h3>
       <p class="lede">The values of party role status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_party_role_status</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -3945,6 +3985,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Party Status <span class="group">Reference Data</span></h3>
       <p class="lede">The values of party status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_party_status</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -4050,6 +4091,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Person <span class="group">Foundation</span></h3>
       <p class="lede">Person is the individual specialization of Party, not a business role. Party identifies the individual; Person supplies intrinsic individual details; PartyRole determines how the person participates. Used for customers, employees, agents, owners, contractors, and other roles without duplicating individual identity. Party → Person establishes intrinsic identity; Party → PartyRole establishes business participation; Organization links provide employment or other organizational context. Create/maintain Party → create Person specialization → establish PartyRole → apply role-specific qualification/authorization → execute transactions. Ending one role does not end the person or other roles. Person specialization follows Party identity while role eligibility remains independently controlled by PartyRole. One individual may be both an Employee and Customer. The same Party and Person specialization is reused while separate PartyRoles govern employment and customer processes.</p>
       <p class="meta">Stored as <code>bus_person</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -4274,6 +4316,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Person Gender <span class="group">Reference Data</span></h3>
       <p class="lede">The values of person gender, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_person_gender</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -4379,6 +4422,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Person Party Type <span class="group">Reference Data</span></h3>
       <p class="lede">The values of person party type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_person_party_type</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -4484,6 +4528,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Person Status <span class="group">Reference Data</span></h3>
       <p class="lede">The values of person status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_person_status</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -4589,6 +4634,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Professional Engagement <span class="group">Foundation</span></h3>
       <p class="lede">A client engagement under which professional services are planned, delivered, measured and billed. An engagement is the commercial frame for a piece of service work. It names the client, the contract that governs it and the project that runs it, and it collects the timesheets that become billable time, so work can be tracked from proposal to completion. Created by the account or engagement manager; read by delivery, finance and billing. An engagement is for one client, may rest on a contract and a project, and gathers the timesheets booked against it. An engagement is proposed, becomes active when agreed, may be put on hold and resumed, and ends completed or cancelled. Completed and cancelled are final. Engagement ENG-2026-014 for Northwind is proposed in January, active from February and completed in June.</p>
       <p class="meta">Stored as <code>bus_professional_engagement</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -4723,6 +4769,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       </ul>
       <h4>Lifecycle &mdash; ProfessionalEngagementLifecycle</h4>
       <p>A record starts at <code>PROPOSED</code> and finishes at <code>COMPLETED</code> or <code>CANCELLED</code>. These are the moves it may make, and no others:</p>
+      <p>A record that reaches a final state is a completed transaction: the application refuses every change to it and every deletion of it, for every role, an administrator included.</p>
       <table>
         <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
         <tbody>
@@ -4752,6 +4799,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Professional Engagement Status <span class="group">Reference Data</span></h3>
       <p class="lede">The values of professional engagement status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_professional_engagement_status</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -4857,6 +4905,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Project <span class="group">Project Management</span></h3>
       <p class="lede">A coordinated piece of work with defined objectives, scope, resources and outcomes, planned and tracked from draft to close. A project is how the organisation organises work that has a start, an end and a budget. It collects tasks, phases, milestones, resource assignments and costs, so progress, spend and delivery can be reviewed in one place and the project closed once everything is settled. Created and owned by a project manager; read by delivery teams, finance and management. A project belongs to an owning organisation, has a manager, and contains phases, tasks, milestones, resource assignments and costs. A project is drafted, planned, activated, completed and then closed. It may be put on hold and resumed while planned or active, and may be cancelled before completion. Closed and cancelled are final. Project PRJ-0042, &quot;Warehouse automation&quot;, is planned in January, active from March, completed in September and closed after the final cost review.</p>
       <p class="meta">Stored as <code>bus_project</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -5024,6 +5073,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       </ul>
       <h4>Lifecycle &mdash; ProjectLifecycle</h4>
       <p>A record starts at <code>DRAFT</code> and finishes at <code>CLOSED</code> or <code>CANCELLED</code>. These are the moves it may make, and no others:</p>
+      <p>A record that reaches a final state is a completed transaction: the application refuses every change to it and every deletion of it, for every role, an administrator included.</p>
       <table>
         <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
         <tbody>
@@ -5058,6 +5108,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Project Cost <span class="group">Foundation</span></h3>
       <p class="lede">A cost charged to a project, kept as operational evidence separate from its accounting posting. A project cost records what was spent on a project, of what kind, on what date and in which currency. It stays as operational evidence even after finance posts it, and links to the task, timesheet, invoice line and journal line it came from, so spend can be traced and reconciled with the ledger. Entered or generated from time and expenses; approved by the project manager; posted by finance; read by project reporting. A cost belongs to one project and currency, and may name a task, a timesheet, an invoice line and the journal line that posted it. A cost is drafted, approved, then posted to the accounts. It may be cancelled before posting, and a posted cost is reversed rather than changed. Reversed and cancelled are final. Cost PC-1180 charges 4,200 of subcontracted labour to project PRJ-0042 on 12 May; once approved it is posted to the ledger.</p>
       <p class="meta">Stored as <code>bus_project_cost</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -5221,6 +5272,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       </ul>
       <h4>Lifecycle &mdash; ProjectCostLifecycle</h4>
       <p>A record starts at <code>DRAFT</code> and finishes at <code>REVERSED</code> or <code>CANCELLED</code>. These are the moves it may make, and no others:</p>
+      <p>A record that reaches a final state is a completed transaction: the application refuses every change to it and every deletion of it, for every role, an administrator included.</p>
       <table>
         <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
         <tbody>
@@ -5248,6 +5300,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Project Cost Cost Type <span class="group">Reference Data</span></h3>
       <p class="lede">The values of project cost cost type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_project_cost_cost_type</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -5353,6 +5406,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Project Cost Status <span class="group">Reference Data</span></h3>
       <p class="lede">The values of project cost status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_project_cost_status</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -5458,6 +5512,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Project Phase <span class="group">Foundation</span></h3>
       <p class="lede">A stage of a project that groups tasks and milestones within one portion of its lifecycle. Phases divide a project into stages such as design, build and handover, so progress can be reviewed and approved stage by stage rather than as one undifferentiated piece of work. Defined by the project manager; read in plans and status reports. A phase belongs to one project and groups its tasks and milestones. A phase is planned, active while its work runs, then completed. It may be cancelled. Completed and cancelled are final. The &quot;Build&quot; phase of PRJ-0042 contains twelve tasks and the milestone &quot;Prototype accepted&quot;.</p>
       <p class="meta">Stored as <code>bus_project_phase</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -5536,6 +5591,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       </ul>
       <h4>Lifecycle &mdash; ProjectPhaseLifecycle</h4>
       <p>A record starts at <code>PLANNED</code> and finishes at <code>COMPLETED</code> or <code>CANCELLED</code>. These are the moves it may make, and no others:</p>
+      <p>A record that reaches a final state is a completed transaction: the application refuses every change to it and every deletion of it, for every role, an administrator included.</p>
       <table>
         <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
         <tbody>
@@ -5560,6 +5616,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Project Phase Status <span class="group">Reference Data</span></h3>
       <p class="lede">The values of project phase status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_project_phase_status</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -5665,6 +5722,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Project Status <span class="group">Reference Data</span></h3>
       <p class="lede">The values of project status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_project_status</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -5770,6 +5828,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Project Task <span class="group">Foundation</span></h3>
       <p class="lede">A unit of work within a project, with an owner, dates, a priority and a measure of progress. Tasks break a project into work people can be assigned, scheduled and held to. Their status and percent complete roll up into how far the project has progressed and show what is blocked. Created by the project manager or team; updated by the assignee as work proceeds; read in plans and boards. A task belongs to a project, may have an assignee, a parent task and a milestone, and may carry project costs. A task starts not started, moves to in progress, may be blocked and resumed, and ends completed or cancelled. Completed and cancelled are final. Task &quot;Install conveyor controls&quot; in PRJ-0042 is assigned to a technician, due 20 June, and is 60 percent complete.</p>
       <p class="meta">Stored as <code>bus_project_task</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -5977,6 +6036,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       </ul>
       <h4>Lifecycle &mdash; ProjectTaskLifecycle</h4>
       <p>A record starts at <code>NOT_STARTED</code> and finishes at <code>COMPLETED</code> or <code>CANCELLED</code>. These are the moves it may make, and no others:</p>
+      <p>A record that reaches a final state is a completed transaction: the application refuses every change to it and every deletion of it, for every role, an administrator included.</p>
       <table>
         <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
         <tbody>
@@ -6004,6 +6064,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Project Task Priority <span class="group">Reference Data</span></h3>
       <p class="lede">The values of project task priority, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_project_task_priority</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -6109,6 +6170,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Project Task Status <span class="group">Reference Data</span></h3>
       <p class="lede">The values of project task status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_project_task_status</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -6214,6 +6276,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Resource Assignment <span class="group">Foundation</span></h3>
       <p class="lede">An assignment of a person, role or resource to a project with a defined responsibility and allocation. An assignment says who is committed to a project and in what capacity. It lets managers see how people are allocated, plan capacity and attribute time and cost, and it keeps the history of who was on the project when. Created by the project manager; read by resource planning, timesheets and finance. An assignment belongs to one project. An assignment is drafted, active while the person is committed, and completed when the commitment ends. It may be cancelled before it starts to matter. Completed and cancelled are final. A senior engineer is assigned to the Warehouse automation project at 50 percent from March to August.</p>
       <p class="meta">Stored as <code>bus_resource_assignment</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -6290,6 +6353,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       </ul>
       <h4>Lifecycle &mdash; ResourceAssignmentLifecycle</h4>
       <p>A record starts at <code>DRAFT</code> and finishes at <code>COMPLETED</code> or <code>CANCELLED</code>. These are the moves it may make, and no others:</p>
+      <p>A record that reaches a final state is a completed transaction: the application refuses every change to it and every deletion of it, for every role, an administrator included.</p>
       <table>
         <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
         <tbody>
@@ -6314,6 +6378,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Resource Assignment Status <span class="group">Reference Data</span></h3>
       <p class="lede">The values of resource assignment status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_resource_assignment_status</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -6419,6 +6484,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>State Province <span class="group">Foundation</span></h3>
       <p class="lede">A first-level division of a country, such as a state, province or region, from the ISO 3166-2 registry. States and provinces give addresses a standard, checkable subdivision. Choosing from this list avoids misspelt regions and lets reports group by region. Maintained as reference data; chosen in addresses; read by tax, shipping and reports. A state or province belongs to one country and contains cities. Entries are loaded from the standard and rarely change; when a division is abolished it is withdrawn without deleting history. &quot;California&quot; belongs to the United States and contains cities such as Los Angeles. Chosen from the list wherever a record needs a place, code or currency; maintained by an administrator when a registry changes.</p>
       <p class="meta">Stored as <code>bus_state_province</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -6516,6 +6582,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Task <span class="group">Foundation</span></h3>
       <p class="lede">A discrete unit of business work performed by a person, organisation, system or workflow participant. Tasks are how work is handed out and tracked, whether a person must act or a system step must run. Their type, status, owner and dates show what is waiting, what is stuck and what is done. Created by people or workflows; picked up by assignees; read by managers and reports. A task may belong to a workflow, an assignee, an organisation and a related document. A task is created, becomes ready, is assigned and worked, and ends completed, cancelled or failed. It may be blocked and resumed. All three end states are final. A task &quot;Approve purchase order PO-5120&quot; is assigned to a manager and completed the same day.</p>
       <p class="meta">Stored as <code>bus_task</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -6705,6 +6772,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       </ul>
       <h4>Lifecycle &mdash; TaskLifecycle</h4>
       <p>A record starts at <code>CREATED</code> and finishes at <code>COMPLETED</code> or <code>CANCELLED</code> or <code>FAILED</code>. These are the moves it may make, and no others:</p>
+      <p>A record that reaches a final state is a completed transaction: the application refuses every change to it and every deletion of it, for every role, an administrator included.</p>
       <table>
         <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
         <tbody>
@@ -6744,6 +6812,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Task Priority <span class="group">Reference Data</span></h3>
       <p class="lede">The values of task priority, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_task_priority</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -6849,6 +6918,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Task Status <span class="group">Reference Data</span></h3>
       <p class="lede">The values of task status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_task_status</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -6954,6 +7024,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Task Task Type <span class="group">Reference Data</span></h3>
       <p class="lede">The values of task task type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_task_task_type</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -7059,6 +7130,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Timesheet <span class="group">Project Management</span></h3>
       <p class="lede">A record of time reported for work done by a person against an engagement or other accountable context. A timesheet is how worked time becomes billable and costed. It ties hours to an engagement, can be reviewed before it is accepted, and is the source of labour cost and billing. Entered by the person who did the work; approved by a manager; read by billing and project cost. A timesheet is booked against one engagement and gives rise to project costs. A timesheet is drafted, active once submitted for approval and completed once approved and used. It may be cancelled before that. Completed and cancelled are final. Timesheet TS-2026-0311 records 38 hours on engagement ENG-2026-014 for the week of 9 March.</p>
       <p class="meta">Stored as <code>bus_timesheet</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -7136,6 +7208,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       </ul>
       <h4>Lifecycle &mdash; TimesheetLifecycle</h4>
       <p>A record starts at <code>DRAFT</code> and finishes at <code>COMPLETED</code> or <code>CANCELLED</code>. These are the moves it may make, and no others:</p>
+      <p>A record that reaches a final state is a completed transaction: the application refuses every change to it and every deletion of it, for every role, an administrator included.</p>
       <table>
         <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
         <tbody>
@@ -7160,6 +7233,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Timesheet Status <span class="group">Reference Data</span></h3>
       <p class="lede">The values of timesheet status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_timesheet_status</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -7265,6 +7339,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Unit Of Measure <span class="group">Foundation</span></h3>
       <p class="lede">Defines the measurement semantics that make numeric quantities comparable across CEDM workflows. A quantity without a valid unit is incomplete business information. UnitOfMeasure provides the dimension and conversion context needed to interpret quantities correctly. Central to Product, sales, procurement, receiving, inventory, fulfillment, invoicing, manufacturing, logistics, service, and reporting. Product supplies a default measurement context. Transaction lines may use compatible units. GoodsReceiptLine supplies received/accepted quantities. InventoryBalance and InventoryMovement require consistent measurement. InvoiceLine must be comparable for matching. UOM create/update/retire → identify Products and open transaction dependencies → validate conversions → update future eligibility/configuration → revalidate affected SalesOrderLine/PurchaseOrderLine/GoodsReceiptLine/InventoryMovement/InvoiceLine workflows → preserve historical quantity meaning. A conversion change is never a silent retroactive data transformation. Units are created and activated for use, may become inactive, and may eventually be retired. Retirement prevents new normal use but never changes the meaning of historical quantities. A change to code/name/symbol affects presentation and integrations; a change to category/baseUnit/conversionFactor affects quantity semantics and requires dependency validation; a status change affects future transaction eligibility; historical transaction evidence remains immutable. A product is stocked in EACH but purchased in BOX. If one BOX equals 10 EACH, the PO records 5 BOX and inventory posts 50 EACH after conversion. If the BOX conversion changes to 12 EACH, existing PO and receipt quantities are not silently reinterpreted. Open affected transactions must be revalidated or explicitly converted, while historical receipts and invoices retain the original conversion evidence.</p>
       <p class="meta">Stored as <code>bus_unit_of_measure</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -7398,6 +7473,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       </ul>
       <h4>Lifecycle &mdash; UnitOfMeasureLifecycle</h4>
       <p>A record starts at <code>ACTIVE</code> and finishes at <code>RETIRED</code>. These are the moves it may make, and no others:</p>
+      <p>A record that reaches that final state is a completed transaction: the application refuses every change to it and every deletion of it, for every role, an administrator included.</p>
       <table>
         <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
         <tbody>
@@ -7414,6 +7490,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Unit Of Measure Category <span class="group">Reference Data</span></h3>
       <p class="lede">The values of unit of measure category, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_unit_of_measure_category</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -7519,6 +7596,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Unit Of Measure Status <span class="group">Reference Data</span></h3>
       <p class="lede">The values of unit of measure status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_unit_of_measure_status</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>

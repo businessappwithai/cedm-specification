@@ -19,6 +19,11 @@ export function initDb(collections) {
     }
   }
   for (const c of collections) if (!store[c]) store[c] = [];
+  // A store written before rows carried a version gets one, so every record
+  // has an ETag a client can name in If-Match.
+  for (const rows of Object.values(store)) {
+    for (const row of rows) if (typeof row.version !== "number") row.version = 1;
+  }
   persist();
 }
 
@@ -31,7 +36,8 @@ export function find(collection, id) {
 }
 
 export function insert(collection, row) {
-  (store[collection] ??= []).push(row);
+  if (!store[collection]) store[collection] = [];
+  store[collection].push(row);
   persist();
   return row;
 }

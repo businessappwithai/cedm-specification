@@ -485,7 +485,11 @@ program
       if (!quiet) {
         console.log("\n📊 Entities found:");
         for (const e of allEntities) {
-          console.log(`   • ${e.name} (${e.attributes.length} attributes)`);
+          console.log(
+            `   • ${e.name} (${e.attributes.length} attributes${
+              e.concurrency === "last-write-wins" ? ", last-write-wins" : ""
+            })`
+          );
         }
 
         console.log(`\n🗂️  Entity categories (${categories.length}):`);
@@ -1174,6 +1178,16 @@ program
       console.log(`   Generated at:  ${meta.generatedAt ?? "—"}`);
       if (meta.entities?.length) {
         console.log(`   Entities:      ${(meta.entities as string[]).join(", ")}`);
+      }
+      // Optimistic locking is the default; these are the exceptions, and the
+      // states that close a record outright.
+      if (Array.isArray(meta.lastWriteWins)) {
+        console.log(
+          `   Last-write-wins: ${meta.lastWriteWins.length ? (meta.lastWriteWins as string[]).join(", ") : "none — every entity is optimistic"}`
+        );
+      }
+      if (Array.isArray(meta.finalStates) && meta.finalStates.length) {
+        console.log(`   Final states:  ${(meta.finalStates as string[]).join("; ")}`);
       }
       if (meta.input) {
         const inp = typeof meta.input === "string" ? meta.input : JSON.stringify(meta.input);

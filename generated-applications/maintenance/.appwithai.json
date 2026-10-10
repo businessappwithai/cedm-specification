@@ -136,6 +136,25 @@
     "RepairEstimateCompletionConfirmed on RepairEstimate (1 steps, rule)",
     "ProductExceptionRaised on Product (1 steps, rule)"
   ],
+  "lastWriteWins": [],
+  "finalStates": [
+    "Party: RETIRED",
+    "Organization: RETIRED",
+    "PartyRole: EXPIRED",
+    "Address: RETIRED",
+    "Location: CLOSED, RETIRED",
+    "Currency: RETIRED",
+    "ExchangeRate: EXPIRED, CANCELLED",
+    "UnitOfMeasure: RETIRED",
+    "Task: COMPLETED, CANCELLED, FAILED",
+    "Asset: DISPOSED, RETIRED",
+    "Meter: RETIRED",
+    "MaintenancePlan: RETIRED",
+    "MaintenanceWorkOrder: COMPLETED, CANCELLED",
+    "RepairEstimate: COMPLETED, REJECTED, CANCELLED",
+    "Container: SOLD, SCRAPPED, LOST, RETIRED",
+    "Product: DISCONTINUED, RETIRED"
+  ],
   "packageManager": "bun",
-  "generatedAt": "2026-10-09T15:29:33.000Z"
+  "generatedAt": "2026-10-10T08:30:58.094Z"
 }

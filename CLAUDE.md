@@ -657,9 +657,21 @@ Things to know before editing it:
   lets the caller's `If-Match` still hold for the corrected save. The screen
   side is `lib/concurrency.ts` and `components/admin/conflict-dialog.tsx`:
   refresh to the record the refusal carried, or overwrite naming its version.
+  **A delete is held to the same guard.** `DynamicRepo::soft_delete` takes the
+  `WriteGuard` too, so a stale `If-Match` is 409 `VERSION_CONFLICT`, none is 428
+  on an optimistic table, and a record in a final state is never deleted — 409
+  `RECORD_FINAL` for every caller, `If-Match: *` included, because deleting a
+  completed transaction undoes it as surely as editing it. A workflow's
+  `DeleteEntity` step writes as the system (`WriteGuard::default()`). The
+  screen opens the same dialog (`action="delete"`, *Delete it anyway*), and
+  the test cleanups send `*` and report final rows as kept, not failed. A
+  record whose read says `transactionStatus.isFinal` offers no Edit
+  (`ADToolbar canEdit`), so the screen never opens a form the API would refuse.
+  `useUpdateEntity`/`useDeleteEntity` were removed: neither named a version,
+  and no screen used them.
   The gates are `tests/requests/concurrency.rs` and the bun
   `12-optimistic-lock`; every other suite reads before it writes
-  (`support::if_match`, `harness.saveRecord`).
+  (`support::if_match`, `harness.saveRecord`, `harness.deleteRecord`).
 - **The dashboard is scoped to the caller, and it is `/api/me/dashboard`.**
   The front page used to be built from four unscoped calls — two `/sys/tables`
   listings, `/sys/categories/with-entities` and `/me/permissions`. The first

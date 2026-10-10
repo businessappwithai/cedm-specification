@@ -106,6 +106,22 @@
     "ProcessInstanceFollowUpRequired on ProcessInstance (1 steps, rule)",
     "ProcessInstanceCompletionConfirmed on ProcessInstance (1 steps, rule)"
   ],
+  "lastWriteWins": [],
+  "finalStates": [
+    "Party: RETIRED",
+    "Organization: RETIRED",
+    "PartyRole: EXPIRED",
+    "Address: RETIRED",
+    "Location: CLOSED, RETIRED",
+    "Currency: RETIRED",
+    "ExchangeRate: EXPIRED, CANCELLED",
+    "UnitOfMeasure: RETIRED",
+    "Task: COMPLETED, CANCELLED, FAILED",
+    "BusinessProcess: RETIRED",
+    "Workflow: RETIRED",
+    "ProcessDefinition: COMPLETED, CANCELLED",
+    "ProcessInstance: COMPLETED, CANCELLED"
+  ],
   "packageManager": "bun",
-  "generatedAt": "2026-10-09T15:31:15.856Z"
+  "generatedAt": "2026-10-10T08:32:43.264Z"
 }

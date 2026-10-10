@@ -97,6 +97,20 @@
     "ProjectExceptionRaised on Project (1 steps, rule)",
     "ProjectFollowUpRequired on Project (1 steps, rule)"
   ],
+  "lastWriteWins": [],
+  "finalStates": [
+    "Party: RETIRED",
+    "Organization: RETIRED",
+    "PartyRole: EXPIRED",
+    "Address: RETIRED",
+    "Location: CLOSED, RETIRED",
+    "Currency: RETIRED",
+    "ExchangeRate: EXPIRED, CANCELLED",
+    "UnitOfMeasure: RETIRED",
+    "Task: COMPLETED, CANCELLED, FAILED",
+    "ConstructionProject: COMPLETED, CANCELLED",
+    "Project: CLOSED, CANCELLED"
+  ],
   "packageManager": "bun",
-  "generatedAt": "2026-10-09T15:28:06.787Z"
+  "generatedAt": "2026-10-10T08:29:25.963Z"
 }

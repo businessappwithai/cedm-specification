@@ -1,4 +1,4 @@
-// Builds an OpenAPI 3.0 document from the EML model at runtime.
+// Builds an OpenAPI 3.0 document from the model at runtime.
 
 import { ENUMS, MODEL } from "./model.js";
 
@@ -38,17 +38,49 @@ export function buildOpenApi() {
         responses: { 201: { description: "Created" }, 400: { description: "Validation error" } },
       },
     };
+    const optimistic = entity.concurrency !== "last-write-wins";
+    const ifMatch = {
+      name: "If-Match",
+      in: "header",
+      required: optimistic,
+      description: optimistic
+        ? 'The version the record was read at, from its ETag ("v<n>"), or * to overwrite deliberately.'
+        : 'The version the record was read at ("v<n>"). Optional: this entity is last-write-wins.',
+      schema: { type: "string" },
+    };
+    const refused = {
+      409: {
+        description:
+          "VERSION_CONFLICT: the record changed since the If-Match version; `conflict` carries it as it now stands. RECORD_FINAL: the record is in a final state, a completed transaction. Also an illegal transition.",
+      },
+      ...(optimistic ? { 428: { description: "No If-Match on an optimistic entity" } } : {}),
+    };
+    const update = {
+      summary: `Update ${entity.name}`,
+      parameters: [ifMatch],
+      requestBody: { content: { "application/json": { schema: ref } } },
+      responses: {
+        200: { description: "OK, with the new ETag" },
+        404: { description: "Not found" },
+        ...refused,
+      },
+    };
     paths[`/api/${col}/{id}`] = {
       get: {
         summary: `Get ${entity.name}`,
-        responses: { 200: { description: "OK" }, 404: { description: "Not found" } },
+        responses: { 200: { description: "OK, with its ETag" }, 404: { description: "Not found" } },
       },
-      put: {
-        summary: `Update ${entity.name}`,
-        requestBody: { content: { "application/json": { schema: ref } } },
-        responses: { 200: { description: "OK" }, 409: { description: "Illegal transition" } },
+      put: update,
+      patch: update,
+      delete: {
+        summary: `Delete ${entity.name}`,
+        parameters: [ifMatch],
+        responses: {
+          204: { description: "Deleted" },
+          404: { description: "Not found" },
+          ...refused,
+        },
       },
-      delete: { summary: `Delete ${entity.name}`, responses: { 204: { description: "Deleted" } } },
     };
   }
 

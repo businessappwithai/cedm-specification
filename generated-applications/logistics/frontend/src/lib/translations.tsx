@@ -47,6 +47,10 @@ const translations = {
     "conflict.overwrite": "Overwrite with my changes",
     "conflict.saved": "Saved",
     "conflict.savedStatus": "Status",
+    "conflict.titleDelete": "This record was changed before you deleted it",
+    "conflict.changedSinceRead": "Changed since you opened it",
+    "conflict.finalExplainedDelete": "A record in a final state is a completed transaction and cannot be deleted. Refresh to see it as it now stands.",
+    "conflict.deleteAnyway": "Delete it anyway",
   },
 };
 

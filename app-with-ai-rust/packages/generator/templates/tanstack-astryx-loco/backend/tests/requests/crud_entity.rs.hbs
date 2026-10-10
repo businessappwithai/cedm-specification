@@ -219,6 +219,7 @@ async fn soft_deletes_a_record() {
         let deleted = request
             .delete(&format!("/api/bus/{}/{id}", meta.route))
             .add_header("authorization", bearer(&token))
+            .add_header("if-match", if_match(&created))
             .await;
         assert_eq!(deleted.status_code(), 204);
 
