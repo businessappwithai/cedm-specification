@@ -8,7 +8,7 @@
  * The harness also owns cleanup: anything registered with `track()` is deleted
  * on teardown, in reverse creation order so children go before parents.
  *
- * Generated: 2026-10-16T07:10:59.771Z
+ * Generated: 2026-10-16T13:17:22.974Z
  * Project: container-logistics
  */
 
@@ -193,7 +193,21 @@ class TestHarness {
       try {
         return await this.create(entity, minimal);
       } catch {
-        return null;
+        // A rule over a flag and another field (a public holiday is not a working
+        // day) refuses the factory's flag whichever way its counter fell, and the
+        // required-only payload sends the same flag again. Reverse every flag once.
+        const flipped: Record<string, unknown> = { ...payload };
+        for (const field of entity.fields) {
+          if (field.type === "boolean" && typeof flipped[field.name] === "boolean") {
+            flipped[field.name] = !flipped[field.name];
+          }
+        }
+        for (const [key, value] of Object.entries(overrides)) flipped[key] = value;
+        try {
+          return await this.create(entity, flipped);
+        } catch {
+          return null;
+        }
       }
     }
   }

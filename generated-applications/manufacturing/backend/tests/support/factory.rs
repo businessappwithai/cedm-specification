@@ -8,7 +8,7 @@
 //! randomness — and carry a per-run token so they never collide with the rows
 //! an earlier run left behind.
 //!
-//! Generated: 2026-10-10T04:18:27.253Z
+//! Generated: 2026-10-16T13:19:32.738Z
 //! Project: manufacturing
 
 #![allow(dead_code)]
@@ -62,6 +62,10 @@ pub fn value_for(field: &FieldMeta) -> Value {
     let n = unique() + offset;
     match field.field_type {
         FieldType::Integer => json!(i64::try_from(n).unwrap_or(1) + 1),
+        // A percentage runs from 0 to 100 — the rule the model derives for any column named
+        // like one — and the counter-based value below is far above that. The bun harness's
+        // name table says the same.
+        FieldType::Decimal if is_percentage(field.name) => json!((n % 99) as f64 + 0.5),
         FieldType::Decimal => json!(n as f64 + 0.5),
         FieldType::Boolean => json!(n.is_multiple_of(2)),
         FieldType::Date => json!("2026-06-01"),
@@ -74,6 +78,15 @@ pub fn value_for(field: &FieldMeta) -> Value {
             json!(fit(field, format!("e2e-{}-{token}-{n}", field.name), n))
         }
     }
+}
+
+/// Whether a column holds a percentage, by the same name test the model's derived rule uses
+/// (`percent`, `percentage` or `pct` at the end).
+fn is_percentage(column: &str) -> bool {
+    let name = column.to_ascii_lowercase();
+    ["percent", "percentage", "pct"]
+        .iter()
+        .any(|suffix| name.ends_with(suffix))
 }
 
 /// A fresh value for `field` that carries `label` when the column is long
@@ -280,7 +293,33 @@ async fn create_inner(
         .json(&Value::Object(minimal))
         .await;
 
-    (retry.status_code() == 201).then(|| retry.json::<Value>())
+    if retry.status_code() == 201 {
+        return Some(retry.json::<Value>());
+    }
+
+    // A rule over a flag and another field — a public holiday is not a working day —
+    // refuses the factory's flag whichever way its counter fell, and sending only the
+    // required fields sends the same flag again. The other polarity is the other
+    // combination such a rule can ask for, so try every flag reversed, once.
+    let mut flipped = payload;
+    for field in entity
+        .writable_fields()
+        .filter(|f| f.field_type == FieldType::Boolean)
+    {
+        if let Some(Value::Bool(flag)) = flipped.get(field.name).cloned() {
+            flipped.insert(field.name.to_string(), Value::Bool(!flag));
+        }
+    }
+    for (key, value) in overrides {
+        flipped.insert((*key).to_string(), value.clone());
+    }
+    let last = request
+        .post(&format!("/api/bus/{}", entity.route))
+        .add_header("authorization", bearer(token))
+        .json(&Value::Object(flipped))
+        .await;
+
+    (last.status_code() == 201).then(|| last.json::<Value>())
 }
 
 enum Choice {
