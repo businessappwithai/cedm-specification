@@ -402,6 +402,26 @@ shipped the wrong one. Neither checker carries the catalogue, so nothing reports
 it; check a new name against
 `node_modules/lucide-react/dynamicIconImports.js` in a generated frontend.
 
+**An entity's name is not free: it becomes file names the toolchain already
+owns.** Every entity gets `routes/<slug>.tsx` in the frontend and `crud_<name>.rs`
+and `rules_<name>.rs` in the request suite. An entity called `Route` wrote
+`routes/route.tsx`, TanStack Router's reserved layout file, and the frontend
+stopped building (`Invalid route path ""`; it was `logistics`). An entity called
+`Workflow` wrote `rules_workflow.rs`, which the shared workflow suite also
+claimed, and the `workflow` application's whole test crate failed with E0428.
+Neither shows in any corpus model, and neither is visible to the parity gate or
+to the 19 applications a change happens to touch. The route rule is
+`isReservedRouteSlug` (the router's own file convention plus every top-level
+route the template ships, read from the template directory so a new route is
+protected the day it lands); a reserved slug gets no explicit files and is
+served by the `$entity` catch-all, and `--force` regeneration removes route
+files an earlier run wrote for an entity that is gone or has since become
+reserved (only those carrying the generator's marker). The shared suite is
+`workflow_rules`, in both generators; `requests-module-names.test.ts` fails if
+any entity name can collide with a shared module. **Test every application, not
+the ones you changed:** these two sat on main for days because no round tested
+`workflow` or built `logistics`' frontend.
+
 Because directives are read from `%%` lines, **a new helper or directive is
 invisible to the parity gate unless a corpus model exercises it** — Handlebars
 strict mode is off in both engines, so a helper missing from the Rust registry
@@ -2130,7 +2150,7 @@ Drive it by button text — the Astryx `Button` adapter does not forward
 **Screens name an entity by its window, never its table.** `useEntityLabel()`
 (`use-dictionary-entities.ts`) is the one place a stored `bus_…` name becomes a
 label; the rules, decision-table, workflow monitor, workflow list and trigger
-card use it. `scripts/qa/smoke-application.mjs` fails a screen that shows
+card use it. A generated application's own `tests/smoke.mjs` fails a screen that shows
 `\bbus_[a-z0-9_]+`.
 
 **`AlertDialogTrigger` is rendered by the adapter.** The shadcn composed form
@@ -2146,9 +2166,21 @@ honours `FieldMeta::max_length` (a two-letter country code cannot hold
 ISO code, and takes a narrowed reference from the lookup the form uses —
 otherwise Country cannot be created and everything holding one fails.
 
+**Every generated application ships its own QA**: `tests/smoke.mjs` (a browser
+smoke test of every screen — a crashed screen, a leaked `bus_…` name, a 5xx, a
+console error all fail it) and `tests/qa.sh`, which runs it and then the Rust
+request suite, starting the backend and frontend if they are not up. `bun run
+qa` runs both, `bun run smoke` the browser half (screenshots land in
+`tests/smoke-output/`). They are templates (`tests/smoke.mjs.hbs`, `qa.sh.hbs`),
+so a regenerated application gets them; `scripts/qa/qa-loop.sh` runs each
+application's own copy. The bun suites write test values through `marked()`,
+which fits a value to its column: a two-letter unique code cannot take
+`e2e-<timestamp>`, and cutting a long value to the limit made every value for
+the column the same prefix.
+
 **The serial QA loop** is `bash scripts/qa/qa-loop.sh <domain>… | --all`: per
 domain it regenerates, builds, starts, smoke-tests every screen
-(`scripts/qa/smoke-application.mjs`), runs the application's own `cargo test`,
+(the application's own `tests/smoke.mjs`), runs its `cargo test`,
 records `$QA_OUT/summary.tsv` (default `/tmp/claude-0/qa-loop`) and deletes the
 build before the next one.
 
@@ -2354,6 +2386,21 @@ all while looking like a completed fix.
 There is **one** checker. The generator, the `eml` CLI, the modelling tool and
 the browser bundle all run `readModelYaml` — YAML, the schema, then
 `language/yaml/checker.ts` — so a rule added there reaches every reader.
+
+### Build an application's documentation website
+
+`renderSite` (`packages/generator/src/website`) turns a compiled model into a
+Docusaurus project — a home page, one page per business entity, one per list of
+values, and an administrator section — and `bun scripts/build-website.ts
+<domain>` writes it to `website/<domain>/` (`--all` for every application).
+Entities are named by their window and fields by their label, never by table
+or column. A page links a screenshot only if the file exists, so a site builds
+without any; `scripts/website/capture.ts` takes them from a running application
+through gstack's browser and `scripts/website/build-all.sh` does both. The
+rendered sites and their screenshots are build output and are not committed.
+Build one with `bun install && bun run build` inside `website/<domain>/` before
+trusting a change to the renderer: Docusaurus fails on a broken link, and only
+a real build finds one.
 
 ### Add a core subpath export
 
