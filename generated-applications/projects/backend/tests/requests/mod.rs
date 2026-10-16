@@ -5,7 +5,7 @@
 //! every business suite depends on — then the per-entity CRUD and rules
 //! modules, which are generated one per entity in the model.
 //!
-//! Generated: 2026-10-09T15:30:02.867Z
+//! Generated: 2026-10-16T05:36:43.036Z
 //! Project: projects
 
 mod accounts;
@@ -24,10 +24,12 @@ mod rate_limit;
 mod rbac;
 mod records;
 mod reports;
-mod rules_workflow;
+// Not `rules_workflow`: every entity gets `crud_<name>` and `rules_<name>`, so an entity
+// called Workflow would define `rules_workflow` a second time.
 mod saga_execution;
 mod system_config;
 mod workflow;
+mod workflow_rules;
 
 mod crud_address;
 mod crud_address_address_type;

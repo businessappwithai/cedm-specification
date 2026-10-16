@@ -98,6 +98,22 @@ E2E test templates are located in:
 ❌ Complex business logic
 ❌ Authentication/authorization (can be added later)
 
+## Automated QA of a generated application
+
+Every generated application ships two checks and one command that runs both
+(`<app>/tests/`):
+
+| File | What it does |
+|---|---|
+| `smoke.mjs` | Browser smoke test. Signs in, visits the dashboard, every window's list, first record and create page, the rules, workflow and report screens; cycles all seven themes, collapses the menu, clicks Refresh, counts workflow state bars. Fails on a crashed screen, a leaked `bus_…` table name, a 5xx, a console error. Prints one JSON object; exits 1 on any finding. |
+| `qa.sh` | Starts the backend and frontend if they are not running (the backend with the general rate limit off — the smoke test is faster than a person), runs `smoke.mjs`, then `cargo test --test app`, and stops what it started. Non-zero if either fails. |
+
+`bun run qa` runs both; `bun run smoke` runs the browser test alone
+(screenshots land in `tests/smoke-output/`). Both are templates
+(`templates/tanstack-astryx-loco/tests/{smoke.mjs,qa.sh}.hbs`), so every
+regenerated application gets them. `bash scripts/qa/qa-loop.sh <domain>… | --all`
+runs this over `generated-applications/` one application at a time.
+
 ## Running the Tests
 
 ### After generating an application:

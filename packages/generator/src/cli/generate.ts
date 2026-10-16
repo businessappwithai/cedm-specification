@@ -393,7 +393,7 @@ program
 program
   .command("generate")
   .description("Generate a full-stack application from a model (.eml.yaml)")
-  .requiredOption("-i, --input <file>", "The model: a YAML document (.eml.yaml)")
+  .requiredOption("-i, --input <file>", "The model: a CEDM application (.cedm.yaml) or a model document (.eml.yaml)")
   // Output
   .requiredOption("-o, --output <dir>", "Output directory")
   .option("--force", "Overwrite existing output directory without prompting")
@@ -684,7 +684,10 @@ program
             `   Rust suite:     cd ${outputDir}/backend && LOCO_ENV=test cargo test --test app`
           );
           console.log(`   bun suite:      cd ${outputDir}/tests && ${pm} run test`);
-          console.log(`                   (test:fast skips the bulk-seed volume suite)\n`);
+          console.log(`                   (test:fast skips the bulk-seed volume suite)`);
+          // One command for both checks: a browser smoke test of every screen
+          // and the Rust request suite (tests/qa.sh).
+          console.log(`   Whole app QA:   cd ${outputDir}/tests && ${pm} run qa\n`);
         }
       }
 
@@ -804,7 +807,7 @@ program
   .description(
     "Add or regenerate a single entity from a model into an existing generated project"
   )
-  .requiredOption("-i, --input <file>", "The model containing the entity (.eml.yaml)")
+  .requiredOption("-i, --input <file>", "The model containing the entity (.cedm.yaml or .eml.yaml)")
   .requiredOption("-e, --entity <name>", "Entity name to generate (PascalCase, e.g. 'Compound')")
   .requiredOption(
     "-o, --output <dir>",
@@ -1209,7 +1212,7 @@ program
 program
   .command("generate:backend")
   .description("Generate backend only")
-  .requiredOption("-i, --input <file>", "The model (.eml.yaml)")
+  .requiredOption("-i, --input <file>", "The model (.cedm.yaml or .eml.yaml)")
   .requiredOption("-o, --output <dir>", "Output directory")
   .option("-n, --name <name>", "Project name", "my-backend")
   .option("-s, --stack <stack>", "Backend stack: loco (the only stack)", "loco")
@@ -1261,7 +1264,7 @@ program
 program
   .command("generate:frontend")
   .description("Generate frontend only")
-  .requiredOption("-i, --input <file>", "The model (.eml.yaml)")
+  .requiredOption("-i, --input <file>", "The model (.cedm.yaml or .eml.yaml)")
   .requiredOption("-o, --output <dir>", "Output directory")
   .option("-n, --name <name>", "Project name", "my-frontend")
   .option("-s, --stack <stack>", "Frontend stack: tanstack | astryx", "tanstack")

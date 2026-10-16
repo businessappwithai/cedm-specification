@@ -28,8 +28,7 @@ The ones wired into `package.json` are named by their `bun run` script.
 |---|---|
 | `serve-application.sh` | Runs one generated application from a scratch copy and leaves it running |
 | `run-and-screenshot.sh`, `screenshot-application.mjs` | Runs each domain application and captures its screens |
-| `qa/qa-loop.sh` | Serial QA: regenerate, build, start, smoke-test every screen, run `cargo test`, record a summary |
-| `qa/smoke-application.mjs` | Browser smoke test of one running application |
+| `qa/qa-loop.sh` | Serial QA: regenerate, build, start, smoke-test every screen with the application's own `tests/smoke.mjs`, run `cargo test`, record a summary |
 | `qa/rules-matrix.ts`, `qa/workflow-matrix.ts`, `qa/workflow-ui.ts`, `qa/saga-view-check.ts` | Business-rule and workflow QA against a running application |
 
 ## Setup and administration

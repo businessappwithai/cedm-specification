@@ -14,6 +14,25 @@ bun run build
 bun run start
 ```
 
+## Generating an application from CEDM
+
+An application is a CEDM model, one per domain (`applications/<domain>.cedm.yaml`),
+and every command reads it directly. `.eml.yaml` remains the model document it
+is lowered to.
+
+```bash
+bash scripts/generate-domain-applications.sh sales        # one domain
+bun run generate:tanstack -- -i applications/sales.cedm.yaml -o out -n sales
+bash scripts/qa/qa-loop.sh sales                          # generate, serve, smoke, cargo test
+```
+
+Regenerating over an existing project with `--force` overwrites and also removes
+the per-entity route files an earlier run wrote for an entity the model no
+longer has (only files carrying the generator's "Generated thin wrapper"
+marker). An entity whose name the router reads as a file convention (`Route`,
+`Index`, or any name the template already routes, such as `Admin`) has no route
+file of its own and is served by the `$entity` catch-all.
+
 ## Build System
 
 ### Build Status

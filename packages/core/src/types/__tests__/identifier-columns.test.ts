@@ -42,6 +42,26 @@ describe("identifierColumnNames", () => {
     expect(identifierColumnNames(columns("id", "code", "notes"), "id")).toEqual(["code"]);
   });
 
+  it("takes order_number, invoice_number and po_reference like a bare number", () => {
+    // A sales order points at a currency and a customer, which made it look like a
+    // join entity and labelled it by them; the number is what people quote.
+    const salesOrder = [
+      ...columns("id", "order_number", "status"),
+      fk("currency_id"),
+      fk("customer_id"),
+    ];
+    expect(identifierColumnNames(salesOrder, "id")).toEqual(["order_number"]);
+    expect(identifierColumnNames(columns("id", "po_reference", "notes"), "id")).toEqual([
+      "po_reference",
+    ]);
+  });
+
+  it("does not take a foreign key that merely ends in _code or _number", () => {
+    expect(
+      identifierColumnNames([...columns("id", "notes"), fk("country_code")], "id")
+    ).not.toContain("country_code");
+  });
+
   it("never marks the key, which would put a uuid at the front of every label", () => {
     for (const declared of [
       columns("id", "name"),

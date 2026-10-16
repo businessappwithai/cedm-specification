@@ -24,7 +24,9 @@ mod records;
 mod reports;
 mod rbac;
 mod concurrency;
-mod rules_workflow;
+// Not `rules_workflow`: every entity gets `crud_<name>` and `rules_<name>`, so an entity
+// called Workflow would define `rules_workflow` a second time.
+mod workflow_rules;
 mod saga_execution;
 mod system_config;
 mod workflow;

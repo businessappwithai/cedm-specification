@@ -10,6 +10,8 @@
     "test:full": "bun run run.ts --full",
     "test:fast": "bun run run.ts --fast",
     "test:attach": "bun run run.ts --no-server",
+    "smoke": "bun smoke.mjs --shots",
+    "qa": "bash qa.sh",
     "clean": "bun run cleanup.ts",
     "clean:all": "bun run cleanup.ts --all",
     "clean:dry": "bun run cleanup.ts --dry-run",
