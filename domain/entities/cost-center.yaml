@@ -9,10 +9,117 @@ entity:
   attributes:
     - {name: costCenterId, type: uuid, required: true, immutable: true, help: {summary: The identity of the cost centre., usage: Generated on creation; budget lines and postings refer to it.}}
     - {name: code, type: string, required: true, maxLength: 100, help: {summary: 'The code by which the cost centre is known in postings and reports, such as 4100.', usage: 'Assigned by finance; stable, because history is reported under it.'}}
+    - name: name
+      type: string
+      required: true
+      maxLength: 150
+      help:
+        summary: The name of the cost centre, such as "Plant Lyon – Assembly".
+        usage: Shown on reports and wherever the cost centre is chosen.
+        relationshipContext: Identifies the cost centre for people, with the code.
+    - name: category
+      type: enum
+      required: true
+      default: PRODUCTION
+      values:
+        - PRODUCTION
+        - SALES
+        - ADMINISTRATION
+        - RESEARCH
+        - SERVICE
+      help:
+        valueSemantics:
+          PRODUCTION: Makes products or delivers services, so its costs flow into product cost.
+          SALES: Sells and markets the company's offering; its costs are reported as selling expense.
+          ADMINISTRATION: Runs general administration such as finance, HR and management; its costs stay out of product cost.
+          RESEARCH: Researches and develops new products and methods; its costs are reported as research and development expense.
+          SERVICE: Provides internal services to other cost centres, such as IT or maintenance, and is usually allocated onward.
+        summary: The kind of activity whose costs it collects.
+        usage: Decides how its costs are allocated and how they appear in the income statement by function.
+        relationshipContext: Production costs flow into product costs; administrative ones do not.
+    - name: validFrom
+      type: date
+      required: true
+      help:
+        summary: The first day postings may be made to it.
+        usage: Set when the cost centre is created.
+        relationshipContext: Not later than the valid-to date.
+    - name: validTo
+      type: date
+      required: false
+      help:
+        summary: The last day postings may be made to it.
+        usage: Set when the unit is closed or reorganised.
+        relationshipContext: Empty while it is open.
+    - name: status
+      type: enum
+      required: true
+      default: ACTIVE
+      values:
+        - ACTIVE
+        - BLOCKED
+        - CLOSED
+      help:
+        summary: Whether postings may currently be made to the cost centre.
+        usage: Moved on by controlling when a unit is paused or retired; budget owners check it before charging costs.
+        relationshipContext: Blocked and closed cost centres are refused on new postings, while their earlier postings stay in reports.
+        valueSemantics:
+          ACTIVE: Open for postings and available when costs are assigned.
+          BLOCKED: Temporarily closed for postings, for example during a reorganisation or review.
+          CLOSED: No longer used for new postings; kept so past costs can still be reported.
   relationships:
     - {name: organization, target: Organization, cardinality: '1', ownership: reference, help: {summary: The organisation that the cost centre belongs to., usage: Set at creation; limits the postings and budgets that can use it., cardinalityMeaning: 'Exactly one organisation: responsibility cannot be split between legal entities.', workflowRole: Scopes cost reporting to the right entity.}}
+    - name: manager
+      target: Person
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The manager who answers for the cost centre's spending.
+        usage: Receives its reports and approves its costs above limits.
+        cardinalityMeaning: One per cost centre.
+        context: Should be reassigned when the manager changes.
+    - name: parentCostCenter
+      target: CostCenter
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The cost centre it rolls up into.
+        usage: Builds the hierarchy that reports are summed along.
+        cardinalityMeaning: At most one parent.
+        context: A cost centre cannot roll up into itself.
+    - name: profitCenter
+      target: ProfitCenter
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The profit centre its costs belong to.
+        usage: Lets costs be reported against the revenue they support.
+        cardinalityMeaning: At most one.
+        context: Set by controlling.
   invariants:
     - {id: COSTCENTER-001, rule: The record must not directly create or rewrite actual JournalEntry evidence.}
+    - id: COST-CENTER-001
+      rule: A Cost Center must not be its own ancestor through parentCostCenter; the parentCostCenter chain is acyclic.
+    - {id: COST-CENTER-EXE-001, rule: "Valid To must not be earlier than valid from.", violatedWhen: "valid_from != null and valid_to != null and valid_to < valid_from", message: "Valid To cannot be earlier than valid from."}
+  workflows:
+    - name: ExceptionRaised
+      title: "Raise a task when a cost center is stopped"
+      description: "When a cost center is blocked, a high-priority task asks someone to resolve it."
+      when: "status == \"BLOCKED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: resolve"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "COST-CENTER-EXCEPTION-{{id}}"
+              name: "Resolve cost center {{name}}"
+              description: "Cost center {{name}} is now {{status}}. Find out why it stopped and move it on or close it."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "HIGH"
   help:
     summary: A unit of responsibility to which costs are assigned and against which they are analysed, separate from the legal accounts.
     businessMeaning: Ledger accounts say what a cost was; a cost centre says who is responsible for it. Splitting the two lets a manager see and answer for their own spending without changing the chart of accounts.
@@ -20,4 +127,27 @@ entity:
     relationshipContext: Each cost centre belongs to one Organization; budgets and postings refer to it as a dimension. It never creates or alters ledger entries on its own.
     lifecycle: A cost centre is created for the life of the responsibility and retired when it ends; postings made to it remain in history.
     example: Cost centre 4100 "Marketing – Events", responsible for trade show and sponsorship spending.
+  lifecycle:
+    title: Cost Center Lifecycle
+    attribute: status
+    states:
+      - ACTIVE
+      - BLOCKED
+      - CLOSED
+    initial: ACTIVE
+    terminal:
+      - CLOSED
+    transitions:
+      - from: ACTIVE
+        to: BLOCKED
+        action: block
+      - from: BLOCKED
+        to: ACTIVE
+        action: unblock
+      - from: ACTIVE
+        to: CLOSED
+        action: close
+      - from: BLOCKED
+        to: CLOSED
+        action: close
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-COST-CENTER}

@@ -41,6 +41,71 @@ entity:
           COMPLETED: Finished with results recorded; this is the state approval decisions rely on, and it is final.
           CANCELLED: Abandoned before completion; kept so the attempt is on record, and it cannot support an approval.
         relationshipContext: Status changes can affect related AIModel workflows but never erase historical evidence.
+    - name: evaluationType
+      type: enum
+      required: true
+      default: PERFORMANCE
+      values:
+        - PERFORMANCE
+        - FAIRNESS
+        - ROBUSTNESS
+        - SAFETY
+        - DRIFT
+      help:
+        summary: "Which quality dimension this evaluation tests: accuracy, fairness, robustness, safety or drift."
+        usage: Chosen by the model risk team when the evaluation is planned.
+        relationshipContext: Several types are usually needed before a model is approved for use.
+        valueSemantics:
+          PERFORMANCE: Measures accuracy and other quality metrics against a labelled test set.
+          FAIRNESS: Compares outcomes between groups of people to expose unequal treatment.
+          ROBUSTNESS: Tests behaviour on unusual, noisy or adversarial inputs.
+          SAFETY: Looks for harmful, offensive or otherwise unacceptable outputs.
+          DRIFT: Checks how far performance has moved since the model was deployed.
+    - name: criteria
+      type: text
+      required: false
+      help:
+        summary: The metrics and thresholds the model must meet.
+        usage: Set before running, so the verdict is not chosen after seeing results.
+        relationshipContext: Usually from the AI policy.
+    - name: results
+      type: text
+      required: false
+      help:
+        summary: The full set of metrics and observations the tests produced, in the evaluator's own words and figures.
+        usage: Recorded once the tests finish, so reviewers can read the evidence behind the headline metric.
+        relationshipContext: Read against the acceptance criteria that the evaluation was planned to meet.
+    - name: primaryMetric
+      type: string
+      required: false
+      maxLength: 60
+      help:
+        summary: The headline measure chosen to judge this evaluation, such as AUC, F1 score or error rate.
+        usage: Named by the evaluator and shown in model lists so users can compare evaluations.
+        relationshipContext: Always read together with the value recorded beside it.
+    - name: primaryMetricValue
+      type: decimal
+      required: false
+      precision: 12
+      scale: 6
+      help:
+        summary: The number the model achieved on the headline metric during this evaluation.
+        usage: Entered when results are recorded; shown in model lists and trend charts across successive evaluations.
+        relationshipContext: Expressed in the scale of the named metric, for example a fraction between zero and one.
+    - name: passed
+      type: boolean
+      required: false
+      help:
+        summary: Whether the model met all the criteria.
+        usage: Decided when the evaluation completes; deployment requires a pass.
+        relationshipContext: Present once completed.
+    - name: evaluatedAt
+      type: datetime
+      required: false
+      help:
+        summary: The date and time at which the evaluation finished and its results were final.
+        usage: Stamped on completion by the evaluator and used to order evaluations and judge how recent the evidence is.
+        relationshipContext: Empty until the evaluation has completed.
   relationships:
     - name: context
       target: AIModel
@@ -51,6 +116,34 @@ entity:
         usage: Chosen when the evaluation is created and not changed afterwards, so the evidence always stays with the model version it was run for.
         cardinalityMeaning: 'Exactly one model: an evaluation without a subject is meaningless, while a model may have many evaluations over its life.'
         workflowRole: Links the evidence to the model so deployment and review can check it.
+    - name: model
+      target: AIModel
+      cardinality: "1"
+      ownership: reference
+      help:
+        summary: The model evaluated.
+        usage: Chosen when planning the evaluation.
+        cardinalityMeaning: Every evaluation is of exactly one model.
+        context: Listed among the model's evaluations.
+    - name: dataset
+      target: Dataset
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The data the model was tested on.
+        usage: Named so the test can be repeated.
+        cardinalityMeaning: At most one.
+        context: Must not overlap the training data.
+    - name: reviewedBy
+      target: Person
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The person who independently examined the evaluation and its results.
+        usage: Recorded when the reviewer accepts or challenges the findings, ahead of any model approval.
+        cardinalityMeaning: At most one reviewer is named per evaluation; it stays empty until review happens.
+        workflowRole: Gives the model approval step a named, accountable sign-off on the evidence, independent of the model's developers.
+        context: Independent of the model's developers.
   invariants:
     - id: AIEVALUATION-001
       rule: The governing AIModel relationship is required and must reference a valid record.

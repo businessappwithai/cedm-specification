@@ -58,6 +58,20 @@ entity:
           ARRIVED: Landed at the destination. A final state.
           DELAYED: Departure is later than scheduled.
           CANCELLED: Will not operate. A final state.
+    - name: actualDepartureAt
+      type: datetime
+      required: false
+      help:
+        summary: The time the aircraft actually left the departure airport, as opposed to the scheduled time.
+        usage: Recorded by operations at pushback or take-off; it is empty until the flight departs and drives delay reporting.
+        relationshipContext: Present once departed.
+    - name: actualArrivalAt
+      type: datetime
+      required: false
+      help:
+        summary: The time the aircraft actually reached the destination, as opposed to the scheduled arrival.
+        usage: Recorded by operations on landing or arrival at the gate; it is empty until the flight arrives and is used to measure punctuality.
+        relationshipContext: Present once arrived.
   relationships:
     - name: origin
       target: Location

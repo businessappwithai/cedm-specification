@@ -9,6 +9,71 @@ entity:
   attributes:
     - {name: sparePartId, type: uuid, required: true, immutable: true, help: {summary: 'The stable identity of the spare-part designation, kept even if the underlying product is renamed.', usage: 'Generated on creation; work orders, reservations and equipment applicability lists refer to it rather than to the product directly.', businessMeaning: Identifies one governed maintenance-material designation., relationshipContext: References canonical Product rather than duplicating product master data.}}
     - {name: criticality, type: enum, required: true, values: [LOW, MEDIUM, HIGH, CRITICAL], help: {summary: How seriously maintenance and operations suffer if this part is not available when needed., usage: 'Set by maintenance planners per part; higher criticality justifies safety stock and faster replenishment, and it does not replace asset criticality.', valueSemantics: {LOW: Unavailability causes little disruption; the part can be ordered when needed., MEDIUM: Unavailability delays maintenance but operations can continue for a while., HIGH: 'Unavailability seriously disrupts maintenance or output, so stock is normally held on site.', CRITICAL: 'Unavailability stops production or creates a safety risk, so stock must always be held.'}, businessMeaning: Indicates operational consequence of part unavailability., relationshipContext: Does not replace product or asset criticality.}}
+    - name: partNumber
+      type: string
+      required: true
+      unique: true
+      maxLength: 60
+      help:
+        summary: The part number used by maintenance, often the manufacturer's.
+        usage: Used to identify and order the part.
+        relationshipContext: Unique.
+    - name: minimumStock
+      type: decimal
+      required: false
+      precision: 18
+      scale: 4
+      help:
+        summary: The least quantity that should always be on hand.
+        usage: Set by maintenance from criticality and usage.
+        relationshipContext: In the product's stock unit.
+    - name: reorderPoint
+      type: decimal
+      required: false
+      precision: 18
+      scale: 4
+      help:
+        summary: The stock level at which a replenishment order is raised.
+        usage: Stores raise an order when stock falls to it.
+        relationshipContext: Not lower than the minimum stock.
+    - name: reorderQuantity
+      type: decimal
+      required: false
+      precision: 18
+      scale: 4
+      help:
+        summary: The number of units to order each time stock falls to the reorder point.
+        usage: Used when the replenishment order is raised, often matching the supplier's pack or minimum order size.
+        relationshipContext: Must be a positive number.
+    - name: leadTimeDays
+      type: integer
+      required: false
+      help:
+        summary: How many days it takes to obtain the part.
+        usage: Used to set the reorder point.
+        relationshipContext: From the supplier's quote.
+    - name: interchangeableWith
+      type: string
+      required: false
+      maxLength: 300
+      help:
+        summary: Other part numbers that can be used instead.
+        usage: Read by stores when this part is out of stock.
+        relationshipContext: Free text listing part numbers.
+    - name: status
+      type: enum
+      required: true
+      default: ACTIVE
+      values:
+        - ACTIVE
+        - OBSOLETE
+      help:
+        summary: Tells maintenance whether the part is still stocked and reordered or being run down.
+        usage: Moved on by maintenance when a part is superseded or withdrawn by its maker.
+        relationshipContext: Obsolete parts are run down and not reordered.
+        valueSemantics:
+          ACTIVE: Stocked, planned for maintenance jobs and reordered.
+          OBSOLETE: No longer reordered; remaining stock is used up.
   relationships:
     - {name: product, target: Product, cardinality: "1", ownership: reference, help: {cardinalityMeaning: Each spare part designation is for exactly one product., summary: Canonical Product used as spare part., businessMeaning: "Supplies item identity, UOM and inventory semantics.", usage: "Procurement, stock and maintenance issue.", workflowRole: SparePart is a role/designation and must not duplicate Product.}}
     - {name: equipment, target: Equipment, cardinality: 0..*, ownership: reference, help: {cardinalityMeaning: Any number of equipment items use the part., summary: Equipment for which this part is approved or applicable., businessMeaning: Captures maintenance applicability., usage: Planning and work-order material selection., workflowRole: Applicability guides planning but actual consumption requires inventory evidence.}}
@@ -16,6 +81,7 @@ entity:
   invariants:
     - {id: SPARE-PART-001, rule: SparePart must reference exactly one canonical Product and must not duplicate product identity or inventory balance.}
     - {id: SPARE-PART-002, rule: Planned or actual maintenance consumption must not directly alter stock; stock effects require governed InventoryMovement.}
+    - {id: SPARE-PART-EXE-001, rule: "Reorder Quantity cannot be negative.", violatedWhen: "reorder_quantity != null and reorder_quantity < 0", message: "Reorder Quantity cannot be negative."}
   help:
     usage: Maintained by maintenance planners and read by storekeepers and buyers when selecting parts for a work order or deciding what to stock.
     summary: Maintenance-specific role for an inventory Product used to repair or service assets and equipment.
@@ -26,4 +92,17 @@ entity:
     lifecycleUsage: Approved for maintenance use, maintained for applicability and criticality, then retired without rewriting historical work orders.
     commonProcesses: Maintenance planning, spare-parts management, reservation, issue, return, replenishment and reliability analysis.
     commonExamples: Bearings, filters, seals, replacement motors and repair kits.
+  lifecycle:
+    title: Spare Part Lifecycle
+    attribute: status
+    states:
+      - ACTIVE
+      - OBSOLETE
+    initial: ACTIVE
+    terminal:
+      - OBSOLETE
+    transitions:
+      - from: ACTIVE
+        to: OBSOLETE
+        action: make_obsolete
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-SPARE-PART}

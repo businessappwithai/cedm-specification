@@ -30,6 +30,20 @@ entity:
           RETIRED: Taken out of service for good. A final state.
         businessMeaning: Controls eligibility and custody transitions for the individual unit.
         relationshipContext: Status is reconciled from authoritative business and inventory events rather than freely edited.
+    - name: manufacturedDate
+      type: date
+      required: false
+      help:
+        summary: The day on which this individual unit was produced.
+        usage: Taken from the manufacturer's or production record, and used to scope warranties and recalls.
+        relationshipContext: Not later than the warranty end date.
+    - name: warrantyEndDate
+      type: date
+      required: false
+      help:
+        summary: The last day of the unit's warranty.
+        usage: Checked when the unit is returned or serviced.
+        relationshipContext: From the warranty terms.
   relationships:
     - {name: product, target: Product, cardinality: '1', ownership: reference, help: {cardinalityMeaning: Each serial number belongs to one product; the same number on another product is a different unit., summary: Product model represented by the serial., businessMeaning: Defines the standardized item type., usage: Validation and master-data context., workflowRole: Every serial movement must use the same Product.}}
     - {name: lot, target: Lot, cardinality: "0..1", ownership: reference, help: {summary: Lot or batch from which this serialized unit originates when applicable., businessMeaning: Connects unit identity to batch genealogy., usage: "Recall, quality, manufacturing, and provenance.", cardinalityMeaning: Optional for products not lot-controlled., workflowRole: Serial and lot provenance must remain consistent.}}

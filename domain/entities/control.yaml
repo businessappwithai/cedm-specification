@@ -97,6 +97,55 @@ entity:
           ACTIVE: Operating and relied upon.
           INACTIVE: Not currently operating, but may be reinstated.
           RETIRED: Permanently ended; kept for history.
+    - name: automation
+      type: enum
+      required: true
+      default: MANUAL
+      values:
+        - MANUAL
+        - SEMI_AUTOMATED
+        - AUTOMATED
+      help:
+        summary: Whether a person or the system performs the control.
+        usage: Automated controls are tested differently from manual ones.
+        relationshipContext: Semi-automated controls have a manual review of system output.
+        valueSemantics:
+          MANUAL: Performed by a person.
+          SEMI_AUTOMATED: The system prepares; a person reviews.
+          AUTOMATED: Performed by the system.
+    - name: isKeyControl
+      type: boolean
+      required: true
+      default: false
+      help:
+        summary: Whether the control is relied on for financial reporting or a critical risk.
+        usage: Key controls are tested every year.
+        relationshipContext: Read with the risks it addresses.
+    - name: effectiveness
+      type: enum
+      required: true
+      default: NOT_TESTED
+      values:
+        - NOT_TESTED
+        - EFFECTIVE
+        - PARTIALLY_EFFECTIVE
+        - INEFFECTIVE
+      help:
+        valueSemantics:
+          NOT_TESTED: Not yet tested, so its effectiveness is unknown.
+          EFFECTIVE: Designed and operating as intended.
+          PARTIALLY_EFFECTIVE: Works, but with weaknesses that need remedying.
+          INEFFECTIVE: Does not achieve its purpose.
+        summary: The result of the latest test.
+        usage: Updated by the tester; ineffective controls lead to findings.
+        relationshipContext: Read with the last test date.
+    - name: lastTestedDate
+      type: date
+      required: false
+      help:
+        summary: The day the control was most recently tested for effectiveness.
+        usage: Set by the tester when a test is completed; testing plans prioritise controls not tested recently.
+        relationshipContext: Empty until the first test.
   relationships:
     - name: owner
       target: Party

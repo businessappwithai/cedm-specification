@@ -47,6 +47,7 @@ registry:
     - BusinessTransaction
     - BusinessUnit
     - Calendar
+    - CalendarException
     - Campaign
     - CarePlan
     - Carrier

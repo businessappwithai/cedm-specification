@@ -1,0 +1,321 @@
+@ Campaign
+a campaignType
+v EMAIL: Email messages sent to a mailing list.
+v EVENT: A trade show, conference or customer event.
+v WEBINAR: An online seminar or live presentation, where registrations and attendance count as responses.
+v ADVERTISING: Paid advertising online or in print.
+v SOCIAL: Social media posts and promotions.
+v DIRECT_MAIL: Letters or brochures sent by post.
+v TELEMARKETING: Outbound calls to a list.
+v PARTNER: Run with or by a partner.
+a budgetedCost
+s: The amount marketing has approved to spend on the campaign, in the campaign's currency.
+u: Entered and approved when the campaign is planned, and rarely changed once it is running.
+c: Compared with the actual cost to show whether the campaign is on budget.
+a actualResponses
+s: How many responses the campaign has produced so far, counted the way its type defines a response.
+u: Updated by marketing as registrations, replies or enquiries come in, during and after the campaign.
+c: Compared with the expected responses; the ones worth following up become leads.
+a status
+s: Where the campaign stands between planning and completion.
+u: Moved on by the campaign owner as the campaign starts, finishes or is called off.
+c: Only active campaigns are offered as a lead source when someone enters a new lead.
+v PLANNED: Being prepared and not yet running.
+v ACTIVE: Running now; leads can be attributed to it.
+v COMPLETED: Finished, with its results recorded.
+v CANCELLED: Called off before it finished.
+@ CarePlan
+a startDate
+s: The day the plan of care begins and its goals and interventions take effect.
+u: Set when the care team and the patient agree the plan.
+c: Not later than the end date.
+a nextReviewDate
+s: The day the care team is due to review progress against the plan's goals.
+u: Drives review reminders for the responsible clinician and the care team.
+c: Moved forward at each review.
+@ Carrier
+a name
+s: The name the carrier trades under, as dispatchers and planners know it.
+u: Shown wherever a carrier is chosen for a booking or consignment.
+c: The legal name is held on its party record.
+a carrierType
+s: What kind of transport service the carrier mainly provides, such as road, rail or air.
+u: Planners filter the carriers they can book by it when choosing for a consignment.
+c: A carrier offering several modes is recorded with its main one.
+v ROAD: Road haulage, full or part loads.
+v PARCEL: Parcel and courier networks.
+v RAIL: Rail freight operators moving wagons or containers by train.
+v OCEAN: Shipping lines carrying containers or bulk cargo by sea.
+v AIR: Airlines and air cargo carriers.
+v FORWARDER: A freight forwarder arranging transport with other carriers.
+a iataCode
+s: The carrier's two or three character IATA airline code, for air carriers only.
+u: Printed on air waybills and used to match the carrier in airline schedules.
+c: Left empty for carriers that are not airlines.
+a status
+s: Whether the carrier may currently be booked for shipments.
+u: Moved on by logistics procurement as the carrier is onboarded, approved, suspended or retired.
+c: Only approved carriers are offered when booking.
+v PROSPECTIVE: Being onboarded and not yet bookable.
+v APPROVED: Cleared by procurement and bookable for shipments.
+v SUSPENDED: Temporarily not bookable after service or compliance problems.
+v INACTIVE: No longer used and kept only for history.
+@ CertificateOfAnalysis
+a conclusion
+s: The quality verdict on whether the material meets its specification, as stated on the certificate.
+u: Entered by the quality team when results are summarised and the certificate is approved.
+c: A certificate showing non-conformance is not normally issued to a customer.
+v CONFORMS: Meets every specification limit that was tested.
+v CONFORMS_WITH_DEVIATION: Meets the specification with an approved deviation.
+v DOES_NOT_CONFORM: Fails one or more specifications.
+@ Charge
+a unitPrice
+s: The price charged for a single unit of the billed product, service or usage.
+u: Taken from the subscription plan or price list when the charge is created.
+c: Stated in the charge's currency and multiplied by the quantity.
+@ ChemicalBatch
+a quantity
+s: How much material the batch holds, as produced or received.
+u: Recorded at production or goods receipt and used for yield and stock reconciliation.
+c: Stated in the product's unit of measure.
+@ Classification
+a description
+s: Explains what the classification value covers and what is left out of it.
+u: Read by people classifying a record, so it should name clear examples.
+c: Should say what belongs in the value and what does not.
+a status
+s: Whether the classification value may still be assigned to new records.
+u: Set to retired by the data owner when a value is replaced or no longer wanted.
+c: Records keep retired values for history.
+v ACTIVE: May be assigned to records and appears in pick lists.
+v RETIRED: No longer assigned, though existing records keep it.
+@ Collateral
+a collateralNumber
+s: The unique reference by which the pledged item is known to credit officers and legal staff.
+u: Assigned when the collateral is recorded during credit approval.
+c: Unique across all collateral items.
+a collateralType
+s: What kind of security is pledged, such as property, equipment, stock or a guarantee.
+u: Decides the valuation method and the haircut applied when lending value is calculated.
+c: Guarantees are promises by a third party, not assets.
+v REAL_ESTATE: Land or buildings, usually secured by a registered charge.
+v EQUIPMENT: Machinery, vehicles or other movable assets.
+v INVENTORY: Stock of goods held by the borrower, valued at cost or market and revalued often.
+v RECEIVABLES: Amounts owed to the borrower by its customers.
+v CASH: Cash deposits or securities.
+v GUARANTEE: A guarantee given by a third party.
+a valuationAmount
+s: The market value of the pledged item at its most recent valuation.
+u: Recorded from the valuation report and used to work out lending value after the haircut.
+c: Revalued periodically.
+a valuationDate
+s: The day the current value of the collateral was assessed.
+u: Old valuations prompt credit risk staff to order a revaluation.
+c: Not in the future.
+a releasedDate
+s: The day the lender gave up its claim on the collateral.
+u: Recorded by the credit team when the loan is repaid or the security is replaced.
+c: Present only once the collateral is released.
+a status
+v PROPOSED: Offered during credit approval; no charge yet.
+v PLEDGED: Charged in favour of the lender.
+v RELEASED: Freed after repayment, so it no longer secures any loan.
+v ENFORCED: Taken by the lender after default.
+@ ComplianceRequirement
+a obligationLevel
+v MANDATORY: Must be met, so any gap has to be remedied.
+v RECOMMENDED: Expected unless there is a documented reason not to.
+v OPTIONAL: Good practice the business may choose to follow.
+a riskRating
+v LOW: Minor consequences if the requirement is missed.
+v MEDIUM: Noticeable penalties or harm.
+v HIGH: Heavy penalties, legal action or serious harm.
+v CRITICAL: Could stop the business or cause severe harm.
+@ Compound
+a smiles
+s: The chemical structure written as a SMILES line notation string.
+u: Entered or imported at registration and used for structure searches and modelling.
+c: Stored in canonical form so identical structures match.
+a therapeuticArea
+s: The disease area the compound is being investigated for, such as oncology or cardiology.
+u: Set by the project team and used to group compounds in portfolio reviews.
+c: Free text taken from the portfolio list.
+@ Consignment
+a transportMode
+v ROAD: By truck or van.
+v RAIL: By train, on a rail freight service.
+v SEA: By ship, on a vessel or container service.
+v AIR: By aircraft, as air cargo.
+v PARCEL: By a parcel or courier network.
+v MULTIMODAL: By more than one mode under one contract.
+a deliveredAt
+s: The date and time the goods were actually handed over at their destination.
+u: Taken from the proof of delivery and used to measure on-time performance.
+c: Present once the consignment is delivered.
+@ ConstructionProject
+a contractValue
+s: The total value of the construction contracts awarded for the project.
+u: Summed from the signed contracts and used by project controls and finance.
+c: Compared with the project budget.
+a plannedCompletionDate
+s: The day the finished works are due to be handed over to the client.
+u: Agreed in the main contract; delays are measured against it.
+c: Moves only through an approved change.
+@ Contact
+a contactRole
+v DECISION_MAKER: Decides whether to buy or sign.
+v BUYER: Places orders on behalf of the organisation.
+v TECHNICAL: Advises on technical matters.
+v ACCOUNTS_PAYABLE: Receives invoices and arranges payment.
+v SERVICE: Is the contact for service and support.
+v OTHER: Any role not listed, described elsewhere on the contact.
+a preferredChannel
+s: The way the person prefers to be reached by the business, such as email or telephone.
+u: Followed by sales, service and marketing staff when they reach out.
+c: The contact details themselves are on the person's contact points.
+v EMAIL: By email to the person's address.
+v PHONE: By telephone call or voicemail.
+v MESSAGING: By instant message on a chat app.
+v POST: By letter sent to a postal address.
+a consentDate
+s: The day the person gave or withdrew consent to be contacted for marketing.
+u: Recorded with every change of consent so the latest decision is dated.
+c: Serves as evidence for data-protection rules.
+a status
+v ACTIVE: A current contact who can be approached.
+v INACTIVE: No longer a contact.
+@ ContactPoint
+a channel
+v EMAIL: An email address used for written messages.
+v PHONE: A landline telephone number.
+v MOBILE: A mobile telephone number.
+v FAX: A fax number, kept for partners who still use it.
+v WEBSITE: A web address of the party's site or page.
+v MESSAGING: A handle on a messaging app.
+a purpose
+v GENERAL: Any purpose, when nothing more specific applies.
+v BILLING: Invoices and statements sent to accounts payable.
+v ORDERS: Order confirmations and purchase orders.
+v DELIVERY: Delivery notices and arrival updates.
+v SUPPORT: Service and support enquiries.
+v MARKETING: Marketing communication, where consent allows.
+a status
+s: Whether the channel is still usable for reaching the party.
+u: Changed when the channel stops being used or a message to it bounces.
+c: Inactive and invalid channels are not offered for contact.
+v ACTIVE: In use and offered for contact.
+v INACTIVE: No longer used and kept for history.
+v INVALID: Known not to work, such as a bouncing address.
+@ ContractAmendment
+a signedDate
+s: The day the last party signed the amendment, completing its execution.
+u: Recorded when the signed copy comes back, before the effective date arrives.
+c: Present once signed.
+a status
+s: Where the amendment stands between drafting and taking effect.
+u: Moved on by internal approval, the other party's reply and signature.
+c: Only signed amendments change the contract.
+v DRAFT: Being written and not yet approved or shared.
+v APPROVED: Approved internally, sent to the other party.
+v SIGNED: Signed by both parties.
+v EFFECTIVE: Its effective date has come; the contract now reflects it.
+v REJECTED: Refused by the other party.
+v CANCELLED: Dropped before signature, so the contract is unchanged.
+r document
+s: The signed copy of the amendment held as a document.
+u: Linked by the contract manager once both parties have signed.
+n: At most one signed document per amendment.
+w: Kept with the contract's documents as the evidence that the change was agreed.
+@ ContractClause
+a category
+v LIABILITY: Limits or exclusions of liability.
+v INDEMNITY: Indemnities between the parties.
+v TERMINATION: Rights and notice to end the contract.
+v CONFIDENTIALITY: Protection of confidential information.
+v DATA_PROTECTION: Processing of personal data.
+v PAYMENT: Payment terms, invoicing and late payment.
+v WARRANTY: Warranties about goods or services.
+v GOVERNING_LAW: The governing law and jurisdiction.
+v INTELLECTUAL_PROPERTY: Ownership and licensing of rights.
+v OTHER: Any term that fits none of the other categories.
+@ ContractLine
+a unitPrice
+s: The price per unit agreed for this line of the contract.
+u: Used to price orders placed under the contract, until the line's validity ends.
+c: Stated in the line's currency.
+@ ContractRenewal
+a renewalNumber
+s: The unique reference by which the renewal review is known to contract managers.
+u: Assigned when the renewal review is opened ahead of the notice deadline.
+c: Unique across all renewals.
+a renewalType
+s: How the contract continues into a new term, by itself, by negotiation or by option.
+u: Taken from the contract's renewal clause when the review is opened.
+c: An automatic renewal happens unless notice is given by the deadline.
+v AUTOMATIC: Renews by itself unless a party gives notice.
+v NEGOTIATED: Renews only if the parties agree new terms.
+v OPTION: Renews if one party exercises its option to extend.
+a newTermStart
+s: The first day of the contract's new term once the renewal is confirmed.
+u: Set by the contract manager when the renewal is confirmed.
+c: The day after the current term ends, normally.
+a newTermEnd
+s: The last day of the contract's new term once the renewal is confirmed.
+u: Set by the contract manager when the renewal is confirmed.
+c: Not earlier than the new term start.
+a decidedDate
+s: The day the renewal was confirmed or declined.
+u: Recorded with the decision so the notice deadline can be checked afterwards.
+c: Present once decided.
+a status
+s: Whether the renewal has been decided or is still being considered.
+u: Moved on by the contract manager as the decision is taken.
+c: Undecided renewals near their notice deadline are escalated.
+v UNDER_REVIEW: Being considered, with no decision yet.
+v CONFIRMED: The contract continues for the new term.
+v DECLINED: The contract ends at the current term end.
+@ ContractTermination
+a terminationNumber
+s: The unique reference by which the termination is known to legal and contract staff.
+u: Assigned when the notice is recorded against the contract.
+c: Unique across all terminations.
+a initiatedBy
+s: Which side of the contract gave notice and brought it to an end.
+u: Recorded with the notice, so exit obligations fall on the right party.
+c: Read together with the ground.
+v US: We gave notice and ended it.
+v COUNTERPARTY: The other party ended it.
+v MUTUAL: Both parties agreed to end it.
+a ground
+s: The reason in law or in the contract for which it was ended.
+u: Chosen when the notice is recorded; it decides whether penalties or damages may apply.
+c: Termination for breach usually needs evidence of the breach.
+v CONVENIENCE: Ended under a right to terminate without cause.
+v BREACH: Ended because the other party breached it.
+v INSOLVENCY: Ended because a party became insolvent.
+v EXPIRY: Ended at the end of its term without renewal.
+v MUTUAL_AGREEMENT: Ended by agreement between both parties.
+v FORCE_MAJEURE: Ended because performance became impossible.
+a noticeDate
+s: The day the termination notice was given or received.
+u: The notice period runs from this day, so it sets the earliest effective date.
+c: Not later than the effective date.
+a reason
+s: The circumstances behind the termination, written out in plain words.
+u: Entered by the person recording it and read later in any dispute.
+c: Free text.
+a status
+v NOTIFIED: Notice given or received; the contract still runs.
+v EFFECTIVE: The contract has ended; exit work under way.
+v COMPLETED: Exit work done, and the contract is closed.
+v WITHDRAWN: Notice withdrawn by agreement; the contract continues.
+@ Control
+a effectiveness
+v NOT_TESTED: Not yet tested, so its effectiveness is unknown.
+v EFFECTIVE: Designed and operating as intended.
+v PARTIALLY_EFFECTIVE: Works, but with weaknesses that need remedying.
+v INEFFECTIVE: Does not achieve its purpose.
+a lastTestedDate
+s: The day the control was most recently tested for effectiveness.
+u: Set by the tester when a test is completed; testing plans prioritise controls not tested recently.
+c: Empty until the first test.

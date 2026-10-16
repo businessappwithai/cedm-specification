@@ -9,9 +9,134 @@ entity:
   attributes:
     - {name: pricingId, type: uuid, required: true, immutable: true, help: {summary: The identity of the pricing definition., usage: Generated on creation; price lists and quotes refer to it.}}
     - {name: code, type: string, required: false, maxLength: 120, help: {summary: 'The reference of the pricing definition, such as LIST-EU-2026.', usage: Assigned by pricing managers; used to select the pricing.}}
-  relationships: []
+    - name: priceList
+      type: string
+      required: false
+      maxLength: 100
+      help:
+        summary: The price list the price belongs to, such as "Standard EUR" or "Distributor 2024".
+        usage: Prices are maintained and published by list.
+        relationshipContext: Customers are assigned a price list in their commercial terms.
+    - name: priceType
+      type: enum
+      required: true
+      default: LIST
+      values:
+        - LIST
+        - CONTRACT
+        - CUSTOMER
+        - VOLUME
+        - COST_PLUS
+      help:
+        summary: What kind of price it is.
+        usage: Decides which price wins when several apply — a customer price beats a contract price, which beats a list price.
+        relationshipContext: Read with the customer and validity.
+        valueSemantics:
+          LIST: The standard published price.
+          CONTRACT: A price agreed in a contract.
+          CUSTOMER: A price agreed with one customer.
+          VOLUME: A price that applies from a quantity break.
+          COST_PLUS: A price computed from cost plus a markup.
+    - name: unitPrice
+      type: Money
+      required: true
+      help:
+        summary: The price per unit of measure.
+        usage: Used by quotations and orders as the starting price.
+        relationshipContext: In the record's currency.
+    - name: minimumQuantity
+      type: decimal
+      required: true
+      precision: 18
+      scale: 4
+      default: 1
+      help:
+        summary: The smallest order quantity this price applies to.
+        usage: Volume prices set it above 1; the best price whose minimum the order reaches applies.
+        relationshipContext: In the record's unit of measure.
+    - name: validFrom
+      type: date
+      required: true
+      help:
+        summary: The first day on which this price may be used for quotes and orders.
+        usage: Price changes are scheduled by setting this date; price determination ignores the price before it.
+        relationshipContext: It cannot be later than the valid-to date.
+    - name: validTo
+      type: date
+      required: false
+      help:
+        summary: The last day on which this price may be used for quotes and orders.
+        usage: Left empty when the price runs until it is replaced; the price expires after this date.
+        relationshipContext: Prices for the same conditions should not overlap.
+    - name: status
+      type: enum
+      required: true
+      default: DRAFT
+      values:
+        - DRAFT
+        - APPROVED
+        - ACTIVE
+        - EXPIRED
+      help:
+        valueSemantics:
+          DRAFT: Still being set up; it is not yet approved and price determination does not find it.
+          APPROVED: Approved and waiting for its start date.
+          ACTIVE: In force now and found by price determination.
+          EXPIRED: Past its end date or replaced, so it no longer applies.
+        summary: Whether the price may be used.
+        usage: Moved on by approval and by its dates.
+        relationshipContext: Only active prices are found by price determination.
+  relationships:
+    - name: product
+      target: Product
+      cardinality: "1"
+      ownership: reference
+      help:
+        summary: The product priced.
+        usage: Chosen when creating the price.
+        cardinalityMeaning: Every price is for exactly one product.
+        context: A product has many prices for different conditions.
+    - name: productVariant
+      target: ProductVariant
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The variant priced, when variants differ in price.
+        usage: Set only for variant-specific prices.
+        cardinalityMeaning: At most one variant.
+        context: Without it, the price applies to every variant.
+    - name: customer
+      target: Customer
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The customer the price is for, for customer prices.
+        usage: Set for customer-specific prices.
+        cardinalityMeaning: At most one customer.
+        context: Without it, the price applies to every customer on the price list.
+    - name: currency
+      target: Currency
+      cardinality: "1"
+      ownership: reference
+      help:
+        summary: The currency of the price.
+        usage: Chosen when creating the price.
+        cardinalityMeaning: One per price.
+        context: Orders in another currency need their own price or a conversion rule.
+    - name: unitOfMeasure
+      target: UnitOfMeasure
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The unit the price is per, such as piece, box or kilogram.
+        usage: Usually the product's sales unit.
+        cardinalityMeaning: One per price.
+        context: Orders in another unit are converted before pricing.
   invariants:
     - {id: PRICING-001, rule: "Lifecycle changes, corrections and retries must preserve historical evidence and must not duplicate downstream commercial, physical or financial effects."}
+    - {id: PRICING-EXE-001, rule: "Valid To must not be earlier than valid from.", violatedWhen: "valid_from != null and valid_to != null and valid_to < valid_from", message: "Valid To cannot be earlier than valid from."}
+    - {id: PRICING-EXE-002, rule: "Unit Price cannot be negative.", violatedWhen: "unit_price != null and unit_price < 0", message: "Unit Price cannot be negative."}
+    - {id: PRICING-EXE-003, rule: "Minimum Quantity cannot be negative.", violatedWhen: "minimum_quantity != null and minimum_quantity < 0", message: "Minimum Quantity cannot be negative."}
   help:
     summary: A pricing definition or decision context that establishes base prices and the conditions under which they apply, before discounts, promotions, quotes or orders.
     businessMeaning: 'Price is not a single number: it depends on product, customer, quantity and date. A pricing definition holds those conditions so orders and quotes can find the right base price and explain it.'
@@ -19,4 +144,31 @@ entity:
     relationshipContext: Quotes, orders and discount rules start from the base price that this definition gives.
     lifecycle: Changes and retries preserve historical evidence and do not duplicate commercial effects.
     example: The 2026 list price for the product family in the European market.
+  lifecycle:
+    title: Pricing Lifecycle
+    attribute: status
+    states:
+      - DRAFT
+      - APPROVED
+      - ACTIVE
+      - EXPIRED
+    initial: DRAFT
+    terminal:
+      - EXPIRED
+    transitions:
+      - from: DRAFT
+        to: APPROVED
+        action: approve
+      - from: APPROVED
+        to: ACTIVE
+        action: activate
+      - from: DRAFT
+        to: ACTIVE
+        action: activate
+      - from: ACTIVE
+        to: EXPIRED
+        action: expire
+      - from: APPROVED
+        to: EXPIRED
+        action: expire
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-PRICING}

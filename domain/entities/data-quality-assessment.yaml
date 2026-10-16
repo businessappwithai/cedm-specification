@@ -41,6 +41,79 @@ entity:
           COMPLETED: Finished with results recorded for the dataset. A final state.
           CANCELLED: Abandoned before completion, so no result stands. A final state.
         relationshipContext: Status changes can affect related Dataset workflows but never erase historical evidence.
+    - name: assessedAt
+      type: datetime
+      required: false
+      help:
+        summary: The date and time at which the assessment ran against the dataset.
+        usage: Recorded when the assessment completes; quality trends for the dataset are plotted along it.
+        relationshipContext: Present once the assessment has completed.
+    - name: recordsAssessed
+      type: integer
+      required: false
+      help:
+        summary: The number of records in the dataset that were examined during this assessment.
+        usage: Filled in when the run completes, so readers know how much data each score is based on.
+        relationshipContext: The percentage scores are measured against this count.
+    - name: completenessPercent
+      type: decimal
+      required: false
+      precision: 5
+      scale: 2
+      help:
+        summary: The percentage of required values that were actually present in the records checked.
+        usage: Calculated by the completeness rules of the assessment and shown beside the other quality dimensions.
+        relationshipContext: A value between 0 and 100.
+    - name: validityPercent
+      type: decimal
+      required: false
+      precision: 5
+      scale: 2
+      help:
+        summary: The share of values that meet their format and domain rules.
+        usage: Measured by the validity rules.
+        relationshipContext: Between 0 and 100.
+    - name: uniquenessPercent
+      type: decimal
+      required: false
+      precision: 5
+      scale: 2
+      help:
+        summary: The percentage of records checked that were not duplicates of another record.
+        usage: Calculated by the matching rules of the assessment; a low figure points to records that need merging.
+        relationshipContext: A value between 0 and 100.
+    - name: timelinessPercent
+      type: decimal
+      required: false
+      precision: 5
+      scale: 2
+      help:
+        summary: The share of records updated within the expected time.
+        usage: Measured by the freshness rules.
+        relationshipContext: Between 0 and 100.
+    - name: overallScore
+      type: decimal
+      required: false
+      precision: 5
+      scale: 2
+      help:
+        summary: The single combined quality score for the dataset in this assessment.
+        usage: Weighted from the individual dimension scores and shown in data catalogues so consumers can judge trust at a glance.
+        relationshipContext: A value between 0 and 100.
+    - name: meetsTarget
+      type: boolean
+      required: false
+      help:
+        summary: Whether every quality dimension reached the target set for the dataset.
+        usage: Worked out when the assessment completes; a false result causes data quality issues to be raised.
+        relationshipContext: Present once the assessment has completed.
+    - name: issuesSummary
+      type: text
+      required: false
+      help:
+        summary: A short narrative of what was wrong with the data in this assessment.
+        usage: Written for the data owner, who reads it to decide what to clean up first.
+        relationshipContext: Detailed lists of failing records are attached separately.
   relationships:
     - name: context
       target: Dataset
@@ -51,6 +124,24 @@ entity:
         usage: Set when the assessment is created and not changed.
         cardinalityMeaning: 'Exactly one dataset: an assessment always judges a specific collection of data.'
         workflowRole: Attaches the findings to the data they describe.
+    - name: dataset
+      target: Dataset
+      cardinality: "1"
+      ownership: reference
+      help:
+        summary: The dataset assessed.
+        usage: Chosen when planning the assessment.
+        cardinalityMeaning: Every assessment is of exactly one dataset.
+        context: Listed among the dataset's quality assessments.
+    - name: steward
+      target: Person
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The data steward who ran the assessment.
+        usage: Recorded when planning it.
+        cardinalityMeaning: One per assessment.
+        context: Follows up issues with the owner.
   invariants:
     - id: DATA-QUALITY-ASSESSMENT-001
       rule: The governing Dataset relationship is required and must reference a valid record.
@@ -58,6 +149,10 @@ entity:
       rule: Completed records must not be destructively rewritten; corrections require controlled amendment, replacement, reversal, or follow-up evidence appropriate to the domain.
     - id: DATA-QUALITY-ASSESSMENT-003
       rule: Creation and lifecycle transitions must be idempotent and auditable.
+    - {id: DATA-QUALITY-ASSESSMENT-EXE-001, rule: "Completeness Percent is a percentage between 0 and 100.", violatedWhen: "completeness_percent != null and (completeness_percent < 0 or completeness_percent > 100)", message: "Completeness Percent must be between 0 and 100."}
+    - {id: DATA-QUALITY-ASSESSMENT-EXE-002, rule: "Validity Percent is a percentage between 0 and 100.", violatedWhen: "validity_percent != null and (validity_percent < 0 or validity_percent > 100)", message: "Validity Percent must be between 0 and 100."}
+    - {id: DATA-QUALITY-ASSESSMENT-EXE-003, rule: "Uniqueness Percent is a percentage between 0 and 100.", violatedWhen: "uniqueness_percent != null and (uniqueness_percent < 0 or uniqueness_percent > 100)", message: "Uniqueness Percent must be between 0 and 100."}
+    - {id: DATA-QUALITY-ASSESSMENT-EXE-004, rule: "Timeliness Percent is a percentage between 0 and 100.", violatedWhen: "timeliness_percent != null and (timeliness_percent < 0 or timeliness_percent > 100)", message: "Timeliness Percent must be between 0 and 100."}
   lifecycle:
     title: Data Quality Assessment Lifecycle
     attribute: status

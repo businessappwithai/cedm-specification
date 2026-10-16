@@ -67,6 +67,38 @@ entity:
           ACTIVE: In force; the person is employed.
           SUSPENDED: Temporarily not in force, for example during an unpaid break.
           TERMINATED: Ended. A final state.
+    - name: weeklyHours
+      type: decimal
+      required: false
+      precision: 5
+      scale: 2
+      help:
+        summary: The number of hours per week the employee is contracted to work.
+        usage: Used by payroll, leave calculation and capacity planning, and set from the employment contract.
+        relationshipContext: Full-time hours depend on the country.
+    - name: payBasis
+      type: enum
+      required: true
+      default: SALARIED
+      values:
+        - SALARIED
+        - HOURLY
+        - COMMISSION
+      help:
+        summary: The way the employee's pay is worked out.
+        usage: Decides how payroll computes pay each period and what records it needs.
+        relationshipContext: Hourly employees need time records before they can be paid.
+        valueSemantics:
+          SALARIED: Paid a fixed salary per pay period regardless of hours.
+          HOURLY: Paid for the hours worked, based on time records.
+          COMMISSION: Paid mainly as a share of the sales made.
+    - name: noticePeriodDays
+      type: integer
+      required: false
+      help:
+        summary: The notice either side must give to end the employment.
+        usage: Used when a resignation or dismissal is recorded.
+        relationshipContext: From the contract or law.
   relationships:
     - name: employee
       target: Employee

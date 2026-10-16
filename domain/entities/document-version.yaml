@@ -9,8 +9,101 @@ entity:
   attributes:
     - {name: documentVersionId, type: uuid, required: true, immutable: true, help: {summary: The identity of the version., usage: Generated on creation; signatures and distributions point to it.}}
     - {name: effectiveAt, type: datetime, required: false, help: {summary: When this version took effect., usage: Set when issued; the version in force on any date is the latest one effective by then.}}
+    - name: versionLabel
+      type: string
+      required: true
+      maxLength: 20
+      help:
+        summary: The version number shown to readers, such as 2.1 or 3.0.
+        usage: Assigned when the version is checked in; minor numbers for drafts, major ones for releases.
+        relationshipContext: Unique within the document.
+    - name: versionSequence
+      type: integer
+      required: true
+      help:
+        summary: The order of the version within its document — 1, 2, 3…
+        usage: Assigned automatically on check-in; versions are listed in this order.
+        relationshipContext: Unique within the document.
+    - name: fileName
+      type: string
+      required: false
+      maxLength: 255
+      help:
+        summary: The name of the file holding the version.
+        usage: Used when the version is downloaded.
+        relationshipContext: Several versions may share a file name.
+    - name: storageLocation
+      type: string
+      required: false
+      maxLength: 500
+      help:
+        summary: The place in document storage where this version's file is held.
+        usage: Set by the system when the version is checked in, so the right file is retrieved when it is opened.
+        relationshipContext: Users never type it.
+    - name: checksum
+      type: string
+      required: false
+      maxLength: 128
+      help:
+        summary: The fingerprint (SHA-256) of the file.
+        usage: Recorded on check-in; signatures name the version by it.
+        relationshipContext: Two versions with the same checksum have identical content.
+    - name: changeSummary
+      type: text
+      required: false
+      help:
+        summary: What changed from the previous version.
+        usage: Written by the author on check-in; read by reviewers.
+        relationshipContext: Required for a released version.
+    - name: releasedAt
+      type: datetime
+      required: false
+      help:
+        summary: The date and time the version was approved and released.
+        usage: Recorded automatically on approval and used to order versions and to show which was current at any moment.
+        relationshipContext: Present once the version has been released.
+    - name: status
+      type: enum
+      required: true
+      default: DRAFT
+      values:
+        - DRAFT
+        - IN_REVIEW
+        - RELEASED
+        - SUPERSEDED
+        - WITHDRAWN
+      help:
+        summary: Where the version stands in its review and release.
+        usage: Moved on by the review and release steps as the author submits and an approver signs off.
+        relationshipContext: Only one version of a document is released at a time.
+        valueSemantics:
+          DRAFT: Being written and not yet sent for approval.
+          IN_REVIEW: Sent to approvers and waiting for a decision.
+          RELEASED: Approved and the current version people should use.
+          SUPERSEDED: Replaced by a later released version.
+          WITHDRAWN: Abandoned before it was ever released.
   relationships:
     - {name: document, target: Document, cardinality: '1', ownership: reference, help: {summary: The document of which this is a version., cardinalityMeaning: 'Exactly one document: a version is a snapshot of a single document.', businessMeaning: Supplies logical document identity., usage: Versioning and retrieval., workflowRole: Version content is immutable after finalization.}}
+    - name: author
+      target: Person
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The person who wrote this version of the document.
+        usage: Recorded on check-in, so readers know whom to ask about its content.
+        cardinalityMeaning: One author is recorded for each version.
+        workflowRole: The author submits the version for review but should not be the one who approves it.
+        context: Should not approve their own version.
+    - name: approvedBy
+      target: Person
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The person who approved the version for release.
+        usage: Recorded when the approver signs off, as evidence of who authorised the release.
+        cardinalityMeaning: One approver is recorded for each version.
+        workflowRole: Approval moves the version out of review; the approver must hold authority for the document's class.
+        context: Must have authority for the document's class.
   invariants:
     - {id: DOCUMENT-VERSION-001, rule: Finalized historical evidence must not be silently rewritten; corrections or supersession require explicit governed records.}
   help:
@@ -21,4 +114,33 @@ entity:
     lifecycle: A version is immutable. Corrections are new versions.
     example: Version 3 of the supplier code of conduct, issued on 12 January.
     commonProcesses: Contract management, document control, audit, compliance assessment, risk governance, approval, and remediation.
+  lifecycle:
+    title: Document Version Lifecycle
+    attribute: status
+    states:
+      - DRAFT
+      - IN_REVIEW
+      - RELEASED
+      - SUPERSEDED
+      - WITHDRAWN
+    initial: DRAFT
+    terminal:
+      - SUPERSEDED
+      - WITHDRAWN
+    transitions:
+      - from: DRAFT
+        to: IN_REVIEW
+        action: submit
+      - from: IN_REVIEW
+        to: DRAFT
+        action: return
+      - from: IN_REVIEW
+        to: RELEASED
+        action: release
+      - from: RELEASED
+        to: SUPERSEDED
+        action: supersede
+      - from: DRAFT
+        to: WITHDRAWN
+        action: withdraw
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-DOCUMENT-VERSION}

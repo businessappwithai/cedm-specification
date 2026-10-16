@@ -41,6 +41,49 @@ entity:
           COMPLETED: Goals met or care ended; the plan is closed but kept on record.
           CANCELLED: Withdrawn before it took effect.
         relationshipContext: Status changes can affect related HealthcarePatient workflows but never erase historical evidence.
+    - name: title
+      type: string
+      required: true
+      maxLength: 200
+      help:
+        summary: What the plan is for, such as "Type 2 diabetes management".
+        usage: Shown on the patient's record.
+        relationshipContext: Identifies the plan for people.
+    - name: goals
+      type: text
+      required: true
+      help:
+        summary: What the plan aims to achieve, measurably where possible.
+        usage: Agreed with the patient; progress is judged against them.
+        relationshipContext: Reviewed at each review date.
+    - name: interventions
+      type: text
+      required: false
+      help:
+        summary: What will be done — treatments, referrals, education, monitoring.
+        usage: Followed by the care team.
+        relationshipContext: Orders and encounters carry them out.
+    - name: startDate
+      type: date
+      required: true
+      help:
+        summary: The day the plan of care begins and its goals and interventions take effect.
+        usage: Set when the care team and the patient agree the plan.
+        relationshipContext: Not later than the end date.
+    - name: endDate
+      type: date
+      required: false
+      help:
+        summary: When the plan is expected to end.
+        usage: Set if the plan has a defined length.
+        relationshipContext: Empty for open-ended plans.
+    - name: nextReviewDate
+      type: date
+      required: false
+      help:
+        summary: The day the care team is due to review progress against the plan's goals.
+        usage: Drives review reminders for the responsible clinician and the care team.
+        relationshipContext: Moved forward at each review.
   relationships:
     - name: context
       target: HealthcarePatient
@@ -51,6 +94,33 @@ entity:
         usage: Set when the plan is created and not changed.
         cardinalityMeaning: Exactly one patient; a patient may have several plans over time.
         workflowRole: Attaches the plan to the patient's record so every clinician sees it.
+    - name: patient
+      target: HealthcarePatient
+      cardinality: "1"
+      ownership: reference
+      help:
+        summary: The patient the plan is for.
+        usage: Set when creating it.
+        cardinalityMeaning: Every plan is for exactly one patient.
+        context: Listed among the patient's care plans.
+    - name: responsibleProvider
+      target: HealthcareProvider
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The clinician responsible for the plan.
+        usage: Leads its reviews.
+        cardinalityMeaning: One per plan.
+        context: May change over time.
+    - name: diagnosis
+      target: Diagnosis
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The diagnosis the plan addresses.
+        usage: Linked when the plan is for one condition.
+        cardinalityMeaning: At most one.
+        context: Plans covering several conditions name them in the goals.
   invariants:
     - id: CARE-PLAN-001
       rule: The governing HealthcarePatient relationship is required and must reference a valid record.
@@ -58,6 +128,7 @@ entity:
       rule: Completed records must not be destructively rewritten; corrections require controlled amendment, replacement, reversal, or follow-up evidence appropriate to the domain.
     - id: CARE-PLAN-003
       rule: Creation and lifecycle transitions must be idempotent and auditable.
+    - {id: CARE-PLAN-EXE-001, rule: "End Date must not be earlier than start date.", violatedWhen: "start_date != null and end_date != null and end_date < start_date", message: "End Date cannot be earlier than start date."}
   lifecycle:
     title: Care Plan Lifecycle
     attribute: status

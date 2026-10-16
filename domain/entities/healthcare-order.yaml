@@ -41,6 +41,81 @@ entity:
           COMPLETED: Carried out. A final state.
           CANCELLED: Withdrawn. A final state.
         relationshipContext: Status changes can affect related HealthcareEncounter workflows but never erase historical evidence.
+    - name: orderType
+      type: enum
+      required: true
+      default: LABORATORY
+      values:
+        - LABORATORY
+        - IMAGING
+        - MEDICATION
+        - PROCEDURE
+        - REFERRAL
+        - NURSING
+      help:
+        summary: Says what kind of clinical order this is, such as a laboratory test, an imaging study or a medication.
+        usage: Chosen by the ordering clinician; it decides which department receives the order.
+        relationshipContext: Medication orders follow the prescribing rules.
+        valueSemantics:
+          LABORATORY: A laboratory test on a patient sample.
+          IMAGING: An imaging study such as an X-ray or scan.
+          MEDICATION: A medicine to be given or dispensed to the patient.
+          PROCEDURE: A procedure to be performed on the patient.
+          REFERRAL: A referral to another service or specialist.
+          NURSING: A nursing intervention carried out by the ward team.
+    - name: orderDescription
+      type: string
+      required: true
+      maxLength: 300
+      help:
+        summary: What is ordered, such as "Full blood count" or "Chest X-ray PA".
+        usage: Chosen from the order catalogue or written.
+        relationshipContext: Coded orders are preferred.
+    - name: priority
+      type: enum
+      required: true
+      default: ROUTINE
+      values:
+        - ROUTINE
+        - URGENT
+        - STAT
+      help:
+        valueSemantics:
+          ROUTINE: To be carried out in the normal course of the department's work.
+          URGENT: To be done sooner than routine orders, ahead of them in the queue.
+          STAT: To be carried out immediately, ahead of all other work.
+        summary: How urgently the order must be carried out.
+        usage: Decides the order's place in the performing department's queue.
+        relationshipContext: STAT orders are done immediately.
+    - name: instructions
+      type: text
+      required: false
+      help:
+        summary: Directions for whoever carries out the order, such as fasting requirements or which side to image.
+        usage: Written by the ordering clinician when signing and displayed to the performing department.
+        relationshipContext: Such as fasting requirements or the side to image.
+    - name: clinicalReason
+      type: string
+      required: false
+      maxLength: 300
+      help:
+        summary: Why the order is needed.
+        usage: Read by the performing department to interpret the request.
+        relationshipContext: Often the suspected diagnosis.
+    - name: orderedAt
+      type: datetime
+      required: true
+      help:
+        summary: The date and time the clinician placed the order.
+        usage: Recorded on signing; turnaround times are measured from it, and it cannot be later than the completion time.
+        relationshipContext: Not later than its completion.
+    - name: completedAt
+      type: datetime
+      required: false
+      help:
+        summary: The date and time the order was carried out.
+        usage: Recorded by the performing department, and empty until the work is done; it ends the turnaround measurement.
+        relationshipContext: Present once completed.
   relationships:
     - name: context
       target: HealthcareEncounter
@@ -51,6 +126,24 @@ entity:
         usage: Set when the order is created.
         cardinalityMeaning: 'Exactly one encounter: an order is always part of a specific episode of care.'
         workflowRole: Links the instruction to the care context.
+    - name: encounter
+      target: HealthcareEncounter
+      cardinality: "1"
+      ownership: reference
+      help:
+        summary: The encounter during which the order was placed.
+        usage: Set when the order is entered.
+        cardinalityMeaning: Every order belongs to exactly one encounter.
+        context: Listed among the encounter's orders; the patient is the encounter's.
+    - name: orderedBy
+      target: HealthcareProvider
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The clinician who placed the order.
+        usage: Recorded on signing.
+        cardinalityMeaning: One per order.
+        context: Accountable for the order.
   invariants:
     - id: HEALTHCARE-ORDER-001
       rule: The governing HealthcareEncounter relationship is required and must reference a valid record.
@@ -58,6 +151,7 @@ entity:
       rule: Completed records must not be destructively rewritten; corrections require controlled amendment, replacement, reversal, or follow-up evidence appropriate to the domain.
     - id: HEALTHCARE-ORDER-003
       rule: Creation and lifecycle transitions must be idempotent and auditable.
+    - {id: HEALTHCARE-ORDER-EXE-001, rule: "A healthcare order that is completed states when (completed at).", violatedWhen: "status == \"COMPLETED\" and completed_at == null", message: "Record completed at when the healthcare order is completed."}
   lifecycle:
     title: Healthcare Order Lifecycle
     attribute: status

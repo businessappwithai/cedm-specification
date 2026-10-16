@@ -22,10 +22,118 @@ entity:
           ACTIVE: Confirmed and due to be reported.
           COMPLETED: Reported or settled. A final state.
           CANCELLED: Withdrawn, for example after a credit. A final state.
+    - name: taxTransactionNumber
+      type: string
+      required: true
+      unique: true
+      maxLength: 40
+      help:
+        summary: The reference number of this tax record, used to find it on returns and audits.
+        usage: Assigned automatically when the tax is calculated and never reused.
+        relationshipContext: Unique.
+    - name: documentType
+      type: string
+      required: false
+      maxLength: 100
+      help:
+        summary: The kind of source document the tax was computed on, such as a sales invoice or supplier bill.
+        usage: Set by tax determination and read with the document reference to trace the tax back to its source.
+        relationshipContext: Read with the document reference.
+    - name: documentReference
+      type: string
+      required: false
+      maxLength: 100
+      help:
+        summary: The number of the document and line taxed.
+        usage: Lets the tax amount be traced to its source.
+        relationshipContext: Such as "INV-2024-03-0912/1".
+    - name: direction
+      type: enum
+      required: true
+      default: OUTPUT
+      values:
+        - OUTPUT
+        - INPUT
+      help:
+        summary: Whether the tax is charged to a customer or paid to a supplier.
+        usage: Decides the side of the return.
+        relationshipContext: Reverse-charge purchases give both an output and an input record.
+        valueSemantics:
+          OUTPUT: Tax charged on a sale.
+          INPUT: Tax paid on a purchase.
+    - name: taxDate
+      type: date
+      required: true
+      help:
+        summary: The tax point — the date that decides which period the tax belongs to.
+        usage: Usually the invoice date or the supply date, as the law says.
+        relationshipContext: Decides the rate and the return period.
+    - name: taxableAmount
+      type: Money
+      required: true
+      help:
+        summary: The amount of the document line on which the tax was calculated, before the tax itself.
+        usage: Copied from the document line in the document's currency and multiplied by the rate to give the tax.
+        relationshipContext: In the document's currency.
+    - name: ratePercent
+      type: decimal
+      required: false
+      precision: 9
+      scale: 5
+      help:
+        summary: The percentage rate that was applied to the taxable amount.
+        usage: Copied from the rate valid on the tax date and kept even if the rate later changes, so the original calculation can be explained.
+        relationshipContext: Kept even if the rate changes later.
+    - name: taxAmount
+      type: Money
+      required: true
+      help:
+        summary: The tax computed on this line, after rounding.
+        usage: Rounded under the jurisdiction's rules and reported in the return box of its tax code.
+        relationshipContext: Rounded under the jurisdiction's rules.
+    - name: reportedPeriod
+      type: string
+      required: false
+      maxLength: 20
+      help:
+        summary: The return period the transaction was reported in, such as 2024-03.
+        usage: Set when the return is filed.
+        relationshipContext: Present once reported.
   relationships:
     - {name: organization, target: Organization, cardinality: 0..1, ownership: reference, help: {summary: The organisation the tax is reported by., usage: Chosen from the source document., cardinalityMeaning: At most one organisation., workflowRole: Decides which company's return includes it.}}
+    - name: invoice
+      target: Invoice
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The invoice the tax was computed on.
+        usage: Set by tax determination.
+        cardinalityMeaning: At most one.
+        context: Other taxable documents are named in the document reference.
+    - name: taxCode
+      target: TaxCode
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The tax code that was applied to the document line this record taxes.
+        usage: Taken from the line when tax is determined.
+        cardinalityMeaning: Each tax record carries exactly one code, so a line taxed under two codes gives two records.
+        workflowRole: Its return box decides where the amount is reported.
+        context: Decides the return box.
+    - name: jurisdiction
+      target: TaxJurisdiction
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The jurisdiction the tax is due to.
+        usage: From tax determination.
+        cardinalityMeaning: One per record.
+        context: Combined taxes give one record per jurisdiction.
   invariants:
     - {id: TAX-TRANSACTION-001, rule: "This record must not silently duplicate or rewrite authoritative cash, accounting, tax, usage, entitlement, or billing evidence in another CEDM entity."}
+    - {id: TAX-TRANSACTION-EXE-001, rule: "Taxable Amount cannot be negative.", violatedWhen: "taxable_amount != null and taxable_amount < 0", message: "Taxable Amount cannot be negative."}
+    - {id: TAX-TRANSACTION-EXE-002, rule: "Rate Percent is a percentage between 0 and 100.", violatedWhen: "rate_percent != null and (rate_percent < 0 or rate_percent > 100)", message: "Rate Percent must be between 0 and 100."}
+    - {id: TAX-TRANSACTION-EXE-003, rule: "Tax Amount cannot be negative.", violatedWhen: "tax_amount != null and tax_amount < 0", message: "Tax Amount cannot be negative."}
   lifecycle:
     title: Tax Transaction Lifecycle
     attribute: status

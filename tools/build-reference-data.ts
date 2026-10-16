@@ -53,6 +53,9 @@ const SOURCES = {
   },
 } as const;
 
+/** ISO 639-1 languages written right to left in their usual script (Unicode CLDR). */
+const RIGHT_TO_LEFT = new Set(["ar", "dv", "fa", "he", "ks", "ku", "ps", "sd", "ug", "ur", "yi"]);
+
 const SUBDIVISION_COUNTRIES = new Set([
   "US",
   "CA",
@@ -289,8 +292,13 @@ async function build(wheels: string | undefined): Promise<Map<string, string>> {
     render(
       "Language",
       "code",
-      "ISO 639-1 (pycountry)",
-      languages.map((l) => ({ code: l.alpha_2, name: l.name }))
+      "ISO 639-1 and 639-3 (pycountry); script direction from Unicode CLDR",
+      languages.map((l) => ({
+        code: l.alpha_2,
+        alpha3: l.alpha_3,
+        name: l.name,
+        direction: RIGHT_TO_LEFT.has(String(l.alpha_2)) ? "RTL" : "LTR",
+      }))
     )
   );
 

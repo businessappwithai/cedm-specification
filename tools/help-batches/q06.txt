@@ -1,0 +1,348 @@
+@ Promotion
+a minimumOrderAmount
+s: The smallest basket or order value a customer must reach before the offer applies.
+u: Checked at checkout and order entry; an order below this value simply does not receive the discount.
+c: Left empty when any order qualifies, whatever its size.
+a channel
+s: The sales channel through which shoppers may redeem this offer.
+u: Checked at checkout or order entry so the same offer is not honoured where marketing did not intend it.
+c: A store-only promotion is not applied to orders placed on the web shop.
+v ALL: Valid on every sales channel, whether web, store or sales team.
+v WEB: Valid only on orders placed through the online web shop.
+v STORE: Valid only on purchases made at the counter of a physical store.
+v SALES_REP: Valid only on orders keyed in by the sales team on behalf of customers.
+a startAt
+s: The date and time from which shoppers can begin receiving the offer.
+u: Set when the promotion is set up; the promotion becomes active automatically at this moment once approved.
+c: Must not be later than the end date and time.
+a endAt
+s: The date and time after which the offer is no longer given.
+u: Set when the promotion is set up; the promotion closes automatically at this moment and prices return to normal.
+c: Empty for open-ended promotions, which must then be ended by hand.
+a status
+v DRAFT: Still being set up by marketing and not yet visible to any shopper or order.
+v SCHEDULED: Approved and waiting for its start date to arrive.
+v ACTIVE: Currently on offer and applied to qualifying orders.
+v ENDED: Finished because its end date passed or its usage limit was reached.
+v CANCELLED: Stopped by the business before its planned end.
+
+@ Prospect
+a name
+s: The trading name of the organisation or person the business hopes to win as a customer.
+u: Shown in prospect lists and searches so sales staff can recognise the target quickly.
+c: The party record holds the legal name and addresses.
+a disqualificationReason
+s: A short explanation of why sales decided the prospect was not worth pursuing further.
+u: Entered by the salesperson at the moment of disqualifying, and used later to review which targets did not fit.
+c: Present only on disqualified prospects.
+a status
+s: How far the prospect has progressed from first identification toward becoming a lead.
+u: Moved on by sales or marketing as contact is made, interest is shown or the target is dropped.
+c: Converted prospects continue as leads.
+r lead
+s: The lead that this prospect turned into once it showed real interest.
+u: Filled automatically or by sales when the prospect is converted, so the history of the lead can be traced back.
+n: At most one lead, because a prospect is converted only once.
+w: Links the earliest stage of the sales pipeline to the qualification stage that follows it.
+
+@ Putaway
+a putawayNumber
+s: The reference printed on the task that tells a warehouse operator where to store received goods.
+u: Assigned when the task is created and shown on the operator's handheld device; no two tasks share one.
+c: Quoted when reporting a problem with a particular storing task.
+
+@ QualityPlan
+a planType
+s: The point in the product's journey at which this plan's checks are carried out.
+u: Chosen when the plan is created; it decides which events, such as a goods receipt or a finished batch, raise an inspection from it.
+c: A product may have a plan of each type.
+v INCOMING: Applied when purchased goods are received, before they are accepted into stock.
+v IN_PROCESS: Applied while production is under way, to catch problems before further work is added.
+v FINAL: Applied before finished goods are released for sale or shipment.
+v PERIODIC: Applied at set intervals, such as stability tests on stored product.
+a description
+s: A plain explanation of what the plan inspects and the reason those checks are required.
+u: Read by inspectors before they start, so they understand the intent behind the listed characteristics.
+c: Free text.
+
+@ Renewal
+a renewalNumber
+s: The reference by which sales and customers identify this particular renewal.
+u: Assigned when the renewal is created and quoted on renewal offers and reminders to the customer.
+c: Unique across all renewals.
+a newTermStart
+s: The first day of the period the customer will be entitled to once the renewal takes effect.
+u: Entered when the renewal is confirmed and passed on to billing and entitlement.
+c: Usually the day after the current term ends.
+a newTermEnd
+s: The last day of the period covered by the renewal.
+u: Entered when the renewal is confirmed; the next renewal decision falls due before this date.
+c: Not earlier than the new term start.
+a isAutomatic
+s: Tells whether the renewal happens by itself or needs the customer's explicit agreement.
+u: Copied from the subscription terms when the renewal is created, so staff know whether to chase a confirmation.
+c: Automatic renewals still appear here so they can be reviewed.
+
+@ RequestForQuotationLine
+a requiredDate
+s: The date by which the buyer needs the requested goods or services delivered.
+u: Copied from the approved requisition; suppliers state in their quotes whether they can meet it.
+c: Taken from the requisition.
+a targetPrice
+s: The price the buyer is hoping to pay for this line, held for internal use only.
+u: Used by buyers to judge incoming quotes and decide where to negotiate.
+c: Never shown to suppliers.
+
+@ ResourceAssignment
+a startDate
+s: The first day on which the person or resource is committed to the project.
+u: Set when the assignment is planned, and used to build the capacity plan for the period.
+c: Not later than the end date.
+a plannedHours
+s: The total working hours the project manager expects this person to give the project.
+u: Compared with the hours actually booked to show whether the assignment is on track.
+c: Usually the allocation percentage times the hours available in the period.
+
+@ RiskAssessment
+a assessmentNumber
+s: The reference that identifies this dated review of a risk.
+u: Assigned when the assessment is started and quoted in reports and committee papers.
+c: Unique across all assessments.
+a assessmentDate
+s: The calendar date that the assessed likelihood and impact are judged to apply to.
+u: Entered by the risk owner; trend charts plot each risk's assessments in order of this date.
+c: Usually the end of the review period.
+a inherentLikelihood
+s: How likely the risk is to occur if no controls were in place at all.
+u: Judged by the risk owner against the agreed likelihood scale.
+c: Read with the inherent impact.
+v RARE: May occur only in exceptional circumstances.
+v UNLIKELY: Could occur but is not expected during the period.
+v POSSIBLE: Might occur at some time.
+v LIKELY: Will probably occur at least once during the period.
+v ALMOST_CERTAIN: Expected to occur, and likely to occur repeatedly.
+a inherentImpact
+v INSIGNIFICANT: Negligible effect that is absorbed in normal operations.
+v MINOR: Small, easily absorbed effect.
+v MODERATE: Noticeable effect needing management attention.
+v MAJOR: Serious effect on the organisation's objectives.
+v SEVERE: Threatens the survival of the business.
+a residualLikelihood
+v RARE: May occur only in exceptional circumstances.
+v UNLIKELY: Could occur but is not expected during the period.
+v POSSIBLE: Might occur at some time.
+v LIKELY: Will probably occur at least once, even with controls working.
+v ALMOST_CERTAIN: Expected to occur, and likely to occur repeatedly, despite the controls.
+a residualImpact
+v INSIGNIFICANT: Negligible effect that is absorbed in normal operations.
+v MINOR: Small, easily absorbed effect.
+v MODERATE: Noticeable effect needing management attention.
+v MAJOR: Serious effect on the organisation's objectives.
+v SEVERE: Threatens the survival of the business, even with controls working.
+a residualRating
+v LOW: Accepted, with routine monitoring only.
+v MEDIUM: Accepted with monitoring by the owner.
+v HIGH: Needs treatment and management attention.
+v VERY_HIGH: Needs immediate treatment and board attention.
+a status
+s: Shows whether the assessment is still being written, awaiting review, accepted or replaced.
+u: Moved on by the owner submitting it and by risk management approving it.
+c: Only approved assessments appear in reports.
+r approvedBy
+s: The person in risk management who accepted this assessment as the current view of the risk.
+u: Recorded at the moment of approval, giving the review a named accountable reviewer.
+n: At most one approver, and none until the assessment is approved.
+w: Marks the approval step that moves an assessment from submitted to approved.
+
+@ RiskTreatment
+a title
+s: A one-line statement of the action that will be taken to respond to the risk.
+u: Shown in risk reports and treatment lists so managers can scan what is planned.
+c: Identifies the treatment for people, beside its code.
+a strategy
+s: The broad approach chosen for dealing with the risk.
+u: Chosen when the treatment is planned and used to group treatments in risk reports.
+c: Accepting a risk needs approval at the right level.
+v REDUCE: Lower the likelihood or impact, usually through controls.
+v AVOID: Stop the activity that creates the risk.
+v TRANSFER: Pass the risk to another party, such as an insurer.
+v ACCEPT: Bear the risk knowingly.
+a dueDate
+s: The date by which the agreed action should be finished.
+u: Agreed with the risk owner when planning; treatments past this date are reported as overdue.
+c: Not earlier than the day the treatment was planned.
+a estimatedCost
+s: The money the organisation expects to spend carrying out the treatment.
+u: Weighed against the reduction in risk to decide whether the treatment is worth doing.
+c: In the company currency.
+a targetRating
+v LOW: Accepted, with routine monitoring only.
+v MEDIUM: Accepted with monitoring by the owner.
+v HIGH: Still needs treatment and management attention.
+a completedDate
+s: The day the treatment was actually finished.
+u: Recorded by the owner when the work is done, and compared with the due date.
+c: Present once completed.
+
+@ Route
+a transportMode
+s: The means by which vehicles on the route travel between its stops.
+u: Set when the route is defined and used to choose suitable vehicles and carriers.
+c: Multimodal journeys are split into one route per mode.
+v ROAD: Travelled by truck or van on public roads.
+v RAIL: Travelled by train on a rail network.
+v SEA: Travelled by ship between ports.
+v AIR: Travelled by aircraft between airports.
+a distanceKm
+s: The total length of the route in kilometres, measured along its stops in order.
+u: Used by planners for cost and emission estimates and for comparing alternative routes.
+c: Measured along the stops in order.
+a status
+s: Tells planners whether the route is being set up, in service, paused or withdrawn.
+u: Moved on by the transport planner as the route is launched, paused or discontinued.
+c: Only active routes generate trips.
+v PLANNED: Still being designed and not yet in service.
+v ACTIVE: Operating on its schedule.
+v SUSPENDED: Paused, for example out of season.
+v RETIRED: Permanently withdrawn and no longer operated.
+r origin
+s: The location from which every trip on this route departs.
+u: Chosen when the route is defined, usually a warehouse, hub or port.
+n: Exactly one starting location, because a route has a single point of departure.
+w: Gives trip planning its starting point and the first stop of the sequence.
+r destination
+s: The location at which every trip on this route finishes.
+u: Chosen when the route is defined, usually a customer site, hub or port.
+n: Exactly one final location, because a route ends in a single place.
+w: Gives trip planning its end point and lets arrival times be compared with the plan.
+
+@ Routing
+a description
+s: A short account of what the routing produces and anything special about how it is made.
+u: Read by production engineers and planners when choosing between routings for a product.
+c: Free text.
+a validFrom
+s: The first day on which production orders may use this routing.
+u: Set when the routing is released, so earlier orders keep using the previous version.
+c: Not later than the valid-to date.
+a validTo
+s: The last day on which production orders may use this routing.
+u: Set when a newer version replaces it; orders planned after this date must pick another routing.
+c: Empty while the routing is still in use.
+
+@ Scenario
+a name
+s: The title planners give to a set of planning assumptions, such as Best case 2027.
+u: Shown wherever a budget or forecast is tied to a scenario so users can choose between them.
+c: Identifies the scenario for people, beside its code.
+a scenarioType
+v BASE: The expected case that most plans are built on.
+v UPSIDE: A more favourable case than expected.
+v DOWNSIDE: A less favourable case than expected.
+v STRESS: A severe case used to test resilience.
+
+@ SerialNumber
+a manufacturedDate
+s: The day on which this individual unit was produced.
+u: Taken from the manufacturer's or production record, and used to scope warranties and recalls.
+c: Not later than the warranty end date.
+
+@ ShoppingCart
+a lastActivityAt
+s: The moment the shopper most recently added, changed or removed something in the cart.
+u: Set by the shop on every change; carts idle for too long are treated as abandoned.
+c: Updated on every change.
+
+@ ShoppingCartLine
+a addedAt
+s: The moment the shopper put this product into the cart.
+u: Set by the shop automatically and used in abandoned-cart analysis to see what was left behind.
+c: Not changed when the quantity is later adjusted.
+
+@ Signature
+a requestedAt
+s: The moment the signer was asked to sign the document.
+u: Recorded when the document is sent for signing; the expiry period is counted from it.
+c: Requests expire after the configured period.
+a status
+v REQUESTED: Sent to the signer, who has not yet acted on it.
+v SIGNED: The signer has signed, and the evidence is recorded.
+v DECLINED: The signer refused to sign.
+v EXPIRED: Not acted on within the allowed time.
+v REVOKED: Withdrawn by the sender before it was signed.
+
+@ SparePart
+a reorderQuantity
+s: The number of units to order each time stock falls to the reorder point.
+u: Used when the replenishment order is raised, often matching the supplier's pack or minimum order size.
+c: Must be a positive number.
+a status
+s: Tells maintenance whether the part is still stocked and reordered or being run down.
+u: Moved on by maintenance when a part is superseded or withdrawn by its maker.
+c: Obsolete parts are run down and not reordered.
+v ACTIVE: Stocked, planned for maintenance jobs and reordered.
+v OBSOLETE: No longer reordered; remaining stock is used up.
+
+@ Store
+a storeFormat
+s: The type of outlet the store is, which shapes its range and size.
+u: Chosen when the store is set up; it decides the product range and staffing model.
+c: Read with its floor area.
+v FLAGSHIP: A large showcase store.
+v STANDARD: A regular store with the normal range.
+v EXPRESS: A small convenience store.
+v OUTLET: A store selling discounted stock.
+v POP_UP: A temporary store open for a short period.
+a openingDate
+s: The day the store first opened its doors to customers.
+u: Used to compare like-for-like sales between stores of similar age.
+c: Not later than the closing date.
+a closingDate
+s: The day the store stopped trading.
+u: Recorded when the store closes, so later sales and stock are no longer expected there.
+c: Present only for closed stores.
+a floorAreaM2
+s: The area of the store open to customers, in square metres.
+u: Used to report sales per square metre and to compare store productivity.
+c: Excludes stockrooms and staff areas.
+a openingHours
+s: The days and times at which customers can visit the store.
+u: Typed in by store administration and shown to shoppers on the store locator.
+c: Written in plain text, such as Mon-Sat 09:30-19:30.
+a phone
+s: The telephone number customers can call to reach the store directly.
+u: Entered by store administration and shown on the store locator and receipts.
+c: Written in international format.
+r manager
+s: The person responsible for running the store day to day.
+u: Chosen when the store is set up and changed when management changes.
+n: At most one manager at a time.
+w: Receives the store's reports and is accountable for its results.
+
+@ Subscription
+a startDate
+s: The day on which the customer's subscription began.
+u: Recorded at sign-up and used for reporting on customer tenure.
+c: Not later than the end date.
+a trialEndDate
+s: The last day the customer can use the service free of charge.
+u: Set at sign-up from the plan's trial length; billing starts the day after.
+c: Empty when there was no trial.
+a currentTermStart
+s: The first day of the billing term the subscription is now in.
+u: Moved on automatically at each renewal.
+c: Not later than the current term end.
+a currentTermEnd
+s: The last day of the billing term the subscription is now in.
+u: Renewal is decided before this date, and billing for the next term follows it.
+c: Empty for subscriptions without fixed terms.
+a cancellationReason
+s: The explanation the customer or staff gave for ending the subscription.
+u: Recorded at cancellation; churn analysis groups cancelled subscriptions by it.
+c: Present only on cancelled subscriptions.
+
+@ SubscriptionPlan
+a description
+s: A description of what the plan includes and costs, written for customers.
+u: Shown on the pricing page and in sign-up emails to help people choose a plan.
+c: Must match the entitlements configured on the plan.

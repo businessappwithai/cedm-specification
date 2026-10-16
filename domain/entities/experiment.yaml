@@ -73,6 +73,20 @@ entity:
       help:
         summary: The date and time the experiment finished and its results were recorded.
         usage: Set at completion; never before the start time, and used to calculate duration and decide when results can be reviewed.
+    - name: method
+      type: text
+      required: false
+      help:
+        summary: How the experiment is carried out, or a reference to the protocol.
+        usage: Lets the experiment be repeated.
+        relationshipContext: Detailed protocols are attached.
+    - name: resultSummary
+      type: text
+      required: false
+      help:
+        summary: What the experiment showed, written up in the researcher's own words.
+        usage: Written on completion and read in project reviews when deciding what to do next.
+        relationshipContext: The raw data is attached separately.
   relationships:
     - name: compounds
       target: Compound

@@ -20,9 +20,113 @@ entity:
           ACTIVE: Approved and in force; the subject holds the access.
           COMPLETED: Ended, by expiry or revocation; the access is gone but the record remains for audit.
           CANCELLED: Withdrawn or refused before taking effect; no access was ever given.
-  relationships: []
+    - name: grantNumber
+      type: string
+      required: true
+      unique: true
+      maxLength: 40
+      help:
+        summary: The reference of the grant, quoted in access requests and reviews.
+        usage: Assigned when the request is raised; reviewers and auditors use it to identify the grant.
+        relationshipContext: Unique across all grants, including expired and revoked ones.
+    - name: scope
+      type: string
+      required: false
+      maxLength: 200
+      help:
+        summary: Where the access applies — a company, site, business unit or other boundary.
+        usage: Stated when access must not extend to the whole organization, for example "Company 1000" or "Warehouse North".
+        relationshipContext: Empty means the grant applies wherever the role or permission does.
+    - name: validFrom
+      type: date
+      required: true
+      help:
+        summary: The first day the access is in force.
+        usage: Set by the requester and confirmed by the approver; the grant gives no access before this date.
+        relationshipContext: Must not be later than the valid-to date.
+    - name: validTo
+      type: date
+      required: false
+      help:
+        summary: The last day the access is in force.
+        usage: Set for temporary access, such as a project or a holiday cover; left empty for access tied to a permanent job.
+        relationshipContext: The grant should expire after this date; access reviews look first at grants without one.
+    - name: justification
+      type: text
+      required: false
+      help:
+        summary: Why the user needs the access.
+        usage: Written by the requester and read by the approver and later by reviewers deciding whether the grant is still justified.
+        relationshipContext: Required in practice for privileged roles; it is the evidence an auditor reads.
+    - name: requestedAt
+      type: datetime
+      required: false
+      help:
+        summary: When the access was requested.
+        usage: Recorded when the request is raised; the time between request and approval is a service measure.
+        relationshipContext: Precedes the approval time.
+    - name: approvedAt
+      type: datetime
+      required: false
+      help:
+        summary: When the approver accepted the request.
+        usage: Recorded on approval; an active grant must have one.
+        relationshipContext: Read with the approver; together they are the evidence of authorization.
+    - name: revokedAt
+      type: datetime
+      required: false
+      help:
+        summary: When the access was withdrawn early.
+        usage: Recorded when a grant is revoked, for example on a job change or a security incident.
+        relationshipContext: Present only on revoked grants.
+    - name: revocationReason
+      type: string
+      required: false
+      maxLength: 500
+      help:
+        summary: Why the access was withdrawn.
+        usage: Written when revoking, so that later reviews can tell a routine change from a security action.
+        relationshipContext: Present only on revoked grants.
+  relationships:
+    - name: user
+      target: User
+      cardinality: "1"
+      ownership: reference
+      help:
+        summary: The user who receives the access.
+        usage: Chosen when the request is raised; the user's access is the set of their active grants.
+        cardinalityMeaning: Every grant is for exactly one user.
+        context: When the user is disabled or retired, their active grants should be revoked.
+    - name: role
+      target: Role
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The role the user is given.
+        usage: Chosen when access is granted as a role, which is the normal way; the role's permissions come with it.
+        cardinalityMeaning: A grant gives at most one role; it gives either a role or a single permission.
+        context: Retiring a role should lead to revoking the grants that hold it.
+    - name: permission
+      target: Permission
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: A single permission the user is given outside any role.
+        usage: Used for exceptional, narrowly scoped access; most access is granted through roles.
+        cardinalityMeaning: A grant gives at most one permission.
+        context: Grants of single permissions deserve closer review because they bypass role design.
+    - name: approver
+      target: Person
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The person who approved the grant and is accountable for it.
+        usage: Recorded on approval; access recertification sends each grant to its approver.
+        cardinalityMeaning: One approver per grant.
+        context: The approver should not be the user who receives the access.
   invariants:
     - {id: ACCESS-GRANT-001, rule: State changes and retries must preserve auditable history and must not duplicate downstream business effects.}
+    - {id: ACCESS-GRANT-EXE-001, rule: "Valid To must not be earlier than valid from.", violatedWhen: "valid_from != null and valid_to != null and valid_to < valid_from", message: "Valid To cannot be earlier than valid from."}
   lifecycle:
     title: Access Grant Lifecycle
     attribute: status

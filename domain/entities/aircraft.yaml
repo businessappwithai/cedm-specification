@@ -60,6 +60,53 @@ entity:
           MAINTENANCE: Out of service for scheduled or unscheduled maintenance.
           GROUNDED: Not permitted to fly pending an airworthiness issue, inspection or regulatory decision.
           RETIRED: Permanently removed from the fleet; the record is kept for history.
+    - name: manufacturer
+      type: string
+      required: false
+      maxLength: 100
+      help:
+        summary: Who built the aircraft, such as Airbus or Boeing.
+        usage: Used for directives and support contracts.
+        relationshipContext: As on the type certificate.
+    - name: yearOfManufacture
+      type: integer
+      required: false
+      help:
+        summary: The calendar year in which the manufacturer completed building the aircraft.
+        usage: Copied from the certificate of airworthiness and used in fleet planning, retirement forecasts and insurance premiums.
+        relationshipContext: A four-digit year.
+    - name: seatCapacity
+      type: integer
+      required: false
+      help:
+        summary: How many passenger seats the aircraft has in its current layout.
+        usage: Used for scheduling and sales.
+        relationshipContext: Changes with a cabin reconfiguration.
+    - name: maxTakeoffWeightKg
+      type: decimal
+      required: false
+      precision: 10
+      scale: 1
+      help:
+        summary: The heaviest weight in kilograms at which the aircraft is certified to begin its take-off roll.
+        usage: Taken from the certificate and used in performance calculations, payload planning and landing-fee charges.
+        relationshipContext: Must be greater than zero.
+    - name: totalFlightHours
+      type: decimal
+      required: false
+      precision: 12
+      scale: 1
+      help:
+        summary: The hours the aircraft has flown since new.
+        usage: Updated after each flight; drives hour-based maintenance.
+        relationshipContext: Never decreases.
+    - name: airworthinessExpiry
+      type: date
+      required: false
+      help:
+        summary: When the certificate of airworthiness or its review expires.
+        usage: Watched by maintenance control; the aircraft is grounded if it lapses.
+        relationshipContext: Renewed after the review.
   relationships:
     - name: organization
       target: Organization
@@ -104,6 +151,8 @@ entity:
       - {from: ACTIVE, to: RETIRED, action: retire}
       - {from: MAINTENANCE, to: RETIRED, action: retire}
       - {from: GROUNDED, to: RETIRED, action: retire}
+  invariants:
+    - {id: AIRCRAFT-EXE-001, rule: "Seat Capacity cannot be negative.", violatedWhen: "seat_capacity != null and seat_capacity < 0", message: "Seat Capacity cannot be negative."}
   help:
     summary: An aircraft, powered or unpowered, managed as an operational asset with its own registration, type, status and maintenance history.
     businessMeaning: For an operator, each aircraft is a high-value asset that must be airworthy, scheduled and maintained. This record is the aircraft's identity in the system, to which flights, maintenance and compliance evidence are attached.

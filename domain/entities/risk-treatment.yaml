@@ -42,6 +42,75 @@ entity:
           COMPLETED: The action has been done and its effect can be assessed. A final state.
           CANCELLED: No longer needed or abandoned before completion. A final state.
         relationshipContext: Status changes can affect related Risk workflows but never erase historical evidence.
+    - name: title
+      type: string
+      required: true
+      maxLength: 200
+      help:
+        summary: A one-line statement of the action that will be taken to respond to the risk.
+        usage: Shown in risk reports and treatment lists so managers can scan what is planned.
+        relationshipContext: Identifies the treatment for people, beside its code.
+    - name: strategy
+      type: enum
+      required: true
+      default: REDUCE
+      values:
+        - REDUCE
+        - AVOID
+        - TRANSFER
+        - ACCEPT
+      help:
+        summary: The broad approach chosen for dealing with the risk.
+        usage: Chosen when the treatment is planned and used to group treatments in risk reports.
+        relationshipContext: Accepting a risk needs approval at the right level.
+        valueSemantics:
+          REDUCE: Lower the likelihood or impact, usually through controls.
+          AVOID: Stop the activity that creates the risk.
+          TRANSFER: Pass the risk to another party, such as an insurer.
+          ACCEPT: Bear the risk knowingly.
+    - name: actionPlan
+      type: text
+      required: false
+      help:
+        summary: The actions that make up the treatment.
+        usage: Written by the owner; progress is reported against it.
+        relationshipContext: Specific enough to judge when it is done.
+    - name: dueDate
+      type: date
+      required: false
+      help:
+        summary: The date by which the agreed action should be finished.
+        usage: Agreed with the risk owner when planning; treatments past this date are reported as overdue.
+        relationshipContext: Not earlier than the day the treatment was planned.
+    - name: estimatedCost
+      type: Money
+      required: false
+      help:
+        summary: The money the organisation expects to spend carrying out the treatment.
+        usage: Weighed against the reduction in risk to decide whether the treatment is worth doing.
+        relationshipContext: In the company currency.
+    - name: targetRating
+      type: enum
+      required: false
+      values:
+        - LOW
+        - MEDIUM
+        - HIGH
+      help:
+        valueSemantics:
+          LOW: Accepted, with routine monitoring only.
+          MEDIUM: Accepted with monitoring by the owner.
+          HIGH: Still needs treatment and management attention.
+        summary: The residual rating the treatment should bring the risk to.
+        usage: Compared with the reassessment after completion.
+        relationshipContext: From the same rating scale as risk assessments.
+    - name: completedDate
+      type: date
+      required: false
+      help:
+        summary: The day the treatment was actually finished.
+        usage: Recorded by the owner when the work is done, and compared with the due date.
+        relationshipContext: Present once completed.
   relationships:
     - name: context
       target: Risk
@@ -52,6 +121,33 @@ entity:
         usage: Chosen when the treatment is created.
         cardinalityMeaning: Exactly one risk; a treatment for two risks is recorded twice.
         context: Keeps the response attached to the risk it addresses.
+    - name: risk
+      target: Risk
+      cardinality: "1"
+      ownership: reference
+      help:
+        summary: The risk treated.
+        usage: Chosen when planning the treatment.
+        cardinalityMeaning: Every treatment is of exactly one risk.
+        context: Listed among the risk's treatments.
+    - name: owner
+      target: Person
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: Who is responsible for carrying the treatment out.
+        usage: Agreed when planning it.
+        cardinalityMeaning: One per treatment.
+        context: Reports progress in risk reviews.
+    - name: control
+      target: Control
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The control the treatment introduces or strengthens.
+        usage: Linked for reduce treatments that work through a control.
+        cardinalityMeaning: At most one.
+        context: The control's testing shows whether the treatment worked.
   invariants:
     - id: RISK-TREATMENT-001
       rule: The governing Risk relationship is required and must reference a valid record.
@@ -59,6 +155,7 @@ entity:
       rule: Completed records must not be destructively rewritten; corrections require controlled amendment, replacement, reversal, or follow-up evidence appropriate to the domain.
     - id: RISK-TREATMENT-003
       rule: Creation and lifecycle transitions must be idempotent and auditable.
+    - {id: RISK-TREATMENT-EXE-001, rule: "Estimated Cost cannot be negative.", violatedWhen: "estimated_cost != null and estimated_cost < 0", message: "Estimated Cost cannot be negative."}
   lifecycle:
     title: Risk Treatment Lifecycle
     attribute: status

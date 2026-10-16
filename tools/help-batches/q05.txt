@@ -1,0 +1,362 @@
+@ LegalEntity
+a incorporationDate
+s: The day the company or organisation was legally formed, as shown on its certificate of incorporation.
+u: Copied from the official register when the entity is set up; used for age checks, filings and group structure charts.
+c: It can never fall after the dissolution date.
+a dissolutionDate
+s: The day the legal entity formally ceased to exist and was removed from the register.
+u: Entered by company secretarial when a dissolution is confirmed; it stays empty for entities that still exist.
+c: Only dissolved entities carry a date here.
+a status
+v ACTIVE: Registered, in good standing and free to trade, sign contracts and issue invoices.
+v DORMANT: Still registered but not trading, so it holds no live business activity.
+v IN_LIQUIDATION: Being wound up by a liquidator; no new business should be started in its name.
+v DISSOLVED: Struck off the register and gone for good; no new contracts or invoices may use it.
+@ LegalMatter
+a title
+s: A short headline telling lawyers and the business what the dispute, advice request or transaction concerns.
+u: Typed by the legal team at intake and shown in matter lists, searches and cost reports.
+c: Read together with the matter number to pick the right matter out of a list.
+a description
+s: The background of the matter, the facts so far and what the business hopes to achieve through legal help.
+u: Written at intake by the requesting lawyer and extended as the matter develops; it may contain privileged advice.
+c: Access is limited to the legal team and those they name.
+a openedDate
+s: The day the legal team formally accepted the matter and began work on it.
+u: Set at intake, normally when the request is approved; it starts the clock for ageing and cost reporting.
+c: It cannot be later than the closing date.
+a closedDate
+s: The day the legal work was finished and the matter was closed in the register.
+u: Recorded by the responsible lawyer together with the final outcome and last counsel invoice.
+c: Empty while the matter is open or on hold.
+a spendToDate
+s: The total legal fees and expenses charged against the matter so far.
+u: Updated as outside counsel invoices are approved; the legal team compares it with the budget each month.
+c: Going over the budget needs approval from the matter owner.
+a status
+s: Shows whether the matter is still being worked on, paused, or finished.
+u: Changed by the responsible lawyer as work starts, stalls or ends; closed matters need an outcome recorded.
+c: Closing a matter locks in its dates and final spend.
+@ Load
+a plannedLoadingAt
+s: The date and time the dock team expects to start loading the vehicle.
+u: Booked in the dock schedule when the load is planned; yard staff use it to assign doors and labour.
+c: It cannot be later than the planned departure.
+a dispatchedAt
+s: The date and time the vehicle carrying the load actually left the site.
+u: Recorded by gate staff or the driver check-out; carriers and customers use it to judge on-time delivery.
+c: Filled only once the load has been dispatched.
+a unloadedAt
+s: The date and time the receiving site finished unloading the load at its destination.
+u: Confirmed by the receiving site on arrival; it closes the transport leg and starts goods receipt checks.
+c: Filled only after the load is unloaded.
+a status
+s: Tells dock and transport teams where the load is in its journey, from planning to unloading.
+u: Moved forward by the dock as loading starts and the vehicle leaves, then by the receiving site on unloading.
+c: Only planned loads may still be changed; once loading begins, changes need the dock supervisor.
+v PLANNED: Shipments are still being assigned and the load can be freely changed.
+v LOADING: The vehicle is at the dock and goods are being put on board.
+v DISPATCHED: The vehicle has left the site and the load is in transit.
+v UNLOADED: The receiving site has taken the goods off the vehicle and the transport is complete.
+v CANCELLED: The load was called off before dispatch and its shipments return to planning.
+r origin
+s: The place the load starts from, where the vehicle is loaded and departs.
+u: Chosen when the load is planned, usually a warehouse or distribution site, and used for route and dock planning.
+n: At most one origin per load, though many loads may start from the same location.
+w: Fixes the start of the transport leg so carriers, dock schedules and distance calculations know where to begin.
+@ LossEvent
+a lossNumber
+s: The unique reference by which risk managers, auditors and insurers quote this loss.
+u: Assigned automatically when the loss is recorded and never reused, even if the loss is later withdrawn.
+c: No two loss events share a number.
+a title
+s: A one-line description of what was lost, such as stolen stock or a failed payment run.
+u: Entered when the loss is recorded and shown in loss reports and dashboards.
+c: Read alongside the loss number to identify the event.
+a description
+s: A narrative explaining how the loss came about and what it affected.
+u: Written by the risk analyst when recording the loss and updated as the assessment finds more.
+c: The linked incident holds the detailed facts of what happened.
+a occurredDate
+s: The day the event that caused the loss took place.
+u: Taken from the linked incident or investigation; it can differ from the day the loss was found.
+c: It cannot be later than the discovery date.
+a discoveredDate
+s: The day someone first realised the loss had happened and reported it.
+u: Recorded when the loss is reported; period-end loss reporting groups events by this date.
+c: Required, since losses are reported by discovery rather than occurrence.
+a grossLoss
+s: The full value lost before any insurance payout, recovery or write-back reduces it.
+u: Estimated when the loss is first recorded and confirmed by the risk team during assessment.
+c: Held in the loss's own currency.
+a netLoss
+s: What the loss really cost the business once recoveries have been taken off.
+u: Worked out as the gross loss less the amount recovered; risk and finance reports use this figure.
+c: Changes whenever new recoveries are booked.
+a status
+s: Shows how far the loss has been assessed and whether its amounts can still change.
+u: Moved on by the risk team as estimates are confirmed and recoveries settle.
+c: Closed losses are frozen and no longer edited.
+v IDENTIFIED: The loss is known and recorded, but its amounts are still estimates.
+v ASSESSED: The amounts are confirmed, although further recoveries may still arrive.
+v CLOSED: Final amounts are recorded and the loss is frozen for reporting.
+v WITHDRAWN: The loss was recorded by mistake and is excluded from all totals.
+@ MaterialIssue
+a costAmount
+s: The value of the components taken from stock and charged to the production order.
+u: Calculated when the issue is posted and booked as material cost on the work order.
+c: Priced at the product's current cost rather than its purchase price.
+@ Message
+a direction
+s: Says whether the business received this message from another system or sent it out.
+u: Set by the integration layer when the message is created; support staff filter on it when tracing a problem.
+c: Received messages are turned into business records, and sent ones come from them.
+v INBOUND: Received from an external system and waiting to be turned into business records.
+v OUTBOUND: Created by this application and sent to an external system.
+a sentAt
+s: The time the message left the application, or arrived if it was received from outside.
+u: Stamped by the integration layer on transmission; support staff compare it with the acknowledgement time.
+c: Message lists are sorted by this time.
+a attemptCount
+s: The number of times the system has tried to deliver or process this message.
+u: Raised by one on every try, including failed ones; operators watch it to spot messages that keep failing.
+c: Once it reaches the configured maximum the message is moved to the dead-letter queue.
+@ Obligation
+a obligationNumber
+s: The unique reference people use when chasing or reporting on this duty.
+u: Assigned when the obligation is recorded and quoted in reminders, breach notices and compliance reports.
+c: No two obligations share a number.
+a obligationType
+s: The kind of duty owed, such as paying money, delivering goods or keeping information secret.
+u: Chosen when the obligation is recorded; it determines who monitors it and which evidence is expected.
+c: Payment duties usually also appear in the accounts.
+v PAYMENT: A duty to pay a sum of money by an agreed date.
+v DELIVERY: A duty to hand over goods, a service or a document.
+v REPORTING: A duty to report, notify or file information with someone.
+v PERFORMANCE: A duty to carry out an action or reach an agreed standard.
+v CONFIDENTIALITY: A duty to keep specified information secret from others.
+v RESTRICTION: A duty not to do something, such as competing or soliciting staff.
+a frequency
+s: How often the duty has to be performed again, from a single event to every year.
+u: Chosen when recording the obligation; after each performance it drives the calculation of the next due date.
+c: One-off and ongoing duties have no next occurrence.
+v ONCE: Performed a single time and then finished.
+v MONTHLY: Falls due again every month after each performance.
+v QUARTERLY: Falls due again every three months after each performance.
+v ANNUAL: Falls due again once a year after each performance.
+v ONGOING: Applies continuously, as with confidentiality, so it never has a due date.
+a metDate
+s: The day the duty was last performed in full.
+u: Recorded by the owner alongside the evidence, such as a payment receipt or signed delivery note.
+c: Filled only once the obligation has been met.
+a status
+v PENDING: Not yet due, or due but not yet performed.
+v MET: The duty has been performed and the evidence recorded.
+v WAIVED: The party owed the duty has formally released the other from it.
+v BREACHED: The duty was not performed by its due date.
+@ OrganizationMembership
+a startDate
+s: The day the person or party officially became a member of the organisation.
+u: Recorded when they join; it is used for access rights, headcount reports and membership history.
+c: It cannot be later than the end date.
+a endDate
+s: The day the membership stops, after which the person is no longer part of the organisation.
+u: Recorded when the member leaves and left empty while the membership is open-ended.
+c: Access tied to the membership should end with this date.
+@ Packaging
+a packagingLevel
+v EACH: The single sellable unit as a customer buys it.
+v INNER: A smaller inner pack grouped inside a case.
+v CASE: A shipping case or carton holding several units.
+v PALLET: A full pallet of cases ready to be moved by forklift.
+a lengthCm
+s: The outer length of one package, measured in centimetres.
+u: Entered from the packaging specification and used by warehouse and transport planners to fit stock into locations and vehicles.
+c: Measured on the outside of the package.
+a widthCm
+s: The outer width of one package, measured in centimetres.
+u: Entered from the packaging specification and used by warehouse and transport planners to fit stock into locations and vehicles.
+c: Measured on the outside of the package.
+a heightCm
+s: The outer height of one package, measured in centimetres.
+u: Entered from the packaging specification and used by warehouse and transport planners to plan stacking and vehicle loading.
+c: Measured on the outside of the package.
+@ Packing
+a packedAt
+s: The date and time the packer finished and closed the packed handling unit.
+u: Recorded when the unit is closed and labelled, ready for the shipping area.
+c: Filled only once packing is done.
+@ PartyRelationship
+a relationshipType
+s: Describes how the first party stands towards the second, such as subsidiary, employee or guarantor.
+u: Chosen when the link is recorded; credit, compliance and group reporting use it to interpret the connection.
+c: Read from the first party to the second.
+v SUBSIDIARY_OF: The first party is a subsidiary owned by the second.
+v BRANCH_OF: The first party is a branch operating as part of the second.
+v EMPLOYEE_OF: The first party works for the second as an employee.
+v AGENT_OF: The first party acts as an agent on behalf of the second.
+v GUARANTOR_FOR: The first party guarantees the second party's obligations.
+v BENEFICIAL_OWNER_OF: The first party ultimately owns or controls the second.
+v HOUSEHOLD_MEMBER_OF: The first party lives in the same household as the second.
+v OTHER: Any other kind of link, explained in the relationship name.
+a validFrom
+s: The first day on which the relationship between the two parties holds.
+u: Recorded when it is known, for example from a contract or register entry.
+c: It cannot be later than the valid-to date.
+a validTo
+s: The last day on which the relationship between the two parties holds.
+u: Recorded when the relationship ends, for example on resignation or sale; empty while it still applies.
+c: Empty while the relationship continues.
+a status
+s: Says whether the relationship between the two parties is still in force today.
+u: Set to ended by the person maintaining the record when the relationship stops.
+c: Ended relationships stay for history.
+v ACTIVE: The relationship is in force today.
+v ENDED: The relationship has stopped but is kept for history.
+@ PaymentInstruction
+a amount
+s: The sum the bank is being told to pay to the payee.
+u: Taken from the approved invoices or entered by hand when the instruction is created, and checked at approval.
+c: In the paying account's currency unless a foreign payment is ordered.
+a payeeAccount
+s: The payee's bank account number or IBAN to which the money will be sent.
+u: Copied from the payee's verified bank details; a change must be verified before it is used.
+c: Wrong details send money to the wrong place.
+a paymentMethod
+s: The way the bank is asked to move the money, from standard transfer to cheque.
+u: Chosen by treasury when creating the instruction; it decides the bank file format, the fee and the speed.
+c: Urgent and cross-border payments cost more.
+v CREDIT_TRANSFER: A standard bank transfer settled in the normal cycle.
+v URGENT_TRANSFER: A same-day, high-value transfer that carries a higher fee.
+v CROSS_BORDER: An international transfer to an account abroad, possibly with currency conversion.
+v CHEQUE: A cheque printed and issued by the bank.
+v DIRECT_DEBIT: A debit collected from the payer's account under an existing mandate.
+a approvedAt
+s: The date and time the final approver authorised the instruction for release to the bank.
+u: Stamped on the last approval; treasury cannot send the instruction without it.
+c: Required before sending.
+a sentAt
+s: The date and time the instruction was transmitted to the bank.
+u: Stamped by the bank interface on transmission and used when reconciling with the bank statement.
+c: Filled only after sending.
+a bankStatusMessage
+s: The status or rejection text the bank returned for this instruction.
+u: Copied from the bank's status report so treasury can see why a payment failed or was held.
+c: Explains rejections and holds.
+@ Picking
+a pickedQuantity
+s: The number of units the picker actually took from the storage location.
+u: Confirmed by the picker on the handheld device; it is compared with the requested quantity.
+c: A figure below the requested quantity means a short pick.
+a pickedAt
+s: The date and time the picker confirmed this pick on the handheld device.
+u: Recorded automatically on confirmation; supervisors use it to measure pick rates and delays.
+c: Filled only once picked.
+@ Pricing
+a validFrom
+s: The first day on which this price may be used for quotes and orders.
+u: Price changes are scheduled by setting this date; price determination ignores the price before it.
+c: It cannot be later than the valid-to date.
+a validTo
+s: The last day on which this price may be used for quotes and orders.
+u: Left empty when the price runs until it is replaced; the price expires after this date.
+c: Prices for the same conditions should not overlap.
+a status
+v DRAFT: Still being set up; it is not yet approved and price determination does not find it.
+v APPROVED: Approved and waiting for its start date.
+v ACTIVE: In force now and found by price determination.
+v EXPIRED: Past its end date or replaced, so it no longer applies.
+@ ProcessDefinition
+a definitionVersion
+s: The version number of this process definition, rising with each published change.
+u: Increased by the process designer when a revised definition is published.
+c: Running instances keep the version they started on.
+a definitionFormat
+s: The notation in which the process steps are written, which tells the engine how to run them.
+u: Chosen when the definition is created and read together with the definition content.
+c: Changing it means rewriting the content.
+v BPMN: Business Process Model and Notation, a flow diagram with branches and parallel paths.
+v STATE_MACHINE: A set of states and the allowed moves between them.
+v CHECKLIST: An ordered list of steps without any branching.
+a publishedAt
+s: The date and time this version was released for use by new process instances.
+u: Stamped when the designer publishes the version; drafts have no value.
+c: Present only once published.
+@ ProcessInstance
+a instanceNumber
+s: The unique reference for one run of a process, quoted when tracking or investigating it.
+u: Assigned by the engine when the instance starts and used in monitoring screens and audit trails.
+c: No two instances share a number.
+a definitionVersion
+s: The version of the process definition that this instance is following.
+u: Fixed by the engine when the instance starts, so the run is audited against the rules it began with.
+c: Publishing a later version does not change a running instance.
+a startedAt
+s: The date and time the process run began.
+u: Set automatically by the engine when the instance starts; durations and overdue checks measure from it.
+c: Durations are measured from this time.
+a completedAt
+s: The date and time the process run finished, whether it succeeded or was cancelled.
+u: Set by the engine when the last step ends or the run is stopped; empty while still running.
+c: Present only once finished.
+a dueAt
+s: The deadline by which the process run should be completed.
+u: Calculated at start from the definition's target duration so owners can see which runs are late.
+c: Running instances past this time are overdue.
+@ ProductLifecycle
+r approvedBy
+s: The person who authorised this change in the product's lifecycle status.
+u: Recorded when the change is approved, so audits can show who signed off on a product's eligibility.
+n: At most one approver per record, though one person may approve many changes.
+w: Gives accountability for lifecycle changes that affect customers, such as withdrawing a product from sale.
+@ ProductVariant
+a gtin
+s: The global barcode number that identifies this exact variant.
+u: Entered from the manufacturer or GS1 registration and scanned in stores and warehouses to find the variant.
+c: Each variant has its own number, not shared with its sibling variants.
+@ ProductionReceipt
+a scrapQuantity
+s: The quantity of output rejected at receipt because it failed quality checks.
+u: Recorded by the production team at receipt for yield measurement; scrap is never added to stock.
+c: Excluded from the accepted quantity.
+@ ProductionRecord
+a scrapQuantity
+s: The quantity produced but thrown away because it was unusable.
+u: Entered by the production team for yield and waste measures.
+c: Not counted in the good output quantity.
+a shift
+s: The working shift, such as Night or Day, during which the output was produced.
+u: Entered by the supervisor so output and scrap can be compared between shifts.
+c: Free text such as "Night".
+@ ProfitCenter
+a name
+s: The descriptive name of the profit centre as shown on management reports.
+u: Entered when controlling creates the profit centre and shown beside its code on reports and in pick lists.
+c: Read together with the code to pick the right centre.
+a status
+s: Says whether new transactions may still be assigned to this profit centre.
+u: Moved on by controlling when a centre is opened or retired.
+c: Closed profit centres are not offered in selection lists.
+v ACTIVE: Open and available when assigning revenue and costs.
+v CLOSED: Retired and kept only so past reports stay readable.
+@ ProjectPhase
+a plannedStart
+s: The date on which work in this phase is scheduled to begin.
+u: Set in the project plan by the project manager and revised when the schedule changes.
+c: It cannot be later than the planned end.
+a plannedEnd
+s: The date by which this phase is scheduled to be finished.
+u: Set in the project plan; progress reports measure delay by comparing the actual end against it.
+c: Delays are measured against this date.
+a actualStart
+s: The date on which work in this phase really began.
+u: Recorded by the project manager when the phase starts, which may differ from the plan.
+c: Present once the phase is active.
+a actualEnd
+s: The date on which this phase was really finished.
+u: Recorded by the project manager when the phase is completed or signed off.
+c: Present once the phase is completed.
+a budget
+s: The amount of money approved for the work done in this phase.
+u: Set in the project plan and compared with the costs booked to its tasks.
+c: Held in the project's currency.

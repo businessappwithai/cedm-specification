@@ -20,9 +20,87 @@ entity:
           ACTIVE: In force; the person belongs to the organisation.
           COMPLETED: Ended normally. A final state.
           CANCELLED: Withdrawn before it took effect. A final state.
-  relationships: []
+    - name: membershipRole
+      type: string
+      required: true
+      maxLength: 100
+      help:
+        summary: The capacity in which the person belongs, such as "Accounts payable clerk" or "Board member".
+        usage: Shown in organization charts and member lists.
+        relationshipContext: Access rights come from access grants, not from this text.
+    - name: membershipType
+      type: enum
+      required: true
+      default: EMPLOYEE
+      values:
+        - EMPLOYEE
+        - CONTRACTOR
+        - PARTNER_USER
+        - BOARD_MEMBER
+        - VOLUNTEER
+      help:
+        summary: The kind of membership.
+        usage: Chosen when recording it; it decides which processes apply, such as payroll.
+        relationshipContext: External members see only what is shared with them.
+        valueSemantics:
+          EMPLOYEE: An employee of the organization.
+          CONTRACTOR: Someone working for the organization under contract.
+          PARTNER_USER: A person from a customer, supplier or partner given access.
+          BOARD_MEMBER: A director or member of a governing body.
+          VOLUNTEER: An unpaid member, such as a volunteer.
+    - name: isPrimary
+      type: boolean
+      required: true
+      default: false
+      help:
+        summary: Whether this is the person's main membership.
+        usage: The primary membership decides the person's home unit in reports and approvals.
+        relationshipContext: A person has at most one primary membership at a time.
+    - name: startDate
+      type: date
+      required: true
+      help:
+        summary: The day the person or party officially became a member of the organisation.
+        usage: Recorded when they join; it is used for access rights, headcount reports and membership history.
+        relationshipContext: It cannot be later than the end date.
+    - name: endDate
+      type: date
+      required: false
+      help:
+        summary: The day the membership stops, after which the person is no longer part of the organisation.
+        usage: Recorded when the member leaves and left empty while the membership is open-ended.
+        relationshipContext: Access tied to the membership should end with this date.
+  relationships:
+    - name: person
+      target: Person
+      cardinality: "1"
+      ownership: reference
+      help:
+        summary: The person who is a member.
+        usage: Chosen when recording the membership.
+        cardinalityMeaning: Every membership is for exactly one person.
+        context: The person's memberships make up their place in the organization.
+    - name: organization
+      target: Organization
+      cardinality: "1"
+      ownership: reference
+      help:
+        summary: The organization or unit the person belongs to.
+        usage: Chosen when recording the membership.
+        cardinalityMeaning: Every membership is in exactly one organization.
+        context: The organization's member list is drawn from its active memberships.
+    - name: user
+      target: User
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The user account the person uses in this organization.
+        usage: Linked when the membership gives access to the application.
+        cardinalityMeaning: At most one account per membership.
+        context: Ending the membership should lead to disabling or re-scoping the account.
   invariants:
     - {id: ORGANIZATION-MEMBERSHIP-001, rule: State changes and retries must preserve auditable history and must not duplicate downstream business effects.}
+    - {id: ORGANIZATION-MEMBERSHIP-EXE-001, rule: "End Date must not be earlier than start date.", violatedWhen: "start_date != null and end_date != null and end_date < start_date", message: "End Date cannot be earlier than start date."}
   lifecycle:
     title: Organization Membership Lifecycle
     attribute: status

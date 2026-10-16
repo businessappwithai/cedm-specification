@@ -27,6 +27,6 @@ ui:
   categories:
     - name: Contract Management
       icon: scale
-      entities: [Contract, ContractClause]
+      entities: [Contract]
     - name: Legal and Contract Management records
-      entities: [Agreement, ContractLine, ContractAmendment, ContractRenewal, ContractTermination, Renewal, LegalCase, LegalMatter]
+      entities: [Agreement, ContractAmendment, ContractRenewal, ContractTermination, Renewal, LegalCase, LegalMatter]

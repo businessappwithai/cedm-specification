@@ -1,0 +1,398 @@
+@ CostCenter
+a category
+v PRODUCTION: Makes products or delivers services, so its costs flow into product cost.
+v SALES: Sells and markets the company's offering; its costs are reported as selling expense.
+v ADMINISTRATION: Runs general administration such as finance, HR and management; its costs stay out of product cost.
+v RESEARCH: Researches and develops new products and methods; its costs are reported as research and development expense.
+v SERVICE: Provides internal services to other cost centres, such as IT or maintenance, and is usually allocated onward.
+a status
+s: Whether postings may currently be made to the cost centre.
+u: Moved on by controlling when a unit is paused or retired; budget owners check it before charging costs.
+c: Blocked and closed cost centres are refused on new postings, while their earlier postings stay in reports.
+v ACTIVE: Open for postings and available when costs are assigned.
+v BLOCKED: Temporarily closed for postings, for example during a reorganisation or review.
+v CLOSED: No longer used for new postings; kept so past costs can still be reported.
+@ Credit
+a grantedDate
+s: The day the credit was granted to the customer or account.
+u: Recorded by whoever grants the credit; the expiry period and any approval limit are counted from this date.
+c: Not later than the expiry date.
+a expiryDate
+s: The last day the credit can still be applied to a charge.
+u: Credit left unused after this day lapses and can no longer be applied to invoices or charges.
+c: Left empty when the credit never expires.
+r grantedBy
+s: The person who decided to grant the credit.
+u: Recorded when the credit is granted, so a reviewer can see who authorised it and why.
+n: At most one person is recorded as granting each credit.
+w: Credits above an approval limit are checked against the grantor's authority before they take effect.
+@ Crop
+a scientificName
+s: The botanical name of the crop, such as Triticum aestivum for bread wheat.
+u: Used in seed orders, certificates and regulatory records where a common name would be ambiguous.
+c: Written as genus and species.
+a variety
+s: The particular variety or cultivar of the crop that is grown, such as a named wheat strain.
+u: Recorded so yields, treatments and seed lots can be traced and compared between varieties.
+c: Spelled as on the seed certificate.
+a growingDays
+s: The typical number of days from sowing to harvest for this crop.
+u: Agronomists use it to plan sowing windows, field rotation and expected harvest dates.
+c: Varies with climate and season, so treat it as a planning average.
+@ CustomsDeclaration
+a dutyAmount
+s: The total customs duty and import taxes assessed on the declared goods.
+u: Entered from the customs authority's assessment, paid to customs and booked into the landed cost of the goods.
+c: Stated in the local currency of the declaring country.
+@ DataQualityAssessment
+a assessedAt
+s: The date and time at which the assessment ran against the dataset.
+u: Recorded when the assessment completes; quality trends for the dataset are plotted along it.
+c: Present once the assessment has completed.
+a recordsAssessed
+s: The number of records in the dataset that were examined during this assessment.
+u: Filled in when the run completes, so readers know how much data each score is based on.
+c: The percentage scores are measured against this count.
+a completenessPercent
+s: The percentage of required values that were actually present in the records checked.
+u: Calculated by the completeness rules of the assessment and shown beside the other quality dimensions.
+c: A value between 0 and 100.
+a uniquenessPercent
+s: The percentage of records checked that were not duplicates of another record.
+u: Calculated by the matching rules of the assessment; a low figure points to records that need merging.
+c: A value between 0 and 100.
+a overallScore
+s: The single combined quality score for the dataset in this assessment.
+u: Weighted from the individual dimension scores and shown in data catalogues so consumers can judge trust at a glance.
+c: A value between 0 and 100.
+a meetsTarget
+s: Whether every quality dimension reached the target set for the dataset.
+u: Worked out when the assessment completes; a false result causes data quality issues to be raised.
+c: Present once the assessment has completed.
+a issuesSummary
+s: A short narrative of what was wrong with the data in this assessment.
+u: Written for the data owner, who reads it to decide what to clean up first.
+c: Detailed lists of failing records are attached separately.
+@ Dataset
+a recordCount
+s: How many records the dataset currently holds.
+u: Refreshed whenever the dataset is reloaded, and shown in the catalogue so users can judge its size.
+c: Only approximate for very large or streaming datasets.
+a containsPersonalData
+s: Whether the dataset holds personal data about identifiable people.
+u: Answered by the data owner; a yes brings data-protection duties such as access limits and retention rules.
+c: Set by the data owner and reviewed when the contents change.
+@ Delivery
+a deliveredAt
+s: The date and time the goods were actually handed over to the recipient.
+u: Taken from the signed proof of delivery rather than typed in by hand.
+c: The legal delivery time used for invoicing and claims.
+a outcome
+s: How the handover went, as recorded on the proof of delivery.
+u: Set from the proof of delivery by the carrier or driver, and read by customer service when something went wrong.
+c: Any outcome other than a clean delivery opens a claim or a follow-up with the customer.
+v DELIVERED: Handed over complete and in good condition.
+v DELIVERED_WITH_EXCEPTION: Handed over but short, over or damaged, so a claim or note is needed.
+v REFUSED: The recipient declined to accept the goods and they return to the sender.
+a packagesDelivered
+s: The number of packages or pallets actually handed over at the destination.
+u: Counted by the driver at handover and compared with the shipment's expected count to spot shortages.
+c: A difference from the shipment count is treated as an exception.
+@ DeliveryAttempt
+a attemptedAt
+s: The date and time this attempt to deliver the payload was made.
+u: Stamped by the integration layer when the attempt starts, so support staff can reconstruct the order of events.
+c: A message's attempts are listed in this order.
+a result
+s: What came of this attempt to deliver the payload to the endpoint.
+u: Set from the endpoint's response; operators filter on it when diagnosing a delivery problem.
+c: Rejected messages are not retried, while failed and timed-out ones are tried again.
+v SUCCESS: The endpoint accepted the message and no further attempt is needed.
+v REJECTED: The endpoint refused the message as invalid, so retrying will not help.
+v FAILED: The endpoint could not be reached or answered with an error, so the message can be retried.
+v TIMEOUT: The endpoint did not answer in time, so the outcome is unknown and a retry is allowed.
+a responseMessage
+s: The text the endpoint sent back in answer to this attempt.
+u: Read by operators diagnosing why a delivery failed or was rejected.
+c: Can be long and is kept exactly as returned.
+a durationMs
+s: How long the attempt took from sending to answer, in milliseconds.
+u: Used to spot slow or degrading endpoints before they start timing out.
+c: Measured by the integration layer, not entered by a person.
+@ Department
+a description
+s: What the department is responsible for and what kind of work it does.
+u: Read by people placing staff, positions or work, so they choose the right department.
+c: Free text written by the organisation's administrators.
+a status
+s: Whether the department currently exists as part of the organisation.
+u: Set to inactive after a reorganisation closes or merges the department.
+c: Inactive departments are not offered when assigning people or work.
+v ACTIVE: The department exists and can receive people, positions and work.
+v INACTIVE: The department has been closed or merged away; it stays on record for history.
+@ Deposit
+a dayCountBasis
+s: The convention used to count days when interest is calculated.
+u: Taken from the bank's terms when the deposit is arranged, so expected interest matches the bank's own figure.
+c: The same rate earns slightly more on actual/360 than on actual/365.
+v ACT_360: Actual days elapsed divided by a 360-day year.
+v ACT_365: Actual days elapsed divided by a 365-day year.
+v THIRTY_360: Every month counted as 30 days, divided by a 360-day year.
+a interestReceived
+s: The interest the bank actually paid on the deposit.
+u: Recorded by treasury at maturity or when the deposit is broken early.
+c: Differences from the expected interest are investigated with the bank.
+a status
+s: Where the deposit stands, from arrangement through to repayment.
+u: Moved on by treasury as the money is placed, matures or is withdrawn early.
+c: Only active deposits count against the limits set for each bank.
+v ARRANGED: Agreed with the bank but not yet placed.
+v ACTIVE: Placed and earning interest.
+v MATURED: Repaid at maturity together with its interest.
+v BROKEN: Repaid early, usually with reduced interest or a fee.
+v CANCELLED: Called off before the money was placed.
+@ Diagnosis
+a clinicalStatus
+s: Whether the condition is currently affecting the patient.
+u: Updated by clinicians as the condition changes over time.
+c: Resolved conditions stay on the patient's history.
+v ACTIVE: The condition is present and being managed.
+v REMISSION: The condition is present but not currently causing problems.
+v RESOLVED: The condition is over and no longer treated.
+v ENTERED_IN_ERROR: Recorded by mistake, so it should be disregarded and not counted as a real condition.
+a resolvedDate
+s: The date on which the condition was judged to be over.
+u: Recorded by the clinician when the clinical status becomes resolved.
+c: Not earlier than the onset date.
+@ Dock
+a name
+s: A descriptive name for the dock, such as "North yard door 7".
+u: Shown in dock schedules and to drivers directed to the door.
+c: Optional, since the code already identifies the door.
+a status
+v AVAILABLE: In service and offered when appointments and loads are scheduled.
+v OUT_OF_SERVICE: Not usable, for example during repair, and left out of scheduling.
+@ DocumentClassification
+a sensitivity
+v PUBLIC: May be shared outside the company.
+v INTERNAL: For staff only and not to be shared outside the company.
+v CONFIDENTIAL: For the people who need the documents for their work.
+v RESTRICTED: For named people only, because disclosure would do serious harm.
+a retentionTrigger
+s: The event from which the retention period is counted.
+u: Taken from the retention schedule, and read together with the number of years to work out the disposal date.
+c: A document is kept until this event plus the retention years.
+v CREATION: The day the document was created.
+v FISCAL_YEAR_END: The end of the fiscal year the document belongs to.
+v CONTRACT_END: The end of the contract the document belongs to.
+v EMPLOYMENT_END: The day the employee the document concerns left.
+v CASE_CLOSURE: The closing of the case the document belongs to.
+a disposalAction
+v DESTROY: Destroyed securely once the retention period has run.
+v ARCHIVE: Moved to a permanent archive.
+v REVIEW: Reviewed by a person who decides what happens next.
+a status
+v DRAFT: Being prepared and not yet offered for filing.
+v ACTIVE: In use and offered when documents are filed.
+v RETIRED: No longer used for new documents.
+@ DocumentVersion
+a storageLocation
+s: The place in document storage where this version's file is held.
+u: Set by the system when the version is checked in, so the right file is retrieved when it is opened.
+c: Users never type it.
+a releasedAt
+s: The date and time the version was approved and released.
+u: Recorded automatically on approval and used to order versions and to show which was current at any moment.
+c: Present once the version has been released.
+a status
+s: Where the version stands in its review and release.
+u: Moved on by the review and release steps as the author submits and an approver signs off.
+c: Only one version of a document is released at a time.
+v DRAFT: Being written and not yet sent for approval.
+v IN_REVIEW: Sent to approvers and waiting for a decision.
+v RELEASED: Approved and the current version people should use.
+v SUPERSEDED: Replaced by a later released version.
+v WITHDRAWN: Abandoned before it was ever released.
+r author
+s: The person who wrote this version of the document.
+u: Recorded on check-in, so readers know whom to ask about its content.
+n: One author is recorded for each version.
+w: The author submits the version for review but should not be the one who approves it.
+r approvedBy
+s: The person who approved the version for release.
+u: Recorded when the approver signs off, as evidence of who authorised the release.
+n: One approver is recorded for each version.
+w: Approval moves the version out of review; the approver must hold authority for the document's class.
+@ EducationCourse
+a description
+s: What the course covers and the learning outcomes students should reach.
+u: Published in the course catalogue and read by students choosing what to enrol in.
+c: Free text written by the academic department.
+a prerequisites
+s: The courses a student must have passed before taking this one.
+u: Checked when a student enrols, so people without the background are stopped or warned.
+c: Listed by course code.
+@ EducationProgram
+a durationMonths
+s: How many months the programme takes when studied full-time.
+u: Used to set each student's expected completion date and to plan intakes and teaching.
+c: Part-time students take longer than this.
+a requiredCredits
+s: The number of credits a student must earn to complete the programme.
+u: Checked by the registrar before the award is conferred.
+c: Summed from the courses the student has passed.
+@ EducationStudent
+a dateOfAdmission
+s: The date the student was formally admitted to the institution.
+u: Recorded by admissions when an offer is accepted, and used for cohort and intake reporting.
+c: Not later than any of the student's enrolments.
+@ Employee
+a jobTitle
+s: The title that describes the employee's role, such as Senior Accountant.
+u: Shown in directories, on documents and in organisation charts.
+c: Usually the title of the position they hold.
+a workEmail
+s: The email address the employee uses for work.
+u: Used for system notifications, approvals and the staff directory.
+c: Usually also the employee's user name for signing in.
+@ Employment
+a weeklyHours
+s: The number of hours per week the employee is contracted to work.
+u: Used by payroll, leave calculation and capacity planning, and set from the employment contract.
+c: Full-time hours depend on the country.
+a payBasis
+s: The way the employee's pay is worked out.
+u: Decides how payroll computes pay each period and what records it needs.
+c: Hourly employees need time records before they can be paid.
+v SALARIED: Paid a fixed salary per pay period regardless of hours.
+v HOURLY: Paid for the hours worked, based on time records.
+v COMMISSION: Paid mainly as a share of the sales made.
+@ EnergyAsset
+a commissionedDate
+s: The date the asset was put into service.
+u: Starts the asset's operating history and is used to calculate age and plan maintenance.
+c: Not in the future.
+@ EnergyTariff
+a unitRate
+s: The price charged for each unit of energy consumed.
+u: Multiplied by the metered consumption to compute the energy charge on the bill.
+c: Per the tariff's unit of measure; where there are time bands it is the peak rate.
+a standingCharge
+s: The fixed charge applied each billing period, whatever the consumption.
+u: Added to every bill for the customer on this tariff.
+c: Per month unless the tariff states otherwise.
+@ Enrollment
+a studyMode
+s: How the student studies on this enrolment.
+u: Chosen at enrolment and used to decide fees, study load and expected duration.
+c: May change during the programme.
+v FULL_TIME: A full study load, completing in the programme's standard duration.
+v PART_TIME: A reduced study load, so the programme takes longer.
+v DISTANCE: Studying remotely rather than attending on campus.
+a expectedCompletionDate
+s: The date the student is expected to finish the programme.
+u: Calculated at enrolment and used for planning and progression reports.
+c: Depends on the programme length and the student's study mode.
+a completionDate
+s: The date the student finished the enrolment or left it.
+u: Recorded when the enrolment ends, whether by completing or withdrawing.
+c: Present only once the enrolment is completed or withdrawn.
+a withdrawalReason
+s: Why the student withdrew from the programme.
+u: Recorded by the registrar at withdrawal and used in retention analysis.
+c: Present only on withdrawn enrolments.
+@ Equipment
+a manufacturerName
+s: The name of the company that made the equipment.
+u: Used when ordering spare parts and arranging manufacturer service.
+c: The manufacturer's organisation record may also be linked.
+a model
+s: The manufacturer's model designation for the equipment.
+u: Used to order parts and find the right manuals and service instructions.
+c: Copied as it appears on the nameplate.
+a serialNumber
+s: The manufacturer's serial number for this individual unit.
+u: Quoted for warranty claims and checked against recall notices.
+c: Copied as it appears on the nameplate.
+a installationDate
+s: The day the equipment was installed at its location.
+u: Starts its operating history and its warranty period.
+c: Not in the future.
+a operatingStatus
+s: Whether the equipment is currently running.
+u: Updated by operations and maintenance whenever the equipment starts, stops or is retired.
+c: Downtime is measured from changes of this status.
+v IN_OPERATION: Running as intended and producing or serving normally.
+v DOWN: Not running because of a failure or maintenance.
+v STANDBY: Available but not running.
+v DECOMMISSIONED: Permanently out of service.
+@ Escalation
+a escalationNumber
+s: The reference number by which the escalation is quoted.
+u: Assigned automatically when the escalation is raised and used in messages and reports.
+c: Unique across all escalations.
+a reason
+s: Why the matter was escalated to a higher level.
+u: Chosen when raising the escalation; escalation analysis groups by it.
+c: Read together with the free-text description.
+v SLA_BREACH: A response or resolution target was missed.
+v DUE_DATE_PASSED: A due date passed without the work being done.
+v CUSTOMER_REQUEST: The customer asked for the matter to be escalated.
+v SEVERITY: The matter is serious enough to need senior attention at once.
+v BLOCKED: The handler cannot proceed without a decision from higher up.
+a acknowledgedAt
+s: When the person escalated to took the matter on.
+u: Recorded on acknowledgement and compared with the target response time.
+c: Present once the escalation has been acknowledged.
+a resolvedAt
+s: The date and time the escalation was resolved.
+u: Recorded together with the resolution, and used to measure how long escalations stay open.
+c: Present once the escalation has been resolved.
+@ Experiment
+a resultSummary
+s: What the experiment showed, written up in the researcher's own words.
+u: Written on completion and read in project reviews when deciding what to do next.
+c: The raw data is attached separately.
+@ Facility
+a capacity
+s: How many people the facility is designed to hold.
+u: Used for occupancy planning and for deciding where teams and events can be placed.
+c: Counted as workstations for offices.
+@ Failure
+a failureNumber
+s: The reference number by which the failure is quoted.
+u: Assigned automatically when the failure is reported and used on repair orders and reports.
+c: Unique across all failures.
+a cause
+s: Why the equipment failed, such as "lubrication missed".
+u: Recorded after investigation and required before the failure can be closed.
+c: Recurring causes are addressed by changing maintenance plans.
+a severity
+s: How much the failure mattered to operations.
+u: Set when the failure is reported and used to decide the repair priority.
+c: Read together with the equipment's criticality.
+v MINOR: Degraded performance, but production continues.
+v MAJOR: Production on the equipment stopped.
+v CRITICAL: Safety, the environment or a whole production line was affected.
+a startedAt
+s: The date and time the failure began.
+u: Given by the reporter, and downtime is measured from this moment.
+c: Not later than the end time.
+a endedAt
+s: The date and time the equipment was running again.
+u: Recorded by the technician when the repair is finished and used to total the downtime.
+c: Present once the equipment is repaired.
+a status
+s: Where the failure stands from report to closure.
+u: Moved on by maintenance as the failure is picked up, repaired and closed.
+c: Closed failures have a cause recorded.
+v REPORTED: Reported and not yet worked on.
+v UNDER_REPAIR: A technician is repairing it now.
+v REPAIRED: The equipment runs again.
+v CLOSED: Cause recorded and nothing more to do.
+v CANCELLED: Turned out not to be a failure after all.
+r reportedBy
+s: The person who reported the failure.
+u: Recorded with the report so maintenance can ask them for details.
+n: One reporter is recorded for each failure.
+w: The reporter starts the repair process and is usually an operator.

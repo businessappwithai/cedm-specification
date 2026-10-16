@@ -77,6 +77,54 @@ entity:
           PAID_OFF: Fully repaid; a final state.
           DEFAULTED: Delinquency was not resolved and the bank treats the loan as in default; a final state.
           CANCELLED: Withdrawn or refused before any funds were advanced; a final state.
+    - name: interestType
+      type: enum
+      required: true
+      default: FIXED
+      values:
+        - FIXED
+        - FLOATING
+      help:
+        summary: Whether the rate is fixed or follows a reference rate.
+        usage: Decides whether interest must be reset periodically.
+        relationshipContext: Floating loans state their reference rate and margin.
+        valueSemantics:
+          FIXED: The rate stays the same for the term.
+          FLOATING: The rate follows a reference rate plus a margin.
+    - name: repaymentFrequency
+      type: enum
+      required: true
+      default: MONTHLY
+      values:
+        - MONTHLY
+        - QUARTERLY
+        - SEMI_ANNUAL
+        - ANNUAL
+        - BULLET
+      help:
+        summary: How often the borrower must pay instalments back to the bank.
+        usage: Chosen when the loan is set up; the repayment schedule is built from it.
+        relationshipContext: Bullet loans are repaid in one payment at maturity.
+        valueSemantics:
+          MONTHLY: An instalment falls due every month.
+          QUARTERLY: An instalment falls due every three months.
+          SEMI_ANNUAL: An instalment falls due every six months.
+          ANNUAL: An instalment falls due once a year.
+          BULLET: The whole balance is repaid in one payment at maturity.
+    - name: outstandingPrincipal
+      type: Money
+      required: false
+      help:
+        summary: How much principal remains to be repaid.
+        usage: Updated with each repayment; shown in debt reports.
+        relationshipContext: Not more than the principal.
+    - name: covenants
+      type: text
+      required: false
+      help:
+        summary: The financial and other conditions the borrower must keep.
+        usage: Monitored by treasury; a breach can make the loan repayable.
+        relationshipContext: Taken from the agreement.
   relationships:
     - name: borrower
       target: Party

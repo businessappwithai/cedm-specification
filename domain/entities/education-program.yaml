@@ -70,6 +70,30 @@ entity:
           ACTIVE: Open for enrolment and accepting new students.
           SUSPENDED: Temporarily closed to new enrolments, with current students unaffected.
           RETIRED: Withdrawn permanently but kept for graduates' records. A final state.
+    - name: durationMonths
+      type: integer
+      required: false
+      help:
+        summary: How many months the programme takes when studied full-time.
+        usage: Used to set each student's expected completion date and to plan intakes and teaching.
+        relationshipContext: Part-time students take longer than this.
+    - name: requiredCredits
+      type: decimal
+      required: false
+      precision: 8
+      scale: 2
+      help:
+        summary: The number of credits a student must earn to complete the programme.
+        usage: Checked by the registrar before the award is conferred.
+        relationshipContext: Summed from the courses the student has passed.
+    - name: awardTitle
+      type: string
+      required: false
+      maxLength: 200
+      help:
+        summary: The award conferred, such as "Bachelor of Science in Computer Science".
+        usage: Printed on the certificate.
+        relationshipContext: As accredited.
   relationships:
     - name: institution
       target: Organization

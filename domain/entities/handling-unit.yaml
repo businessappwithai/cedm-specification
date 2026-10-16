@@ -26,6 +26,62 @@ entity:
           OTHER: A governed unit type not covered by the listed forms.
         businessMeaning: Describes packaging/handling form.
         relationshipContext: Does not determine contents by itself.
+    - name: grossWeightKg
+      type: decimal
+      required: false
+      precision: 12
+      scale: 3
+      help:
+        summary: The weight of the unit with its contents, in kilograms.
+        usage: Weighed or computed at packing; used for loading and freight.
+        relationshipContext: Includes packaging.
+    - name: lengthCm
+      type: decimal
+      required: false
+      precision: 8
+      scale: 1
+      help:
+        summary: The length of the unit, in centimetres.
+        usage: Used for loading plans and volumetric freight.
+        relationshipContext: Measured or taken from the packaging type.
+    - name: widthCm
+      type: decimal
+      required: false
+      precision: 8
+      scale: 1
+      help:
+        summary: The width of the unit, in centimetres.
+        usage: Used for loading plans and volumetric freight.
+        relationshipContext: Measured or taken from the packaging type.
+    - name: heightCm
+      type: decimal
+      required: false
+      precision: 8
+      scale: 1
+      help:
+        summary: The height of the packed unit, in centimetres, including any pallet base.
+        usage: Measured at packing or taken from the packaging type; used for loading plans, stacking limits and carrier quotes.
+        relationshipContext: Measured or taken from the packaging type.
+    - name: status
+      type: enum
+      required: true
+      default: OPEN
+      values:
+        - OPEN
+        - CLOSED
+        - SHIPPED
+        - RECEIVED
+        - DISMANTLED
+      help:
+        valueSemantics:
+          OPEN: Still being filled; goods can be added.
+          CLOSED: Packed and labelled, and not to be reopened without unpacking.
+          SHIPPED: Has left the warehouse on its way to the destination.
+          RECEIVED: Arrived at its destination and was booked in.
+          DISMANTLED: Unpacked, so its contents are loose again.
+        summary: Where the unit is in its use.
+        usage: Moved on by packing, shipping and receiving.
+        relationshipContext: A closed unit is not repacked without unpacking it.
   relationships:
     - {name: inventoryLocation, target: InventoryLocation, cardinality: "0..1", ownership: reference, help: {summary: Current warehouse location when stored., businessMeaning: Provides operational custody position., usage: "Putaway, picking and count.", cardinalityMeaning: Optional while in transit/shipped., workflowRole: Changes must reconcile to execution evidence.}}
     - {name: shipment, target: Shipment, cardinality: "0..1", ownership: reference, help: {summary: Shipment carrying the handling unit when dispatched., businessMeaning: Connects package identity to transport., usage: "Packing, loading, tracking and delivery.", cardinalityMeaning: Optional before shipment assignment., workflowRole: Shipment execution controls transit state.}}
@@ -40,4 +96,35 @@ entity:
     relationshipContext: Can occupy InventoryLocation, nest inside another HandlingUnit and join Shipment.
     lifecycle: Created/received → stored/moved → picked/packed → staged/shipped → unpacked/closed or reused.
     changePropagation: Location/shipment/nesting changes must reconcile with warehouse execution and cannot silently move underlying stock.
+  lifecycle:
+    title: Handling Unit Lifecycle
+    attribute: status
+    states:
+      - OPEN
+      - CLOSED
+      - SHIPPED
+      - RECEIVED
+      - DISMANTLED
+    initial: OPEN
+    terminal:
+      - DISMANTLED
+    transitions:
+      - from: OPEN
+        to: CLOSED
+        action: close
+      - from: CLOSED
+        to: OPEN
+        action: reopen
+      - from: CLOSED
+        to: SHIPPED
+        action: ship
+      - from: SHIPPED
+        to: RECEIVED
+        action: receive
+      - from: RECEIVED
+        to: DISMANTLED
+        action: dismantle
+      - from: CLOSED
+        to: DISMANTLED
+        action: dismantle
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-HANDLING-UNIT}

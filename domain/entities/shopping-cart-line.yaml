@@ -35,6 +35,27 @@ entity:
         summary: The price for one unit as shown in the cart.
         usage: Set when the item is added; must not be negative.
         relationshipContext: Re-checked at checkout.
+    - name: lineNumber
+      type: integer
+      required: true
+      help:
+        summary: The position of the line in the cart.
+        usage: Assigned in the order products are added.
+        relationshipContext: Unique within the cart.
+    - name: lineAmount
+      type: Money
+      required: false
+      help:
+        summary: Quantity times unit price, less any line discount.
+        usage: Shown in the cart and summed into its total.
+        relationshipContext: Recalculated whenever quantity or price changes.
+    - name: addedAt
+      type: datetime
+      required: true
+      help:
+        summary: The moment the shopper put this product into the cart.
+        usage: Set by the shop automatically and used in abandoned-cart analysis to see what was left behind.
+        relationshipContext: Not changed when the quantity is later adjusted.
   relationships:
     - name: cart
       target: ShoppingCart
@@ -54,6 +75,15 @@ entity:
         usage: Chosen by the shopper.
         cardinalityMeaning: Exactly one product per line.
         context: Shows what to charge and ship.
+    - name: productVariant
+      target: ProductVariant
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The variant chosen, such as size or colour.
+        usage: Chosen on the product page.
+        cardinalityMeaning: At most one.
+        context: Required for products sold in variants.
   invariants:
     - id: CART-LINE-001
       rule: quantity must be greater than zero.

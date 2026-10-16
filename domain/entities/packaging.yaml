@@ -10,6 +10,76 @@ entity:
     - {name: packagingId, type: uuid, required: true, immutable: true, help: {summary: The identity of the packaging definition., usage: Generated on creation; documents and labels refer to it., businessMeaning: Identifies one governed pack configuration., relationshipContext: References Product and quantity/UOM semantics.}}
     - {name: code, type: string, required: true, maxLength: 100, help: {summary: 'The code of the packaging, such as CTN12.', usage: Assigned by logistics; printed on labels and used in orders., businessMeaning: Operational identifier for pack form., relationshipContext: Unique within applicable Product context.}}
     - {name: quantityPerPackage, type: decimal, required: true, precision: 20, scale: 6, help: {summary: How many units of the product are in one package., usage: Entered by logistics; used to convert between packs and units. Greater than zero., businessMeaning: Defines pack conversion., relationshipContext: Interpreted with UnitOfMeasure.}}
+    - name: packagingLevel
+      type: enum
+      required: true
+      default: CASE
+      values:
+        - EACH
+        - INNER
+        - CASE
+        - PALLET
+      help:
+        valueSemantics:
+          EACH: The single sellable unit as a customer buys it.
+          INNER: A smaller inner pack grouped inside a case.
+          CASE: A shipping case or carton holding several units.
+          PALLET: A full pallet of cases ready to be moved by forklift.
+        summary: The level of the packaging hierarchy.
+        usage: Orders and shipping work at different levels — each, case, pallet.
+        relationshipContext: Each level holds a whole number of the level below.
+    - name: gtin
+      type: string
+      required: false
+      maxLength: 14
+      help:
+        summary: The barcode number (GTIN) printed on this packaging.
+        usage: Scanned at receiving and in stores.
+        relationshipContext: Each packaging level has its own GTIN.
+    - name: grossWeightKg
+      type: decimal
+      required: false
+      precision: 12
+      scale: 3
+      help:
+        summary: The weight of one package with its contents, in kilograms.
+        usage: Used for freight and loading.
+        relationshipContext: Includes the packaging itself.
+    - name: lengthCm
+      type: decimal
+      required: false
+      precision: 8
+      scale: 1
+      help:
+        summary: The outer length of one package, measured in centimetres.
+        usage: Entered from the packaging specification and used by warehouse and transport planners to fit stock into locations and vehicles.
+        relationshipContext: Measured on the outside of the package.
+    - name: widthCm
+      type: decimal
+      required: false
+      precision: 8
+      scale: 1
+      help:
+        summary: The outer width of one package, measured in centimetres.
+        usage: Entered from the packaging specification and used by warehouse and transport planners to fit stock into locations and vehicles.
+        relationshipContext: Measured on the outside of the package.
+    - name: heightCm
+      type: decimal
+      required: false
+      precision: 8
+      scale: 1
+      help:
+        summary: The outer height of one package, measured in centimetres.
+        usage: Entered from the packaging specification and used by warehouse and transport planners to plan stacking and vehicle loading.
+        relationshipContext: Measured on the outside of the package.
+    - name: isDefault
+      type: boolean
+      required: true
+      default: false
+      help:
+        summary: Whether this is the product's standard packaging at this level.
+        usage: Used when an order does not say otherwise.
+        relationshipContext: One default per product and level.
   relationships:
     - {name: product, target: Product, cardinality: '1', ownership: reference, help: {summary: The product that is packaged., usage: Set when the packaging is defined., cardinalityMeaning: 'Exactly one product: a packaging configuration describes how a particular item is packed.', workflowRole: Lets orders and stock for the product be expressed in packs., businessMeaning: Defines package contents.}}
     - {name: productVariant, target: ProductVariant, cardinality: 0..1, ownership: reference, help: {summary: 'The variant, when the packaging is specific to one variant.', usage: 'Set where the packaging differs by variant, such as size or colour.', cardinalityMeaning: At most one variant; packaging common to all variants leaves it empty., workflowRole: Narrows the packaging to the correct variant., businessMeaning: Narrows packaging to one variant.}}

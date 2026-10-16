@@ -72,6 +72,38 @@ entity:
           CLOSED: Permanently closed. A final state.
         summary: Whether the facility is in use.
         usage: Set by facilities management; service requests are accepted only for ACTIVE facilities.
+    - name: grossAreaM2
+      type: decimal
+      required: false
+      precision: 12
+      scale: 2
+      help:
+        summary: The gross floor area, in square metres.
+        usage: Used for cost allocation and space reports.
+        relationshipContext: Measured to the outside walls.
+    - name: capacity
+      type: integer
+      required: false
+      help:
+        summary: How many people the facility is designed to hold.
+        usage: Used for occupancy planning and for deciding where teams and events can be placed.
+        relationshipContext: Counted as workstations for offices.
+    - name: tenure
+      type: enum
+      required: true
+      default: OWNED
+      values:
+        - OWNED
+        - LEASED
+        - SHARED
+      help:
+        summary: Whether the facility is owned or leased.
+        usage: Decides who maintains the structure and how it is accounted for.
+        relationshipContext: Leased facilities link to their lease.
+        valueSemantics:
+          OWNED: Owned by the business.
+          LEASED: Leased from a landlord.
+          SHARED: Shared with another organization.
   relationships:
     - name: location
       target: Location
@@ -120,6 +152,8 @@ entity:
       - {from: ACTIVE, to: CLOSED, action: close}
       - {from: ACTIVE, to: INACTIVE, action: deactivate}
       - {from: INACTIVE, to: ACTIVE, action: reactivate}
+  invariants:
+    - {id: FACILITY-EXE-001, rule: "Capacity cannot be negative.", violatedWhen: "capacity != null and capacity < 0", message: "Capacity cannot be negative."}
   help:
     summary: A physical facility, building, site or managed space used for business operations.
     businessMeaning: 'Facilities management needs a single record for each place the organisation runs: what it is, where it stands, who is responsible and what is installed in it. Maintenance, space planning and costs all hang from it.'

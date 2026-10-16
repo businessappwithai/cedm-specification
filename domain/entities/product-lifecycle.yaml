@@ -27,6 +27,16 @@ entity:
     - {name: reason, type: string, required: true, maxLength: 1000, help: {summary: Why the status changed., usage: Written by the user making the change; read in audits and when the product is questioned., businessMeaning: Provides governance/audit justification., relationshipContext: Does not itself reverse existing obligations.}}
   relationships:
     - {name: product, target: Product, cardinality: '1', ownership: reference, help: {summary: The product whose status changed., usage: Set when the record is created., cardinalityMeaning: "Exactly one product: each record is part of one product's history.", workflowRole: Builds the product's status history., businessMeaning: Supplies governed master context.}}
+    - name: approvedBy
+      target: Person
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The person who authorised this change in the product's lifecycle status.
+        usage: Recorded when the change is approved, so audits can show who signed off on a product's eligibility.
+        cardinalityMeaning: At most one approver per record, though one person may approve many changes.
+        workflowRole: Gives accountability for lifecycle changes that affect customers, such as withdrawing a product from sale.
+        context: Status changes affecting customers need approval.
   invariants:
     - {id: PRODUCT-LIFECYCLE-001, rule: Lifecycle events for a Product must form a non-contradictory effective chronology.}
     - {id: PRODUCT-LIFECYCLE-002, rule: "Restrictive transitions require validation of open sales, procurement, inventory, manufacturing, service and fulfillment obligations."}

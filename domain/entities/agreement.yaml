@@ -61,6 +61,88 @@ entity:
         summary: The date the agreement ends; empty for an open-ended agreement.
         usage: Taken from the signed document or set when it is terminated; must not be before the start date.
         relationshipContext: Compared with today to show whether the agreement is in force.
+    - name: status
+      type: enum
+      required: true
+      default: DRAFT
+      values:
+        - DRAFT
+        - IN_NEGOTIATION
+        - SIGNED
+        - IN_FORCE
+        - EXPIRED
+        - TERMINATED
+        - CANCELLED
+      help:
+        valueSemantics:
+          DRAFT: Still being written and not yet sent to the other party.
+          IN_NEGOTIATION: Shared with the other party and under discussion.
+          SIGNED: Signed by every party but not yet effective.
+          IN_FORCE: Effective and legally binding on the parties.
+          EXPIRED: Reached the end of its term without being renewed.
+          TERMINATED: Ended early by one or both parties.
+          CANCELLED: Abandoned before anyone signed it.
+        summary: Where the agreement stands from drafting to its end.
+        usage: Moved on as the agreement is negotiated, signed and ends; only an agreement in force governs the relationship.
+        relationshipContext: Read with the effective and expiry dates.
+    - name: effectiveDate
+      type: date
+      required: false
+      help:
+        summary: The day the agreement takes effect.
+        usage: Taken from the signed agreement; the agreement governs nothing before it.
+        relationshipContext: Must not be later than the expiry date.
+    - name: expiryDate
+      type: date
+      required: false
+      help:
+        summary: The last day of the current term.
+        usage: Watched by the owner; renewal or termination must be decided before it.
+        relationshipContext: Empty for an agreement with no fixed end.
+    - name: signedDate
+      type: date
+      required: false
+      help:
+        summary: The day the last party signed.
+        usage: Recorded on signature; it is evidence of when the parties became bound.
+        relationshipContext: Not later than the effective date in the usual case.
+    - name: autoRenew
+      type: boolean
+      required: true
+      default: false
+      help:
+        summary: Whether the agreement renews by itself at the end of its term.
+        usage: Set from the agreement's renewal clause; an automatically renewing agreement continues unless notice is given.
+        relationshipContext: Read with the renewal term and the notice period.
+    - name: renewalTermMonths
+      type: integer
+      required: false
+      help:
+        summary: How long each automatic renewal lasts, in months.
+        usage: Used to work out the next expiry date when the agreement renews.
+        relationshipContext: Meaningful only when the agreement renews automatically.
+    - name: noticePeriodDays
+      type: integer
+      required: false
+      help:
+        summary: How many days' notice a party must give to end or stop renewing the agreement.
+        usage: Used to work out the last day on which notice can be given before the expiry date.
+        relationshipContext: Missing the notice date commits the business to another term.
+    - name: governingLaw
+      type: string
+      required: false
+      maxLength: 100
+      help:
+        summary: The law that governs the agreement.
+        usage: Taken from the agreement, such as "England and Wales" or "State of New York"; read when a dispute arises.
+        relationshipContext: Set together with the jurisdiction for disputes, which the agreement document states.
+    - name: description
+      type: text
+      required: false
+      help:
+        summary: What the agreement covers and anything unusual about it.
+        usage: A summary for colleagues who need to know what the agreement allows without reading the document.
+        relationshipContext: The signed document remains the authoritative text.
   relationships:
     - name: parties
       target: Party
@@ -71,11 +153,66 @@ entity:
         usage: Chosen when the agreement is recorded; each party is notified of changes.
         cardinalityMeaning: At least two parties, since an agreement is between parties.
         workflowRole: Decides who holds the rights and duties and who must sign.
+    - name: firstParty
+      target: Party
+      cardinality: "1"
+      ownership: reference
+      help:
+        summary: The party on one side of the agreement, normally our own company.
+        usage: Chosen at registration.
+        cardinalityMeaning: Every agreement has exactly one first party.
+        context: When our company signs through a legal entity, that entity's party is the first party.
+    - name: secondParty
+      target: Party
+      cardinality: "1"
+      ownership: reference
+      help:
+        summary: The counterparty — the other organization or person bound by the agreement.
+        usage: Chosen at registration; the counterparty's agreements are listed from it.
+        cardinalityMeaning: Every agreement has exactly one second party; an agreement with several counterparties is registered once per counterparty.
+        context: Onboarding and data-sharing checks look up the agreements of this party.
+    - name: owner
+      target: Person
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The colleague responsible for the agreement.
+        usage: Receives expiry and renewal reminders and answers questions about it.
+        cardinalityMeaning: One owner per agreement.
+        context: Should be reassigned when the owner leaves.
+    - name: document
+      target: Document
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The signed agreement document.
+        usage: Linked once signed, so that the binding text can be opened from the record.
+        cardinalityMeaning: One signed document; earlier drafts are not linked here.
+        context: The document is the authoritative statement of the terms.
   invariants:
     - {id: AGREEMENT-001, rule: "Finalized evidence and effective history must be preserved; correction, reassessment, settlement or supersession must be explicit."}
     - id: AGREEMENT-002
       rule: effectiveTo must not precede effectiveFrom.
     - {id: AGREEMENT-EXE-001, rule: "Effective To must not be earlier than effective from.", violatedWhen: "effective_from != null and effective_to != null and effective_to < effective_from", message: "Effective To cannot be earlier than effective from."}
+  workflows:
+    - name: FollowUpRequired
+      title: "Follow up when a agreement is ended"
+      description: "When a agreement is cancelled, a task asks someone to settle what depended on it."
+      when: "status == \"CANCELLED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "AGREEMENT-FOLLOW-UP-{{id}}"
+              name: "Follow up on agreement {{title}}"
+              description: "Agreement {{title}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
   help:
     summary: A governed agreement between parties that fixes rights, duties, commitments or terms, of which a commercial contract is a specialisation.
     businessMeaning: 'An agreement is the record that two or more parties have committed to something. It is the parent concept behind contracts, service terms and similar understandings, so it holds what they share: who is bound, when, and what happened to the agreement over time.'
@@ -83,4 +220,51 @@ entity:
     relationshipContext: Contract specialises Agreement for commercial terms; parties, documents and obligations hang off the more specific records.
     lifecycle: Finalised evidence and effective history are preserved. Changes, settlements and replacements are recorded as explicit events, never by silently editing what was agreed.
     example: A framework supply agreement between a manufacturer and a distributor, later amended twice and finally superseded by a new agreement.
+  lifecycle:
+    title: Agreement Lifecycle
+    attribute: status
+    states:
+      - DRAFT
+      - IN_NEGOTIATION
+      - SIGNED
+      - IN_FORCE
+      - EXPIRED
+      - TERMINATED
+      - CANCELLED
+    initial: DRAFT
+    terminal:
+      - EXPIRED
+      - TERMINATED
+      - CANCELLED
+    transitions:
+      - from: DRAFT
+        to: IN_NEGOTIATION
+        action: send
+      - from: IN_NEGOTIATION
+        to: DRAFT
+        action: revise
+      - from: IN_NEGOTIATION
+        to: SIGNED
+        action: sign
+      - from: DRAFT
+        to: SIGNED
+        action: sign
+      - from: SIGNED
+        to: IN_FORCE
+        action: take_effect
+      - from: IN_FORCE
+        to: EXPIRED
+        action: expire
+      - from: IN_FORCE
+        to: TERMINATED
+        action: terminate
+      - from: SIGNED
+        to: TERMINATED
+        action: terminate
+      - from: DRAFT
+        to: CANCELLED
+        action: cancel
+      - from: IN_NEGOTIATION
+        to: CANCELLED
+        action: cancel
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-AGREEMENT}

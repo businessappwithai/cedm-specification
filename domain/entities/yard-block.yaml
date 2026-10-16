@@ -52,6 +52,35 @@ entity:
           ACTIVE: The block may participate in normal yard operations subject to bay, tier, slot, equipment, safety, and container constraints.
           BLOCKED: The block is temporarily unavailable for normal placement or movement, for example because of maintenance, safety, congestion, inspection, or an incident.
           CLOSED: The block is administratively or permanently unavailable for normal operations.
+    - name: blockType
+      type: enum
+      required: true
+      default: GENERAL
+      values:
+        - GENERAL
+        - REEFER
+        - HAZARDOUS
+        - EMPTY
+        - EXPORT
+        - IMPORT
+      help:
+        valueSemantics:
+          GENERAL: Ordinary dry containers with no special handling needs.
+          REEFER: Refrigerated containers that need an electrical connection.
+          HAZARDOUS: Containers holding dangerous goods under segregation rules.
+          EMPTY: Storage for empty containers awaiting reuse or repair.
+          EXPORT: Containers waiting to be loaded onto a vessel.
+          IMPORT: Containers discharged from a vessel and waiting for collection.
+        summary: What the block is used for.
+        usage: Decides which containers the planners put in it.
+        relationshipContext: Hazardous and reefer blocks have their own rules.
+    - name: capacityTeu
+      type: integer
+      required: false
+      help:
+        summary: How many twenty-foot equivalent units the block can hold.
+        usage: Used for yard utilisation reports.
+        relationshipContext: Sum of its bays' capacity.
   relationships:
     - name: yard
       target: Yard

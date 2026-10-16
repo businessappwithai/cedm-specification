@@ -1,0 +1,207 @@
+@ TaxCode
+a taxType
+s: Which tax this code belongs to, such as VAT, sales tax or withholding.
+u: Chosen by tax staff when the code is set up; it decides which return the taxed transactions appear on and which rates are looked up.
+c: Read together with the category, which says how that tax is treated on the line.
+v VAT: Value-added tax charged at each stage of supply and reclaimed on purchases.
+v GST: Goods and services tax, the value-added style tax used in countries such as Australia, India and Canada.
+v SALES_TAX: Tax charged to the buyer at the point of sale and remitted by the seller.
+v USE_TAX: Tax the buyer owes directly on purchases where no sales tax was charged by the supplier.
+v WITHHOLDING: Tax deducted from a payment to a supplier or employee and paid over to the authority.
+v EXCISE: Duty charged on specific goods such as fuel, alcohol or tobacco.
+a description
+s: Explains when this code should be chosen, including the kind of goods, services or customers it covers.
+u: Read by whoever codes an order or invoice line to pick the right treatment.
+c: For exempt and zero-rated codes it should cite the legal basis, so an auditor can see why no tax was charged.
+@ TaxJurisdiction
+a name
+s: The name of the taxing authority's area, such as France, California or Cook County.
+u: Entered by tax administrators and shown wherever a jurisdiction is picked, on tax reports and on registrations.
+a level
+v COUNTRY: A national tax authority covering a whole country.
+v STATE: A state, province or region that levies its own tax.
+v COUNTY: A county or district authority below the state.
+v CITY: A city or municipality that adds its own local tax.
+v SPECIAL_DISTRICT: A special taxing district, such as a transit or stadium district, with its own levy.
+a filingFrequency
+s: How often returns must normally be filed with this jurisdiction's authority.
+u: Used to build the filing calendar and reminders for tax staff.
+c: It may depend on the size of the business, so the registration states the frequency actually applicable to each company.
+v MONTHLY: A return is due every month.
+v QUARTERLY: A return is due every quarter.
+v ANNUAL: A single return is due once a year.
+@ TaxRate
+a ratePercent
+s: The tax as a percentage of the taxable amount, such as 20 for twenty percent.
+u: Entered by tax staff from the authority's published rate when the rate type is a percentage, and applied to the taxable amount of each line.
+a amountPerUnit
+s: The tax charged per unit of quantity, such as a duty per litre or per kilogram.
+u: Entered when the rate type is per unit and multiplied by the quantity on the document line.
+a validFrom
+s: The first day on which this rate may be applied to transactions.
+u: Set from the law or the authority's announcement; it must not be later than the valid-to date, and a transaction uses the rate whose period holds its tax date.
+a validTo
+s: The last day on which this rate applies, left empty while it remains in force.
+u: Set when a new rate replaces it; rates for one code and jurisdiction must not overlap, so the next rate starts the following day.
+@ TaxRegistration
+a taxType
+s: The kind of tax this registration number was issued for, such as VAT or excise.
+u: Chosen when the registration is recorded; it decides which returns the registration drives.
+c: A company can hold several registrations in one country for different taxes.
+v VAT: Registration for value-added tax.
+v GST: Registration for goods and services tax.
+v SALES_TAX: Registration to collect and remit sales and use tax.
+v PAYROLL: Registration for payroll or employment taxes withheld from staff.
+v CORPORATE_INCOME: Registration for tax on the company's profits.
+v EXCISE: Registration to handle goods subject to excise duty.
+a validTo
+s: The last day on which the registration is valid.
+u: Set when the company deregisters or the authority withdraws the number; left empty while the registration is in force.
+a filingFrequency
+s: How often returns are due under this registration, as set by the tax authority.
+u: Drives the company's filing calendar and the reminders sent to tax staff.
+v MONTHLY: Returns under this registration are due every month.
+v QUARTERLY: Returns under this registration are due every quarter.
+v ANNUAL: Returns under this registration are due once a year.
+@ TaxTransaction
+a taxTransactionNumber
+s: The reference number of this tax record, used to find it on returns and audits.
+u: Assigned automatically when the tax is calculated and never reused.
+a documentType
+s: The kind of source document the tax was computed on, such as a sales invoice or supplier bill.
+u: Set by tax determination and read with the document reference to trace the tax back to its source.
+a taxableAmount
+s: The amount of the document line on which the tax was calculated, before the tax itself.
+u: Copied from the document line in the document's currency and multiplied by the rate to give the tax.
+a ratePercent
+s: The percentage rate that was applied to the taxable amount.
+u: Copied from the rate valid on the tax date and kept even if the rate later changes, so the original calculation can be explained.
+a taxAmount
+s: The tax computed on this line, after rounding.
+u: Rounded under the jurisdiction's rules and reported in the return box of its tax code.
+r taxCode
+s: The tax code that was applied to the document line this record taxes.
+u: Taken from the line when tax is determined.
+n: Each tax record carries exactly one code, so a line taxed under two codes gives two records.
+w: Its return box decides where the amount is reported.
+@ Team
+a purpose
+s: A short description of what the team does and what work it should receive.
+u: Free text entered by the administrator and read by people deciding where to route work.
+a emailAddress
+s: The shared mailbox that reaches the whole team.
+u: Notifications addressed to the team are sent here instead of to each individual member.
+a status
+s: Whether the team is still operating and can be given work.
+u: Set to inactive when the team is disbanded; inactive teams receive no new assignments.
+v ACTIVE: The team is working and can be assigned work.
+v INACTIVE: The team has been disbanded and receives no new work.
+@ Timesheet
+a periodStart
+s: The first day of the period that the timesheet covers.
+u: Usually a Monday; it must not be later than the period end.
+a periodEnd
+s: The last day of the period that the timesheet covers.
+u: Usually a Sunday; one person's timesheets for the same engagement must not overlap.
+a totalHours
+s: All hours the person reported in the period, billable or not.
+u: Summed from the daily entries and never negative; the billable hours cannot exceed it.
+a submittedAt
+s: The date and time the person submitted the timesheet for approval.
+u: Recorded automatically on submission; late submissions are reported to managers.
+a approvedAt
+s: The date and time the approver accepted the timesheet.
+u: Recorded automatically on approval; billing and cost allocation wait for it.
+a rejectionReason
+s: The approver's explanation of why the timesheet was sent back.
+u: Written on rejection and read by the person to correct the entries before resubmitting; empty unless the timesheet was rejected.
+r approvedBy
+s: The person who reviewed and approved the timesheet.
+u: Recorded when approval is given, usually the person's manager or the engagement lead.
+n: A timesheet has one approver, who must not be the person whose time it is.
+w: Approval by this person releases the hours for billing and costing.
+@ TrackingEvent
+a eventCode
+v PICKED_UP: The goods were collected from the shipper.
+v DEPARTED: The shipment left a hub, port or terminal.
+v ARRIVED: The shipment reached a hub, port or terminal.
+v IN_TRANSIT: The shipment is moving between two points.
+v CUSTOMS: The shipment was held for inspection or released by customs.
+v OUT_FOR_DELIVERY: The shipment is on the final vehicle heading to the consignee.
+v DELIVERED: The shipment was handed over to the consignee, ending its journey.
+v EXCEPTION: Something went wrong, such as damage, delay or a failed delivery attempt, and needs attention.
+a description
+s: The carrier's own wording of what happened, such as "Departed Novara hub".
+u: Shown on the shipment timeline exactly as received, beside the standard milestone.
+a source
+s: Which channel supplied the event: a carrier feed, a vehicle device or a person.
+u: Set when the event is recorded; manual events are checked before they change a delivery promise.
+@ UsageRecord
+a usageNumber
+s: The reference number of this usage record, used when billing questions arise.
+u: Assigned when the record is received and unique across all records.
+a source
+s: The metering system that reported the measurement, such as an API gateway.
+u: Recorded on receipt and combined with the source reference to refuse duplicates when a feed is resent.
+a quantity
+s: How much of the metric was consumed in the measured period.
+u: Expressed in the metric's own unit and rated against the subscription's plan to produce a charge.
+@ Variance
+a measure
+s: What is being compared, such as travel expenses or revenue.
+u: Set by the calculation, usually an account or account group, so the owner knows which line departs from plan.
+a comparisonType
+s: Which two figures are being set against each other.
+u: Chosen by the calculation and decides which figure acts as the plan.
+v ACTUAL_VS_BUDGET: Posted actual results are compared with the approved budget.
+v FORECAST_VS_BUDGET: The latest forecast is compared with the approved budget to show expected overruns.
+v ACTUAL_VS_FORECAST: Posted actual results are compared with the current forecast.
+v FORECAST_VS_PRIOR: This forecast is compared with the previous forecast to show how expectations moved.
+a status
+s: How far the variance has progressed through explanation and review.
+u: Moved on by the owner and by controlling; only reviewed variances are reported as explained.
+v CALCULATED: Computed and waiting for the owner to explain it.
+v EXPLAINED: The owner has written an explanation for the difference.
+v REVIEWED: Controlling has examined and accepted the explanation.
+v ACCEPTED: The difference is under the threshold, so no explanation is needed.
+@ WarehouseZone
+a status
+s: Whether the zone is currently in use in the warehouse.
+u: Changed during refits or closures; inactive zones receive no putaway.
+v ACTIVE: The zone is open and can receive and release stock.
+v INACTIVE: The zone is closed or being refitted and takes no new stock.
+@ Wave
+a waveType
+s: The kind of work the wave releases to the floor.
+u: Chosen when the wave is planned and decides which tasks it groups; most waves are picking waves.
+a releasedAt
+s: The date and time the wave was released to workers on the floor.
+u: Recorded automatically at release and empty while the wave is still planned.
+a completedAt
+s: The date and time the last task in the wave was finished.
+u: Recorded when the wave completes and compared with the planned completion to measure lateness.
+a taskCount
+s: How many tasks, picks and putaways together, the wave contains.
+u: Calculated by the system and shown on the wave monitor so supervisors can size labour.
+@ Yard
+a yardType
+s: The kind of facility the yard is, such as a terminal, depot or inland dry port.
+u: Chosen when the yard is set up and decides which operations it supports.
+c: Depots store empty containers and do not load vessels.
+v TERMINAL: A port or rail terminal where containers are loaded and discharged.
+v DEPOT: A depot that stores and repairs empty containers.
+v INLAND: An inland dry port or container freight station away from the coast.
+a capacityTeu
+s: How many twenty-foot equivalent containers the yard can hold in total.
+u: Equals the sum of its blocks' capacity and is used for utilisation and planning reports.
+a operatingHours
+s: The hours during which the yard gate is open, such as 24/7 or Monday to Friday 06:00 to 22:00.
+u: Shown to hauliers booking gate slots.
+@ YardBlock
+a blockType
+v GENERAL: Ordinary dry containers with no special handling needs.
+v REEFER: Refrigerated containers that need an electrical connection.
+v HAZARDOUS: Containers holding dangerous goods under segregation rules.
+v EMPTY: Storage for empty containers awaiting reuse or repair.
+v EXPORT: Containers waiting to be loaded onto a vessel.
+v IMPORT: Containers discharged from a vessel and waiting for collection.

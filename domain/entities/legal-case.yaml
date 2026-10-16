@@ -9,8 +9,145 @@ entity:
   attributes:
     - {name: legalCaseId, type: uuid, required: true, immutable: true, help: {summary: 'The stable identity of the legal case, constant through its proceedings.', usage: 'Generated when the case is recorded; documents, hearings, costs and the parent legal matter refer to it.'}}
     - {name: occurredAt, type: datetime, required: false, help: {summary: When the case was opened or the event it records took place., usage: Set when recorded; used to order the history of the matter.}}
+    - name: caseNumber
+      type: string
+      required: true
+      maxLength: 60
+      help:
+        summary: The court's or tribunal's reference for the case.
+        usage: Quoted on every filing and letter to the court.
+        relationshipContext: Unique within its forum.
+    - name: title
+      type: string
+      required: true
+      maxLength: 200
+      help:
+        summary: The name of the case, such as "ACME France v. Northwind Labs".
+        usage: Shown in case lists.
+        relationshipContext: Identifies the case for people.
+    - name: forumType
+      type: enum
+      required: true
+      default: COURT
+      values:
+        - COURT
+        - TRIBUNAL
+        - ARBITRATION
+        - REGULATORY_AUTHORITY
+      help:
+        summary: Says what kind of body hears the case, such as a court, tribunal or arbitration.
+        usage: Chosen when the case is opened; it decides the procedure and deadlines that apply.
+        relationshipContext: Read together with the forum that hears it.
+        valueSemantics:
+          COURT: A state court of law hearing the dispute.
+          TRIBUNAL: A specialised tribunal, such as an employment tribunal.
+          ARBITRATION: A private arbitral tribunal chosen under an arbitration agreement.
+          REGULATORY_AUTHORITY: A regulator deciding on a matter.
+    - name: ourRole
+      type: enum
+      required: true
+      default: CLAIMANT
+      values:
+        - CLAIMANT
+        - DEFENDANT
+        - THIRD_PARTY
+        - INTERVENER
+      help:
+        summary: Says which side of the dispute the business is on in this case.
+        usage: Recorded when the case is opened.
+        relationshipContext: Decides whether an adverse outcome means a payment or a lost recovery.
+        valueSemantics:
+          CLAIMANT: We started the proceedings.
+          DEFENDANT: Proceedings were brought against us.
+          THIRD_PARTY: We are joined as a third party.
+          INTERVENER: We intervene in someone else's case.
+    - name: stage
+      type: string
+      required: false
+      maxLength: 100
+      help:
+        summary: The procedural stage reached, such as "Pleadings", "Expert phase" or "Awaiting judgment".
+        usage: Updated as the case moves on.
+        relationshipContext: Free wording; procedures differ by forum.
+    - name: filedDate
+      type: date
+      required: false
+      help:
+        summary: The day the proceedings were formally filed with the forum.
+        usage: Recorded when the case starts; limitation periods and deadlines run from it, and it cannot be later than the judgment date.
+        relationshipContext: Not later than the judgment date.
+    - name: nextHearingDate
+      type: date
+      required: false
+      help:
+        summary: The date of the next hearing.
+        usage: Updated after each hearing; feeds the hearing calendar.
+        relationshipContext: Empty when none is scheduled.
+    - name: judgmentDate
+      type: date
+      required: false
+      help:
+        summary: The day judgment was given or the settlement was signed.
+        usage: Recorded by the responsible lawyer together with the outcome; empty until the case is decided or settled.
+        relationshipContext: Present once decided or settled.
+    - name: amountClaimed
+      type: Money
+      required: false
+      help:
+        summary: The monetary amount claimed in the proceedings.
+        usage: Taken from the claim document and used for exposure reporting; expressed in the matter's currency.
+        relationshipContext: In the matter's currency.
+    - name: outcome
+      type: text
+      required: false
+      help:
+        summary: A description of how the case ended, such as the judgment or settlement terms.
+        usage: Written by the responsible lawyer with the judgment or settlement, and required before the case is closed.
+        relationshipContext: Required to close.
+    - name: status
+      type: enum
+      required: true
+      default: FILED
+      values:
+        - FILED
+        - PENDING
+        - DECIDED
+        - SETTLED
+        - APPEALED
+        - CLOSED
+        - WITHDRAWN
+      help:
+        summary: Shows where the case stands in its life, from filing through judgment to closure.
+        usage: Moved on by the responsible lawyer.
+        relationshipContext: Decided and settled cases must have an outcome.
+        valueSemantics:
+          FILED: Started, with first steps under way.
+          PENDING: Pleadings and hearings are in progress.
+          DECIDED: Judgment has been given.
+          SETTLED: Ended by a settlement between the parties.
+          APPEALED: Judgment appealed to a higher court; the appeal is recorded as its own case.
+          CLOSED: Finished, because the judgment became final or the appeal was decided.
+          WITHDRAWN: Withdrawn or dismissed without judgment on the merits.
   relationships:
     - {name: legalMatter, target: LegalMatter, cardinality: "1", ownership: reference, help: {summary: The legal matter this case belongs to., usage: Set when the case is opened., cardinalityMeaning: 'Exactly one matter: a case is a proceeding within a single matter.', workflowRole: Collects the case's costs and outcomes with the rest of the matter., businessMeaning: Groups case within broader legal work.}}
+    - name: forum
+      target: Organization
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The court, tribunal or authority hearing the case.
+        usage: Chosen when opening it.
+        cardinalityMeaning: One per case.
+        context: Its rules set the deadlines.
+    - name: counterparty
+      target: Party
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The other side.
+        usage: Chosen when opening it.
+        cardinalityMeaning: The main opponent; others are listed in the title.
+        context: Usually the matter's counterparty.
   invariants:
     - {id: LEGAL-CASE-001, rule: "Finalized evidence and effective history must be preserved; correction, reassessment, settlement or supersession must be explicit."}
   help:
@@ -21,4 +158,51 @@ entity:
     lifecycle: Finalised evidence and effective history are preserved; settlement or supersession is recorded explicitly.
     example: The appeal in a contract dispute, filed at the regional court as a case within the matter.
     commonProcesses: Risk assessment, incident management, legal matter management, compliance, remediation, filing and audit.
+  lifecycle:
+    title: Legal Case Lifecycle
+    attribute: status
+    states:
+      - FILED
+      - PENDING
+      - DECIDED
+      - SETTLED
+      - APPEALED
+      - CLOSED
+      - WITHDRAWN
+    initial: FILED
+    terminal:
+      - CLOSED
+      - SETTLED
+      - WITHDRAWN
+    transitions:
+      - from: FILED
+        to: PENDING
+        action: proceed
+      - from: PENDING
+        to: DECIDED
+        action: decide
+      - from: PENDING
+        to: SETTLED
+        action: settle
+      - from: FILED
+        to: SETTLED
+        action: settle
+      - from: DECIDED
+        to: CLOSED
+        action: close
+      - from: DECIDED
+        to: APPEALED
+        action: appeal
+      - from: APPEALED
+        to: CLOSED
+        action: close
+      - from: APPEALED
+        to: SETTLED
+        action: settle
+      - from: FILED
+        to: WITHDRAWN
+        action: withdraw
+      - from: PENDING
+        to: WITHDRAWN
+        action: withdraw
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-LEGAL-CASE}

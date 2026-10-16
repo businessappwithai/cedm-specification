@@ -88,6 +88,21 @@ entity:
       help:
         summary: The date the declaration was made.
         usage: Entered on submission; duty rates and rules in force on this date apply.
+    - name: customsProcedureCode
+      type: string
+      required: false
+      maxLength: 10
+      help:
+        summary: The customs procedure code, such as 4000 for release for free circulation.
+        usage: Decides the treatment of the goods.
+        relationshipContext: From the customs tariff.
+    - name: dutyAmount
+      type: Money
+      required: false
+      help:
+        summary: The total customs duty and import taxes assessed on the declared goods.
+        usage: Entered from the customs authority's assessment, paid to customs and booked into the landed cost of the goods.
+        relationshipContext: Stated in the local currency of the declaring country.
   relationships:
     - name: declarant
       target: Party
@@ -128,6 +143,7 @@ entity:
   invariants:
     - id: CUSTOMS-001
       rule: declaredValue must be zero or greater when supplied.
+    - {id: CUSTOMS-DECLARATION-EXE-001, rule: "Duty Amount cannot be negative.", violatedWhen: "duty_amount != null and duty_amount < 0", message: "Duty Amount cannot be negative."}
   lifecycle:
     title: Customs Declaration Lifecycle
     attribute: status

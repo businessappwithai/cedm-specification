@@ -9,10 +9,85 @@ entity:
   attributes:
     - {name: contractLineId, type: uuid, required: true, immutable: true, help: {summary: The identity of the contract line., usage: Generated on creation; call-offs and invoice lines refer to it.}}
     - {name: effectiveAt, type: datetime, required: false, help: {summary: When the line took effect., usage: Set from the signed contract or amendment; the price and quantity that apply to an order are those of the line in force on the order date.}}
+    - name: lineNumber
+      type: integer
+      required: true
+      help:
+        summary: The number of the line within the contract.
+        usage: Assigned in order when lines are added.
+        relationshipContext: Unique within the contract.
+    - name: description
+      type: string
+      required: true
+      maxLength: 300
+      help:
+        summary: What the line covers, as the contract describes it.
+        usage: Shown on orders priced from the line.
+        relationshipContext: Usually the product name plus any contract-specific detail.
+    - name: unitPrice
+      type: Money
+      required: true
+      help:
+        summary: The price per unit agreed for this line of the contract.
+        usage: Used to price orders placed under the contract, until the line's validity ends.
+        relationshipContext: Stated in the line's currency.
+    - name: committedQuantity
+      type: decimal
+      required: false
+      precision: 18
+      scale: 4
+      help:
+        summary: The quantity one party has committed to buy or supply over the period.
+        usage: Compared with actual orders to track the commitment.
+        relationshipContext: Empty when the line sets a price without a commitment.
+    - name: validFrom
+      type: date
+      required: false
+      help:
+        summary: The first day the line's price applies.
+        usage: Usually the contract's start or an amendment's effective date.
+        relationshipContext: Not later than the valid-to date.
+    - name: validTo
+      type: date
+      required: false
+      help:
+        summary: The last day the line's price applies.
+        usage: Set when an amendment replaces the line.
+        relationshipContext: Empty while it applies for the rest of the contract.
   relationships:
     - {name: contract, target: Contract, cardinality: '1', ownership: reference, help: {cardinalityMeaning: 'Exactly one contract: a line is priced and scoped only within the agreement that contains it.', summary: The contract that contains the line., usage: Set when the line is created., workflowRole: Places the line within the agreed commercial terms.}}
+    - name: product
+      target: Product
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The product or service the line covers.
+        usage: Chosen when the line is added; orders for this product find the line.
+        cardinalityMeaning: At most one product per line.
+        context: A line without a product describes a service in words.
+    - name: currency
+      target: Currency
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The currency of the price.
+        usage: Usually the contract's currency.
+        cardinalityMeaning: One per line.
+        context: Orders in another currency are converted.
+    - name: unitOfMeasure
+      target: UnitOfMeasure
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The unit the price is per.
+        usage: Chosen with the product.
+        cardinalityMeaning: One per line.
+        context: Orders in another unit are converted before pricing.
   invariants:
     - {id: CONTRACT-LINE-001, rule: Finalized historical evidence must not be silently rewritten; corrections or supersession require explicit governed records.}
+    - {id: CONTRACT-LINE-EXE-001, rule: "Valid To must not be earlier than valid from.", violatedWhen: "valid_from != null and valid_to != null and valid_to < valid_from", message: "Valid To cannot be earlier than valid from."}
+    - {id: CONTRACT-LINE-EXE-002, rule: "Unit Price cannot be negative.", violatedWhen: "unit_price != null and unit_price < 0", message: "Unit Price cannot be negative."}
+    - {id: CONTRACT-LINE-EXE-003, rule: "Committed Quantity cannot be negative.", violatedWhen: "committed_quantity != null and committed_quantity < 0", message: "Committed Quantity cannot be negative."}
   help:
     summary: A line within a contract that fixes a specific product or service, its price, quantity, term or scope of obligation.
     businessMeaning: Commercial contracts are priced and scoped line by line. Lines state exactly what is being bought or provided, and orders and invoices are checked against them.

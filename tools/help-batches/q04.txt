@@ -1,0 +1,348 @@
+@ Farm
+a isOrganicCertified
+s: Says whether the farm currently holds an organic certification from a recognised certifying body.
+u: Ticked by the farm manager once certification is granted and cleared if it lapses; it decides whether produce may be sold and labelled as organic.
+c: Read together with the certification date, which shows when the status was granted.
+a certificationDate
+s: The date the farm's current organic or quality certification was granted by the certifying body.
+u: Entered from the certificate; auditors use it to trace produce back to a certified period and to plan renewal. It stays empty for uncertified farms.
+@ Filing
+a filingNumber
+s: The company's own internal reference for this filing, quoted in deadline calendars and correspondence.
+u: Unique; assigned when the filing is first recorded, before the authority has issued any reference of its own.
+c: The authority's reference is kept separately as the acknowledgement reference once the filing is lodged.
+a title
+s: A short description of what is being filed, such as "Annual accounts 2023" or "Change of registered office".
+u: Written by the person preparing the filing and shown in deadline calendars, so that compliance staff can recognise it without opening the record.
+a feeAmount
+s: The fee the authority charged for accepting the filing, in the currency it was paid in.
+u: Entered once the fee is paid and used for expense tracking and budgeting of regulatory costs. Many filings carry no fee and leave it blank.
+a status
+s: Shows how far the filing has progressed, from being identified as required to the authority's answer.
+u: Moved on by the compliance team as the papers are prepared, lodged and answered.
+c: A required filing that is still unsubmitted after its due date is treated as overdue.
+v REQUIRED: Known to be needed, but nobody has started preparing it.
+v IN_PREPARATION: The papers are being drawn up and have not yet been lodged with the authority.
+v SUBMITTED: Lodged with the authority, which has not yet answered.
+v ACCEPTED: The authority has accepted the filing; the obligation is met.
+v REJECTED: Refused by the authority, so a corrected filing is needed.
+v WITHDRAWN: Found not to be needed, or withdrawn after it was lodged.
+@ Finding
+a findingNumber
+s: The reference by which the finding is cited in the audit report and in follow-up with management.
+u: Unique; assigned when the auditor raises the finding and then used in tracking lists and committee reports.
+a title
+s: A one-line statement of the weakness found, readable without opening the full finding.
+u: Written by the auditor and shown in finding lists, dashboards and the issued report, so it should name the control or process affected.
+a condition
+s: The facts of what the auditor found, including what was observed and the evidence behind it.
+u: Written by the auditor and agreed with management for accuracy before the report is issued; it should describe the situation, not the cause.
+a rootCause
+s: The underlying reason the weakness arose, as agreed with management after analysis.
+u: The agreed action should address this cause; without it, fixes tend to treat only the symptoms and the same finding returns.
+a severity
+s: How serious the weakness is, rated by the auditor against the organisation's risk scale.
+u: Chosen when the finding is raised; it sets the due date for remediation, decides who is told, and feeds the audit's overall opinion.
+v LOW: A minor weakness where an improvement is recommended but no urgent action is needed.
+v MEDIUM: A weakness to correct within the normal planning cycle.
+v HIGH: A significant weakness to correct promptly.
+v CRITICAL: A serious failure needing immediate action and senior attention.
+a agreedAction
+s: The corrective action that management committed to take in response to the finding.
+u: Written with the action owner after the finding is raised; the owner reports progress against it and the auditor later checks that it worked.
+a remediatedDate
+s: The date the action owner reported that the agreed action had been completed.
+u: Recorded by the owner; it starts the auditor's verification, which follows before the finding can be closed.
+a verifiedDate
+s: The date the auditor confirmed that the fix is in place and actually works.
+u: Recorded on verification and required to close the finding. It cannot be earlier than the remediated date.
+a status
+s: Shows where the finding is in its life, from being raised through remediation to closure.
+u: Moved on by the action owner as work progresses, while only the auditor can close a finding after verifying the fix.
+v OPEN: Raised, but management has not yet agreed an action.
+v IN_REMEDIATION: An action has been agreed and is under way.
+v REMEDIATED: The owner reports the action complete and awaits verification.
+v CLOSED: Verified by the auditor, so nothing more is required.
+v RISK_ACCEPTED: Management decided not to act, with the approval required to carry the risk.
+@ Flight
+a actualDepartureAt
+s: The time the aircraft actually left the departure airport, as opposed to the scheduled time.
+u: Recorded by operations at pushback or take-off; it is empty until the flight departs and drives delay reporting.
+a actualArrivalAt
+s: The time the aircraft actually reached the destination, as opposed to the scheduled arrival.
+u: Recorded by operations on landing or arrival at the gate; it is empty until the flight arrives and is used to measure punctuality.
+@ Forecast
+a name
+s: A descriptive name for the forecast, such as "Q3 rolling cash outlook", that tells readers its purpose.
+u: Chosen by finance when the forecast is started and shown in reports and in lists of forecast versions.
+a horizonStart
+s: The first day covered by the forecast, from which the projected periods run.
+u: Set when the forecast is started, typically the day after the as-of date; it may not be later than the horizon end.
+a forecastType
+s: Says what kind of measures the forecast projects, such as cash, sales or headcount.
+u: Chosen when the forecast is created and decides which measures it holds.
+c: Cash forecasts are usually prepared weekly and financial forecasts monthly.
+v FINANCIAL: Projects revenue, costs and profit over the horizon.
+v CASH: Projects receipts, payments and cash balances over the horizon.
+v SALES: Projects sales volumes and revenue by product or customer.
+v HEADCOUNT: Projects the number of people and the personnel cost they bring.
+a totalRevenue
+s: The total revenue the forecast expects over its whole horizon.
+u: Summed from the forecast detail lines rather than typed in; management compares it with the approved budget.
+a totalCost
+s: The total cost the forecast expects over its whole horizon.
+u: Summed from the forecast detail lines rather than typed in; management compares it with the approved budget.
+a assumptions
+s: The key assumptions behind the numbers, such as growth rates, exchange rates and timing of large receipts.
+u: Written by finance and read by management when reviewing; it should explain what changed since the previous forecast.
+a status
+s: Shows where the forecast is in review, from a draft to the current approved outlook.
+u: Moved on by its author and the reviewers as it is submitted, approved and eventually replaced.
+c: Only one approved forecast per scenario is current at a time.
+v DRAFT: Still being worked on by its author; no one has been asked to review it and it is not yet the current outlook.
+v SUBMITTED: Sent for review and waiting for the approver's decision.
+v APPROVED: Accepted by the approver and in use as the current outlook.
+v SUPERSEDED: Replaced by a later approved forecast and kept only for history.
+@ ForeignExchangeTransaction
+a tradeDate
+s: The day the dealer and the bank agreed the currency exchange.
+u: Recorded by the treasury dealer when the deal is struck; it may not be later than the value date and starts the exposure.
+a settledAt
+s: The moment both currency payments of the deal were completed.
+u: Recorded by treasury operations when the bank confirms settlement. It stays empty while the deal is open.
+a status
+s: Shows how far the deal has progressed from being dealt to being settled or cancelled.
+u: Moved on by treasury as the bank confirms the deal and both payments are made.
+c: Only unsettled deals count in the open currency position.
+v DEALT: Agreed with the bank, but not yet matched with its confirmation.
+v CONFIRMED: Matched with the bank's confirmation and awaiting the value date.
+v SETTLED: Both currencies were exchanged on the value date.
+v CANCELLED: Cancelled by agreement with the bank before settlement.
+@ FreightCharge
+a invoicedAmount
+s: The amount the carrier actually billed for the transport service.
+u: Entered from the carrier's invoice and compared with the expected amount during freight audit; differences may be disputed.
+a disputeReason
+s: The explanation of why the charge is being disputed with the carrier, such as a wrong rate or a surcharge not agreed.
+u: Written by the freight auditor when the invoiced amount differs from the expected one, and filled only on disputed charges.
+r carrier
+s: Names the carrier that is charging for the transport service.
+u: Taken from the shipment's consignment, so the auditor knows whose rates and invoice to check the charge against.
+n: Each charge belongs to at most one carrier, and may have none yet.
+w: The carrier's agreed rates give the expected amount that freight audit compares with the invoice.
+@ Fulfillment
+a status
+v RELEASED: Released to the warehouse with stock reserved, but work has not yet started.
+v PICKING: Being picked from stock by warehouse staff.
+v PACKED: Picked and packed, and waiting for the carrier to collect it.
+v SHIPPED: Handed over to the carrier for delivery.
+v DELIVERED: Received by the customer.
+v ON_HOLD: Stopped by a problem that someone must resolve before work continues.
+v CANCELLED: Withdrawn because the order is no longer needed; no further work is done.
+a shippedAt
+s: The time the goods were handed over to the carrier.
+u: Recorded on dispatch and used for customer notifications and for judging whether the promised date will be met.
+a deliveredAt
+s: The time the customer received the goods.
+u: Taken from the carrier's proof of delivery; it is empty until delivery and closes the fulfillment.
+@ HandlingUnit
+a heightCm
+s: The height of the packed unit, in centimetres, including any pallet base.
+u: Measured at packing or taken from the packaging type; used for loading plans, stacking limits and carrier quotes.
+a status
+v OPEN: Still being filled; goods can be added.
+v CLOSED: Packed and labelled, and not to be reopened without unpacking.
+v SHIPPED: Has left the warehouse on its way to the destination.
+v RECEIVED: Arrived at its destination and was booked in.
+v DISMANTLED: Unpacked, so its contents are loose again.
+@ HealthcareOrder
+a orderType
+s: Says what kind of clinical order this is, such as a laboratory test, an imaging study or a medication.
+u: Chosen by the ordering clinician; it decides which department receives the order.
+c: Medication orders follow the prescribing rules.
+v LABORATORY: A laboratory test on a patient sample.
+v IMAGING: An imaging study such as an X-ray or scan.
+v MEDICATION: A medicine to be given or dispensed to the patient.
+v PROCEDURE: A procedure to be performed on the patient.
+v REFERRAL: A referral to another service or specialist.
+v NURSING: A nursing intervention carried out by the ward team.
+a priority
+v ROUTINE: To be carried out in the normal course of the department's work.
+v URGENT: To be done sooner than routine orders, ahead of them in the queue.
+v STAT: To be carried out immediately, ahead of all other work.
+a instructions
+s: Directions for whoever carries out the order, such as fasting requirements or which side to image.
+u: Written by the ordering clinician when signing and displayed to the performing department.
+a orderedAt
+s: The date and time the clinician placed the order.
+u: Recorded on signing; turnaround times are measured from it, and it cannot be later than the completion time.
+a completedAt
+s: The date and time the order was carried out.
+u: Recorded by the performing department, and empty until the work is done; it ends the turnaround measurement.
+@ Hotel
+a starRating
+s: The official star classification of the hotel, from one to five stars.
+u: Entered from the hotel's classification certificate and shown to guests on booking channels.
+a checkInTime
+s: The earliest time of day guests may take their room, written as hours and minutes such as 15:00.
+u: Local time at the hotel; shown on booking confirmations so guests know when to arrive.
+a checkOutTime
+s: The latest time of day guests must vacate their room, written as hours and minutes such as 11:00.
+u: Local time at the hotel; shown on confirmations and used by housekeeping to plan room turnover.
+a roomCount
+s: The total number of rooms the hotel has available for letting.
+u: Entered by the hotel manager and used as the capacity figure in occupancy and revenue reports; it should match the rooms recorded.
+a phone
+s: The main telephone number guests and partners call to reach the hotel.
+u: Entered in international format with the country code, and printed on booking confirmations.
+a email
+s: The email address guests and partners use to contact the hotel.
+u: Usually the reception desk or reservations mailbox; printed on booking confirmations.
+@ Incident
+a incidentNumber
+s: The reference by which the incident is tracked, reported and discussed during the response.
+u: Unique; assigned automatically when the incident is reported and quoted in all communications.
+a title
+s: A one-line statement of what happened, readable at a glance in lists.
+u: Written by the reporter and shown in incident lists, dashboards and reports; it should name the system or place affected.
+a description
+s: A factual account of what happened, as reported and later completed by investigators.
+u: Written by the reporter and extended during investigation; keep it to facts, because causes belong in the root cause.
+a containedAt
+s: The time the incident stopped getting worse or spreading.
+u: Recorded by the responders when containment is confirmed; it is used to measure response performance and stays empty until then.
+a resolvedAt
+s: The time normal operation was restored after the incident.
+u: Recorded by the responders when service or safety is back to normal; it ends the duration used in incident statistics.
+a rootCause
+s: Why the incident happened, established after investigation.
+u: Written after investigation and required to close the incident. Recurring causes are taken up by problem management.
+a status
+s: Shows how far the response has progressed, from being reported through containment to closure.
+u: Moved on by the coordinator and responders as the incident is triaged, contained and resolved.
+c: A closed incident must have a root cause.
+v REPORTED: Reported and waiting for triage.
+v INVESTIGATING: Triaged, and responders are working on it.
+v CONTAINED: The effect has been stopped from spreading.
+v RESOLVED: Normal operation is restored.
+v CLOSED: Root cause and lessons are recorded and nothing more is to be done.
+v INVALID: Turned out not to be an incident after all.
+@ IntegrationEndpoint
+a name
+s: A readable name for the endpoint, such as "Bank payment file upload", that people recognise in monitoring.
+u: Chosen by the integration team when registering the endpoint and shown on monitoring screens next to its code.
+a authenticationMethod
+v NONE: No authentication, allowed only for internal endpoints carrying nothing sensitive.
+v API_KEY: A secret key sent with each request.
+v OAUTH2: Access tokens obtained from an authorization server.
+v CERTIFICATE: A client certificate presented to prove the application's identity, which must be renewed before it expires.
+v SSH_KEY: An SSH key pair, typically for file transfer.
+v BASIC: A user name and password.
+a status
+v PLANNED: Being built or tested, with no live traffic.
+v ACTIVE: In live use and receiving messages.
+v SUSPENDED: Traffic stopped for now, with messages waiting.
+v RETIRED: Decommissioned and no longer used.
+@ Interest
+a dayCountBasis
+s: The convention for counting days when working out interest for the period.
+u: Taken from the agreement; the same rate gives a different amount under each convention.
+v ACT_360: Actual days elapsed divided by 360.
+v ACT_365: Actual days elapsed divided by 365.
+v THIRTY_360: Each month counted as 30 days, divided by 360.
+a periodEnd
+s: The last day of the period for which interest is calculated.
+u: Set by the interest run; periods for the same balance must not overlap.
+a postedAt
+s: The date and time the interest was booked to the accounts.
+u: Recorded when finance posts the calculation; empty while the interest is only calculated.
+a status
+s: Shows whether the calculated interest has been booked to the accounts.
+u: Moved on by finance when it posts, cancels or reverses a calculation.
+c: Only posted interest appears in the accounts.
+v CALCULATED: Worked out and waiting to be checked and posted.
+v POSTED: Booked to the accounts.
+v CANCELLED: Found wrong before posting and replaced by a new calculation.
+v REVERSED: Posted, then undone by an opposite entry.
+@ InventoryAdjustment
+a approvedAt
+s: The date and time a manager approved the stock correction.
+u: Recorded on approval; adjustments above a value limit need approval before they can be posted, and it is empty until then.
+a status
+s: Shows how far the stock correction has progressed from request to posting.
+u: Moved on by the requester, the approver and the posting step.
+c: Only posted adjustments change the stock.
+v REQUESTED: Asked for and waiting for approval.
+v APPROVED: Approved and waiting to be posted.
+v POSTED: Applied, so stock and accounts are updated.
+v REJECTED: Refused by the approver, so stock stays as it was.
+@ InventoryCount
+a difference
+s: The counted quantity minus the quantity the system holds for the location.
+u: Calculated for review by the supervisor; large differences are recounted before being adjusted. It may be negative.
+a countType
+s: Says why the count was made, whether routine, year-end or after a problem.
+u: Chosen when the count is planned; it decides who counts and when.
+c: Annual counts freeze stock movements while they run.
+v CYCLE: A routine count of some locations on a rolling schedule.
+v ANNUAL: The full year-end count of all stock.
+v SPOT: An unplanned count made after a problem was suspected.
+a status
+s: Shows how far the count has progressed from planning to approval.
+u: Moved on by the counter and the supervisor.
+c: Differences are adjusted only from approved counts.
+v PLANNED: Scheduled, but not yet counted.
+v COUNTED: Counted, with a difference to review.
+v RECOUNT: A recount was ordered because the difference looked wrong.
+v APPROVED: Accepted by the supervisor, so any difference is adjusted.
+@ InventoryTransfer
+a movedQuantity
+s: The quantity that was actually moved between the two locations.
+u: Confirmed by the warehouse when the transfer is completed; a figure below the requested quantity means a partial transfer.
+a completedAt
+s: The date and time the stock arrived at its destination location.
+u: Recorded by the warehouse when the transfer is completed; empty while it is still in progress.
+@ Job
+a description
+s: A description of the duties and responsibilities of the job.
+u: Written by HR with the hiring manager; it is reused in job adverts and when positions are evaluated and graded.
+@ LegalCase
+a forumType
+s: Says what kind of body hears the case, such as a court, tribunal or arbitration.
+u: Chosen when the case is opened; it decides the procedure and deadlines that apply.
+c: Read together with the forum that hears it.
+v COURT: A state court of law hearing the dispute.
+v TRIBUNAL: A specialised tribunal, such as an employment tribunal.
+v ARBITRATION: A private arbitral tribunal chosen under an arbitration agreement.
+v REGULATORY_AUTHORITY: A regulator deciding on a matter.
+a ourRole
+s: Says which side of the dispute the business is on in this case.
+u: Recorded when the case is opened.
+c: Decides whether an adverse outcome means a payment or a lost recovery.
+v CLAIMANT: We started the proceedings.
+v DEFENDANT: Proceedings were brought against us.
+v THIRD_PARTY: We are joined as a third party.
+v INTERVENER: We intervene in someone else's case.
+a filedDate
+s: The day the proceedings were formally filed with the forum.
+u: Recorded when the case starts; limitation periods and deadlines run from it, and it cannot be later than the judgment date.
+a judgmentDate
+s: The day judgment was given or the settlement was signed.
+u: Recorded by the responsible lawyer together with the outcome; empty until the case is decided or settled.
+a amountClaimed
+s: The monetary amount claimed in the proceedings.
+u: Taken from the claim document and used for exposure reporting; expressed in the matter's currency.
+a outcome
+s: A description of how the case ended, such as the judgment or settlement terms.
+u: Written by the responsible lawyer with the judgment or settlement, and required before the case is closed.
+a status
+s: Shows where the case stands in its life, from filing through judgment to closure.
+u: Moved on by the responsible lawyer.
+c: Decided and settled cases must have an outcome.
+v FILED: Started, with first steps under way.
+v PENDING: Pleadings and hearings are in progress.
+v DECIDED: Judgment has been given.
+v SETTLED: Ended by a settlement between the parties.
+v APPEALED: Judgment appealed to a higher court; the appeal is recorded as its own case.
+v CLOSED: Finished, because the judgment became final or the appeal was decided.
+v WITHDRAWN: Withdrawn or dismissed without judgment on the merits.

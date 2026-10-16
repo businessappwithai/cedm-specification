@@ -26,15 +26,74 @@ entity:
           CLOSED: The period is over and the budget is closed for comparison with actuals. A final state.
         businessMeaning: Controls editability and authoritative planning use.
         relationshipContext: Actual accounting remains in JournalEntry.
+    - name: name
+      type: string
+      required: true
+      maxLength: 150
+      help:
+        summary: The title by which finance staff know the budget, for example Operating Budget FY2027.
+        usage: Chosen by the budget owner and shown in reports and in budget pickers.
+        relationshipContext: Should be distinctive within its fiscal year.
+    - name: budgetVersion
+      type: integer
+      required: true
+      default: 1
+      help:
+        summary: The version of the budget — 1 for the original, higher for revisions.
+        usage: Increased with each revision.
+        relationshipContext: Only one version is active at a time.
+    - name: budgetType
+      type: enum
+      required: true
+      default: OPERATING
+      values:
+        - OPERATING
+        - CAPITAL
+        - CASH
+        - PROJECT
+      help:
+        summary: Which kind of spending or income the budget plans.
+        usage: Chosen when the budget is created; it decides which accounts its lines may use.
+        relationshipContext: Capital budgets plan investment rather than running costs.
+        valueSemantics:
+          OPERATING: Plans revenue and day-to-day running costs.
+          CAPITAL: Plans investment in long-lived assets.
+          CASH: Plans cash receipts and payments over time.
+          PROJECT: Plans the cost of one specific project.
+    - name: totalAmount
+      type: Money
+      required: false
+      help:
+        summary: The overall sum of all the budget's lines, in a single figure.
+        usage: Calculated automatically from the lines and shown to approvers.
+        relationshipContext: Held in the budget's currency.
+    - name: approvedAt
+      type: datetime
+      required: false
+      help:
+        summary: The date and time an approver signed the budget off as the plan to follow.
+        usage: Stamped automatically when the approver accepts the budget.
+        relationshipContext: Present once the budget is approved.
   relationships:
     - {name: organization, target: Organization, cardinality: '1', ownership: reference, help: {usage: Set when the budget is created; determines whose spending the budget limits., cardinalityMeaning: 'Exactly one organisation: a budget always plans the money of a single organisation.', summary: Organization owning budget., businessMeaning: Defines planning boundary., workflowRole: Accounting dimensions must belong to compatible context.}}
     - {name: fiscalPeriod, target: FiscalPeriod, cardinality: 0..1, ownership: reference, help: {summary: Fiscal period governed by budget., businessMeaning: Aligns plan with accounting time., usage: Budget control and variance., cardinalityMeaning: Optional when budget spans multiple periods represented by lines., workflowRole: Does not open/close accounting period.}}
     - {name: lines, target: BudgetLine, cardinality: 1..*, ownership: aggregate, help: {cardinalityMeaning: At least one line; a budget with no lines plans no money., summary: Detailed planned amounts., businessMeaning: Allocates budget to accounts/dimensions., usage: Control and variance analysis., workflowRole: Line totals form governed plan.}}
     - {name: scenario, target: Scenario, cardinality: 0..1, ownership: reference, help: {summary: Planning scenario represented., businessMeaning: Distinguishes baseline/upside/downside etc., usage: Comparative planning., cardinalityMeaning: Optional for single-scenario plans., workflowRole: Scenario never changes actual ledger.}}
+    - name: currency
+      target: Currency
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The currency of the budget.
+        usage: The organization's reporting currency.
+        cardinalityMeaning: One per budget.
+        context: All lines use it.
   invariants:
     - {id: BUDGET-001, rule: APPROVED or ACTIVE Budget requires at least one valid BudgetLine and authorized approval.}
     - {id: BUDGET-002, rule: Budget never creates or rewrites actual JournalEntry amounts.}
     - {id: BUDGET-003, rule: Changes after approval require controlled revision/versioning and preserve prior approved evidence.}
+    - {id: BUDGET-EXE-001, rule: "Total Amount cannot be negative.", violatedWhen: "total_amount != null and total_amount < 0", message: "Total Amount cannot be negative."}
+    - {id: BUDGET-EXE-002, rule: "A budget that is approved states when (approved at).", violatedWhen: "status == \"APPROVED\" and approved_at == null", message: "Record approved at when the budget is approved."}
   lifecycle:
     title: Budget Lifecycle
     attribute: status

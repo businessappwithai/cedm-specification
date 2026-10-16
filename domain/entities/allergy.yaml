@@ -41,6 +41,100 @@ entity:
           COMPLETED: No longer applies, for example outgrown or disproved; kept for history.
           CANCELLED: Entered in error and withdrawn; kept for audit.
         relationshipContext: Status changes can affect related HealthcarePatient workflows but never erase historical evidence.
+    - name: substance
+      type: string
+      required: true
+      maxLength: 200
+      help:
+        summary: What the patient reacts to, such as penicillin or peanuts.
+        usage: Entered by the clinician; medication checks match against it.
+        relationshipContext: Coded substances match more reliably than free text.
+    - name: category
+      type: enum
+      required: true
+      default: MEDICATION
+      values:
+        - MEDICATION
+        - FOOD
+        - ENVIRONMENT
+        - BIOLOGIC
+      help:
+        summary: The broad class of substance that triggers the reaction.
+        usage: Chosen by the clinician when recording the allergy; it decides which safety checks the system applies.
+        relationshipContext: Medication allergies are checked against every prescription written for the patient.
+        valueSemantics:
+          MEDICATION: A medicine or one of its ingredients.
+          FOOD: A food item or food ingredient.
+          ENVIRONMENT: Pollen, dust, animals or other substances in the surroundings.
+          BIOLOGIC: A vaccine, blood product or other biological preparation.
+    - name: allergyType
+      type: enum
+      required: true
+      default: ALLERGY
+      values:
+        - ALLERGY
+        - INTOLERANCE
+      help:
+        valueSemantics:
+          ALLERGY: A true immune-system reaction to the substance.
+          INTOLERANCE: A non-immune reaction, such as stomach upset.
+        summary: Whether the reaction is an immune allergy or an intolerance.
+        usage: Intolerances may allow the substance with care.
+        relationshipContext: Recorded by the clinician.
+    - name: reaction
+      type: string
+      required: false
+      maxLength: 300
+      help:
+        summary: What happens when the patient is exposed.
+        usage: Read by whoever considers giving the substance.
+        relationshipContext: Such as rash, swelling or anaphylaxis.
+    - name: severity
+      type: enum
+      required: true
+      default: MODERATE
+      values:
+        - MILD
+        - MODERATE
+        - SEVERE
+      help:
+        summary: How serious the patient's reaction to the substance has been or is expected to be.
+        usage: Set by the clinician and used to decide how strongly the system warns at ordering time.
+        relationshipContext: Severe reactions block an order unless a clinician explicitly overrides the warning.
+        valueSemantics:
+          MILD: Uncomfortable but not dangerous to the patient.
+          MODERATE: A reaction that needs treatment but is not life-threatening.
+          SEVERE: A life-threatening reaction that must always be avoided.
+    - name: verification
+      type: enum
+      required: true
+      default: UNCONFIRMED
+      values:
+        - UNCONFIRMED
+        - CONFIRMED
+        - REFUTED
+      help:
+        summary: How certain the allergy is.
+        usage: Updated when tests or history confirm or refute it.
+        relationshipContext: Unconfirmed allergies still trigger warnings.
+        valueSemantics:
+          UNCONFIRMED: Reported but not confirmed.
+          CONFIRMED: Confirmed by testing or clear history.
+          REFUTED: Shown not to be an allergy.
+    - name: onsetDate
+      type: date
+      required: false
+      help:
+        summary: The date the patient first showed this reaction.
+        usage: Entered by the clinician when it is known; it helps judge how long the allergy has existed.
+        relationshipContext: An approximate date is acceptable when the exact day is unknown.
+    - name: recordedDate
+      type: date
+      required: true
+      help:
+        summary: The date the allergy was entered into the patient's record.
+        usage: Set automatically when the clinician records it and kept for the clinical audit trail.
+        relationshipContext: Cannot be in the future.
   relationships:
     - name: context
       target: HealthcarePatient
@@ -51,6 +145,24 @@ entity:
         usage: Set on creation and not changed, so the entry cannot drift to another patient.
         cardinalityMeaning: Exactly one patient; a patient may have many allergies.
         workflowRole: Attaches the safety fact to the patient's care record.
+    - name: patient
+      target: HealthcarePatient
+      cardinality: "1"
+      ownership: reference
+      help:
+        summary: The patient with the allergy.
+        usage: Set when recording it.
+        cardinalityMeaning: Every allergy belongs to exactly one patient.
+        context: Listed among the patient's allergies.
+    - name: recordedBy
+      target: HealthcareProvider
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The clinician who recorded it.
+        usage: Recorded with the allergy.
+        cardinalityMeaning: One per allergy.
+        context: Accountable for its accuracy.
   invariants:
     - id: ALLERGY-001
       rule: The governing HealthcarePatient relationship is required and must reference a valid record.

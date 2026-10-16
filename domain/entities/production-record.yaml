@@ -53,6 +53,23 @@ entity:
           RECORDED: Output has been reported and awaits verification.
           VERIFIED: A supervisor has confirmed the figure. A final state.
           REJECTED: The figure was found wrong or the run cancelled. A final state.
+    - name: scrapQuantity
+      type: decimal
+      required: false
+      precision: 18
+      scale: 4
+      help:
+        summary: The quantity produced but thrown away because it was unusable.
+        usage: Entered by the production team for yield and waste measures.
+        relationshipContext: Not counted in the good output quantity.
+    - name: shift
+      type: string
+      required: false
+      maxLength: 20
+      help:
+        summary: The working shift, such as Night or Day, during which the output was produced.
+        usage: Entered by the supervisor so output and scrap can be compared between shifts.
+        relationshipContext: Free text such as "Night".
   relationships:
     - name: product
       target: Product

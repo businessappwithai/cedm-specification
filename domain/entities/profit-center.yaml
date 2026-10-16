@@ -9,10 +9,75 @@ entity:
   attributes:
     - {name: profitCenterId, type: uuid, required: true, immutable: true, help: {summary: 'The identity of the profit centre, constant when it is renamed.', usage: Generated on creation; transactions and reports refer to it.}}
     - {name: code, type: string, required: true, maxLength: 100, help: {summary: 'The short code of the profit centre, such as PC-NORTH.', usage: 'Unique within the organisation; used in imports, budgets and reports.'}}
+    - name: name
+      type: string
+      required: true
+      maxLength: 150
+      help:
+        summary: The descriptive name of the profit centre as shown on management reports.
+        usage: Entered when controlling creates the profit centre and shown beside its code on reports and in pick lists.
+        relationshipContext: Read together with the code to pick the right centre.
+    - name: segment
+      type: string
+      required: false
+      maxLength: 100
+      help:
+        summary: The reporting segment it belongs to in published accounts, if any.
+        usage: Used to prepare segment information for the financial statements.
+        relationshipContext: Several profit centres may make up one segment.
+    - name: validFrom
+      type: date
+      required: true
+      help:
+        summary: The first day transactions may be assigned to it.
+        usage: Set when it is created.
+        relationshipContext: Not later than the valid-to date.
+    - name: validTo
+      type: date
+      required: false
+      help:
+        summary: The last day transactions may be assigned to it.
+        usage: Set when it is closed.
+        relationshipContext: Empty while open.
+    - name: status
+      type: enum
+      required: true
+      default: ACTIVE
+      values:
+        - ACTIVE
+        - CLOSED
+      help:
+        summary: Says whether new transactions may still be assigned to this profit centre.
+        usage: Moved on by controlling when a centre is opened or retired.
+        relationshipContext: Closed profit centres are not offered in selection lists.
+        valueSemantics:
+          ACTIVE: Open and available when assigning revenue and costs.
+          CLOSED: Retired and kept only so past reports stay readable.
   relationships:
     - {name: organization, target: Organization, cardinality: '1', ownership: reference, help: {summary: The organisation the profit centre belongs to., usage: Chosen when it is created., cardinalityMeaning: Exactly one organisation., workflowRole: Keeps profit analysis within the right company.}}
+    - name: manager
+      target: Person
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The manager responsible for the profit centre's results.
+        usage: Receives its reports.
+        cardinalityMeaning: One per profit centre.
+        context: Accountable for its margin.
+    - name: parentProfitCenter
+      target: ProfitCenter
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The profit centre it rolls up into.
+        usage: Builds the reporting hierarchy.
+        cardinalityMeaning: At most one parent.
+        context: Cannot be itself.
   invariants:
     - {id: PROFITCENTER-001, rule: The record must not directly create or rewrite actual JournalEntry evidence.}
+    - id: PROFIT-CENTER-001
+      rule: A Profit Center must not be its own ancestor through parentProfitCenter; the parentProfitCenter chain is acyclic.
+    - {id: PROFIT-CENTER-EXE-001, rule: "Valid To must not be earlier than valid from.", violatedWhen: "valid_from != null and valid_to != null and valid_to < valid_from", message: "Valid To cannot be earlier than valid from."}
   help:
     summary: A responsibility centre used to analyse revenue, cost and profit independently of the legal accounts.
     businessMeaning: A profit centre lets management see how a part of the business performs, such as a product line or region, whatever legal entity or account the money passes through. It supports management reporting only and never rewrites accounting entries.
@@ -20,4 +85,17 @@ entity:
     relationshipContext: A profit centre belongs to one organisation.
     lifecycle: A profit centre is created, used while it is reported on, and left unused when the unit closes. Existing analysis keeps it.
     example: The "Northern Region" profit centre reports revenue and cost for all sales and branches in that region.
+  lifecycle:
+    title: Profit Center Lifecycle
+    attribute: status
+    states:
+      - ACTIVE
+      - CLOSED
+    initial: ACTIVE
+    terminal:
+      - CLOSED
+    transitions:
+      - from: ACTIVE
+        to: CLOSED
+        action: close
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-PROFIT-CENTER}
