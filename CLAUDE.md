@@ -1252,6 +1252,18 @@ bun run generate:tanstack -- -i examples/drug-discovery.eml.yaml -o out -n drug-
   Chromium). `bun run wasm` runs the Rust generator built for `wasm32-wasip1`
   (`bun run build:wasm`), hosted on Node's WASI because Bun's traps; parity
   holds it byte-identical to the native build.
+- **Node's WebAssembly host turns off fast API calls, and has to.** `scripts/appwithai-wasm.mjs`
+  runs the Rust generator on Node's WASI. On Node 22 (V8 12.4) `fd_write` allocates a
+  buffer as large as the write, V8 accounts it as external memory and runs a full
+  garbage collection *inside* a Wasm "fast API call", then walks the optimised frame it
+  was called from and segfaults (`IterateTurbofanOptimizedFrame`, found with `gdb`).
+  Any one large write does it — the `common` application's 790 KB lowering, or a big
+  generated file — so a small model never crashed and a library this size did, about two
+  runs in three, as `SIGSEGV` after nearly all of the output. The parity script then says
+  "WebAssembly failed" over a full JSON dump with no difference in it. The host sets
+  `--no-turbo-fast-api-calls` before compiling the module (0 crashes in 38 runs across
+  both workloads). `--liftoff-only` and `--single-threaded` are not fixes: each helped one
+  workload and made the other worse, because they only move where the collection lands.
 - **A saga's `trigger` and `operation` are keys on the saga**, defaulting to
   `automatic` / `CREATE`, with operation aliases (`INSERT`, `edit`, `*`)
   normalised as `rbac`'s are (`sagaOperation` / `sagaTrigger`,

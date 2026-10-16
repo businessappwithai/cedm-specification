@@ -33,7 +33,19 @@ import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import v8 from "node:v8";
 import { WASI } from "node:wasi";
+
+// Node's WASI `fd_write` allocates a buffer as large as the write, which makes V8
+// account external memory and run a full garbage collection *inside* a Wasm "fast
+// API call". V8 then walks the optimised Wasm frame it was called from and
+// segfaults in `IterateTurbofanOptimizedFrame` (Node 22, V8 12.4). Any single large
+// write triggers it — a 790 KB JSON line, or a big generated file — which is why a
+// small model never crashed and a library this size did, about two runs in three.
+// Without fast API calls the same call takes the path a collection can interrupt.
+// Set before the module is compiled; `--liftoff-only` and `--single-threaded` each
+// help one workload and make the other worse, because they only move the crash.
+v8.setFlagsFromString("--no-turbo-fast-api-calls");
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const DEFAULT_MODULE = path.join(ROOT, "target/wasm32-wasip1/release/appwithai.wasm");
