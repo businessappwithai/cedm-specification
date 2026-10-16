@@ -320,19 +320,19 @@ ON CONFLICT DO NOTHING;
 
 -- Attachment (bus_attachment)
 INSERT INTO bus_attachment (id, effective_at, file_name, media_type, size_bytes, storage_location, checksum, record_type, record_id, category, description, uploaded_at, status, uploaded_by_id, doc_status, created_at, updated_at)
-VALUES ('40c5cd09-e766-5523-8d91-3bea55b1c02a', NULL, 'Attachment 1', 'Media Type 1', 1, 'Storage Location 1', 'Checksum 1', 'Record Type 1', NULL, 'Category 1', 'Description 1', '2026-01-15T09:00:00Z', 'ACTIVE', '61b1758c-ecd5-539b-9b7d-d898b79c5c3d', 'final', NOW(), NOW())
+VALUES ('40c5cd09-e766-5523-8d91-3bea55b1c02a', NULL, 'Attachment 1', 'Media Type 1', 1, 'Storage Location 1', 'Checksum 1', 'Record Type 1', 'Record Id 1', 'Category 1', 'Description 1', '2026-01-15T09:00:00Z', 'ACTIVE', '61b1758c-ecd5-539b-9b7d-d898b79c5c3d', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_attachment (id, effective_at, file_name, media_type, size_bytes, storage_location, checksum, record_type, record_id, category, description, uploaded_at, status, uploaded_by_id, doc_status, created_at, updated_at)
-VALUES ('ecb497e0-4dab-5aeb-8858-5ce4294b891e', NULL, 'Attachment 2', 'Media Type 2', 2, 'Storage Location 2', 'Checksum 2', 'Record Type 2', NULL, 'Category 2', 'Description 2', '2026-02-15T09:00:00Z', 'ACTIVE', '61309c0a-b6b8-5520-aae5-f506cdb03252', 'final', NOW(), NOW())
+VALUES ('ecb497e0-4dab-5aeb-8858-5ce4294b891e', NULL, 'Attachment 2', 'Media Type 2', 2, 'Storage Location 2', 'Checksum 2', 'Record Type 2', 'Record Id 2', 'Category 2', 'Description 2', '2026-02-15T09:00:00Z', 'ACTIVE', '61309c0a-b6b8-5520-aae5-f506cdb03252', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_attachment (id, effective_at, file_name, media_type, size_bytes, storage_location, checksum, record_type, record_id, category, description, uploaded_at, status, uploaded_by_id, doc_status, created_at, updated_at)
-VALUES ('164b417f-4ee6-5822-8ea7-b361c7fe5fea', NULL, 'Attachment 3', 'Media Type 3', 3, 'Storage Location 3', 'Checksum 3', 'Record Type 3', NULL, 'Category 3', 'Description 3', '2026-03-15T09:00:00Z', 'ACTIVE', '85184754-5089-578a-8221-3e2d657c342a', 'final', NOW(), NOW())
+VALUES ('164b417f-4ee6-5822-8ea7-b361c7fe5fea', NULL, 'Attachment 3', 'Media Type 3', 3, 'Storage Location 3', 'Checksum 3', 'Record Type 3', 'Record Id 3', 'Category 3', 'Description 3', '2026-03-15T09:00:00Z', 'ACTIVE', '85184754-5089-578a-8221-3e2d657c342a', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_attachment (id, effective_at, file_name, media_type, size_bytes, storage_location, checksum, record_type, record_id, category, description, uploaded_at, status, uploaded_by_id, doc_status, created_at, updated_at)
-VALUES ('63120b58-79c4-5fa2-bca8-1669727304aa', NULL, 'Attachment 4', 'Media Type 4', 4, 'Storage Location 4', 'Checksum 4', 'Record Type 4', NULL, 'Category 4', 'Description 4', '2026-04-15T09:00:00Z', 'ACTIVE', '1e18eb44-a55c-5a65-a421-1d50dae07335', 'final', NOW(), NOW())
+VALUES ('63120b58-79c4-5fa2-bca8-1669727304aa', NULL, 'Attachment 4', 'Media Type 4', 4, 'Storage Location 4', 'Checksum 4', 'Record Type 4', 'Record Id 4', 'Category 4', 'Description 4', '2026-04-15T09:00:00Z', 'ACTIVE', '1e18eb44-a55c-5a65-a421-1d50dae07335', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_attachment (id, effective_at, file_name, media_type, size_bytes, storage_location, checksum, record_type, record_id, category, description, uploaded_at, status, uploaded_by_id, doc_status, created_at, updated_at)
-VALUES ('3d2c8ae4-1f0e-5d7d-ad84-ecb2c6e044d6', NULL, 'Attachment 5', 'Media Type 5', 5, 'Storage Location 5', 'Checksum 5', 'Record Type 5', NULL, 'Category 5', 'Description 5', '2026-05-15T09:00:00Z', 'ACTIVE', 'e68bcb5a-0775-5e6e-95e7-771a1a07d94e', 'final', NOW(), NOW())
+VALUES ('3d2c8ae4-1f0e-5d7d-ad84-ecb2c6e044d6', NULL, 'Attachment 5', 'Media Type 5', 5, 'Storage Location 5', 'Checksum 5', 'Record Type 5', 'Record Id 5', 'Category 5', 'Description 5', '2026-05-15T09:00:00Z', 'ACTIVE', 'e68bcb5a-0775-5e6e-95e7-771a1a07d94e', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
 -- Task (bus_task)

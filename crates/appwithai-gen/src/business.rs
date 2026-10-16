@@ -280,11 +280,19 @@ fn value_for(
     }
 
     if attribute.is_foreign_key || column.ends_with("_id") || column.ends_with("_by") {
-        return match foreign_key_target_table(column, tables, attribute.references_table.as_deref())
+        if let Some(target) =
+            foreign_key_target_table(column, tables, attribute.references_table.as_deref())
         {
-            Some(target) => text(row_id(&target, index % rows)),
-            None => Sql::Null,
-        };
+            return text(row_id(&target, index % rows));
+        }
+        // NULL rather than a uuid that joins to nothing. But a required column that only
+        // ends in `_id` and was never declared a foreign key is not a lookup at all:
+        // `Attachment.recordId` holds the id of whichever record the file is attached to,
+        // so there is no table to point at, and NULL fails its NOT NULL and the whole
+        // seed with it. It takes a value from its type.
+        if attribute.is_foreign_key || !attribute.required {
+            return Sql::Null;
+        }
     }
 
     match attribute.reference_id {
@@ -807,6 +815,50 @@ relationships:
             sql.matches("NULL").count() >= DEMONSTRATION_ROWS,
             "an optional date should be NULL rather than assert an event happened"
         );
+    }
+
+    #[test]
+    fn a_required_id_column_that_is_not_a_foreign_key_gets_a_value() {
+        // `Attachment.record_id` is the id of whichever record the file is attached to.
+        // Nothing is named `bus_record`, so it points at no table, and writing NULL there
+        // broke its NOT NULL and with it the whole seed.
+        let parsed = test_model(
+            r#"eml: "1.0"
+entities:
+  - name: Attachment
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: file_name
+        type: string
+      - name: record_id
+        type: string
+      - name: batch_id
+        type: string
+        optional: true
+"#,
+        );
+        let declared = crate::bus::declared_entity_names(&parsed.entities);
+        let entities: Vec<BusEntity> = parsed
+            .entities
+            .iter()
+            .map(|entity| entity_to_bus_entity(entity, &declared))
+            .collect();
+        let sql = build_business_seed_sql(&BusinessSeedOptions {
+            project_name: "acme",
+            entities: &entities,
+            relationships: &parsed.relationships,
+            workflows: &[],
+            model_enums: &parsed.enums,
+            rows_per_entity: DEMONSTRATION_ROWS,
+        });
+        let rows: Vec<&str> = sql.lines().filter(|l| l.starts_with("VALUES (")).collect();
+        assert_eq!(rows.len(), DEMONSTRATION_ROWS);
+        for row in rows {
+            // Exactly one NULL per row: the optional batch_id, and nothing required.
+            assert_eq!(row.matches("NULL").count(), 1, "{row}");
+        }
     }
 
     #[test]

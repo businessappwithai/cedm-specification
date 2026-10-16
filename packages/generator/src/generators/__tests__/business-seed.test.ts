@@ -160,6 +160,43 @@ describe("the business demonstration seed", () => {
     }
   });
 
+  it("gives a required column that merely ends in _id a value, and leaves an optional one empty", () => {
+    // `Attachment.record_id` is the id of whichever record the file is attached
+    // to. Nothing is named `bus_record`, so it points at no table, and writing
+    // NULL there broke the NOT NULL constraint and with it the whole seed: every
+    // request test of the application failed to sign in.
+    const parsed = compileYaml(`eml: "1.0"
+entities:
+  - name: Attachment
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: file_name
+        type: string
+      - name: record_id
+        type: string
+      - name: batch_id
+        type: string
+        optional: true
+`);
+    const declared = declaredEntityNames(parsed.entities);
+    const sql = buildBusinessSeedSql({
+      projectName: "acme",
+      entities: parsed.entities.map((entity) => entityToBusEntity(entity, declared)),
+      relationships: parsed.relationships,
+      workflows: [],
+      modelEnums: parsed.enums,
+      rowsPerEntity: ROWS,
+    });
+    const rows = sql.split("\n").filter((line) => line.startsWith("VALUES ("));
+    expect(rows).toHaveLength(ROWS);
+    for (const row of rows) {
+      // Exactly one NULL per row: the optional batch_id, and nothing required.
+      expect(row.match(/NULL/g)).toHaveLength(1);
+    }
+  });
+
   it("is stable and re-runnable", () => {
     const first = seed();
     expect(first).toEqual(seed());

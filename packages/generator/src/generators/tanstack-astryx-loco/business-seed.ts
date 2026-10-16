@@ -243,10 +243,14 @@ function valueFor(attribute: BusEntityAttribute, context: ValueContext): SqlValu
 
   if (attribute.isForeignKey || isReferenceColumn(column)) {
     const target = foreignKeyTargetTable(column, context.tables, attribute.referencesTable);
+    if (target) return context.rowId(target, index % context.rows);
     // NULL rather than a uuid that joins to nothing: an empty lookup reads as
-    // "not set", a dangling one reads as corruption.
-    if (!target) return null;
-    return context.rowId(target, index % context.rows);
+    // "not set", a dangling one reads as corruption. But a *required* column that
+    // only ends in `_id` and was never declared a foreign key is not a lookup at
+    // all: `Attachment.recordId` holds the identifier of whichever record the file
+    // is attached to, so there is no table to point at, and NULL there fails its
+    // NOT NULL and with it the whole seed. It takes a value from its type.
+    if (attribute.isForeignKey || !attribute.required) return null;
   }
 
   // The control the dictionary stamped on this column, which is the same answer
