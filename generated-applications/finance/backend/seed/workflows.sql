@@ -821,6 +821,122 @@ ON CONFLICT (name) DO UPDATE SET
 
 INSERT INTO sys_workflow_definitions
   (name, entity_name, operation, trigger_type, bpmn_xml, description, is_active, is_model_managed, created_at, updated_at)
+VALUES ('ForecastApprovalRequested', 'bus_forecast', 'UPDATE',
+        'rule', '<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+  xmlns:appwithai="http://appwithai.io/schema/1.0"
+  id="Definitions_ForecastApprovalRequested"
+  targetNamespace="http://appwithai.io/bpmn">
+  <bpmn:process id="Process_ForecastApprovalRequested" isExecutable="true">
+    <bpmn:startEvent id="Process_ForecastApprovalRequested_start"/>
+    <bpmn:serviceTask id="Process_ForecastApprovalRequested_S1" name="Raise a task: decide on">
+      <bpmn:extensionElements>
+        <appwithai:properties>
+        <appwithai:property name="nodeType" value="CreateEntity"/>
+        <appwithai:property name="entity" value="bus_task"/>
+        <appwithai:property name="as" value="taskId"/>
+        <appwithai:property name="fields" value="{&quot;code&quot;:&quot;FORECAST-APPROVAL-{{id}}&quot;,&quot;name&quot;:&quot;Decide on forecast {{name}}&quot;,&quot;description&quot;:&quot;Forecast {{name}} is now {{status}}. Approve it, return it for change or reject it; the move you make is recorded on the record.&quot;,&quot;task_type&quot;:&quot;APPROVAL&quot;,&quot;status&quot;:&quot;CREATED&quot;,&quot;priority&quot;:&quot;NORMAL&quot;}"/>
+        </appwithai:properties>
+      </bpmn:extensionElements>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="Process_ForecastApprovalRequested_end"/>
+    <bpmn:sequenceFlow id="Process_ForecastApprovalRequested_flow_0" sourceRef="Process_ForecastApprovalRequested_start" targetRef="Process_ForecastApprovalRequested_S1"/>
+    <bpmn:sequenceFlow id="Process_ForecastApprovalRequested_flow_1" sourceRef="Process_ForecastApprovalRequested_S1" targetRef="Process_ForecastApprovalRequested_end"/>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Process_ForecastApprovalRequested">
+    <bpmndi:BPMNPlane id="BPMNPlane_Process_ForecastApprovalRequested" bpmnElement="Process_ForecastApprovalRequested">
+      <bpmndi:BPMNShape id="Process_ForecastApprovalRequested_start_di" bpmnElement="Process_ForecastApprovalRequested_start">
+        <dc:Bounds x="160" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_ForecastApprovalRequested_S1_di" bpmnElement="Process_ForecastApprovalRequested_S1">
+        <dc:Bounds x="256" y="100" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_ForecastApprovalRequested_end_di" bpmnElement="Process_ForecastApprovalRequested_end">
+        <dc:Bounds x="456" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Process_ForecastApprovalRequested_flow_0_di" bpmnElement="Process_ForecastApprovalRequested_flow_0">
+        <di:waypoint x="196" y="140"/>
+        <di:waypoint x="256" y="140"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Process_ForecastApprovalRequested_flow_1_di" bpmnElement="Process_ForecastApprovalRequested_flow_1">
+        <di:waypoint x="396" y="140"/>
+        <di:waypoint x="456" y="140"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>', 'When a forecast is submitted, a task asks someone to decide on it.', TRUE, TRUE, NOW(), NOW())
+ON CONFLICT (name) DO UPDATE SET
+  entity_name      = EXCLUDED.entity_name,
+  operation        = EXCLUDED.operation,
+  trigger_type     = EXCLUDED.trigger_type,
+  bpmn_xml         = EXCLUDED.bpmn_xml,
+  description      = EXCLUDED.description,
+  is_model_managed = TRUE,
+  updated_at       = NOW();
+
+INSERT INTO sys_workflow_definitions
+  (name, entity_name, operation, trigger_type, bpmn_xml, description, is_active, is_model_managed, created_at, updated_at)
+VALUES ('CostCenterExceptionRaised', 'bus_cost_center', 'UPDATE',
+        'rule', '<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+  xmlns:appwithai="http://appwithai.io/schema/1.0"
+  id="Definitions_CostCenterExceptionRaised"
+  targetNamespace="http://appwithai.io/bpmn">
+  <bpmn:process id="Process_CostCenterExceptionRaised" isExecutable="true">
+    <bpmn:startEvent id="Process_CostCenterExceptionRaised_start"/>
+    <bpmn:serviceTask id="Process_CostCenterExceptionRaised_S1" name="Raise a task: resolve">
+      <bpmn:extensionElements>
+        <appwithai:properties>
+        <appwithai:property name="nodeType" value="CreateEntity"/>
+        <appwithai:property name="entity" value="bus_task"/>
+        <appwithai:property name="as" value="taskId"/>
+        <appwithai:property name="fields" value="{&quot;code&quot;:&quot;COST-CENTER-EXCEPTION-{{id}}&quot;,&quot;name&quot;:&quot;Resolve cost center {{name}}&quot;,&quot;description&quot;:&quot;Cost center {{name}} is now {{status}}. Find out why it stopped and move it on or close it.&quot;,&quot;task_type&quot;:&quot;USER&quot;,&quot;status&quot;:&quot;CREATED&quot;,&quot;priority&quot;:&quot;HIGH&quot;}"/>
+        </appwithai:properties>
+      </bpmn:extensionElements>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="Process_CostCenterExceptionRaised_end"/>
+    <bpmn:sequenceFlow id="Process_CostCenterExceptionRaised_flow_0" sourceRef="Process_CostCenterExceptionRaised_start" targetRef="Process_CostCenterExceptionRaised_S1"/>
+    <bpmn:sequenceFlow id="Process_CostCenterExceptionRaised_flow_1" sourceRef="Process_CostCenterExceptionRaised_S1" targetRef="Process_CostCenterExceptionRaised_end"/>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Process_CostCenterExceptionRaised">
+    <bpmndi:BPMNPlane id="BPMNPlane_Process_CostCenterExceptionRaised" bpmnElement="Process_CostCenterExceptionRaised">
+      <bpmndi:BPMNShape id="Process_CostCenterExceptionRaised_start_di" bpmnElement="Process_CostCenterExceptionRaised_start">
+        <dc:Bounds x="160" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_CostCenterExceptionRaised_S1_di" bpmnElement="Process_CostCenterExceptionRaised_S1">
+        <dc:Bounds x="256" y="100" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_CostCenterExceptionRaised_end_di" bpmnElement="Process_CostCenterExceptionRaised_end">
+        <dc:Bounds x="456" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Process_CostCenterExceptionRaised_flow_0_di" bpmnElement="Process_CostCenterExceptionRaised_flow_0">
+        <di:waypoint x="196" y="140"/>
+        <di:waypoint x="256" y="140"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Process_CostCenterExceptionRaised_flow_1_di" bpmnElement="Process_CostCenterExceptionRaised_flow_1">
+        <di:waypoint x="396" y="140"/>
+        <di:waypoint x="456" y="140"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>', 'When a cost center is blocked, a high-priority task asks someone to resolve it.', TRUE, TRUE, NOW(), NOW())
+ON CONFLICT (name) DO UPDATE SET
+  entity_name      = EXCLUDED.entity_name,
+  operation        = EXCLUDED.operation,
+  trigger_type     = EXCLUDED.trigger_type,
+  bpmn_xml         = EXCLUDED.bpmn_xml,
+  description      = EXCLUDED.description,
+  is_model_managed = TRUE,
+  updated_at       = NOW();
+
+INSERT INTO sys_workflow_definitions
+  (name, entity_name, operation, trigger_type, bpmn_xml, description, is_active, is_model_managed, created_at, updated_at)
 VALUES ('LedgerFollowUpRequired', 'bus_ledger', 'UPDATE',
         'rule', '<?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
@@ -1854,6 +1970,528 @@ VALUES ('UsageRecordFollowUpRequired', 'bus_usage_record', 'UPDATE',
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
 </bpmn:definitions>', 'When a usage record is cancelled, a task asks someone to settle what depended on it.', TRUE, TRUE, NOW(), NOW())
+ON CONFLICT (name) DO UPDATE SET
+  entity_name      = EXCLUDED.entity_name,
+  operation        = EXCLUDED.operation,
+  trigger_type     = EXCLUDED.trigger_type,
+  bpmn_xml         = EXCLUDED.bpmn_xml,
+  description      = EXCLUDED.description,
+  is_model_managed = TRUE,
+  updated_at       = NOW();
+
+INSERT INTO sys_workflow_definitions
+  (name, entity_name, operation, trigger_type, bpmn_xml, description, is_active, is_model_managed, created_at, updated_at)
+VALUES ('AssetAcquisitionFollowUpRequired', 'bus_asset_acquisition', 'UPDATE',
+        'rule', '<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+  xmlns:appwithai="http://appwithai.io/schema/1.0"
+  id="Definitions_AssetAcquisitionFollowUpRequired"
+  targetNamespace="http://appwithai.io/bpmn">
+  <bpmn:process id="Process_AssetAcquisitionFollowUpRequired" isExecutable="true">
+    <bpmn:startEvent id="Process_AssetAcquisitionFollowUpRequired_start"/>
+    <bpmn:serviceTask id="Process_AssetAcquisitionFollowUpRequired_S1" name="Raise a task: follow up on">
+      <bpmn:extensionElements>
+        <appwithai:properties>
+        <appwithai:property name="nodeType" value="CreateEntity"/>
+        <appwithai:property name="entity" value="bus_task"/>
+        <appwithai:property name="as" value="taskId"/>
+        <appwithai:property name="fields" value="{&quot;code&quot;:&quot;ASSET-ACQUISITION-FOLLOW-UP-{{id}}&quot;,&quot;name&quot;:&quot;Follow up on asset acquisition {{acquisition_number}}&quot;,&quot;description&quot;:&quot;Asset acquisition {{acquisition_number}} is now {{status}}. Check the records that depended on it and tell the people affected.&quot;,&quot;task_type&quot;:&quot;USER&quot;,&quot;status&quot;:&quot;CREATED&quot;,&quot;priority&quot;:&quot;NORMAL&quot;}"/>
+        </appwithai:properties>
+      </bpmn:extensionElements>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="Process_AssetAcquisitionFollowUpRequired_end"/>
+    <bpmn:sequenceFlow id="Process_AssetAcquisitionFollowUpRequired_flow_0" sourceRef="Process_AssetAcquisitionFollowUpRequired_start" targetRef="Process_AssetAcquisitionFollowUpRequired_S1"/>
+    <bpmn:sequenceFlow id="Process_AssetAcquisitionFollowUpRequired_flow_1" sourceRef="Process_AssetAcquisitionFollowUpRequired_S1" targetRef="Process_AssetAcquisitionFollowUpRequired_end"/>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Process_AssetAcquisitionFollowUpRequired">
+    <bpmndi:BPMNPlane id="BPMNPlane_Process_AssetAcquisitionFollowUpRequired" bpmnElement="Process_AssetAcquisitionFollowUpRequired">
+      <bpmndi:BPMNShape id="Process_AssetAcquisitionFollowUpRequired_start_di" bpmnElement="Process_AssetAcquisitionFollowUpRequired_start">
+        <dc:Bounds x="160" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_AssetAcquisitionFollowUpRequired_S1_di" bpmnElement="Process_AssetAcquisitionFollowUpRequired_S1">
+        <dc:Bounds x="256" y="100" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_AssetAcquisitionFollowUpRequired_end_di" bpmnElement="Process_AssetAcquisitionFollowUpRequired_end">
+        <dc:Bounds x="456" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Process_AssetAcquisitionFollowUpRequired_flow_0_di" bpmnElement="Process_AssetAcquisitionFollowUpRequired_flow_0">
+        <di:waypoint x="196" y="140"/>
+        <di:waypoint x="256" y="140"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Process_AssetAcquisitionFollowUpRequired_flow_1_di" bpmnElement="Process_AssetAcquisitionFollowUpRequired_flow_1">
+        <di:waypoint x="396" y="140"/>
+        <di:waypoint x="456" y="140"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>', 'When a asset acquisition is cancelled or reversed, a task asks someone to settle what depended on it.', TRUE, TRUE, NOW(), NOW())
+ON CONFLICT (name) DO UPDATE SET
+  entity_name      = EXCLUDED.entity_name,
+  operation        = EXCLUDED.operation,
+  trigger_type     = EXCLUDED.trigger_type,
+  bpmn_xml         = EXCLUDED.bpmn_xml,
+  description      = EXCLUDED.description,
+  is_model_managed = TRUE,
+  updated_at       = NOW();
+
+INSERT INTO sys_workflow_definitions
+  (name, entity_name, operation, trigger_type, bpmn_xml, description, is_active, is_model_managed, created_at, updated_at)
+VALUES ('AssetDisposalApprovalRequested', 'bus_asset_disposal', 'UPDATE',
+        'rule', '<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+  xmlns:appwithai="http://appwithai.io/schema/1.0"
+  id="Definitions_AssetDisposalApprovalRequested"
+  targetNamespace="http://appwithai.io/bpmn">
+  <bpmn:process id="Process_AssetDisposalApprovalRequested" isExecutable="true">
+    <bpmn:startEvent id="Process_AssetDisposalApprovalRequested_start"/>
+    <bpmn:serviceTask id="Process_AssetDisposalApprovalRequested_S1" name="Raise a task: decide on">
+      <bpmn:extensionElements>
+        <appwithai:properties>
+        <appwithai:property name="nodeType" value="CreateEntity"/>
+        <appwithai:property name="entity" value="bus_task"/>
+        <appwithai:property name="as" value="taskId"/>
+        <appwithai:property name="fields" value="{&quot;code&quot;:&quot;ASSET-DISPOSAL-APPROVAL-{{id}}&quot;,&quot;name&quot;:&quot;Decide on asset disposal {{disposal_number}}&quot;,&quot;description&quot;:&quot;Asset disposal {{disposal_number}} is now {{status}}. Approve it, return it for change or reject it; the move you make is recorded on the record.&quot;,&quot;task_type&quot;:&quot;APPROVAL&quot;,&quot;status&quot;:&quot;CREATED&quot;,&quot;priority&quot;:&quot;NORMAL&quot;}"/>
+        </appwithai:properties>
+      </bpmn:extensionElements>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="Process_AssetDisposalApprovalRequested_end"/>
+    <bpmn:sequenceFlow id="Process_AssetDisposalApprovalRequested_flow_0" sourceRef="Process_AssetDisposalApprovalRequested_start" targetRef="Process_AssetDisposalApprovalRequested_S1"/>
+    <bpmn:sequenceFlow id="Process_AssetDisposalApprovalRequested_flow_1" sourceRef="Process_AssetDisposalApprovalRequested_S1" targetRef="Process_AssetDisposalApprovalRequested_end"/>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Process_AssetDisposalApprovalRequested">
+    <bpmndi:BPMNPlane id="BPMNPlane_Process_AssetDisposalApprovalRequested" bpmnElement="Process_AssetDisposalApprovalRequested">
+      <bpmndi:BPMNShape id="Process_AssetDisposalApprovalRequested_start_di" bpmnElement="Process_AssetDisposalApprovalRequested_start">
+        <dc:Bounds x="160" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_AssetDisposalApprovalRequested_S1_di" bpmnElement="Process_AssetDisposalApprovalRequested_S1">
+        <dc:Bounds x="256" y="100" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_AssetDisposalApprovalRequested_end_di" bpmnElement="Process_AssetDisposalApprovalRequested_end">
+        <dc:Bounds x="456" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Process_AssetDisposalApprovalRequested_flow_0_di" bpmnElement="Process_AssetDisposalApprovalRequested_flow_0">
+        <di:waypoint x="196" y="140"/>
+        <di:waypoint x="256" y="140"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Process_AssetDisposalApprovalRequested_flow_1_di" bpmnElement="Process_AssetDisposalApprovalRequested_flow_1">
+        <di:waypoint x="396" y="140"/>
+        <di:waypoint x="456" y="140"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>', 'When a asset disposal is requested, a task asks someone to decide on it.', TRUE, TRUE, NOW(), NOW())
+ON CONFLICT (name) DO UPDATE SET
+  entity_name      = EXCLUDED.entity_name,
+  operation        = EXCLUDED.operation,
+  trigger_type     = EXCLUDED.trigger_type,
+  bpmn_xml         = EXCLUDED.bpmn_xml,
+  description      = EXCLUDED.description,
+  is_model_managed = TRUE,
+  updated_at       = NOW();
+
+INSERT INTO sys_workflow_definitions
+  (name, entity_name, operation, trigger_type, bpmn_xml, description, is_active, is_model_managed, created_at, updated_at)
+VALUES ('AssetDisposalFollowUpRequired', 'bus_asset_disposal', 'UPDATE',
+        'rule', '<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+  xmlns:appwithai="http://appwithai.io/schema/1.0"
+  id="Definitions_AssetDisposalFollowUpRequired"
+  targetNamespace="http://appwithai.io/bpmn">
+  <bpmn:process id="Process_AssetDisposalFollowUpRequired" isExecutable="true">
+    <bpmn:startEvent id="Process_AssetDisposalFollowUpRequired_start"/>
+    <bpmn:serviceTask id="Process_AssetDisposalFollowUpRequired_S1" name="Raise a task: follow up on">
+      <bpmn:extensionElements>
+        <appwithai:properties>
+        <appwithai:property name="nodeType" value="CreateEntity"/>
+        <appwithai:property name="entity" value="bus_task"/>
+        <appwithai:property name="as" value="taskId"/>
+        <appwithai:property name="fields" value="{&quot;code&quot;:&quot;ASSET-DISPOSAL-FOLLOW-UP-{{id}}&quot;,&quot;name&quot;:&quot;Follow up on asset disposal {{disposal_number}}&quot;,&quot;description&quot;:&quot;Asset disposal {{disposal_number}} is now {{status}}. Check the records that depended on it and tell the people affected.&quot;,&quot;task_type&quot;:&quot;USER&quot;,&quot;status&quot;:&quot;CREATED&quot;,&quot;priority&quot;:&quot;NORMAL&quot;}"/>
+        </appwithai:properties>
+      </bpmn:extensionElements>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="Process_AssetDisposalFollowUpRequired_end"/>
+    <bpmn:sequenceFlow id="Process_AssetDisposalFollowUpRequired_flow_0" sourceRef="Process_AssetDisposalFollowUpRequired_start" targetRef="Process_AssetDisposalFollowUpRequired_S1"/>
+    <bpmn:sequenceFlow id="Process_AssetDisposalFollowUpRequired_flow_1" sourceRef="Process_AssetDisposalFollowUpRequired_S1" targetRef="Process_AssetDisposalFollowUpRequired_end"/>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Process_AssetDisposalFollowUpRequired">
+    <bpmndi:BPMNPlane id="BPMNPlane_Process_AssetDisposalFollowUpRequired" bpmnElement="Process_AssetDisposalFollowUpRequired">
+      <bpmndi:BPMNShape id="Process_AssetDisposalFollowUpRequired_start_di" bpmnElement="Process_AssetDisposalFollowUpRequired_start">
+        <dc:Bounds x="160" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_AssetDisposalFollowUpRequired_S1_di" bpmnElement="Process_AssetDisposalFollowUpRequired_S1">
+        <dc:Bounds x="256" y="100" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_AssetDisposalFollowUpRequired_end_di" bpmnElement="Process_AssetDisposalFollowUpRequired_end">
+        <dc:Bounds x="456" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Process_AssetDisposalFollowUpRequired_flow_0_di" bpmnElement="Process_AssetDisposalFollowUpRequired_flow_0">
+        <di:waypoint x="196" y="140"/>
+        <di:waypoint x="256" y="140"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Process_AssetDisposalFollowUpRequired_flow_1_di" bpmnElement="Process_AssetDisposalFollowUpRequired_flow_1">
+        <di:waypoint x="396" y="140"/>
+        <di:waypoint x="456" y="140"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>', 'When a asset disposal is rejected or cancelled, a task asks someone to settle what depended on it.', TRUE, TRUE, NOW(), NOW())
+ON CONFLICT (name) DO UPDATE SET
+  entity_name      = EXCLUDED.entity_name,
+  operation        = EXCLUDED.operation,
+  trigger_type     = EXCLUDED.trigger_type,
+  bpmn_xml         = EXCLUDED.bpmn_xml,
+  description      = EXCLUDED.description,
+  is_model_managed = TRUE,
+  updated_at       = NOW();
+
+INSERT INTO sys_workflow_definitions
+  (name, entity_name, operation, trigger_type, bpmn_xml, description, is_active, is_model_managed, created_at, updated_at)
+VALUES ('AssetDisposalCompletionConfirmed', 'bus_asset_disposal', 'UPDATE',
+        'rule', '<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+  xmlns:appwithai="http://appwithai.io/schema/1.0"
+  id="Definitions_AssetDisposalCompletionConfirmed"
+  targetNamespace="http://appwithai.io/bpmn">
+  <bpmn:process id="Process_AssetDisposalCompletionConfirmed" isExecutable="true">
+    <bpmn:startEvent id="Process_AssetDisposalCompletionConfirmed_start"/>
+    <bpmn:serviceTask id="Process_AssetDisposalCompletionConfirmed_S1" name="Raise a task: confirm">
+      <bpmn:extensionElements>
+        <appwithai:properties>
+        <appwithai:property name="nodeType" value="CreateEntity"/>
+        <appwithai:property name="entity" value="bus_task"/>
+        <appwithai:property name="as" value="taskId"/>
+        <appwithai:property name="fields" value="{&quot;code&quot;:&quot;ASSET-DISPOSAL-COMPLETED-{{id}}&quot;,&quot;name&quot;:&quot;Confirm asset disposal {{disposal_number}}&quot;,&quot;description&quot;:&quot;Asset disposal {{disposal_number}} is now {{status}}. Check the outcome is what was agreed and close any open items.&quot;,&quot;task_type&quot;:&quot;USER&quot;,&quot;status&quot;:&quot;CREATED&quot;,&quot;priority&quot;:&quot;LOW&quot;}"/>
+        </appwithai:properties>
+      </bpmn:extensionElements>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="Process_AssetDisposalCompletionConfirmed_end"/>
+    <bpmn:sequenceFlow id="Process_AssetDisposalCompletionConfirmed_flow_0" sourceRef="Process_AssetDisposalCompletionConfirmed_start" targetRef="Process_AssetDisposalCompletionConfirmed_S1"/>
+    <bpmn:sequenceFlow id="Process_AssetDisposalCompletionConfirmed_flow_1" sourceRef="Process_AssetDisposalCompletionConfirmed_S1" targetRef="Process_AssetDisposalCompletionConfirmed_end"/>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Process_AssetDisposalCompletionConfirmed">
+    <bpmndi:BPMNPlane id="BPMNPlane_Process_AssetDisposalCompletionConfirmed" bpmnElement="Process_AssetDisposalCompletionConfirmed">
+      <bpmndi:BPMNShape id="Process_AssetDisposalCompletionConfirmed_start_di" bpmnElement="Process_AssetDisposalCompletionConfirmed_start">
+        <dc:Bounds x="160" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_AssetDisposalCompletionConfirmed_S1_di" bpmnElement="Process_AssetDisposalCompletionConfirmed_S1">
+        <dc:Bounds x="256" y="100" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_AssetDisposalCompletionConfirmed_end_di" bpmnElement="Process_AssetDisposalCompletionConfirmed_end">
+        <dc:Bounds x="456" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Process_AssetDisposalCompletionConfirmed_flow_0_di" bpmnElement="Process_AssetDisposalCompletionConfirmed_flow_0">
+        <di:waypoint x="196" y="140"/>
+        <di:waypoint x="256" y="140"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Process_AssetDisposalCompletionConfirmed_flow_1_di" bpmnElement="Process_AssetDisposalCompletionConfirmed_flow_1">
+        <di:waypoint x="396" y="140"/>
+        <di:waypoint x="456" y="140"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>', 'When a asset disposal is completed, a task asks someone to confirm the outcome.', TRUE, TRUE, NOW(), NOW())
+ON CONFLICT (name) DO UPDATE SET
+  entity_name      = EXCLUDED.entity_name,
+  operation        = EXCLUDED.operation,
+  trigger_type     = EXCLUDED.trigger_type,
+  bpmn_xml         = EXCLUDED.bpmn_xml,
+  description      = EXCLUDED.description,
+  is_model_managed = TRUE,
+  updated_at       = NOW();
+
+INSERT INTO sys_workflow_definitions
+  (name, entity_name, operation, trigger_type, bpmn_xml, description, is_active, is_model_managed, created_at, updated_at)
+VALUES ('AssetTransferApprovalRequested', 'bus_asset_transfer', 'UPDATE',
+        'rule', '<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+  xmlns:appwithai="http://appwithai.io/schema/1.0"
+  id="Definitions_AssetTransferApprovalRequested"
+  targetNamespace="http://appwithai.io/bpmn">
+  <bpmn:process id="Process_AssetTransferApprovalRequested" isExecutable="true">
+    <bpmn:startEvent id="Process_AssetTransferApprovalRequested_start"/>
+    <bpmn:serviceTask id="Process_AssetTransferApprovalRequested_S1" name="Raise a task: decide on">
+      <bpmn:extensionElements>
+        <appwithai:properties>
+        <appwithai:property name="nodeType" value="CreateEntity"/>
+        <appwithai:property name="entity" value="bus_task"/>
+        <appwithai:property name="as" value="taskId"/>
+        <appwithai:property name="fields" value="{&quot;code&quot;:&quot;ASSET-TRANSFER-APPROVAL-{{id}}&quot;,&quot;name&quot;:&quot;Decide on asset transfer {{transfer_number}}&quot;,&quot;description&quot;:&quot;Asset transfer {{transfer_number}} is now {{status}}. Approve it, return it for change or reject it; the move you make is recorded on the record.&quot;,&quot;task_type&quot;:&quot;APPROVAL&quot;,&quot;status&quot;:&quot;CREATED&quot;,&quot;priority&quot;:&quot;NORMAL&quot;}"/>
+        </appwithai:properties>
+      </bpmn:extensionElements>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="Process_AssetTransferApprovalRequested_end"/>
+    <bpmn:sequenceFlow id="Process_AssetTransferApprovalRequested_flow_0" sourceRef="Process_AssetTransferApprovalRequested_start" targetRef="Process_AssetTransferApprovalRequested_S1"/>
+    <bpmn:sequenceFlow id="Process_AssetTransferApprovalRequested_flow_1" sourceRef="Process_AssetTransferApprovalRequested_S1" targetRef="Process_AssetTransferApprovalRequested_end"/>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Process_AssetTransferApprovalRequested">
+    <bpmndi:BPMNPlane id="BPMNPlane_Process_AssetTransferApprovalRequested" bpmnElement="Process_AssetTransferApprovalRequested">
+      <bpmndi:BPMNShape id="Process_AssetTransferApprovalRequested_start_di" bpmnElement="Process_AssetTransferApprovalRequested_start">
+        <dc:Bounds x="160" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_AssetTransferApprovalRequested_S1_di" bpmnElement="Process_AssetTransferApprovalRequested_S1">
+        <dc:Bounds x="256" y="100" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_AssetTransferApprovalRequested_end_di" bpmnElement="Process_AssetTransferApprovalRequested_end">
+        <dc:Bounds x="456" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Process_AssetTransferApprovalRequested_flow_0_di" bpmnElement="Process_AssetTransferApprovalRequested_flow_0">
+        <di:waypoint x="196" y="140"/>
+        <di:waypoint x="256" y="140"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Process_AssetTransferApprovalRequested_flow_1_di" bpmnElement="Process_AssetTransferApprovalRequested_flow_1">
+        <di:waypoint x="396" y="140"/>
+        <di:waypoint x="456" y="140"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>', 'When a asset transfer is requested, a task asks someone to decide on it.', TRUE, TRUE, NOW(), NOW())
+ON CONFLICT (name) DO UPDATE SET
+  entity_name      = EXCLUDED.entity_name,
+  operation        = EXCLUDED.operation,
+  trigger_type     = EXCLUDED.trigger_type,
+  bpmn_xml         = EXCLUDED.bpmn_xml,
+  description      = EXCLUDED.description,
+  is_model_managed = TRUE,
+  updated_at       = NOW();
+
+INSERT INTO sys_workflow_definitions
+  (name, entity_name, operation, trigger_type, bpmn_xml, description, is_active, is_model_managed, created_at, updated_at)
+VALUES ('AssetTransferFollowUpRequired', 'bus_asset_transfer', 'UPDATE',
+        'rule', '<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+  xmlns:appwithai="http://appwithai.io/schema/1.0"
+  id="Definitions_AssetTransferFollowUpRequired"
+  targetNamespace="http://appwithai.io/bpmn">
+  <bpmn:process id="Process_AssetTransferFollowUpRequired" isExecutable="true">
+    <bpmn:startEvent id="Process_AssetTransferFollowUpRequired_start"/>
+    <bpmn:serviceTask id="Process_AssetTransferFollowUpRequired_S1" name="Raise a task: follow up on">
+      <bpmn:extensionElements>
+        <appwithai:properties>
+        <appwithai:property name="nodeType" value="CreateEntity"/>
+        <appwithai:property name="entity" value="bus_task"/>
+        <appwithai:property name="as" value="taskId"/>
+        <appwithai:property name="fields" value="{&quot;code&quot;:&quot;ASSET-TRANSFER-FOLLOW-UP-{{id}}&quot;,&quot;name&quot;:&quot;Follow up on asset transfer {{transfer_number}}&quot;,&quot;description&quot;:&quot;Asset transfer {{transfer_number}} is now {{status}}. Check the records that depended on it and tell the people affected.&quot;,&quot;task_type&quot;:&quot;USER&quot;,&quot;status&quot;:&quot;CREATED&quot;,&quot;priority&quot;:&quot;NORMAL&quot;}"/>
+        </appwithai:properties>
+      </bpmn:extensionElements>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="Process_AssetTransferFollowUpRequired_end"/>
+    <bpmn:sequenceFlow id="Process_AssetTransferFollowUpRequired_flow_0" sourceRef="Process_AssetTransferFollowUpRequired_start" targetRef="Process_AssetTransferFollowUpRequired_S1"/>
+    <bpmn:sequenceFlow id="Process_AssetTransferFollowUpRequired_flow_1" sourceRef="Process_AssetTransferFollowUpRequired_S1" targetRef="Process_AssetTransferFollowUpRequired_end"/>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Process_AssetTransferFollowUpRequired">
+    <bpmndi:BPMNPlane id="BPMNPlane_Process_AssetTransferFollowUpRequired" bpmnElement="Process_AssetTransferFollowUpRequired">
+      <bpmndi:BPMNShape id="Process_AssetTransferFollowUpRequired_start_di" bpmnElement="Process_AssetTransferFollowUpRequired_start">
+        <dc:Bounds x="160" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_AssetTransferFollowUpRequired_S1_di" bpmnElement="Process_AssetTransferFollowUpRequired_S1">
+        <dc:Bounds x="256" y="100" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_AssetTransferFollowUpRequired_end_di" bpmnElement="Process_AssetTransferFollowUpRequired_end">
+        <dc:Bounds x="456" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Process_AssetTransferFollowUpRequired_flow_0_di" bpmnElement="Process_AssetTransferFollowUpRequired_flow_0">
+        <di:waypoint x="196" y="140"/>
+        <di:waypoint x="256" y="140"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Process_AssetTransferFollowUpRequired_flow_1_di" bpmnElement="Process_AssetTransferFollowUpRequired_flow_1">
+        <di:waypoint x="396" y="140"/>
+        <di:waypoint x="456" y="140"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>', 'When a asset transfer is cancelled, a task asks someone to settle what depended on it.', TRUE, TRUE, NOW(), NOW())
+ON CONFLICT (name) DO UPDATE SET
+  entity_name      = EXCLUDED.entity_name,
+  operation        = EXCLUDED.operation,
+  trigger_type     = EXCLUDED.trigger_type,
+  bpmn_xml         = EXCLUDED.bpmn_xml,
+  description      = EXCLUDED.description,
+  is_model_managed = TRUE,
+  updated_at       = NOW();
+
+INSERT INTO sys_workflow_definitions
+  (name, entity_name, operation, trigger_type, bpmn_xml, description, is_active, is_model_managed, created_at, updated_at)
+VALUES ('AssetTransferCompletionConfirmed', 'bus_asset_transfer', 'UPDATE',
+        'rule', '<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+  xmlns:appwithai="http://appwithai.io/schema/1.0"
+  id="Definitions_AssetTransferCompletionConfirmed"
+  targetNamespace="http://appwithai.io/bpmn">
+  <bpmn:process id="Process_AssetTransferCompletionConfirmed" isExecutable="true">
+    <bpmn:startEvent id="Process_AssetTransferCompletionConfirmed_start"/>
+    <bpmn:serviceTask id="Process_AssetTransferCompletionConfirmed_S1" name="Raise a task: confirm">
+      <bpmn:extensionElements>
+        <appwithai:properties>
+        <appwithai:property name="nodeType" value="CreateEntity"/>
+        <appwithai:property name="entity" value="bus_task"/>
+        <appwithai:property name="as" value="taskId"/>
+        <appwithai:property name="fields" value="{&quot;code&quot;:&quot;ASSET-TRANSFER-COMPLETED-{{id}}&quot;,&quot;name&quot;:&quot;Confirm asset transfer {{transfer_number}}&quot;,&quot;description&quot;:&quot;Asset transfer {{transfer_number}} is now {{status}}. Check the outcome is what was agreed and close any open items.&quot;,&quot;task_type&quot;:&quot;USER&quot;,&quot;status&quot;:&quot;CREATED&quot;,&quot;priority&quot;:&quot;LOW&quot;}"/>
+        </appwithai:properties>
+      </bpmn:extensionElements>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="Process_AssetTransferCompletionConfirmed_end"/>
+    <bpmn:sequenceFlow id="Process_AssetTransferCompletionConfirmed_flow_0" sourceRef="Process_AssetTransferCompletionConfirmed_start" targetRef="Process_AssetTransferCompletionConfirmed_S1"/>
+    <bpmn:sequenceFlow id="Process_AssetTransferCompletionConfirmed_flow_1" sourceRef="Process_AssetTransferCompletionConfirmed_S1" targetRef="Process_AssetTransferCompletionConfirmed_end"/>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Process_AssetTransferCompletionConfirmed">
+    <bpmndi:BPMNPlane id="BPMNPlane_Process_AssetTransferCompletionConfirmed" bpmnElement="Process_AssetTransferCompletionConfirmed">
+      <bpmndi:BPMNShape id="Process_AssetTransferCompletionConfirmed_start_di" bpmnElement="Process_AssetTransferCompletionConfirmed_start">
+        <dc:Bounds x="160" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_AssetTransferCompletionConfirmed_S1_di" bpmnElement="Process_AssetTransferCompletionConfirmed_S1">
+        <dc:Bounds x="256" y="100" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_AssetTransferCompletionConfirmed_end_di" bpmnElement="Process_AssetTransferCompletionConfirmed_end">
+        <dc:Bounds x="456" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Process_AssetTransferCompletionConfirmed_flow_0_di" bpmnElement="Process_AssetTransferCompletionConfirmed_flow_0">
+        <di:waypoint x="196" y="140"/>
+        <di:waypoint x="256" y="140"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Process_AssetTransferCompletionConfirmed_flow_1_di" bpmnElement="Process_AssetTransferCompletionConfirmed_flow_1">
+        <di:waypoint x="396" y="140"/>
+        <di:waypoint x="456" y="140"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>', 'When a asset transfer is completed, a task asks someone to confirm the outcome.', TRUE, TRUE, NOW(), NOW())
+ON CONFLICT (name) DO UPDATE SET
+  entity_name      = EXCLUDED.entity_name,
+  operation        = EXCLUDED.operation,
+  trigger_type     = EXCLUDED.trigger_type,
+  bpmn_xml         = EXCLUDED.bpmn_xml,
+  description      = EXCLUDED.description,
+  is_model_managed = TRUE,
+  updated_at       = NOW();
+
+INSERT INTO sys_workflow_definitions
+  (name, entity_name, operation, trigger_type, bpmn_xml, description, is_active, is_model_managed, created_at, updated_at)
+VALUES ('ForeignExchangeTransactionFollowUpRequired', 'bus_foreign_exchange_transaction', 'UPDATE',
+        'rule', '<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+  xmlns:appwithai="http://appwithai.io/schema/1.0"
+  id="Definitions_ForeignExchangeTransactionFollowUpRequired"
+  targetNamespace="http://appwithai.io/bpmn">
+  <bpmn:process id="Process_ForeignExchangeTransactionFollowUpRequired" isExecutable="true">
+    <bpmn:startEvent id="Process_ForeignExchangeTransactionFollowUpRequired_start"/>
+    <bpmn:serviceTask id="Process_ForeignExchangeTransactionFollowUpRequired_S1" name="Raise a task: follow up on">
+      <bpmn:extensionElements>
+        <appwithai:properties>
+        <appwithai:property name="nodeType" value="CreateEntity"/>
+        <appwithai:property name="entity" value="bus_task"/>
+        <appwithai:property name="as" value="taskId"/>
+        <appwithai:property name="fields" value="{&quot;code&quot;:&quot;FOREIGN-EXCHANGE-TRANSACTION-FOLLOW-UP-{{id}}&quot;,&quot;name&quot;:&quot;Follow up on foreign exchange transaction {{deal_number}}&quot;,&quot;description&quot;:&quot;Foreign exchange transaction {{deal_number}} is now {{status}}. Check the records that depended on it and tell the people affected.&quot;,&quot;task_type&quot;:&quot;USER&quot;,&quot;status&quot;:&quot;CREATED&quot;,&quot;priority&quot;:&quot;NORMAL&quot;}"/>
+        </appwithai:properties>
+      </bpmn:extensionElements>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="Process_ForeignExchangeTransactionFollowUpRequired_end"/>
+    <bpmn:sequenceFlow id="Process_ForeignExchangeTransactionFollowUpRequired_flow_0" sourceRef="Process_ForeignExchangeTransactionFollowUpRequired_start" targetRef="Process_ForeignExchangeTransactionFollowUpRequired_S1"/>
+    <bpmn:sequenceFlow id="Process_ForeignExchangeTransactionFollowUpRequired_flow_1" sourceRef="Process_ForeignExchangeTransactionFollowUpRequired_S1" targetRef="Process_ForeignExchangeTransactionFollowUpRequired_end"/>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Process_ForeignExchangeTransactionFollowUpRequired">
+    <bpmndi:BPMNPlane id="BPMNPlane_Process_ForeignExchangeTransactionFollowUpRequired" bpmnElement="Process_ForeignExchangeTransactionFollowUpRequired">
+      <bpmndi:BPMNShape id="Process_ForeignExchangeTransactionFollowUpRequired_start_di" bpmnElement="Process_ForeignExchangeTransactionFollowUpRequired_start">
+        <dc:Bounds x="160" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_ForeignExchangeTransactionFollowUpRequired_S1_di" bpmnElement="Process_ForeignExchangeTransactionFollowUpRequired_S1">
+        <dc:Bounds x="256" y="100" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_ForeignExchangeTransactionFollowUpRequired_end_di" bpmnElement="Process_ForeignExchangeTransactionFollowUpRequired_end">
+        <dc:Bounds x="456" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Process_ForeignExchangeTransactionFollowUpRequired_flow_0_di" bpmnElement="Process_ForeignExchangeTransactionFollowUpRequired_flow_0">
+        <di:waypoint x="196" y="140"/>
+        <di:waypoint x="256" y="140"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Process_ForeignExchangeTransactionFollowUpRequired_flow_1_di" bpmnElement="Process_ForeignExchangeTransactionFollowUpRequired_flow_1">
+        <di:waypoint x="396" y="140"/>
+        <di:waypoint x="456" y="140"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>', 'When a foreign exchange transaction is cancelled, a task asks someone to settle what depended on it.', TRUE, TRUE, NOW(), NOW())
+ON CONFLICT (name) DO UPDATE SET
+  entity_name      = EXCLUDED.entity_name,
+  operation        = EXCLUDED.operation,
+  trigger_type     = EXCLUDED.trigger_type,
+  bpmn_xml         = EXCLUDED.bpmn_xml,
+  description      = EXCLUDED.description,
+  is_model_managed = TRUE,
+  updated_at       = NOW();
+
+INSERT INTO sys_workflow_definitions
+  (name, entity_name, operation, trigger_type, bpmn_xml, description, is_active, is_model_managed, created_at, updated_at)
+VALUES ('InterestFollowUpRequired', 'bus_interest', 'UPDATE',
+        'rule', '<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+  xmlns:appwithai="http://appwithai.io/schema/1.0"
+  id="Definitions_InterestFollowUpRequired"
+  targetNamespace="http://appwithai.io/bpmn">
+  <bpmn:process id="Process_InterestFollowUpRequired" isExecutable="true">
+    <bpmn:startEvent id="Process_InterestFollowUpRequired_start"/>
+    <bpmn:serviceTask id="Process_InterestFollowUpRequired_S1" name="Raise a task: follow up on">
+      <bpmn:extensionElements>
+        <appwithai:properties>
+        <appwithai:property name="nodeType" value="CreateEntity"/>
+        <appwithai:property name="entity" value="bus_task"/>
+        <appwithai:property name="as" value="taskId"/>
+        <appwithai:property name="fields" value="{&quot;code&quot;:&quot;INTEREST-FOLLOW-UP-{{id}}&quot;,&quot;name&quot;:&quot;Follow up on interest {{calculation_number}}&quot;,&quot;description&quot;:&quot;Interest {{calculation_number}} is now {{status}}. Check the records that depended on it and tell the people affected.&quot;,&quot;task_type&quot;:&quot;USER&quot;,&quot;status&quot;:&quot;CREATED&quot;,&quot;priority&quot;:&quot;NORMAL&quot;}"/>
+        </appwithai:properties>
+      </bpmn:extensionElements>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="Process_InterestFollowUpRequired_end"/>
+    <bpmn:sequenceFlow id="Process_InterestFollowUpRequired_flow_0" sourceRef="Process_InterestFollowUpRequired_start" targetRef="Process_InterestFollowUpRequired_S1"/>
+    <bpmn:sequenceFlow id="Process_InterestFollowUpRequired_flow_1" sourceRef="Process_InterestFollowUpRequired_S1" targetRef="Process_InterestFollowUpRequired_end"/>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Process_InterestFollowUpRequired">
+    <bpmndi:BPMNPlane id="BPMNPlane_Process_InterestFollowUpRequired" bpmnElement="Process_InterestFollowUpRequired">
+      <bpmndi:BPMNShape id="Process_InterestFollowUpRequired_start_di" bpmnElement="Process_InterestFollowUpRequired_start">
+        <dc:Bounds x="160" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_InterestFollowUpRequired_S1_di" bpmnElement="Process_InterestFollowUpRequired_S1">
+        <dc:Bounds x="256" y="100" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_InterestFollowUpRequired_end_di" bpmnElement="Process_InterestFollowUpRequired_end">
+        <dc:Bounds x="456" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Process_InterestFollowUpRequired_flow_0_di" bpmnElement="Process_InterestFollowUpRequired_flow_0">
+        <di:waypoint x="196" y="140"/>
+        <di:waypoint x="256" y="140"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Process_InterestFollowUpRequired_flow_1_di" bpmnElement="Process_InterestFollowUpRequired_flow_1">
+        <di:waypoint x="396" y="140"/>
+        <di:waypoint x="456" y="140"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>', 'When a interest is cancelled or reversed, a task asks someone to settle what depended on it.', TRUE, TRUE, NOW(), NOW())
 ON CONFLICT (name) DO UPDATE SET
   entity_name      = EXCLUDED.entity_name,
   operation        = EXCLUDED.operation,

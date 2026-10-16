@@ -20,9 +20,121 @@ entity:
           ACTIVE: In effect; the assignee is responsible for the work.
           COMPLETED: The work is done and the responsibility ended.
           CANCELLED: Withdrawn or replaced before completion.
-  relationships: []
+    - name: assignmentNumber
+      type: string
+      required: true
+      unique: true
+      maxLength: 40
+      help:
+        summary: The reference number that identifies this allocation of work to an assignee.
+        usage: Assigned by the system when the work is allocated and quoted in task lists and audit reports.
+        relationshipContext: Unique across all assignments.
+    - name: workType
+      type: string
+      required: false
+      maxLength: 100
+      help:
+        summary: The kind of work item assigned when it is not a task, such as "Customer case".
+        usage: Given with the work reference when the work is not a task.
+        relationshipContext: Empty when the assignment is for a task.
+    - name: workReference
+      type: string
+      required: false
+      maxLength: 100
+      help:
+        summary: The number of the work item assigned when it is not a task.
+        usage: Lets the assignee open the work item.
+        relationshipContext: Read together with the work type.
+    - name: role
+      type: enum
+      required: true
+      default: RESPONSIBLE
+      values:
+        - RESPONSIBLE
+        - REVIEWER
+        - CONTRIBUTOR
+        - OBSERVER
+      help:
+        summary: The part the assignee plays in the work.
+        usage: Chosen when assigning; only one assignee is normally responsible for a piece of work at a time.
+        relationshipContext: Lets the same work be assigned to a doer, a reviewer and someone kept informed.
+        valueSemantics:
+          RESPONSIBLE: Does the work and answers for it being done.
+          REVIEWER: Checks the work once it is done.
+          CONTRIBUTOR: Helps with part of the work.
+          OBSERVER: Is kept informed but does no work.
+    - name: startDate
+      type: date
+      required: true
+      help:
+        summary: The day from which the assignee becomes responsible for the work.
+        usage: Set by whoever assigns the work, so the assignee knows when to start.
+        relationshipContext: Must not be later than the end date.
+    - name: endDate
+      type: date
+      required: false
+      help:
+        summary: When the assignment is planned to end.
+        usage: Set for time-boxed work; empty when it lasts until the work is done.
+        relationshipContext: Workload planning ignores the assignment after this date.
+    - name: allocationPercent
+      type: decimal
+      required: false
+      precision: 5
+      scale: 2
+      default: 100
+      help:
+        summary: The share of the assignee's working time the work takes.
+        usage: Summed across a person's active assignments to see whether they are overloaded.
+        relationshipContext: Between 0 and 100.
+    - name: notes
+      type: text
+      required: false
+      help:
+        summary: Instructions, background or caveats the assignee needs in order to carry out the work.
+        usage: Written by whoever assigns the work and read by the assignee when opening the task.
+        relationshipContext: Free text.
+  relationships:
+    - name: assignee
+      target: Person
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The person the work is assigned to.
+        usage: Chosen when assigning to an individual; the work appears in their list.
+        cardinalityMeaning: At most one person per assignment.
+        context: A person, a team or both may be given; at least one must be.
+    - name: team
+      target: Team
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The team the work is assigned to.
+        usage: Chosen when a team owns the work and any member may pick it up.
+        cardinalityMeaning: At most one team per assignment.
+        context: When both a team and a person are given, the person works on the team's behalf.
+    - name: task
+      target: Task
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The task being assigned.
+        usage: Chosen when the work is a task; most assignments are.
+        cardinalityMeaning: At most one task per assignment; a task may have several assignments over time.
+        context: Completing the task completes its responsible assignment.
+    - name: assignedBy
+      target: Person
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The person who made the assignment.
+        usage: Recorded when the work is allocated.
+        cardinalityMeaning: One per assignment.
+        context: Usually a supervisor or the system's routing rules acting for one.
   invariants:
     - {id: ASSIGNMENT-001, rule: State changes and retries must preserve auditable history and must not duplicate downstream business effects.}
+    - {id: ASSIGNMENT-EXE-001, rule: "End Date must not be earlier than start date.", violatedWhen: "start_date != null and end_date != null and end_date < start_date", message: "End Date cannot be earlier than start date."}
+    - {id: ASSIGNMENT-EXE-002, rule: "Allocation Percent is a percentage between 0 and 100.", violatedWhen: "allocation_percent != null and (allocation_percent < 0 or allocation_percent > 100)", message: "Allocation Percent must be between 0 and 100."}
   lifecycle:
     title: Assignment Lifecycle
     attribute: status

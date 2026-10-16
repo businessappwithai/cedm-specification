@@ -67,6 +67,21 @@ entity:
           CANDIDATE: Put forward as a candidate for approval or product development.
           APPROVED: Accepted for the intended use after review.
           DISCONTINUED: Dropped from the pipeline; history is kept.
+    - name: smiles
+      type: text
+      required: false
+      help:
+        summary: The chemical structure written as a SMILES line notation string.
+        usage: Entered or imported at registration and used for structure searches and modelling.
+        relationshipContext: Stored in canonical form so identical structures match.
+    - name: therapeuticArea
+      type: string
+      required: false
+      maxLength: 100
+      help:
+        summary: The disease area the compound is being investigated for, such as oncology or cardiology.
+        usage: Set by the project team and used to group compounds in portfolio reviews.
+        relationshipContext: Free text taken from the portfolio list.
   relationships:
     - name: experiments
       target: Experiment

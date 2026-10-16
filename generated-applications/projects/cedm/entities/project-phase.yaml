@@ -23,6 +23,55 @@ entity:
           CANCELLED: The phase will not be carried out. A final state.
         businessMeaning: Controls phase execution.
         relationshipContext: Task/milestone state must reconcile.
+    - name: sequence
+      type: integer
+      required: true
+      help:
+        summary: The order of the phase in the project.
+        usage: Phases are shown and run in this order.
+        relationshipContext: Unique within the project.
+    - name: plannedStart
+      type: date
+      required: false
+      help:
+        summary: The date on which work in this phase is scheduled to begin.
+        usage: Set in the project plan by the project manager and revised when the schedule changes.
+        relationshipContext: It cannot be later than the planned end.
+    - name: plannedEnd
+      type: date
+      required: false
+      help:
+        summary: The date by which this phase is scheduled to be finished.
+        usage: Set in the project plan; progress reports measure delay by comparing the actual end against it.
+        relationshipContext: Delays are measured against this date.
+    - name: actualStart
+      type: date
+      required: false
+      help:
+        summary: The date on which work in this phase really began.
+        usage: Recorded by the project manager when the phase starts, which may differ from the plan.
+        relationshipContext: Present once the phase is active.
+    - name: actualEnd
+      type: date
+      required: false
+      help:
+        summary: The date on which this phase was really finished.
+        usage: Recorded by the project manager when the phase is completed or signed off.
+        relationshipContext: Present once the phase is completed.
+    - name: budget
+      type: Money
+      required: false
+      help:
+        summary: The amount of money approved for the work done in this phase.
+        usage: Set in the project plan and compared with the costs booked to its tasks.
+        relationshipContext: Held in the project's currency.
+    - name: gateCriteria
+      type: text
+      required: false
+      help:
+        summary: What must be true to close the phase and move on.
+        usage: Checked at the phase gate review.
+        relationshipContext: Such as signed-off designs or passed tests.
   relationships:
     - {name: project, target: Project, cardinality: '1', ownership: reference, help: {summary: The project the phase belongs to., usage: Chosen when the phase is created., cardinalityMeaning: Exactly one project; a phase cannot exist alone., workflowRole: Places the stage in the project's plan., businessMeaning: Supplies overall scope/governance.}}
     - {name: tasks, target: ProjectTask, cardinality: 0..*, ownership: reference, help: {cardinalityMeaning: 'Any number of tasks, none for a phase not yet broken down.', summary: Tasks assigned to phase., businessMeaning: Supplies executable work., usage: Scheduling and delivery., workflowRole: Completion requires task reconciliation.}}
@@ -30,6 +79,8 @@ entity:
   invariants:
     - {id: PROJECT-PHASE-001, rule: COMPLETED phase must reconcile non-cancelled required tasks and milestones.}
     - {id: PROJECT-PHASE-002, rule: Phase dates and lifecycle must remain compatible with parent Project.}
+    - {id: PROJECT-PHASE-EXE-001, rule: "Planned End must not be earlier than planned start.", violatedWhen: "planned_start != null and planned_end != null and planned_end < planned_start", message: "Planned End cannot be earlier than planned start."}
+    - {id: PROJECT-PHASE-EXE-002, rule: "Actual End must not be earlier than actual start.", violatedWhen: "actual_start != null and actual_end != null and actual_end < actual_start", message: "Actual End cannot be earlier than actual start."}
   lifecycle:
     title: Project Phase Lifecycle
     attribute: status

@@ -22,6 +22,39 @@ entity:
           ARCHIVED: No longer used but kept for history. A final state.
         businessMeaning: Controls new planning use.
         relationshipContext: Historical plans retain scenario reference.
+    - name: name
+      type: string
+      required: true
+      maxLength: 150
+      help:
+        summary: The title planners give to a set of planning assumptions, such as Best case 2027.
+        usage: Shown wherever a budget or forecast is tied to a scenario so users can choose between them.
+        relationshipContext: Identifies the scenario for people, beside its code.
+    - name: scenarioType
+      type: enum
+      required: true
+      default: BASE
+      values:
+        - BASE
+        - UPSIDE
+        - DOWNSIDE
+        - STRESS
+      help:
+        valueSemantics:
+          BASE: The expected case that most plans are built on.
+          UPSIDE: A more favourable case than expected.
+          DOWNSIDE: A less favourable case than expected.
+          STRESS: A severe case used to test resilience.
+        summary: What kind of scenario it is.
+        usage: Reports show the base case first and the alternatives beside it.
+        relationshipContext: Only one base scenario is current at a time.
+    - name: assumptions
+      type: text
+      required: false
+      help:
+        summary: The assumptions that define the scenario.
+        usage: Written by finance; read by everyone preparing plans under it.
+        relationshipContext: Should be specific enough to apply consistently.
   invariants:
     - {id: SCENARIO-001, rule: Scenario assumptions must not directly mutate actual transactions or accounting.}
   lifecycle:
@@ -38,4 +71,5 @@ entity:
     businessMeaning: Separates hypothetical plans from actual outcomes.
     usage: "Budgeting, forecasting and sensitivity analysis."
     relationshipContext: Budget and Forecast may reference it.
+  relationships: []
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-SCENARIO}

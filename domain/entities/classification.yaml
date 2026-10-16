@@ -10,9 +10,56 @@ entity:
     - {name: classificationId, type: uuid, required: true, immutable: true, help: {summary: The identity of the classification value., usage: Generated on creation; classified records refer to it.}}
     - {name: code, type: string, required: true, maxLength: 100, help: {summary: 'The stable code of the classification, such as ENTERPRISE.', usage: 'Assigned by the steward; used in rules and integrations, so it should not change.'}}
     - {name: name, type: string, required: true, maxLength: 300, help: {summary: The display name of the classification., usage: Shown in pick-lists and reports; can be reworded without changing the code.}}
-  relationships: []
+    - name: scheme
+      type: string
+      required: true
+      maxLength: 50
+      help:
+        summary: The scheme the value belongs to, such as NACE, SEGMENT or RISK-CAT.
+        usage: Chosen when the value is created; records are classified within one scheme at a time.
+        relationshipContext: Values are unique within their scheme.
+    - name: description
+      type: text
+      required: false
+      help:
+        summary: Explains what the classification value covers and what is left out of it.
+        usage: Read by people classifying a record, so it should name clear examples.
+        relationshipContext: Should say what belongs in the value and what does not.
+    - name: level
+      type: integer
+      required: false
+      help:
+        summary: The depth of the value in its hierarchy — 1 for the top.
+        usage: Used to report at a chosen level.
+        relationshipContext: One more than its parent's level.
+    - name: status
+      type: enum
+      required: true
+      default: ACTIVE
+      values:
+        - ACTIVE
+        - RETIRED
+      help:
+        summary: Whether the classification value may still be assigned to new records.
+        usage: Set to retired by the data owner when a value is replaced or no longer wanted.
+        relationshipContext: Records keep retired values for history.
+        valueSemantics:
+          ACTIVE: May be assigned to records and appears in pick lists.
+          RETIRED: No longer assigned, though existing records keep it.
+  relationships:
+    - name: parent
+      target: Classification
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The broader value this one sits under.
+        usage: Builds the hierarchy.
+        cardinalityMeaning: At most one parent, in the same scheme.
+        context: Cannot be itself.
   invariants:
     - {id: CLASSIFICATION-001, rule: Code and identity semantics must remain stable within the governing context and historical references must not be silently repointed.}
+    - id: CLASSIFICATION-002
+      rule: A Classification must not be its own ancestor through parent; the parent chain is acyclic.
   help:
     summary: A reusable classification scheme or category value that classifies records consistently instead of by free-text labels.
     businessMeaning: 'Free-text categories drift: one person writes "Premium", another "premium". A classification gives the organisation one agreed list, so reporting, rules and searches group things the same way.'
@@ -20,4 +67,17 @@ entity:
     relationshipContext: Many kinds of record can point at a classification, which is what lets different domains share one vocabulary.
     lifecycle: Code and identity stay stable, and history is never silently rewritten when a classification is renamed or retired.
     example: Customer segment "Enterprise", used to group accounts in sales reports and pricing rules.
+  lifecycle:
+    title: Classification Lifecycle
+    attribute: status
+    states:
+      - ACTIVE
+      - RETIRED
+    initial: ACTIVE
+    terminal:
+      - RETIRED
+    transitions:
+      - from: ACTIVE
+        to: RETIRED
+        action: retire
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-CLASSIFICATION}

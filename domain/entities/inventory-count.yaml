@@ -11,6 +11,58 @@ entity:
     - {name: countNumber, type: string, required: true, unique: true, maxLength: 100, help: {summary: The document number of the count., usage: Allocated from a number series; unique; printed on count sheets., businessMeaning: Operational identifier for count activity., relationshipContext: Distinct from adjustment reference.}}
     - {name: countedQuantity, type: decimal, required: true, precision: 20, scale: 6, help: {summary: The quantity actually found on the shelf., usage: Entered by the counter; compared with the system quantity to find the variance., businessMeaning: Evidence of stock reality at count time., relationshipContext: Does not itself alter InventoryBalance.}}
     - {name: countedAt, type: datetime, required: true, help: {summary: When the count was made., usage: Entered with the count; the system quantity at that time is the comparison., businessMeaning: Anchors the count against ledger chronology., relationshipContext: Movements around count time require controlled cutoff treatment.}}
+    - name: systemQuantity
+      type: decimal
+      required: false
+      precision: 18
+      scale: 4
+      help:
+        summary: How many units the system expected at the time of the count.
+        usage: Snapshot taken when counting starts.
+        relationshipContext: The difference becomes an adjustment.
+    - name: difference
+      type: decimal
+      required: false
+      precision: 18
+      scale: 4
+      help:
+        summary: The counted quantity minus the quantity the system holds for the location.
+        usage: Calculated for review by the supervisor; large differences are recounted before being adjusted. It may be negative.
+        relationshipContext: May be negative.
+    - name: countType
+      type: enum
+      required: true
+      default: CYCLE
+      values:
+        - CYCLE
+        - ANNUAL
+        - SPOT
+      help:
+        summary: Says why the count was made, whether routine, year-end or after a problem.
+        usage: Chosen when the count is planned; it decides who counts and when.
+        relationshipContext: Annual counts freeze stock movements while they run.
+        valueSemantics:
+          CYCLE: A routine count of some locations on a rolling schedule.
+          ANNUAL: The full year-end count of all stock.
+          SPOT: An unplanned count made after a problem was suspected.
+    - name: status
+      type: enum
+      required: true
+      default: PLANNED
+      values:
+        - PLANNED
+        - COUNTED
+        - RECOUNT
+        - APPROVED
+      help:
+        summary: Shows how far the count has progressed from planning to approval.
+        usage: Moved on by the counter and the supervisor.
+        relationshipContext: Differences are adjusted only from approved counts.
+        valueSemantics:
+          PLANNED: Scheduled, but not yet counted.
+          COUNTED: Counted, with a difference to review.
+          RECOUNT: A recount was ordered because the difference looked wrong.
+          APPROVED: Accepted by the supervisor, so any difference is adjusted.
   relationships:
     - {name: product, target: Product, cardinality: '1', ownership: reference, help: {summary: The product that was counted., usage: Set when the count is entered., cardinalityMeaning: 'Exactly one product: each count line observes one item.', workflowRole: Identifies which balance the count tests., businessMeaning: Identifies observed item.}}
     - {name: inventoryLocation, target: InventoryLocation, cardinality: '1', ownership: reference, help: {summary: The location where the count was made., usage: Set when the count is entered., cardinalityMeaning: Exactly one location., workflowRole: Identifies which balance the count tests., businessMeaning: Defines physical/accountable stock scope.}}
@@ -30,4 +82,28 @@ entity:
     relationshipContext: Product/location/lot/serial define count scope; InventoryAdjustment resolves approved variance.
     lifecycle: Planned/performed → reviewed → reconciled → closed; evidence retained.
     changePropagation: Approved variance may create adjustments; observations themselves never post inventory.
+  lifecycle:
+    title: Inventory Count Lifecycle
+    attribute: status
+    states:
+      - PLANNED
+      - COUNTED
+      - RECOUNT
+      - APPROVED
+    initial: PLANNED
+    terminal:
+      - APPROVED
+    transitions:
+      - from: PLANNED
+        to: COUNTED
+        action: count
+      - from: COUNTED
+        to: RECOUNT
+        action: order_recount
+      - from: RECOUNT
+        to: COUNTED
+        action: count
+      - from: COUNTED
+        to: APPROVED
+        action: approve
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-INVENTORY-COUNT}

@@ -20,7 +20,93 @@ entity:
           ACTIVE: Released; new instances can be started from it.
           COMPLETED: Retired from new use after its instances have run their course. A final state.
           CANCELLED: Abandoned before release. A final state.
-  relationships: []
+    - name: code
+      type: string
+      required: true
+      maxLength: 40
+      help:
+        summary: The code of the process, the same for all its versions, such as SUP-ONB.
+        usage: Instances and reports refer to the process by it.
+        relationshipContext: Unique together with the version.
+    - name: definitionVersion
+      type: integer
+      required: true
+      default: 1
+      help:
+        summary: The version number of this process definition, rising with each published change.
+        usage: Increased by the process designer when a revised definition is published.
+        relationshipContext: Running instances keep the version they started on.
+    - name: name
+      type: string
+      required: true
+      maxLength: 150
+      help:
+        summary: The name of the process, such as "Supplier onboarding".
+        usage: Shown when starting an instance.
+        relationshipContext: The same across versions.
+    - name: description
+      type: text
+      required: false
+      help:
+        summary: What the process does and when it is used.
+        usage: Read by the people who start and work in the process.
+        relationshipContext: Free text.
+    - name: definitionFormat
+      type: enum
+      required: true
+      default: BPMN
+      values:
+        - BPMN
+        - STATE_MACHINE
+        - CHECKLIST
+      help:
+        summary: The notation in which the process steps are written, which tells the engine how to run them.
+        usage: Chosen when the definition is created and read together with the definition content.
+        relationshipContext: Changing it means rewriting the content.
+        valueSemantics:
+          BPMN: Business Process Model and Notation, a flow diagram with branches and parallel paths.
+          STATE_MACHINE: A set of states and the allowed moves between them.
+          CHECKLIST: An ordered list of steps without any branching.
+    - name: definitionContent
+      type: text
+      required: false
+      help:
+        summary: The process itself, in the chosen notation.
+        usage: Edited by the process owner; read by the engine.
+        relationshipContext: Not changed after publication.
+    - name: targetDurationHours
+      type: integer
+      required: false
+      help:
+        summary: How long an instance should take, in working hours.
+        usage: Instances taking longer are flagged.
+        relationshipContext: Measured from start to completion.
+    - name: publishedAt
+      type: datetime
+      required: false
+      help:
+        summary: The date and time this version was released for use by new process instances.
+        usage: Stamped when the designer publishes the version; drafts have no value.
+        relationshipContext: Present only once published.
+  relationships:
+    - name: businessProcess
+      target: BusinessProcess
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The business process this definition implements.
+        usage: Linked so the process landscape shows which processes are automated.
+        cardinalityMeaning: One per definition.
+        context: A business process may have several definitions over time.
+    - name: owner
+      target: Person
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The person responsible for the process design.
+        usage: Approves changes and publishes versions.
+        cardinalityMeaning: One per definition.
+        context: Receives reports on instance durations.
   invariants:
     - {id: PROCESS-DEFINITION-001, rule: State changes and retries must preserve auditable history and must not duplicate downstream business effects.}
   lifecycle:

@@ -26,6 +26,37 @@ entity:
           RETIRED: Removed from the catalogue for good. A final state.
         businessMeaning: Controls future eligibility of this configuration.
         relationshipContext: Parent Product restrictions also apply.
+    - name: name
+      type: string
+      required: false
+      maxLength: 200
+      help:
+        summary: The name of the variant, such as "T-shirt, red, M".
+        usage: Shown on product pages and order lines.
+        relationshipContext: Usually the product name plus the options.
+    - name: optionValues
+      type: string
+      required: false
+      maxLength: 300
+      help:
+        summary: The options that distinguish the variant, such as "Colour=Red; Size=M".
+        usage: Shown to shoppers and used to filter.
+        relationshipContext: Each combination of options is one variant.
+    - name: gtin
+      type: string
+      required: false
+      maxLength: 14
+      help:
+        summary: The global barcode number that identifies this exact variant.
+        usage: Entered from the manufacturer or GS1 registration and scanned in stores and warehouses to find the variant.
+        relationshipContext: Each variant has its own number, not shared with its sibling variants.
+    - name: priceAdjustment
+      type: Money
+      required: false
+      help:
+        summary: How much the variant's price differs from the product's base price.
+        usage: Added to the base price; zero when the variant costs the same.
+        relationshipContext: In the product's price currency.
   relationships:
     - {name: product, target: Product, cardinality: '1', ownership: reference, inverse: variants, help: {summary: The parent product., usage: Set on creation., cardinalityMeaning: 'Exactly one product: a variant is a variation of a single product family.', workflowRole: "Passes the family's definition, category and rules down to the variant.", businessMeaning: Supplies shared identity and semantics.}}
     - {name: brand, target: Brand, cardinality: 0..1, ownership: reference, help: {summary: "The brand of the variant, when it differs from the product's.", usage: Set where a variant is sold under a different brand., cardinalityMeaning: At most one brand., workflowRole: Allows variant-level branding., businessMeaning: Provides market identity.}}

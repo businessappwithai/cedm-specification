@@ -9,9 +9,144 @@ entity:
   attributes:
     - {name: legalEntityId, type: uuid, required: true, immutable: true, help: {summary: 'The stable identity of the legal entity, kept even when its name or registration details change.', usage: 'Generated on registration; contracts, filings, assets and liabilities refer to the entity through it rather than through its name.'}}
     - {name: occurredAt, type: datetime, required: false, help: {summary: 'When the entity was formed, or its record took effect.', usage: Set from the registration data.}}
-  relationships: []
+    - name: legalName
+      type: string
+      required: true
+      maxLength: 300
+      help:
+        summary: The registered name, exactly as in the register.
+        usage: Printed on invoices, contracts and filings.
+        relationshipContext: A trading name may differ; this is the one the law recognises.
+    - name: registrationNumber
+      type: string
+      required: false
+      maxLength: 60
+      help:
+        summary: The number under which the entity is registered, such as a company number or SIREN.
+        usage: Printed on documents where the law requires it; used in KYC checks.
+        relationshipContext: Unique within its jurisdiction.
+    - name: legalForm
+      type: string
+      required: false
+      maxLength: 60
+      help:
+        summary: The legal form, such as "SAS", "GmbH", "Ltd" or "LLC".
+        usage: Printed after the name on documents.
+        relationshipContext: Each jurisdiction has its own forms.
+    - name: incorporationDate
+      type: date
+      required: false
+      help:
+        summary: The day the company or organisation was legally formed, as shown on its certificate of incorporation.
+        usage: Copied from the official register when the entity is set up; used for age checks, filings and group structure charts.
+        relationshipContext: It can never fall after the dissolution date.
+    - name: dissolutionDate
+      type: date
+      required: false
+      help:
+        summary: The day the legal entity formally ceased to exist and was removed from the register.
+        usage: Entered by company secretarial when a dissolution is confirmed; it stays empty for entities that still exist.
+        relationshipContext: Only dissolved entities carry a date here.
+    - name: taxIdentifier
+      type: string
+      required: false
+      maxLength: 60
+      help:
+        summary: The entity's main tax number in its country.
+        usage: Printed on invoices and used in tax filings.
+        relationshipContext: Further registrations are recorded as tax registrations.
+    - name: vatNumber
+      type: string
+      required: false
+      maxLength: 30
+      help:
+        summary: The entity's VAT or sales-tax registration number.
+        usage: Printed on invoices; validated for cross-border trade.
+        relationshipContext: Empty for entities not registered for VAT.
+    - name: lei
+      type: string
+      required: false
+      maxLength: 20
+      help:
+        summary: The Legal Entity Identifier, a 20-character global code.
+        usage: Required for financial transactions and regulatory reporting.
+        relationshipContext: Issued by an LEI operator and renewed every year.
+    - name: isGroupCompany
+      type: boolean
+      required: true
+      default: false
+      help:
+        summary: Whether the entity belongs to our own group.
+        usage: Separates the group's companies from customers' and suppliers' entities; intercompany transactions are between group companies.
+        relationshipContext: Group companies have their own accounts and filings.
+    - name: status
+      type: enum
+      required: true
+      default: ACTIVE
+      values:
+        - ACTIVE
+        - DORMANT
+        - IN_LIQUIDATION
+        - DISSOLVED
+      help:
+        valueSemantics:
+          ACTIVE: Registered, in good standing and free to trade, sign contracts and issue invoices.
+          DORMANT: Still registered but not trading, so it holds no live business activity.
+          IN_LIQUIDATION: Being wound up by a liquidator; no new business should be started in its name.
+          DISSOLVED: Struck off the register and gone for good; no new contracts or invoices may use it.
+        summary: Whether the entity exists and trades.
+        usage: Updated from the register or by company secretarial.
+        relationshipContext: Contracts and invoices must not be issued in the name of a dissolved entity.
+  relationships:
+    - name: organization
+      target: Organization
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The organization this entity is the legal form of.
+        usage: Linked so that the organization's contracts and filings can be issued in the right name.
+        cardinalityMeaning: At most one organization per entity.
+        context: An organization may trade through several entities in different countries.
+    - name: country
+      target: Country
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The country the entity is registered in.
+        usage: Decides which law, register and tax rules apply.
+        cardinalityMeaning: One per entity.
+        context: A branch abroad is not a separate entity.
+    - name: registeredAddress
+      target: Address
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The registered office.
+        usage: Printed on documents where the law requires it.
+        cardinalityMeaning: One per entity.
+        context: May differ from where the entity operates.
+    - name: functionalCurrency
+      target: Currency
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The currency the entity keeps its accounts in.
+        usage: Set by finance; translations to the group currency start from it.
+        cardinalityMeaning: One per entity.
+        context: Usually the currency of its country.
+    - name: parentEntity
+      target: LegalEntity
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The entity that owns this one in the group.
+        usage: Recorded for group companies; consolidation follows it.
+        cardinalityMeaning: At most one parent.
+        context: Minority holdings are not recorded here.
   invariants:
     - {id: LEGAL-ENTITY-001, rule: "Finalized evidence and effective history must be preserved; correction, reassessment, settlement or supersession must be explicit."}
+    - id: LEGAL-ENTITY-002
+      rule: A Legal Entity must not be its own ancestor through parentEntity; the parentEntity chain is acyclic.
   help:
     summary: A legally recognised organisation or person that can hold rights and obligations, registrations, contracts, assets, liabilities or filings.
     businessMeaning: Contracts are signed and taxes are paid by legal entities, not by business units. Knowing exactly which entity is involved determines liability, reporting and registration duties.
@@ -19,4 +154,34 @@ entity:
     relationshipContext: Contracts, filings and accounting books refer to the legal entity.
     lifecycle: Finalised evidence and effective history are preserved; changes such as name changes or mergers are recorded explicitly.
     example: Acme Holdings GmbH, a limited company registered in Germany.
+  lifecycle:
+    title: Legal Entity Lifecycle
+    attribute: status
+    states:
+      - ACTIVE
+      - DORMANT
+      - IN_LIQUIDATION
+      - DISSOLVED
+    initial: ACTIVE
+    terminal:
+      - DISSOLVED
+    transitions:
+      - from: ACTIVE
+        to: DORMANT
+        action: make_dormant
+      - from: DORMANT
+        to: ACTIVE
+        action: resume_trading
+      - from: ACTIVE
+        to: IN_LIQUIDATION
+        action: liquidate
+      - from: DORMANT
+        to: IN_LIQUIDATION
+        action: liquidate
+      - from: IN_LIQUIDATION
+        to: DISSOLVED
+        action: dissolve
+      - from: DORMANT
+        to: DISSOLVED
+        action: dissolve
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-LEGAL-ENTITY}

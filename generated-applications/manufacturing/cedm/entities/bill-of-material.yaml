@@ -61,6 +61,16 @@ entity:
       help:
         summary: The last date on which the bill may be used.
         usage: Set when a replacement takes over; must not be earlier than the effective-from date.
+    - name: baseQuantity
+      type: decimal
+      required: true
+      precision: 18
+      scale: 4
+      default: 1
+      help:
+        summary: The quantity of the product the component quantities are for.
+        usage: Usually 1; larger for products made in batches.
+        relationshipContext: In the product's unit of measure.
   relationships:
     - name: product
       target: Product

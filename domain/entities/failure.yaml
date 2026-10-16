@@ -9,10 +9,138 @@ entity:
   attributes:
     - {name: failureId, type: uuid, required: true, immutable: true, help: {summary: The identity of the failure record., usage: Generated when raised; repair orders and analyses refer to it.}}
     - {name: effectiveAt, type: datetime, required: false, help: {summary: When the failure occurred., usage: Entered by the person reporting it; used to measure time between failures and downtime.}}
+    - name: failureNumber
+      type: string
+      required: true
+      unique: true
+      maxLength: 40
+      help:
+        summary: The reference number by which the failure is quoted.
+        usage: Assigned automatically when the failure is reported and used on repair orders and reports.
+        relationshipContext: Unique across all failures.
+    - name: symptom
+      type: string
+      required: true
+      maxLength: 500
+      help:
+        summary: What was observed, such as "tripped on high vibration".
+        usage: Written by whoever reports it.
+        relationshipContext: The observation, not the cause.
+    - name: failureMode
+      type: string
+      required: false
+      maxLength: 150
+      help:
+        summary: How the equipment failed, such as "bearing seizure" or "seal leak".
+        usage: Recorded by the technician from the site's list of failure modes.
+        relationshipContext: Consistent coding makes failures comparable.
+    - name: cause
+      type: string
+      required: false
+      maxLength: 300
+      help:
+        summary: Why the equipment failed, such as "lubrication missed".
+        usage: Recorded after investigation and required before the failure can be closed.
+        relationshipContext: Recurring causes are addressed by changing maintenance plans.
+    - name: severity
+      type: enum
+      required: true
+      default: MINOR
+      values:
+        - MINOR
+        - MAJOR
+        - CRITICAL
+      help:
+        summary: How much the failure mattered to operations.
+        usage: Set when the failure is reported and used to decide the repair priority.
+        relationshipContext: Read together with the equipment's criticality.
+        valueSemantics:
+          MINOR: Degraded performance, but production continues.
+          MAJOR: Production on the equipment stopped.
+          CRITICAL: Safety, the environment or a whole production line was affected.
+    - name: startedAt
+      type: datetime
+      required: true
+      help:
+        summary: The date and time the failure began.
+        usage: Given by the reporter, and downtime is measured from this moment.
+        relationshipContext: Not later than the end time.
+    - name: endedAt
+      type: datetime
+      required: false
+      help:
+        summary: The date and time the equipment was running again.
+        usage: Recorded by the technician when the repair is finished and used to total the downtime.
+        relationshipContext: Present once the equipment is repaired.
+    - name: downtimeMinutes
+      type: integer
+      required: false
+      help:
+        summary: How long the equipment was out of service, in minutes.
+        usage: Computed from start and end; summed in availability reports.
+        relationshipContext: Only the time the equipment could not run.
+    - name: status
+      type: enum
+      required: true
+      default: REPORTED
+      values:
+        - REPORTED
+        - UNDER_REPAIR
+        - REPAIRED
+        - CLOSED
+        - CANCELLED
+      help:
+        summary: Where the failure stands from report to closure.
+        usage: Moved on by maintenance as the failure is picked up, repaired and closed.
+        relationshipContext: Closed failures have a cause recorded.
+        valueSemantics:
+          REPORTED: Reported and not yet worked on.
+          UNDER_REPAIR: A technician is repairing it now.
+          REPAIRED: The equipment runs again.
+          CLOSED: Cause recorded and nothing more to do.
+          CANCELLED: Turned out not to be a failure after all.
   relationships:
     - {name: equipment, target: Equipment, cardinality: '1', ownership: reference, help: {summary: The equipment that failed., usage: Chosen when the failure is raised., cardinalityMeaning: 'Exactly one equipment item: a failure is always a failure of something specific.', workflowRole: Builds the failure history of each machine., businessMeaning: Defines affected maintainable object.}}
+    - name: workOrder
+      target: MaintenanceWorkOrder
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The work order that repaired the failure.
+        usage: Linked when a corrective work order is raised.
+        cardinalityMeaning: At most one.
+        context: Repair cost is on the work order.
+    - name: reportedBy
+      target: Person
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The person who reported the failure.
+        usage: Recorded with the report so maintenance can ask them for details.
+        cardinalityMeaning: One reporter is recorded for each failure.
+        workflowRole: The reporter starts the repair process and is usually an operator.
+        context: Usually an operator.
   invariants:
     - {id: FAILURE-001, rule: Finalized lifecycle or financial evidence must be corrected by explicit compensating or superseding records rather than silent history rewrite.}
+  workflows:
+    - name: FollowUpRequired
+      title: "Follow up when a failure is ended"
+      description: "When a failure is cancelled, a task asks someone to settle what depended on it."
+      when: "status == \"CANCELLED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "FAILURE-FOLLOW-UP-{{id}}"
+              name: "Follow up on failure {{failure_number}}"
+              description: "Failure {{failure_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
   help:
     summary: An observed failure of equipment or an asset, recording the symptom, when it occurred, its effect and the maintenance context.
     businessMeaning: Reliability engineering starts with knowing what failed, when and how badly. A failure record keeps that observation separate from the repair work, so the history of what went wrong is not lost when it is fixed.
@@ -21,4 +149,33 @@ entity:
     lifecycle: Finalised evidence is corrected by compensating or superseding records and never overwritten.
     example: A conveyor drive motor tripped on overload at 03:10 and stopped the line for forty minutes.
     commonExamples: Enterprise fixed assets, equipment reliability, bank close, FX, deposits, interest, and secured lending.
+  lifecycle:
+    title: Failure Lifecycle
+    attribute: status
+    states:
+      - REPORTED
+      - UNDER_REPAIR
+      - REPAIRED
+      - CLOSED
+      - CANCELLED
+    initial: REPORTED
+    terminal:
+      - CLOSED
+      - CANCELLED
+    transitions:
+      - from: REPORTED
+        to: UNDER_REPAIR
+        action: start_repair
+      - from: UNDER_REPAIR
+        to: REPAIRED
+        action: repair
+      - from: REPORTED
+        to: REPAIRED
+        action: repair
+      - from: REPAIRED
+        to: CLOSED
+        action: close
+      - from: REPORTED
+        to: CANCELLED
+        action: cancel
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-FAILURE}

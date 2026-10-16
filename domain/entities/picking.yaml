@@ -27,6 +27,39 @@ entity:
           EXCEPTION: Something prevented picking, such as damaged stock or a blocked location, and the task needs investigation.
         businessMeaning: Controls warehouse task progression.
         relationshipContext: "PICKED is warehouse evidence, not shipment delivery."
+    - name: pickNumber
+      type: string
+      required: true
+      unique: true
+      maxLength: 40
+      help:
+        summary: The reference of the pick task.
+        usage: Shown on the picker's device and pick list.
+        relationshipContext: Unique.
+    - name: pickedQuantity
+      type: decimal
+      required: false
+      precision: 18
+      scale: 4
+      help:
+        summary: The number of units the picker actually took from the storage location.
+        usage: Confirmed by the picker on the handheld device; it is compared with the requested quantity.
+        relationshipContext: A figure below the requested quantity means a short pick.
+    - name: pickedAt
+      type: datetime
+      required: false
+      help:
+        summary: The date and time the picker confirmed this pick on the handheld device.
+        usage: Recorded automatically on confirmation; supervisors use it to measure pick rates and delays.
+        relationshipContext: Filled only once picked.
+    - name: shortReason
+      type: string
+      required: false
+      maxLength: 300
+      help:
+        summary: Why fewer units were picked than asked for.
+        usage: Entered by the picker on a short pick.
+        relationshipContext: Triggers a stock check of the location.
   relationships:
     - {name: reservation, target: InventoryReservation, cardinality: 0..1, ownership: reference, help: {summary: Inventory commitment supplying pick demand., businessMeaning: Prevents picking unallocated demand where reservation is required., usage: Fulfillment., cardinalityMeaning: Optional under non-reservation workflows., workflowRole: Consumption must reconcile.}}
     - {name: sourceLocation, target: InventoryLocation, cardinality: '1', ownership: reference, help: {cardinalityMeaning: 'Exactly one source location: each pick collects from a single storage position.', summary: Storage position picked from., businessMeaning: Defines source custody., usage: WMS execution., workflowRole: Must hold eligible stock.}}

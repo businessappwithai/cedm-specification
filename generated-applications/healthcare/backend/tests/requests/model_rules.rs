@@ -1,6 +1,6 @@
 //! The rules the *model* declared, and whether they reached the application.
 //!
-//! Generated: 2026-10-10T02:40:11.828Z
+//! Generated: 2026-10-16T07:46:43.761Z
 //! Project: healthcare
 //!
 //! Every other rules suite creates a rule through the API and then checks that
@@ -33,6 +33,16 @@ const MODEL_RULES: &[(&str, &str, &str)] = &[
         "bus_party_role",
         "UPDATE",
     ),
+    (
+        "partyRelationshipInvariantsBeforeCreate",
+        "bus_party_relationship",
+        "CREATE",
+    ),
+    (
+        "partyRelationshipInvariantsBeforeUpdate",
+        "bus_party_relationship",
+        "UPDATE",
+    ),
     ("addressInvariantsBeforeCreate", "bus_address", "CREATE"),
     ("addressInvariantsBeforeUpdate", "bus_address", "UPDATE"),
     (
@@ -43,6 +53,18 @@ const MODEL_RULES: &[(&str, &str, &str)] = &[
     (
         "exchangeRateInvariantsBeforeUpdate",
         "bus_exchange_rate",
+        "UPDATE",
+    ),
+    ("calendarInvariantsBeforeCreate", "bus_calendar", "CREATE"),
+    ("calendarInvariantsBeforeUpdate", "bus_calendar", "UPDATE"),
+    (
+        "calendarExceptionInvariantsBeforeCreate",
+        "bus_calendar_exception",
+        "CREATE",
+    ),
+    (
+        "calendarExceptionInvariantsBeforeUpdate",
+        "bus_calendar_exception",
         "UPDATE",
     ),
     ("taskInvariantsBeforeCreate", "bus_task", "CREATE"),
@@ -68,6 +90,16 @@ const MODEL_RULES: &[(&str, &str, &str)] = &[
         "UPDATE",
     ),
     (
+        "healthcareOrderInvariantsBeforeCreate",
+        "bus_healthcare_order",
+        "CREATE",
+    ),
+    (
+        "healthcareOrderInvariantsBeforeUpdate",
+        "bus_healthcare_order",
+        "UPDATE",
+    ),
+    (
         "prescriptionInvariantsBeforeCreate",
         "bus_prescription",
         "CREATE",
@@ -77,6 +109,8 @@ const MODEL_RULES: &[(&str, &str, &str)] = &[
         "bus_prescription",
         "UPDATE",
     ),
+    ("carePlanInvariantsBeforeCreate", "bus_care_plan", "CREATE"),
+    ("carePlanInvariantsBeforeUpdate", "bus_care_plan", "UPDATE"),
     ("partyWorkflowsAfterUpdate", "bus_party", "UPDATE"),
     (
         "exchangeRateWorkflowsAfterUpdate",

@@ -54,6 +54,39 @@ entity:
           ACTIVE: Plan is approved for governed inspection use.
           SUSPENDED: Plan is temporarily unavailable for new governed use while retained for traceability.
           RETIRED: Plan is no longer normally selected for new inspections but remains historical evidence.
+    - name: planType
+      type: enum
+      required: true
+      default: INCOMING
+      values:
+        - INCOMING
+        - IN_PROCESS
+        - FINAL
+        - PERIODIC
+      help:
+        summary: The point in the product's journey at which this plan's checks are carried out.
+        usage: Chosen when the plan is created; it decides which events, such as a goods receipt or a finished batch, raise an inspection from it.
+        relationshipContext: A product may have a plan of each type.
+        valueSemantics:
+          INCOMING: Applied when purchased goods are received, before they are accepted into stock.
+          IN_PROCESS: Applied while production is under way, to catch problems before further work is added.
+          FINAL: Applied before finished goods are released for sale or shipment.
+          PERIODIC: Applied at set intervals, such as stability tests on stored product.
+    - name: revision
+      type: string
+      required: false
+      maxLength: 20
+      help:
+        summary: The revision of the plan.
+        usage: Raised whenever the plan changes; inspections record the revision used.
+        relationshipContext: Approved revisions are not changed.
+    - name: description
+      type: text
+      required: false
+      help:
+        summary: A plain explanation of what the plan inspects and the reason those checks are required.
+        usage: Read by inspectors before they start, so they understand the intent behind the listed characteristics.
+        relationshipContext: Free text.
   relationships:
     - name: product
       target: Product

@@ -1,6 +1,6 @@
 //! The rules the *model* declared, and whether they reached the application.
 //!
-//! Generated: 2026-10-10T02:39:09.886Z
+//! Generated: 2026-10-16T07:45:24.799Z
 //! Project: banking
 //!
 //! Every other rules suite creates a rule through the API and then checks that
@@ -33,6 +33,16 @@ const MODEL_RULES: &[(&str, &str, &str)] = &[
         "bus_party_role",
         "UPDATE",
     ),
+    (
+        "partyRelationshipInvariantsBeforeCreate",
+        "bus_party_relationship",
+        "CREATE",
+    ),
+    (
+        "partyRelationshipInvariantsBeforeUpdate",
+        "bus_party_relationship",
+        "UPDATE",
+    ),
     ("addressInvariantsBeforeCreate", "bus_address", "CREATE"),
     ("addressInvariantsBeforeUpdate", "bus_address", "UPDATE"),
     (
@@ -45,12 +55,44 @@ const MODEL_RULES: &[(&str, &str, &str)] = &[
         "bus_exchange_rate",
         "UPDATE",
     ),
+    ("calendarInvariantsBeforeCreate", "bus_calendar", "CREATE"),
+    ("calendarInvariantsBeforeUpdate", "bus_calendar", "UPDATE"),
+    (
+        "calendarExceptionInvariantsBeforeCreate",
+        "bus_calendar_exception",
+        "CREATE",
+    ),
+    (
+        "calendarExceptionInvariantsBeforeUpdate",
+        "bus_calendar_exception",
+        "UPDATE",
+    ),
     ("taskInvariantsBeforeCreate", "bus_task", "CREATE"),
     ("taskInvariantsBeforeUpdate", "bus_task", "UPDATE"),
+    (
+        "bankReconciliationInvariantsBeforeCreate",
+        "bus_bank_reconciliation",
+        "CREATE",
+    ),
+    (
+        "bankReconciliationInvariantsBeforeUpdate",
+        "bus_bank_reconciliation",
+        "UPDATE",
+    ),
     ("bankLoanInvariantsBeforeCreate", "bus_bank_loan", "CREATE"),
     ("bankLoanInvariantsBeforeUpdate", "bus_bank_loan", "UPDATE"),
     ("creditInvariantsBeforeCreate", "bus_credit", "CREATE"),
     ("creditInvariantsBeforeUpdate", "bus_credit", "UPDATE"),
+    (
+        "collateralInvariantsBeforeCreate",
+        "bus_collateral",
+        "CREATE",
+    ),
+    (
+        "collateralInvariantsBeforeUpdate",
+        "bus_collateral",
+        "UPDATE",
+    ),
     ("partyWorkflowsAfterUpdate", "bus_party", "UPDATE"),
     (
         "exchangeRateWorkflowsAfterUpdate",
@@ -68,7 +110,9 @@ const MODEL_RULES: &[(&str, &str, &str)] = &[
         "UPDATE",
     ),
     ("bankLoanWorkflowsAfterUpdate", "bus_bank_loan", "UPDATE"),
+    ("depositWorkflowsAfterUpdate", "bus_deposit", "UPDATE"),
     ("creditWorkflowsAfterUpdate", "bus_credit", "UPDATE"),
+    ("collateralWorkflowsAfterUpdate", "bus_collateral", "UPDATE"),
 ];
 
 /// Every rule reached `sys_rule_definitions`, bound to the physical

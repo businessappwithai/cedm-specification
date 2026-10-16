@@ -51,6 +51,44 @@ entity:
           COMPLETED: Finished successfully. A final state.
           WITHDRAWN: The student left before completing. A final state.
           CANCELLED: Withdrawn before it began. A final state.
+    - name: studyMode
+      type: enum
+      required: true
+      default: FULL_TIME
+      values:
+        - FULL_TIME
+        - PART_TIME
+        - DISTANCE
+      help:
+        summary: How the student studies on this enrolment.
+        usage: Chosen at enrolment and used to decide fees, study load and expected duration.
+        relationshipContext: May change during the programme.
+        valueSemantics:
+          FULL_TIME: A full study load, completing in the programme's standard duration.
+          PART_TIME: A reduced study load, so the programme takes longer.
+          DISTANCE: Studying remotely rather than attending on campus.
+    - name: expectedCompletionDate
+      type: date
+      required: false
+      help:
+        summary: The date the student is expected to finish the programme.
+        usage: Calculated at enrolment and used for planning and progression reports.
+        relationshipContext: Depends on the programme length and the student's study mode.
+    - name: completionDate
+      type: date
+      required: false
+      help:
+        summary: The date the student finished the enrolment or left it.
+        usage: Recorded when the enrolment ends, whether by completing or withdrawing.
+        relationshipContext: Present only once the enrolment is completed or withdrawn.
+    - name: withdrawalReason
+      type: string
+      required: false
+      maxLength: 300
+      help:
+        summary: Why the student withdrew from the programme.
+        usage: Recorded by the registrar at withdrawal and used in retention analysis.
+        relationshipContext: Present only on withdrawn enrolments.
   relationships:
     - name: student
       target: EducationStudent
@@ -78,6 +116,8 @@ entity:
   invariants:
     - id: ENROLLMENT-001
       rule: a COMPLETED enrollment must have completion evidence or outcome where required by the program.
+    - {id: ENROLLMENT-EXE-001, rule: "A enrollment that is withdrawn states withdrawal reason.", violatedWhen: "status == \"WITHDRAWN\" and withdrawal_reason == null", message: "Give the withdrawal reason before the enrollment is withdrawn."}
+    - {id: ENROLLMENT-EXE-002, rule: "A enrollment that is completed states when (completion date).", violatedWhen: "status == \"COMPLETED\" and completion_date == null", message: "Record completion date when the enrollment is completed."}
   lifecycle:
     title: Enrollment Lifecycle
     attribute: status

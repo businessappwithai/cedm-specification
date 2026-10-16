@@ -82,8 +82,75 @@ entity:
         summary: Words describing the charge as the customer will see them.
         usage: Generated or entered; printed on the invoice line.
         relationshipContext: Read by the customer.
+    - name: periodStart
+      type: date
+      required: false
+      help:
+        summary: The first day of the period the charge covers.
+        usage: Set for recurring and usage charges.
+        relationshipContext: Not later than the period end.
+    - name: periodEnd
+      type: date
+      required: false
+      help:
+        summary: The last day of the period the charge covers.
+        usage: Set for recurring and usage charges.
+        relationshipContext: Charges for the same subscription do not cover overlapping periods.
+    - name: quantity
+      type: decimal
+      required: true
+      precision: 18
+      scale: 4
+      default: 1
+      help:
+        summary: How many units are charged.
+        usage: Users, usage units, or 1 for a flat fee.
+        relationshipContext: Read with the unit price.
+    - name: unitPrice
+      type: Money
+      required: false
+      help:
+        summary: The price charged for a single unit of the billed product, service or usage.
+        usage: Taken from the subscription plan or price list when the charge is created.
+        relationshipContext: Stated in the charge's currency and multiplied by the quantity.
   relationships:
     - {name: customer, target: Customer, cardinality: 0..1, ownership: reference, help: {summary: The customer who is billed for the charge., usage: Set when the charge is generated; invoices are assembled per customer., cardinalityMeaning: At most one customer; a charge for an internal cost centre may have none., workflowRole: Decides which invoice the charge lands on and whose credit exposure it affects.}}
+    - name: subscription
+      target: Subscription
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The subscription the charge comes from.
+        usage: Set for recurring and usage charges.
+        cardinalityMeaning: At most one.
+        context: Lets every charge of a subscription be listed.
+    - name: product
+      target: Product
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The product charged for.
+        usage: Used for revenue reporting by product.
+        cardinalityMeaning: At most one.
+        context: Taken from the subscription's plan when there is one.
+    - name: invoice
+      target: Invoice
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The invoice the charge is on.
+        usage: Set when the charge is invoiced.
+        cardinalityMeaning: At most one.
+        context: Present once invoiced.
+    - name: currency
+      target: Currency
+      cardinality: "1"
+      ownership: reference
+      help:
+        summary: The currency of the charge.
+        usage: Taken from the subscription or the customer.
+        cardinalityMeaning: One per charge.
+        context: Charges on one invoice share its currency.
   invariants:
     - {id: CHARGE-001, rule: "This record must not silently duplicate or rewrite authoritative cash, accounting, tax, usage, entitlement, or billing evidence in another CEDM entity."}
     - id: CHARGE-002

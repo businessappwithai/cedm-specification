@@ -1,6 +1,6 @@
 //! Two people, one record: optimistic locking and closed transactions.
 //!
-//! Generated: 2026-10-10T12:31:37.638Z
+//! Generated: 2026-10-16T07:47:27.960Z
 //! Project: logistics
 //!
 //! Every entity is optimistic unless the model says `concurrency:
@@ -39,21 +39,32 @@ const FINAL_STATES: &[(&str, &str, &str)] = &[
     ("Party", "status", "RETIRED"),
     ("Organization", "status", "RETIRED"),
     ("PartyRole", "status", "EXPIRED"),
+    ("PartyRelationship", "status", "ENDED"),
+    ("LegalEntity", "status", "DISSOLVED"),
     ("Address", "status", "RETIRED"),
     ("Location", "status", "CLOSED"),
     ("Currency", "status", "RETIRED"),
     ("ExchangeRate", "status", "EXPIRED"),
     ("UnitOfMeasure", "status", "RETIRED"),
+    ("Attachment", "status", "WITHDRAWN"),
     ("Task", "status", "COMPLETED"),
     ("Shipment", "status", "DELIVERED"),
     ("Vehicle", "status", "RETIRED"),
     ("SalesOrder", "status", "FULFILLED"),
+    ("Carrier", "status", "INACTIVE"),
+    ("Consignment", "status", "DELIVERED"),
+    ("FreightCharge", "status", "PAID"),
+    ("Fulfillment", "status", "DELIVERED"),
+    ("Load", "status", "UNLOADED"),
+    ("Route", "status", "RETIRED"),
     ("Trip", "status", "COMPLETED"),
     ("TripSegment", "status", "COMPLETED"),
     ("Driver", "status", "RETIRED"),
     ("FuelTransaction", "status", "VERIFIED"),
     ("Customer", "status", "RETIRED"),
     ("Product", "status", "DISCONTINUED"),
+    ("Message", "status", "ACKNOWLEDGED"),
+    ("IntegrationEndpoint", "status", "RETIRED"),
 ];
 
 /// `(entity, status column, initial, [targets of edges out of initial])`.
@@ -66,7 +77,17 @@ const FIRST_MOVES: &[(&str, &str, &str, &[&str])] = &[
     ),
     ("Organization", "status", "DRAFT", &["ACTIVE", "RETIRED"]),
     ("PartyRole", "status", "ACTIVE", &["INACTIVE", "EXPIRED"]),
+    ("PartyRelationship", "status", "ACTIVE", &["ENDED"]),
+    (
+        "LegalEntity",
+        "status",
+        "ACTIVE",
+        &["DORMANT", "IN_LIQUIDATION"],
+    ),
+    ("BusinessUnit", "status", "ACTIVE", &["INACTIVE"]),
+    ("Department", "status", "ACTIVE", &["INACTIVE"]),
     ("Address", "status", "ACTIVE", &["INACTIVE", "RETIRED"]),
+    ("ContactPoint", "status", "ACTIVE", &["INACTIVE", "INVALID"]),
     ("Location", "status", "PLANNED", &["ACTIVE", "RETIRED"]),
     ("Currency", "status", "ACTIVE", &["INACTIVE", "RETIRED"]),
     ("ExchangeRate", "status", "DRAFT", &["ACTIVE", "CANCELLED"]),
@@ -76,6 +97,8 @@ const FIRST_MOVES: &[(&str, &str, &str, &[&str])] = &[
         "ACTIVE",
         &["INACTIVE", "RETIRED"],
     ),
+    ("Calendar", "status", "ACTIVE", &["INACTIVE"]),
+    ("Attachment", "status", "ACTIVE", &["WITHDRAWN"]),
     ("Task", "status", "CREATED", &["READY", "CANCELLED"]),
     ("Shipment", "status", "PLANNED", &["BOOKED", "CANCELLED"]),
     (
@@ -85,6 +108,22 @@ const FIRST_MOVES: &[(&str, &str, &str, &[&str])] = &[
         &["MAINTENANCE", "OUT_OF_SERVICE", "RETIRED"],
     ),
     ("SalesOrder", "status", "DRAFT", &["CONFIRMED", "CANCELLED"]),
+    (
+        "Carrier",
+        "status",
+        "PROSPECTIVE",
+        &["APPROVED", "INACTIVE"],
+    ),
+    ("Consignment", "status", "PLANNED", &["BOOKED", "CANCELLED"]),
+    ("FreightCharge", "status", "ESTIMATED", &["INVOICED"]),
+    (
+        "Fulfillment",
+        "status",
+        "RELEASED",
+        &["PICKING", "ON_HOLD", "CANCELLED"],
+    ),
+    ("Load", "status", "PLANNED", &["LOADING", "CANCELLED"]),
+    ("Route", "status", "PLANNED", &["ACTIVE", "RETIRED"]),
     ("Trip", "status", "PLANNED", &["BOOKED", "CANCELLED"]),
     ("TripSegment", "status", "PLANNED", &["BOOKED", "CANCELLED"]),
     ("Driver", "status", "DRAFT", &["ACTIVE", "RETIRED"]),
@@ -105,6 +144,13 @@ const FIRST_MOVES: &[(&str, &str, &str, &[&str])] = &[
         "status",
         "DRAFT",
         &["ACTIVE", "DISCONTINUED", "RETIRED"],
+    ),
+    ("Message", "status", "QUEUED", &["SENT", "FAILED"]),
+    (
+        "IntegrationEndpoint",
+        "status",
+        "PLANNED",
+        &["ACTIVE", "RETIRED"],
     ),
 ];
 

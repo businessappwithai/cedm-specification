@@ -9,9 +9,203 @@ entity:
   attributes:
     - {name: obligationId, type: uuid, required: true, immutable: true, help: {summary: The identity of the obligation., usage: Generated on recording; evidence and tasks refer to it.}}
     - {name: occurredAt, type: datetime, required: false, help: {summary: When the obligation arose., usage: Set from the source; deadlines and limitation periods run from it.}}
-  relationships: []
+    - name: obligationNumber
+      type: string
+      required: true
+      unique: true
+      maxLength: 40
+      help:
+        summary: The unique reference people use when chasing or reporting on this duty.
+        usage: Assigned when the obligation is recorded and quoted in reminders, breach notices and compliance reports.
+        relationshipContext: No two obligations share a number.
+    - name: title
+      type: string
+      required: true
+      maxLength: 200
+      help:
+        summary: What has to be done, in one line.
+        usage: Shown in obligation calendars, such as "Deliver SOC 2 Type II report".
+        relationshipContext: Identifies the obligation for people, with the number.
+    - name: description
+      type: text
+      required: false
+      help:
+        summary: The duty in full, as the source states it.
+        usage: Read by the owner to know exactly what must be done.
+        relationshipContext: The source remains authoritative.
+    - name: obligationType
+      type: enum
+      required: true
+      default: PERFORMANCE
+      values:
+        - PAYMENT
+        - DELIVERY
+        - REPORTING
+        - PERFORMANCE
+        - CONFIDENTIALITY
+        - RESTRICTION
+      help:
+        summary: The kind of duty owed, such as paying money, delivering goods or keeping information secret.
+        usage: Chosen when the obligation is recorded; it determines who monitors it and which evidence is expected.
+        relationshipContext: Payment duties usually also appear in the accounts.
+        valueSemantics:
+          PAYMENT: A duty to pay a sum of money by an agreed date.
+          DELIVERY: A duty to hand over goods, a service or a document.
+          REPORTING: A duty to report, notify or file information with someone.
+          PERFORMANCE: A duty to carry out an action or reach an agreed standard.
+          CONFIDENTIALITY: A duty to keep specified information secret from others.
+          RESTRICTION: A duty not to do something, such as competing or soliciting staff.
+    - name: sourceReference
+      type: string
+      required: false
+      maxLength: 200
+      help:
+        summary: Where the duty comes from, such as "MSA-2022-07, clause 14.3" or "GDPR Art. 33".
+        usage: Recorded so that the duty can be checked against its source.
+        relationshipContext: Read with the linked agreement, contract or requirement.
+    - name: isOwedByUs
+      type: boolean
+      required: true
+      default: true
+      help:
+        summary: Whether the duty is ours or the other party's.
+        usage: Separates what we must do from what we must make others do.
+        relationshipContext: Our own duties need an internal owner; others' need someone to follow them up.
+    - name: dueDate
+      type: date
+      required: false
+      help:
+        summary: The date the next performance is due.
+        usage: Owners are reminded before it; a duty not met by then is breached.
+        relationshipContext: Moved to the next occurrence when a recurring duty is met.
+    - name: frequency
+      type: enum
+      required: true
+      default: ONCE
+      values:
+        - ONCE
+        - MONTHLY
+        - QUARTERLY
+        - ANNUAL
+        - ONGOING
+      help:
+        summary: How often the duty has to be performed again, from a single event to every year.
+        usage: Chosen when recording the obligation; after each performance it drives the calculation of the next due date.
+        relationshipContext: One-off and ongoing duties have no next occurrence.
+        valueSemantics:
+          ONCE: Performed a single time and then finished.
+          MONTHLY: Falls due again every month after each performance.
+          QUARTERLY: Falls due again every three months after each performance.
+          ANNUAL: Falls due again once a year after each performance.
+          ONGOING: Applies continuously, as with confidentiality, so it never has a due date.
+    - name: metDate
+      type: date
+      required: false
+      help:
+        summary: The day the duty was last performed in full.
+        usage: Recorded by the owner alongside the evidence, such as a payment receipt or signed delivery note.
+        relationshipContext: Filled only once the obligation has been met.
+    - name: evidence
+      type: text
+      required: false
+      help:
+        summary: How performance was shown, such as the report sent and its date.
+        usage: Recorded when met; auditors read it.
+        relationshipContext: Supporting files are attached to the obligation.
+    - name: status
+      type: enum
+      required: true
+      default: PENDING
+      values:
+        - PENDING
+        - MET
+        - WAIVED
+        - BREACHED
+      help:
+        valueSemantics:
+          PENDING: Not yet due, or due but not yet performed.
+          MET: The duty has been performed and the evidence recorded.
+          WAIVED: The party owed the duty has formally released the other from it.
+          BREACHED: The duty was not performed by its due date.
+        summary: Whether the duty has been met.
+        usage: Moved on by the owner, or to breached when the due date passes.
+        relationshipContext: Breached obligations are escalated.
+  relationships:
+    - name: obligor
+      target: Party
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The party that owes the duty.
+        usage: Chosen when recording it.
+        cardinalityMeaning: One per obligation.
+        context: Our own company when the duty is ours.
+    - name: obligee
+      target: Party
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The party the duty is owed to.
+        usage: Chosen when recording it.
+        cardinalityMeaning: One per obligation.
+        context: Only this party can waive it.
+    - name: owner
+      target: Person
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The person who sees that the duty is met or followed up.
+        usage: Receives due-date reminders.
+        cardinalityMeaning: One per obligation.
+        context: Should be reassigned when they leave.
+    - name: agreement
+      target: Agreement
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The agreement the duty comes from.
+        usage: Linked when the source is an agreement.
+        cardinalityMeaning: At most one per obligation.
+        context: The agreement lists its obligations.
+    - name: contract
+      target: Contract
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The contract the duty comes from.
+        usage: Linked when the source is a contract.
+        cardinalityMeaning: At most one per obligation.
+        context: The contract lists its obligations.
+    - name: complianceRequirement
+      target: ComplianceRequirement
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The legal or regulatory requirement the duty comes from.
+        usage: Linked when the source is a law or regulation.
+        cardinalityMeaning: At most one per obligation.
+        context: Breaches are compliance incidents.
   invariants:
     - {id: OBLIGATION-001, rule: "Finalized evidence and effective history must be preserved; correction, reassessment, settlement or supersession must be explicit."}
+  workflows:
+    - name: ExceptionRaised
+      title: "Raise a task when a obligation is stopped"
+      description: "When a obligation is breached, a high-priority task asks someone to resolve it."
+      when: "status == \"BREACHED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: resolve"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "OBLIGATION-EXCEPTION-{{id}}"
+              name: "Resolve obligation {{title}}"
+              description: "Obligation {{title}} is now {{status}}. Find out why it stopped and move it on or close it."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "HIGH"
   help:
     summary: A duty owed by a party under law, an agreement, a policy, an order or another authoritative source.
     businessMeaning: Organisations owe things to regulators, customers, partners and each other. Recording each duty, with its source and who owes it, lets the organisation know what it must do and prove that it did.
@@ -19,4 +213,32 @@ entity:
     relationshipContext: An obligation relates to the party who owes it, the source that imposes it, and the evidence that it was met.
     lifecycle: Finalised evidence and history are preserved; if the obligation is met, waived or replaced, that is recorded explicitly.
     example: The duty to file the annual tax return by 31 July, arising from tax law.
+  lifecycle:
+    title: Obligation Lifecycle
+    attribute: status
+    states:
+      - PENDING
+      - MET
+      - WAIVED
+      - BREACHED
+    initial: PENDING
+    terminal:
+      - MET
+      - WAIVED
+    transitions:
+      - from: PENDING
+        to: MET
+        action: meet
+      - from: PENDING
+        to: WAIVED
+        action: waive
+      - from: PENDING
+        to: BREACHED
+        action: breach
+      - from: BREACHED
+        to: MET
+        action: cure
+      - from: BREACHED
+        to: WAIVED
+        action: waive
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-OBLIGATION}

@@ -25,6 +25,30 @@ entity:
           EXCEPTION: Held because something is wrong, such as a shortage or damage.
         businessMeaning: Controls packaging workflow.
         relationshipContext: PACKED is not dispatch/delivery evidence.
+    - name: packingNumber
+      type: string
+      required: true
+      unique: true
+      maxLength: 40
+      help:
+        summary: The reference of the packing task.
+        usage: Printed on the packing slip and scanned at the packing station.
+        relationshipContext: Unique.
+    - name: packedAt
+      type: datetime
+      required: false
+      help:
+        summary: The date and time the packer finished and closed the packed handling unit.
+        usage: Recorded when the unit is closed and labelled, ready for the shipping area.
+        relationshipContext: Filled only once packing is done.
+    - name: exceptionReason
+      type: string
+      required: false
+      maxLength: 300
+      help:
+        summary: What went wrong, such as missing items or damage found.
+        usage: Written when the task goes into exception.
+        relationshipContext: Read by the supervisor who resolves it.
   relationships:
     - {name: picking, target: Picking, cardinality: 0..1, ownership: reference, help: {summary: The pick that supplied the goods., usage: Linked when packing follows a pick., cardinalityMeaning: At most one picking., workflowRole: Confirms that what is packed matches what was picked., businessMeaning: Preserves pick-to-pack provenance.}}
     - {name: handlingUnit, target: HandlingUnit, cardinality: "1", ownership: reference, help: {summary: 'The package, carton or pallet that the goods go into.', usage: Chosen when packing starts., cardinalityMeaning: 'Exactly one handling unit: each packing task fills one package.', workflowRole: Gives the package contents and its identity., businessMeaning: Establishes physical logistics identity.}}

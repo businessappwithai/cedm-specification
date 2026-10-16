@@ -22,8 +22,93 @@ entity:
           ACTIVE: In use on transactions.
           COMPLETED: No longer used on new transactions. A final state.
           CANCELLED: Withdrawn before use. A final state.
+    - name: code
+      type: string
+      required: true
+      unique: true
+      maxLength: 30
+      help:
+        summary: The short code entered on transactions, such as FR-VAT-S.
+        usage: Chosen on order and invoice lines, or defaulted from the product and party.
+        relationshipContext: Unique.
+    - name: name
+      type: string
+      required: true
+      maxLength: 150
+      help:
+        summary: The name of the code, such as "France VAT standard".
+        usage: Shown where the code is chosen and on tax reports.
+        relationshipContext: Identifies the code for people.
+    - name: taxType
+      type: enum
+      required: true
+      default: VAT
+      values:
+        - VAT
+        - GST
+        - SALES_TAX
+        - USE_TAX
+        - WITHHOLDING
+        - EXCISE
+      help:
+        summary: Which tax this code belongs to, such as VAT, sales tax or withholding.
+        usage: Chosen by tax staff when the code is set up; it decides which return the taxed transactions appear on and which rates are looked up.
+        relationshipContext: Read together with the category, which says how that tax is treated on the line.
+        valueSemantics:
+          VAT: Value-added tax charged at each stage of supply and reclaimed on purchases.
+          GST: Goods and services tax, the value-added style tax used in countries such as Australia, India and Canada.
+          SALES_TAX: Tax charged to the buyer at the point of sale and remitted by the seller.
+          USE_TAX: Tax the buyer owes directly on purchases where no sales tax was charged by the supplier.
+          WITHHOLDING: Tax deducted from a payment to a supplier or employee and paid over to the authority.
+          EXCISE: Duty charged on specific goods such as fuel, alcohol or tobacco.
+    - name: category
+      type: enum
+      required: true
+      default: STANDARD
+      values:
+        - STANDARD
+        - REDUCED
+        - ZERO_RATED
+        - EXEMPT
+        - REVERSE_CHARGE
+        - OUT_OF_SCOPE
+      help:
+        summary: How the transaction is treated under the tax.
+        usage: Decides the rate and the reporting.
+        relationshipContext: Exempt and zero-rated are reported differently even though both charge no tax.
+        valueSemantics:
+          STANDARD: Taxed at the standard rate.
+          REDUCED: Taxed at a reduced rate.
+          ZERO_RATED: Taxable at 0%; input tax remains recoverable.
+          EXEMPT: Outside the tax's charge; input tax is usually not recoverable.
+          REVERSE_CHARGE: The buyer accounts for the tax instead of the seller.
+          OUT_OF_SCOPE: Not within the tax at all.
+    - name: returnBox
+      type: string
+      required: false
+      maxLength: 20
+      help:
+        summary: The box or line of the tax return the transactions are reported in.
+        usage: Used to prepare the return.
+        relationshipContext: Taken from the authority's return form.
+    - name: description
+      type: text
+      required: false
+      help:
+        summary: Explains when this code should be chosen, including the kind of goods, services or customers it covers.
+        usage: Read by whoever codes an order or invoice line to pick the right treatment.
+        relationshipContext: For exempt and zero-rated codes it should cite the legal basis, so an auditor can see why no tax was charged.
   relationships:
     - {name: organization, target: Organization, cardinality: 0..1, ownership: reference, help: {summary: The organisation the code is set up for., usage: Chosen when the code is company specific., cardinalityMeaning: At most one organisation; empty means it applies to all., workflowRole: Decides which company's returns the code feeds.}}
+    - name: jurisdiction
+      target: TaxJurisdiction
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: Where the tax applies.
+        usage: Set when the code is created.
+        cardinalityMeaning: One per code.
+        context: Its authority receives the return.
   invariants:
     - {id: TAX-CODE-001, rule: "This record must not silently duplicate or rewrite authoritative cash, accounting, tax, usage, entitlement, or billing evidence in another CEDM entity."}
   lifecycle:

@@ -11,6 +11,23 @@ entity:
     - {name: receiptNumber, type: string, required: true, unique: true, maxLength: 100, help: {summary: 'The business number printed on the receipt, such as PR-2041.', relationshipContext: Quoted on the work order and on stock documents., businessMeaning: Operational identifier for output posting., usage: "Shop floor, warehouse, quality, and audit."}}
     - {name: quantity, type: decimal, required: true, precision: 20, scale: 6, help: {businessMeaning: The accepted quantity added to stock. Rejected output is not counted here., usage: Entered when output is reported; must be positive; drives the inventory increase and unit cost., relationshipContext: Compared with the quantity planned on the work order to show how much of it is done., summary: Accepted output quantity received into inventory.}}
     - {name: receivedAt, type: datetime, required: true, help: {businessMeaning: 'When the output entered stock, which decides the period it is costed and reported in.', usage: Defaults to the time of entry; reports and costing group by it., relationshipContext: Matches the movement date on the linked inventory movement., summary: Effective output receipt time.}}
+    - name: scrapQuantity
+      type: decimal
+      required: false
+      precision: 18
+      scale: 4
+      help:
+        summary: The quantity of output rejected at receipt because it failed quality checks.
+        usage: Recorded by the production team at receipt for yield measurement; scrap is never added to stock.
+        relationshipContext: Excluded from the accepted quantity.
+    - name: isFinalReceipt
+      type: boolean
+      required: true
+      default: false
+      help:
+        summary: Whether this receipt completes the production order.
+        usage: Set on the last receipt; the order can then be closed.
+        relationshipContext: Remaining quantity is written off.
   relationships:
     - {name: workOrder, target: ManufacturingWorkOrder, cardinality: "1", ownership: reference, help: {summary: The manufacturing work order that produced this output., usage: Chosen when the receipt is entered; the work order's completed quantity follows from its receipts., cardinalityMeaning: Exactly one work order; a receipt cannot exist without its source., workflowRole: 'Links output back to the job that made it, for completion and cost.', businessMeaning: "Supplies authorization, product, BOM/routing context."}}
     - {name: product, target: Product, cardinality: '1', ownership: reference, help: {summary: The product that was produced and received., usage: Normally taken from the work order; read by stock and costing., cardinalityMeaning: Exactly one product per receipt., workflowRole: Identifies what stock increases., businessMeaning: Identifies output inventory item.}}

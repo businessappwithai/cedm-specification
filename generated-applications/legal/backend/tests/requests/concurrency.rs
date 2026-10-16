@@ -1,6 +1,6 @@
 //! Two people, one record: optimistic locking and closed transactions.
 //!
-//! Generated: 2026-10-10T12:31:25.296Z
+//! Generated: 2026-10-16T07:47:15.779Z
 //! Project: legal
 //!
 //! Every entity is optimistic unless the model says `concurrency:
@@ -39,15 +39,24 @@ const FINAL_STATES: &[(&str, &str, &str)] = &[
     ("Party", "status", "RETIRED"),
     ("Organization", "status", "RETIRED"),
     ("PartyRole", "status", "EXPIRED"),
+    ("PartyRelationship", "status", "ENDED"),
+    ("LegalEntity", "status", "DISSOLVED"),
     ("Address", "status", "RETIRED"),
     ("Location", "status", "CLOSED"),
     ("Currency", "status", "RETIRED"),
     ("ExchangeRate", "status", "EXPIRED"),
     ("UnitOfMeasure", "status", "RETIRED"),
+    ("Attachment", "status", "WITHDRAWN"),
     ("Task", "status", "COMPLETED"),
     ("Contract", "status", "EXPIRED"),
     ("ContractObligation", "status", "FULFILLED"),
+    ("Agreement", "status", "EXPIRED"),
+    ("ContractAmendment", "status", "EFFECTIVE"),
+    ("ContractRenewal", "status", "CONFIRMED"),
+    ("ContractTermination", "status", "COMPLETED"),
     ("Renewal", "status", "COMPLETED"),
+    ("LegalCase", "status", "CLOSED"),
+    ("LegalMatter", "status", "CLOSED"),
 ];
 
 /// `(entity, status column, initial, [targets of edges out of initial])`.
@@ -60,7 +69,17 @@ const FIRST_MOVES: &[(&str, &str, &str, &[&str])] = &[
     ),
     ("Organization", "status", "DRAFT", &["ACTIVE", "RETIRED"]),
     ("PartyRole", "status", "ACTIVE", &["INACTIVE", "EXPIRED"]),
+    ("PartyRelationship", "status", "ACTIVE", &["ENDED"]),
+    (
+        "LegalEntity",
+        "status",
+        "ACTIVE",
+        &["DORMANT", "IN_LIQUIDATION"],
+    ),
+    ("BusinessUnit", "status", "ACTIVE", &["INACTIVE"]),
+    ("Department", "status", "ACTIVE", &["INACTIVE"]),
     ("Address", "status", "ACTIVE", &["INACTIVE", "RETIRED"]),
+    ("ContactPoint", "status", "ACTIVE", &["INACTIVE", "INVALID"]),
     ("Location", "status", "PLANNED", &["ACTIVE", "RETIRED"]),
     ("Currency", "status", "ACTIVE", &["INACTIVE", "RETIRED"]),
     ("ExchangeRate", "status", "DRAFT", &["ACTIVE", "CANCELLED"]),
@@ -70,6 +89,8 @@ const FIRST_MOVES: &[(&str, &str, &str, &[&str])] = &[
         "ACTIVE",
         &["INACTIVE", "RETIRED"],
     ),
+    ("Calendar", "status", "ACTIVE", &["INACTIVE"]),
+    ("Attachment", "status", "ACTIVE", &["WITHDRAWN"]),
     ("Task", "status", "CREATED", &["READY", "CANCELLED"]),
     (
         "Contract",
@@ -83,7 +104,38 @@ const FIRST_MOVES: &[(&str, &str, &str, &[&str])] = &[
         "OPEN",
         &["IN_PROGRESS", "WAIVED", "CANCELLED"],
     ),
+    (
+        "Agreement",
+        "status",
+        "DRAFT",
+        &["IN_NEGOTIATION", "SIGNED", "CANCELLED"],
+    ),
+    (
+        "ContractAmendment",
+        "status",
+        "DRAFT",
+        &["APPROVED", "CANCELLED"],
+    ),
+    (
+        "ContractRenewal",
+        "status",
+        "UNDER_REVIEW",
+        &["CONFIRMED", "DECLINED"],
+    ),
+    (
+        "ContractTermination",
+        "status",
+        "NOTIFIED",
+        &["EFFECTIVE", "WITHDRAWN"],
+    ),
     ("Renewal", "status", "DRAFT", &["ACTIVE", "CANCELLED"]),
+    (
+        "LegalCase",
+        "status",
+        "FILED",
+        &["PENDING", "SETTLED", "WITHDRAWN"],
+    ),
+    ("LegalMatter", "status", "OPEN", &["ON_HOLD", "CLOSED"]),
 ];
 
 /// The first entity that is optimistic and has a text column to edit.

@@ -26,6 +26,37 @@ entity:
           VOID: Withdrawn because it was wrong or issued in error; kept for history. A final state.
         businessMeaning: "Controls whether the certificate is preparatory, approved, issued, replaced, or invalidated."
         relationshipContext: Status does not alter underlying measurements.
+    - name: lotNumber
+      type: string
+      required: false
+      maxLength: 60
+      help:
+        summary: The lot or batch the certificate covers.
+        usage: Printed on the certificate; matched to the goods received or shipped.
+        relationshipContext: As on the product labels.
+    - name: conclusion
+      type: enum
+      required: false
+      values:
+        - CONFORMS
+        - CONFORMS_WITH_DEVIATION
+        - DOES_NOT_CONFORM
+      help:
+        summary: The quality verdict on whether the material meets its specification, as stated on the certificate.
+        usage: Entered by the quality team when results are summarised and the certificate is approved.
+        relationshipContext: A certificate showing non-conformance is not normally issued to a customer.
+        valueSemantics:
+          CONFORMS: Meets every specification limit that was tested.
+          CONFORMS_WITH_DEVIATION: Meets the specification with an approved deviation.
+          DOES_NOT_CONFORM: Fails one or more specifications.
+    - name: approvedBy
+      type: string
+      required: false
+      maxLength: 200
+      help:
+        summary: The name of the quality person who approved the certificate.
+        usage: Printed with the signature.
+        relationshipContext: Must be authorised to release the material.
   relationships:
     - {name: product, target: Product, cardinality: 0..1, ownership: reference, help: {summary: Product represented by the certificate., businessMeaning: Identifies the material whose quality is certified., usage: Product release and customer documentation., cardinalityMeaning: Optional when context is supplied by other source records., context: Must reconcile with inspections and measurements.}}
     - {name: qualityInspections, target: QualityInspection, cardinality: "1..*", ownership: reference, help: {summary: Inspections supporting the certificate., businessMeaning: Supplies authoritative execution evidence for the certified conclusions., usage: "Certificate generation, audit, and traceability.", cardinalityMeaning: An issued certificate requires at least one governed inspection., context: Certificate summarizes but does not replace inspections.}}

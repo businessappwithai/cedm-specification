@@ -100,6 +100,61 @@ INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, st
 VALUES ('b9d10231-465a-5a0e-96f1-b4c247545c3a', 'bus_party_role', 'status', 'INACTIVE', 'EXPIRED', 'expire', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
+-- PartyRelationshipLifecycle: ACTIVE → ENDED (end)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('1bca783c-8855-551e-8998-f5e64d279ba7', 'bus_party_relationship', 'status', 'ACTIVE', 'ENDED', 'end', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- LegalEntityLifecycle: ACTIVE → DORMANT (make_dormant)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('83fb78de-631c-5d67-8f2c-420c845eb186', 'bus_legal_entity', 'status', 'ACTIVE', 'DORMANT', 'make_dormant', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- LegalEntityLifecycle: DORMANT → ACTIVE (resume_trading)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('38f8077b-1a05-5751-a7a4-50dedbc07994', 'bus_legal_entity', 'status', 'DORMANT', 'ACTIVE', 'resume_trading', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- LegalEntityLifecycle: ACTIVE → IN_LIQUIDATION (liquidate)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('14ee2f62-ba0e-563b-891b-25db56946360', 'bus_legal_entity', 'status', 'ACTIVE', 'IN_LIQUIDATION', 'liquidate', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- LegalEntityLifecycle: DORMANT → IN_LIQUIDATION (liquidate)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('215245ef-5cd1-5d04-809d-055646d79381', 'bus_legal_entity', 'status', 'DORMANT', 'IN_LIQUIDATION', 'liquidate', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- LegalEntityLifecycle: IN_LIQUIDATION → DISSOLVED (dissolve)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('7bcd09bc-fbb4-5f00-ad85-5d054b717921', 'bus_legal_entity', 'status', 'IN_LIQUIDATION', 'DISSOLVED', 'dissolve', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- LegalEntityLifecycle: DORMANT → DISSOLVED (dissolve)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('7c54eef1-f7d9-5f54-8a5b-81da06268016', 'bus_legal_entity', 'status', 'DORMANT', 'DISSOLVED', 'dissolve', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- BusinessUnitLifecycle: ACTIVE → INACTIVE (deactivate)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('e361cabf-30e6-5492-ba00-4879a3038d9f', 'bus_business_unit', 'status', 'ACTIVE', 'INACTIVE', 'deactivate', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- BusinessUnitLifecycle: INACTIVE → ACTIVE (reactivate)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('f1b705b3-2d65-5ff2-8b7d-cf65c5bf7bb7', 'bus_business_unit', 'status', 'INACTIVE', 'ACTIVE', 'reactivate', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- DepartmentLifecycle: ACTIVE → INACTIVE (deactivate)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('b2bf88d0-612d-525d-adb3-7d7aede5294e', 'bus_department', 'status', 'ACTIVE', 'INACTIVE', 'deactivate', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- DepartmentLifecycle: INACTIVE → ACTIVE (reactivate)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('aef9cc6c-7064-595b-a570-1d46c7dcb467', 'bus_department', 'status', 'INACTIVE', 'ACTIVE', 'reactivate', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
 -- AddressLifecycle: ACTIVE → INACTIVE (deactivate)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
 VALUES ('9a06fc0c-9478-5f7e-bb87-a9213a370603', 'bus_address', 'status', 'ACTIVE', 'INACTIVE', 'deactivate', TRUE, NOW())
@@ -118,6 +173,26 @@ ON CONFLICT DO NOTHING;
 -- AddressLifecycle: INACTIVE → RETIRED (retire)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
 VALUES ('b383cb3a-36f3-5028-ada2-a9a62fc907c3', 'bus_address', 'status', 'INACTIVE', 'RETIRED', 'retire', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- ContactPointLifecycle: ACTIVE → INACTIVE (deactivate)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('e0b8c0e2-689b-59db-8bb8-333d386bed71', 'bus_contact_point', 'status', 'ACTIVE', 'INACTIVE', 'deactivate', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- ContactPointLifecycle: INACTIVE → ACTIVE (reactivate)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('6b17c2bf-ffb0-5978-b33d-3f280f1f20e1', 'bus_contact_point', 'status', 'INACTIVE', 'ACTIVE', 'reactivate', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- ContactPointLifecycle: ACTIVE → INVALID (mark_invalid)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('7240d44e-f0c9-58b7-94d3-402f238f9553', 'bus_contact_point', 'status', 'ACTIVE', 'INVALID', 'mark_invalid', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- ContactPointLifecycle: INVALID → ACTIVE (reactivate)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('29952f33-962f-52fa-a58d-917d6583cd5a', 'bus_contact_point', 'status', 'INVALID', 'ACTIVE', 'reactivate', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- LocationLifecycle: PLANNED → ACTIVE (activate)
@@ -213,6 +288,21 @@ ON CONFLICT DO NOTHING;
 -- UnitOfMeasureLifecycle: INACTIVE → RETIRED (retire)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
 VALUES ('214dd356-fe4f-594c-8075-d44e24404631', 'bus_unit_of_measure', 'status', 'INACTIVE', 'RETIRED', 'retire', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- CalendarLifecycle: ACTIVE → INACTIVE (deactivate)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('c2317993-402a-502e-9018-4ffae5efd600', 'bus_calendar', 'status', 'ACTIVE', 'INACTIVE', 'deactivate', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- CalendarLifecycle: INACTIVE → ACTIVE (reactivate)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('e4b14901-9e0c-5a8e-8cbe-e98abdcb1ef7', 'bus_calendar', 'status', 'INACTIVE', 'ACTIVE', 'reactivate', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- AttachmentLifecycle: ACTIVE → WITHDRAWN (withdraw)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('67548f1a-643c-5978-abb8-4034cd6902f6', 'bus_attachment', 'status', 'ACTIVE', 'WITHDRAWN', 'withdraw', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- TaskLifecycle: CREATED → READY (mark_ready)
@@ -418,6 +508,41 @@ ON CONFLICT DO NOTHING;
 -- InventoryTransferLifecycle: IN_PROGRESS → CANCELLED (cancel)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
 VALUES ('2df0ba8a-c7ca-5b00-8d15-a2944da74567', 'bus_inventory_transfer', 'status', 'IN_PROGRESS', 'CANCELLED', 'cancel', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- InventoryCountLifecycle: PLANNED → COUNTED (count)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('04703808-b0d4-5364-a004-ffda4c9ce047', 'bus_inventory_count', 'status', 'PLANNED', 'COUNTED', 'count', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- InventoryCountLifecycle: COUNTED → RECOUNT (order_recount)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('590cd6b0-defd-5b81-bb5a-48e7d8f15e7a', 'bus_inventory_count', 'status', 'COUNTED', 'RECOUNT', 'order_recount', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- InventoryCountLifecycle: RECOUNT → COUNTED (count)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('ce39325f-848d-543e-a9cb-a40883801d9d', 'bus_inventory_count', 'status', 'RECOUNT', 'COUNTED', 'count', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- InventoryCountLifecycle: COUNTED → APPROVED (approve)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('9f64122d-9612-5645-a835-a0400b6f1e51', 'bus_inventory_count', 'status', 'COUNTED', 'APPROVED', 'approve', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- InventoryAdjustmentLifecycle: REQUESTED → APPROVED (approve)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('4c966631-036e-583d-9aea-6c3fafaf27f5', 'bus_inventory_adjustment', 'status', 'REQUESTED', 'APPROVED', 'approve', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- InventoryAdjustmentLifecycle: REQUESTED → REJECTED (reject)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('2e374f0b-c75f-53a4-a45b-72e8800302bf', 'bus_inventory_adjustment', 'status', 'REQUESTED', 'REJECTED', 'reject', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- InventoryAdjustmentLifecycle: APPROVED → POSTED (post)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('85a57278-7628-51ea-8cec-0d9796fd31f0', 'bus_inventory_adjustment', 'status', 'APPROVED', 'POSTED', 'post', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- LotLifecycle: ACTIVE → HOLD (hold)
@@ -670,6 +795,56 @@ INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, st
 VALUES ('67127ed2-67b5-578a-b358-b90c5cfea969', 'bus_warehouse', 'status', 'SUSPENDED', 'ACTIVE', 'resume', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
+-- WarehouseZoneLifecycle: ACTIVE → INACTIVE (deactivate)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('cad0d784-15a9-53c4-aea1-d25f13991d9f', 'bus_warehouse_zone', 'status', 'ACTIVE', 'INACTIVE', 'deactivate', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- WarehouseZoneLifecycle: INACTIVE → ACTIVE (reactivate)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('7ae08891-679d-5a32-99b7-727147227436', 'bus_warehouse_zone', 'status', 'INACTIVE', 'ACTIVE', 'reactivate', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- DockLifecycle: AVAILABLE → OUT_OF_SERVICE (take_out_of_service)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('16746734-52fd-580b-977c-2c456c9c57be', 'bus_dock', 'status', 'AVAILABLE', 'OUT_OF_SERVICE', 'take_out_of_service', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- DockLifecycle: OUT_OF_SERVICE → AVAILABLE (return_to_service)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('f1c79aa2-c2f1-59bd-8e61-200a06a55598', 'bus_dock', 'status', 'OUT_OF_SERVICE', 'AVAILABLE', 'return_to_service', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- HandlingUnitLifecycle: OPEN → CLOSED (close)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('476e4f5b-94f6-5180-a88b-d9131909c20a', 'bus_handling_unit', 'status', 'OPEN', 'CLOSED', 'close', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- HandlingUnitLifecycle: CLOSED → OPEN (reopen)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('ae667f0c-21c7-5822-8bc3-43cec2263b84', 'bus_handling_unit', 'status', 'CLOSED', 'OPEN', 'reopen', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- HandlingUnitLifecycle: CLOSED → SHIPPED (ship)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('e15e8de1-f72b-5287-a272-e979a6ffef18', 'bus_handling_unit', 'status', 'CLOSED', 'SHIPPED', 'ship', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- HandlingUnitLifecycle: SHIPPED → RECEIVED (receive)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('a22d94db-d4a2-5d24-b1fc-dc2fd2efa07c', 'bus_handling_unit', 'status', 'SHIPPED', 'RECEIVED', 'receive', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- HandlingUnitLifecycle: RECEIVED → DISMANTLED (dismantle)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('ab0f69de-eae4-5a78-ab9a-8a330c02c081', 'bus_handling_unit', 'status', 'RECEIVED', 'DISMANTLED', 'dismantle', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- HandlingUnitLifecycle: CLOSED → DISMANTLED (dismantle)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('5a59d15d-24fc-5819-93a6-2f08810be691', 'bus_handling_unit', 'status', 'CLOSED', 'DISMANTLED', 'dismantle', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
 -- PutawayLifecycle: PLANNED → RELEASED (release)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
 VALUES ('be68ba78-c0d9-5092-9f79-64fef9dd12df', 'bus_putaway', 'status', 'PLANNED', 'RELEASED', 'release', TRUE, NOW())
@@ -904,6 +1079,44 @@ INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field
 VALUES ('c03e85af-b245-5753-8271-1a6c705965ae', 'bus_party_role', 'status', 'EXPIRED', FALSE, TRUE, 30, TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
+-- PartyRelationshipLifecycle: states
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('c72d4bc6-a6ed-50ea-93ce-cebf28c3e78a', 'bus_party_relationship', 'status', 'ACTIVE', TRUE, FALSE, 10, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('fc457f9a-2d66-5747-82f5-59cb1c63aef7', 'bus_party_relationship', 'status', 'ENDED', FALSE, TRUE, 20, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- LegalEntityLifecycle: states
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('4139c6c7-4ae9-56a1-b5b5-8060498ef4e7', 'bus_legal_entity', 'status', 'ACTIVE', TRUE, FALSE, 10, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('f6c00da0-a831-57b2-9c9a-73512a902534', 'bus_legal_entity', 'status', 'DORMANT', FALSE, FALSE, 20, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('0db4f5a2-d365-5305-ab2a-707c1856a3e8', 'bus_legal_entity', 'status', 'IN_LIQUIDATION', FALSE, FALSE, 30, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('afe04cd4-f12a-56b2-b96d-016592497832', 'bus_legal_entity', 'status', 'DISSOLVED', FALSE, TRUE, 40, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- BusinessUnitLifecycle: states
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('32f82198-f0f9-55c5-8930-ad2d9f18e642', 'bus_business_unit', 'status', 'ACTIVE', TRUE, FALSE, 10, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('70c96aa6-eecf-59fc-a6a8-272216e5ea8d', 'bus_business_unit', 'status', 'INACTIVE', FALSE, FALSE, 20, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- DepartmentLifecycle: states
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('30ac0ad3-cffe-522b-8259-9e31a4e40f93', 'bus_department', 'status', 'ACTIVE', TRUE, FALSE, 10, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('de37c959-c06e-5604-a29f-7147128ca151', 'bus_department', 'status', 'INACTIVE', FALSE, FALSE, 20, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
 -- AddressLifecycle: states
 INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
 VALUES ('1f1375ff-4d8e-542e-bb50-f18ed1095e21', 'bus_address', 'status', 'ACTIVE', TRUE, FALSE, 10, TRUE, NOW())
@@ -913,6 +1126,17 @@ VALUES ('c381eb53-a7db-57e6-ba40-2cca8abf1981', 'bus_address', 'status', 'INACTI
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
 VALUES ('0eb51baa-be0b-5d86-9b1d-0f488a7d9466', 'bus_address', 'status', 'RETIRED', FALSE, TRUE, 30, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- ContactPointLifecycle: states
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('b2ef6052-3d2a-587e-bf20-85e5ed2cb5ff', 'bus_contact_point', 'status', 'ACTIVE', TRUE, FALSE, 10, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('e869f882-331f-58ef-a548-83fe5593ac31', 'bus_contact_point', 'status', 'INACTIVE', FALSE, FALSE, 20, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('05cc8d6e-1ac0-592c-b8fe-1bce33d53d62', 'bus_contact_point', 'status', 'INVALID', FALSE, FALSE, 30, TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- LocationLifecycle: states
@@ -966,6 +1190,22 @@ VALUES ('67bb34b8-606b-53e6-a829-21578021ec71', 'bus_unit_of_measure', 'status',
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
 VALUES ('9ecf66bb-18d1-569e-b305-c77c8fadfb25', 'bus_unit_of_measure', 'status', 'RETIRED', FALSE, TRUE, 30, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- CalendarLifecycle: states
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('41bed05c-1c60-52d8-a5e9-34bfcdb3c19d', 'bus_calendar', 'status', 'ACTIVE', TRUE, FALSE, 10, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('a071b363-0ad5-5223-a3b3-47eb54f78f6c', 'bus_calendar', 'status', 'INACTIVE', FALSE, FALSE, 20, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- AttachmentLifecycle: states
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('7772dcf0-d073-5656-95a4-fabb2f7919cd', 'bus_attachment', 'status', 'ACTIVE', TRUE, FALSE, 10, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('79f13a45-b711-555c-b165-a9dcb2b4a1b4', 'bus_attachment', 'status', 'WITHDRAWN', FALSE, TRUE, 20, TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- TaskLifecycle: states
@@ -1046,6 +1286,34 @@ VALUES ('f572a955-3c70-54ba-9029-13ab21cd3331', 'bus_inventory_transfer', 'statu
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
 VALUES ('aa30dbea-062d-5757-9f8f-71fb44f65da5', 'bus_inventory_transfer', 'status', 'CANCELLED', FALSE, TRUE, 50, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- InventoryCountLifecycle: states
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('5054b68b-a5d2-5ae7-b713-0be39ec6a7c6', 'bus_inventory_count', 'status', 'PLANNED', TRUE, FALSE, 10, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('b9027f00-cd5e-576f-aef8-7c6b27d23f23', 'bus_inventory_count', 'status', 'COUNTED', FALSE, FALSE, 20, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('7b2178f2-40c7-5f4a-a560-74bdcf246420', 'bus_inventory_count', 'status', 'RECOUNT', FALSE, FALSE, 30, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('5a9d9e07-8493-5314-b5c3-7621373faa7e', 'bus_inventory_count', 'status', 'APPROVED', FALSE, TRUE, 40, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- InventoryAdjustmentLifecycle: states
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('d2e2831d-6e6a-58b9-915f-1b535716d00c', 'bus_inventory_adjustment', 'status', 'REQUESTED', TRUE, FALSE, 10, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('9b115db4-bfe4-557f-84d1-0795138b4ebf', 'bus_inventory_adjustment', 'status', 'APPROVED', FALSE, FALSE, 20, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('c81a31ee-fb3a-5011-b393-d5233360579c', 'bus_inventory_adjustment', 'status', 'POSTED', FALSE, TRUE, 30, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('7f6520e1-cf72-58cc-9654-77afa4f15303', 'bus_inventory_adjustment', 'status', 'REJECTED', FALSE, TRUE, 40, TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- LotLifecycle: states
@@ -1146,6 +1414,39 @@ VALUES ('c93cc502-1dad-53fb-93e1-ccc6826dc7e6', 'bus_warehouse', 'status', 'SUSP
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
 VALUES ('2944a0ee-43bd-5844-87c5-7aea626e6046', 'bus_warehouse', 'status', 'CLOSED', FALSE, TRUE, 40, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- WarehouseZoneLifecycle: states
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('fbee9aef-d848-5c88-9936-056a03776414', 'bus_warehouse_zone', 'status', 'ACTIVE', TRUE, FALSE, 10, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('0250f0c6-63ed-5827-9108-8c457081e22d', 'bus_warehouse_zone', 'status', 'INACTIVE', FALSE, FALSE, 20, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- DockLifecycle: states
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('ff486a10-1341-5faa-a208-1b2f7198470d', 'bus_dock', 'status', 'AVAILABLE', TRUE, FALSE, 10, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('fcd0c5c8-4607-51e2-a89d-878148717265', 'bus_dock', 'status', 'OUT_OF_SERVICE', FALSE, FALSE, 20, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- HandlingUnitLifecycle: states
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('089969dc-1b6e-589c-afc9-c987a1f16e6a', 'bus_handling_unit', 'status', 'OPEN', TRUE, FALSE, 10, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('8a477fff-1809-5162-9747-d8054078455a', 'bus_handling_unit', 'status', 'CLOSED', FALSE, FALSE, 20, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('2413f49a-1bd7-5244-913a-a26acbbc58eb', 'bus_handling_unit', 'status', 'SHIPPED', FALSE, FALSE, 30, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('0edcc34b-81f5-50ac-84e0-9f87e4653b45', 'bus_handling_unit', 'status', 'RECEIVED', FALSE, FALSE, 40, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('3b3605f9-1d02-5085-8c7c-9c92c6e3f94b', 'bus_handling_unit', 'status', 'DISMANTLED', FALSE, TRUE, 50, TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- PutawayLifecycle: states

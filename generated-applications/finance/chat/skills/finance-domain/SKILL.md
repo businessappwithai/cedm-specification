@@ -24,6 +24,7 @@ Fields:
   - **Account Type** (required, one of the Account Account Type values) — The accounting class of the account, which decides where it appears in the statements and whether debits or credits increase it. Chosen when the account is created and rarely changed afterwards, because changing it reclassifies every histo…
   - **Status** (required, one of the Account Status values) — Whether the account is open for new postings. New accounts start ACTIVE. Finance staff move an account to INACTIVE to stop postings temporarily and to RETIRED when it is closed for good; posting screens offer only ACTIVE accounts. Open for…
   - **Currency** (a Currency) — The currency in which this account is denominated, when it is held in something other than the organisation's base currency. Set for foreign-currency accounts such as a euro bank account so that postings and balances are held in that curre…
+  - **Is Posting Account** (required) — Whether journal lines may post directly to the account, or it only sums its children. Summary accounts in the hierarchy are not posting accounts. A posting account has no children.
   - **Parent Account** (a Account) — The account directly above this one in the chart of accounts hierarchy. Chosen when the account is created to place it in a reporting group, for example Bank Accounts under Current Assets. Leave empty for a top-level account. At most one p…
   - **Organization** (a Organization) — The organisation whose chart of accounts this account belongs to. Set when the account is created so each legal entity keeps its own chart; used to scope ledgers and reports to one organisation. At most one organisation; an account with no…
 
@@ -131,7 +132,46 @@ Readable by every signed-in person.
 
 Fields:
   - **Effective At** — The date and time from which the organisation treats itself as holding the asset. Entered from the delivery or transfer document; it starts depreciation and ageing, so it is the date finance relies on.
+  - **Acquisition Number** (required) — The reference number that identifies this acquisition on screens, invoices and audit reports. Assigned by the system when the acquisition is first recorded and never changed afterwards. Unique across all acquisitions.
+  - **Acquisition Type** (required, one of the Asset Acquisition Acquisition Type values) — How the asset was acquired. Decides the accounting treatment and which evidence is needed. Leased assets follow the lease accounting rules. Bought from a supplier. Built in-house or by contractors. Taken on under a lease recognised on the…
+  - **Acquisition Date** (required) — The day the business obtained the asset. Taken from the delivery or the contract. Not later than the in-service date.
+  - **In Service Date** — The day the asset was first installed and ready to be used in operations. Entered by the asset accountant; depreciation of the asset begins from this date. Required before the acquisition can be capitalised.
+  - **Acquisition Cost** (required) — The purchase price of the asset. Taken from the invoice, net of recoverable taxes and discounts. In the acquisition's currency.
+  - **Additional Costs** — Costs needed to bring the asset into use, such as delivery, installation and testing. Added to the capitalised cost. Training and running costs are expenses, not capitalised.
+  - **Capitalized Amount** — The total amount recognised as the asset's cost. Acquisition cost plus additional costs; depreciation is computed on it. Fixed once capitalised.
+  - **Capitalized At** — The date and time the acquisition was posted to the accounts as a fixed asset. Stamped automatically when the accountant capitalises the acquisition. Empty until the acquisition has been capitalised.
+  - **Status** (required, one of the Asset Acquisition Status values) — Whether the acquisition has been posted to the accounts, cancelled or reversed. Moves on as the accountant capitalises the acquisition or corrects it. Only capitalised acquisitions are depreciated. Entered and waiting to be capitalised. Po…
   - **Asset** (required, a Asset) — The asset that was acquired. Chosen when the acquisition is recorded; one asset is normally acquired once. Exactly one asset per acquisition event. Links the capitalisation event to the register entry it created.
+  - **Supplier** (a Supplier) — The supplier the asset was bought from. Set for purchases. At most one. Read with the invoice.
+  - **Invoice** (a Invoice) — The supplier invoice the cost rests on. Linked for purchases. At most one invoice; further costs are listed in the notes. The invoice is the evidence of cost.
+  - **Purchase Order** (a Purchase Order) — The order the asset was bought on. Linked when the purchase was ordered. At most one. Capital orders are approved against the capex budget.
+  - **Currency** (required, a Currency) — The currency of the costs. Taken from the invoice. One per acquisition. Converted to the company currency on posting.
+
+### Asset Acquisition Acquisition Type
+
+The values of asset acquisition acquisition type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Asset Acquisition Status
+
+The values of asset acquisition status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Asset Class
 
@@ -141,6 +181,41 @@ Readable by every signed-in person.
 
 Fields:
   - **Effective At** — When this version of the class's rules takes effect. Set when the class is defined or its policy revised, so each asset can be evaluated under the rules in force on its own dates.
+  - **Code** (required) — The short code of the class, used in the asset register and in reports. Chosen when the class is created, such as "IT-HW"; finance reports and imports refer to it. Unique; it is the identifier people and integrations use.
+  - **Name** (required) — The name of the class, such as "IT hardware". Shown wherever an asset's class is displayed. Together with the code it identifies the class for people.
+  - **Description** — Which assets belong in the class and which do not. Read by whoever acquires an asset and must choose a class. Should follow the wording of the accounting policy.
+  - **Depreciation Method** (required, one of the Asset Class Depreciation Method values) — How assets in the class lose value over time. Copied onto each new asset in the class; the depreciation run applies it. The method, the useful life and the residual value together give the depreciation charge. An equal charge in every peri…
+  - **Useful Life Months** — Over how many months assets in the class are depreciated. Copied onto each new asset; it can be overridden for an individual asset. Not needed when the method is none or units of production.
+  - **Residual Value Percent** — The share of the cost expected to remain at the end of the useful life. Applied to each asset's cost to give the value depreciation stops at; usually zero. Between 0 and 100.
+  - **Capitalization Threshold** — The smallest cost at which an item in this class is capitalized rather than expensed. Read at purchase to decide whether an item becomes an asset or a cost of the period. Set from the accounting policy, usually per company.
+  - **Status** (required, one of the Asset Class Status values) — Whether new assets may be placed in the class. Made inactive when the class is no longer used; existing assets keep it. Inactive classes are not offered when an asset is created. Available for new assets. Kept for existing assets but not o…
+  - **Asset Account** (a Account) — The balance-sheet account that carries the cost of assets in the class. Used by acquisitions and disposals to post the asset's cost. One asset account per class. Must be an asset-type account.
+
+### Asset Class Depreciation Method
+
+The values of asset class depreciation method, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Asset Class Status
+
+The values of asset class status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Asset Depreciation
 
@@ -181,7 +256,45 @@ Readable by every signed-in person.
 
 Fields:
   - **Effective At** — The date and time at which the organisation ceased to hold the asset. Taken from the sale, scrap or write-off document; depreciation stops and the gain or loss is measured at this date.
+  - **Disposal Number** (required) — The reference number that identifies this disposal on screens, approvals and audit reports. Assigned by the system when the disposal is requested and never changed afterwards. Unique across all disposals.
+  - **Disposal Method** (required, one of the Asset Disposal Disposal Method values) — Sold to an outside buyer for a price. Scrapped or recycled with no resale. Given away free to another party or charity. Handed in as part payment for a replacement. Lost, stolen or destroyed and written off. Transferred to another company…
+  - **Disposal Date** — The day the asset actually left the business. Entered when the disposal is completed; depreciation of the asset stops on this date. Required before the disposal can be completed.
+  - **Reason** — A short business justification for retiring the asset, for example replaced by a newer model. Written by the requester and read by the approver when deciding whether to authorise. Free text.
+  - **Proceeds** — The amount of money the business received in return for the asset. Recorded for sales and trade-ins, and used to calculate the gain or loss on disposal. Zero for scrapping, donations and losses.
+  - **Book Value At Disposal** — The asset's net book value on the disposal date. Computed from the asset's cost and accumulated depreciation. Fixed when the disposal is completed.
+  - **Gain Or Loss** — Proceeds minus book value; positive for a gain, negative for a loss. Posted to the gain or loss on disposal account. The one amount on a disposal that may be negative.
+  - **Approved At** — The date and time the approver authorised the disposal. Stamped automatically when the approver accepts the request. Required before the disposal can be completed.
+  - **Status** (required, one of the Asset Disposal Status values) — Where the disposal stands between request, approval and completion. Moves on as the approver decides and the asset is physically removed. Only completed disposals take the asset off the register. Asked for and waiting for an approver. Appr…
   - **Asset** (required, a Asset) — The asset that was disposed of. Chosen when the disposal is recorded; the asset then stops being offered for new assignments. Exactly one asset per disposal event. Marks the end of the asset's operational life while keeping its history.
+  - **Buyer** (a Party) — Who bought or received the asset. Set for sales, donations and transfers. At most one. The proceeds are invoiced to them.
+  - **Approved By** (a Person) — The person who authorised the asset to be disposed of. Recorded when the approver accepts the request. At most one approver is named per disposal; it stays empty until approval. Provides the sign-off that lets a disposal move on to complet…
+  - **Currency** (required, a Currency) — The currency of the amounts. Usually the company currency. One per disposal. All amounts on the disposal use it.
+
+### Asset Disposal Disposal Method
+
+The values of asset disposal disposal method, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Asset Disposal Status
+
+The values of asset disposal status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Asset Status
 
@@ -204,7 +317,43 @@ Readable by every signed-in person.
 
 Fields:
   - **Effective At** — When the move took effect. Taken from the hand-over document; the asset's current assignment is the latest transfer whose effective date has passed.
+  - **Transfer Number** (required) — The reference number that identifies this transfer on screens, shipping documents and audit reports. Assigned by the system when the transfer is requested and never changed afterwards. Unique across all transfers.
+  - **Transfer Type** (required, one of the Asset Transfer Transfer Type values) — What changes with the transfer. Chosen when requesting it; decides who must confirm and whether accounting is posted. Several changes at once are one transfer of the main type. The asset moves to another place. Another unit bears the asset…
+  - **Effective Date** (required) — The day the change takes effect for the register and depreciation. Set by finance; depreciation before it stays with the old unit. Usually the first day of a period.
+  - **Reason** — A short explanation of why the asset is changing location, owner or custodian. Written by the requester and read by the approver and the receiving site. Free text, for example site closure or staff relocation.
+  - **Shipped At** — The date and time the asset left its previous location. Recorded by the sending site for physical moves. Present once the asset is in transit.
+  - **Received At** — The date and time the receiving site confirmed the asset had arrived. Recorded when the receiver acknowledges delivery. Present once the transfer is completed.
+  - **Status** (required, one of the Asset Transfer Status values) — Where the transfer stands between request, shipment and confirmation of arrival. Moves on as the sender ships the asset and the receiver confirms it. The asset register changes only when the transfer completes. Asked for, but the asset has…
   - **Asset** (required, a Asset) — The asset being moved. Chosen when the transfer is recorded. Exactly one asset per transfer; moving several assets means several transfers. Keeps custody history for each asset separate from its acquisition.
+  - **From Location** (a Location) — Where the asset was. Copied from the asset when the transfer is requested. One per transfer. Should match the asset's location.
+  - **From Cost Center** (a Cost Center) — The cost centre that bore the asset's cost. Copied from the asset. One per transfer. Bears depreciation up to the effective date.
+  - **From Custodian** (a Person) — The person who was responsible for the asset. Copied from the asset. One per transfer. Hands the asset over.
+
+### Asset Transfer Status
+
+The values of asset transfer status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Asset Transfer Transfer Type
+
+The values of asset transfer transfer type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Attachment
 
@@ -214,6 +363,31 @@ Readable by every signed-in person.
 
 Fields:
   - **Effective At** — When the attachment became part of the record. Set when the file is attached; used to show what evidence existed at a given moment.
+  - **File Name** (required) — The name of the file as uploaded. Shown in the record's list of attachments and used as the name when the file is downloaded. Not unique; the same name may be attached to many records.
+  - **Media Type** — The type of the file's content, such as application/pdf or image/jpeg. Detected on upload; it decides whether the file can be previewed. Taken from the file, not typed by the user.
+  - **Size Bytes** — The size of the file in bytes. Recorded on upload; used to enforce upload limits and to report storage use. Zero-size files are refused.
+  - **Storage Location** (required) — Where the file's content is stored. Set by the system on upload; users never type it. Moving files between stores updates it without changing the attachment.
+  - **Checksum** — A fingerprint of the file's content (SHA-256). Computed on upload; recomputing it later shows whether the file has been changed. Two attachments with the same checksum hold the same content.
+  - **Record Type** (required) — The kind of record the file is attached to, such as "Goods receipt". Set by the screen the file was attached from. Read with the record identifier to find the record.
+  - **Record** (required) — The identifier of the record the file is attached to. Set by the screen the file was attached from; the record's attachments are found by it. Together with the record type it identifies exactly one record.
+  - **Category** — What the file is, such as "Delivery note", "Certificate" or "Photograph". Chosen on upload so that the record's attachments can be told apart without opening them. Free choice of words, though each business usually agrees a short list.
+  - **Description** — A note about the file's content. Optional; useful when the file name does not say what the file shows. Free text.
+  - **Uploaded At** (required) — When the file was attached. Recorded by the system; the record's evidence is listed in this order. Not editable.
+  - **Status** (required, one of the Attachment Status values) — Whether the file still counts as evidence for the record. An attachment added by mistake is withdrawn; it stays visible in the history. Withdrawn attachments are not shown in the normal list. Attached and part of the record's evidence. Rem…
+  - **Uploaded By** (a Person) — The person who attached the file. Recorded on upload. One per attachment. Shown with the file so that reviewers know where it came from.
+
+### Attachment Status
+
+The values of attachment status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Bank Account
 
@@ -262,6 +436,28 @@ Readable by every signed-in person.
 
 Fields:
   - **Status** (required, one of the Billing Cycle Status values) — Whether the cycle is being prepared, driving billing, or finished. Set by the billing team; only ACTIVE cycles are used to generate charges. Being defined; not yet used by billing runs. In force; billing runs use it to determine charge per…
+  - **Code** (required) — The short code of the cycle, such as MON-01. Chosen when the cycle is created; subscriptions and billing reports refer to it. Unique.
+  - **Name** (required) — The name of the cycle, such as "Monthly, 1st of the month". Shown when a subscription is placed on a cycle. Identifies the cycle for people, with the code.
+  - **Frequency** (required, one of the Billing Cycle Frequency values) — Each billing period lasts one week. Each billing period lasts one calendar month. Each billing period lasts three calendar months. Each billing period lasts six calendar months. Each billing period lasts one year. How long each billing per…
+  - **Interval Count** (required) — How many units of the frequency make one period — 2 with monthly means every two months. Usually 1. Must be at least 1.
+  - **Anchor Day** — The day of the month (or of the week, for weekly cycles) each period starts on. Set so that billing dates are predictable, such as the 1st of the month. Days beyond the end of a short month fall on its last day.
+  - **Cutoff Offset Days** (required) — How many days after a period ends usage is still accepted into it. Gives late usage feeds time to arrive before the period is rated. Usage arriving after the cut-off goes into the next period.
+  - **Invoice Offset Days** (required) — How many days after a period ends its invoice is produced. Used by the billing run to schedule invoicing. Should not be less than the cut-off offset.
+  - **Payment Due Days** — How many days after the invoice date payment is due. Copied onto invoices produced for this cycle unless the customer's payment terms say otherwise. Payment terms agreed with the customer take precedence.
+  - **Currency** (a Currency) — The currency the cycle bills in, when it is specific to one. Set when cycles differ by currency; empty when any currency may use it. At most one currency per cycle. Subscriptions on the cycle bill in its currency.
+
+### Billing Cycle Frequency
+
+The values of billing cycle frequency, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Billing Cycle Status
 
@@ -285,11 +481,30 @@ Readable by every signed-in person.
 Fields:
   - **Code** (required) — Assigned by finance when the budget is created, for example FY26-OPS-V1; used to find the budget and cite it in approvals. Business budget code. Human/integration reference for plan. Unique within organization/version policy.
   - **Status** (required, one of the Budget Status values) — How far the budget has progressed through preparation, approval, use and replacement. Moved by the budget owner and approvers; only active budgets control spending, and later changes need a new revision. Being prepared by the budget owner;…
+  - **Name** (required) — The title by which finance staff know the budget, for example Operating Budget FY2027. Chosen by the budget owner and shown in reports and in budget pickers. Should be distinctive within its fiscal year.
+  - **Budget Version** (required) — The version of the budget — 1 for the original, higher for revisions. Increased with each revision. Only one version is active at a time.
+  - **Budget Type** (required, one of the Budget Budget Type values) — Which kind of spending or income the budget plans. Chosen when the budget is created; it decides which accounts its lines may use. Capital budgets plan investment rather than running costs. Plans revenue and day-to-day running costs. Plans…
+  - **Total Amount** — The overall sum of all the budget's lines, in a single figure. Calculated automatically from the lines and shown to approvers. Held in the budget's currency.
+  - **Approved At** — The date and time an approver signed the budget off as the plan to follow. Stamped automatically when the approver accepts the budget. Present once the budget is approved.
   - **Organization** (required, a Organization) — Set when the budget is created; determines whose spending the budget limits. Exactly one organisation: a budget always plans the money of a single organisation. Organization owning budget. Defines planning boundary. Accounting dimensions m…
   - **Fiscal Period** (a Fiscal Period) — Fiscal period governed by budget. Aligns plan with accounting time. Budget control and variance. Optional when budget spans multiple periods represented by lines. Does not open/close accounting period.
   - **Scenario** (a Scenario) — Planning scenario represented. Distinguishes baseline/upside/downside etc. Comparative planning. Optional for single-scenario plans. Scenario never changes actual ledger.
+  - **Currency** (a Currency) — The currency of the budget. The organization's reporting currency. One per budget. All lines use it.
 
 Line items — **Budget Line**: kept inside each Budget and reached by opening it, never on their own. Detailed dimensional budget allocation. Defines planned money at an account/responsibility intersection. Budgeting and variance analysis. Budget governs; Account/CostCenter/ProfitCenter classify.
+
+### Budget Budget Type
+
+The values of budget budget type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Budget Status
 
@@ -313,7 +528,26 @@ Readable by every signed-in person.
 Fields:
   - **Code** (required) — The short reference for the unit, such as CE or EMEA-RETAIL. Assigned by finance and used on reports and in postings; kept stable because history relies on it.
   - **Name** (required) — The full name of the business unit, as it appears in the organisation's structure and management accounts. Entered by management or finance when the unit is created; shown in organisation charts, selectors and segment reports.
+  - **Description** — What the business unit does. Read by people placing staff or costs in it. Free text.
+  - **Status** (required, one of the Business Unit Status values) — Whether the business unit is still operating. Set to inactive by an administrator after a reorganisation or closure. Inactive units are not offered for new assignments. Operating and available for new assignments. No longer operating after…
   - **Organization** (required, a Organization) — The organisation to which the unit belongs. Set when the unit is created. Exactly one organisation; a unit cannot stand alone. Rolls the unit's results up into its parent organisation.
+  - **Head** (a Person) — The executive responsible for the business unit. Receives its reports and approves its budgets. One per business unit. Accountable for its results.
+  - **Legal Entity** (a Legal Entity) — The company the business unit mainly trades through. Used for contracts and invoices made by the unit. At most one. A unit trading in several countries uses several entities; the main one is named.
+  - **Profit Center** (a Profit Center) — The profit centre its results are reported on. Links the organization view to the reporting view. At most one. Set by controlling.
+  - **Parent Unit** (a Business Unit) — The larger business unit this one is part of. Builds the hierarchy. At most one. Cannot be itself.
+
+### Business Unit Status
+
+The values of business unit status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Calendar
 
@@ -324,6 +558,41 @@ Readable by every signed-in person.
 Fields:
   - **Code** (required) — The short reference for the calendar, such as DE-NAT. Assigned by the administrator; used in configuration and reports; kept stable.
   - **Name** (required) — The descriptive name of the calendar, such as UK Working Days or Group Fiscal Calendar. Entered by the administrator who maintains it; shown wherever a schedule, service level or plan asks which calendar applies.
+  - **Working Days** (required) — The days of the normal working week, such as MON-FRI or MON-SAT. Days outside it are non-working unless an exception says otherwise. Exceptions override it for particular dates.
+  - **Time Zone** — The time zone of the calendar, such as Europe/Paris. Decides when a day starts and ends for deadlines. An IANA time-zone name.
+  - **Valid From** — The first day on which the calendar's working days and holidays apply. Set when the calendar is created. Not later than the valid-to date.
+  - **Valid To** — The last day on which the calendar's working days and holidays apply. Filled in when a newer calendar replaces this one. Left empty while the calendar is still in use.
+  - **Status** (required, one of the Calendar Status values) — Whether planners may use this calendar. Made inactive by an administrator once a newer calendar replaces it. Inactive calendars are not offered when choosing one. In use and available to planners. Retired and no longer offered.
+  - **Country** (a Country) — The country whose public holidays the calendar holds. Set for country calendars. At most one. Site calendars usually take their country's calendar as base.
+  - **Base Calendar** (a Calendar) — The calendar whose exceptions this one also follows. Set so a site calendar inherits the country's holidays. At most one base. Cannot be itself.
+
+Line items — **Calendar Exception**: kept inside each Calendar and reached by opening it, never on their own. One holiday, closure or extra working day in a calendar. Exceptions are what make a calendar accurate. Each records a date, what it is and whether work happens on it, so that working-day calculations skip holidays and closures and count extra working days. Entered each year for the coming year's ho…
+
+### Calendar Exception Exception Type
+
+The values of calendar exception exception type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Calendar Status
+
+The values of calendar status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Cash Position
 
@@ -352,7 +621,14 @@ Fields:
   - **Currency** (required, a Currency) — The currency of the charge amount. Set from the customer or contract; invoicing converts if needed. Read with the amount.
   - **Charged On** (required) — The date the charge arose. Set when generated; decides the invoice period it falls in. Compared with invoice dates.
   - **Description** — Words describing the charge as the customer will see them. Generated or entered; printed on the invoice line. Read by the customer.
+  - **Period Start** — The first day of the period the charge covers. Set for recurring and usage charges. Not later than the period end.
+  - **Period End** — The last day of the period the charge covers. Set for recurring and usage charges. Charges for the same subscription do not cover overlapping periods.
+  - **Quantity** (required) — How many units are charged. Users, usage units, or 1 for a flat fee. Read with the unit price.
+  - **Unit Price** — The price charged for a single unit of the billed product, service or usage. Taken from the subscription plan or price list when the charge is created. Stated in the charge's currency and multiplied by the quantity.
   - **Customer** (a Customer) — The customer who is billed for the charge. Set when the charge is generated; invoices are assembled per customer. At most one customer; a charge for an internal cost centre may have none. Decides which invoice the charge lands on and whose…
+  - **Subscription** (a Subscription) — The subscription the charge comes from. Set for recurring and usage charges. At most one. Lets every charge of a subscription be listed.
+  - **Product** (a Product) — The product charged for. Used for revenue reporting by product. At most one. Taken from the subscription's plan when there is one.
+  - **Invoice** (a Invoice) — The invoice the charge is on. Set when the charge is invoiced. At most one. Present once invoiced.
 
 ### Charge Charge Type
 
@@ -406,7 +682,52 @@ Readable by every signed-in person.
 Fields:
   - **Code** (required) — A short reference for the contact point. Assigned or imported; stays stable so integrations can match it.
   - **Name** (required) — A descriptive label for the endpoint, such as Head office switchboard. Shown wherever contact points are listed.
+  - **Channel** (required, one of the Contact Point Channel values) — An email address used for written messages. A landline telephone number. A mobile telephone number. A fax number, kept for partners who still use it. A web address of the party's site or page. A handle on a messaging app. What kind of chan…
+  - **Value** (required) — The address or number itself. Entered in its standard form — international format for phone numbers. Validated according to the channel.
+  - **Purpose** (required, one of the Contact Point Purpose values) — Any purpose, when nothing more specific applies. Invoices and statements sent to accounts payable. Order confirmations and purchase orders. Delivery notices and arrival updates. Service and support enquiries. Marketing communication, where…
+  - **Is Preferred** (required) — Whether this is the preferred channel for its purpose. Used first when several channels serve the same purpose. One preferred channel per party, channel and purpose.
+  - **Verified At** — When the channel was last confirmed to work. Recorded by a verification message or call. Unverified channels may be refused for sensitive messages.
+  - **Status** (required, one of the Contact Point Status values) — Whether the channel is still usable for reaching the party. Changed when the channel stops being used or a message to it bounces. Inactive and invalid channels are not offered for contact. In use and offered for contact. No longer used and…
   - **Party** (required, a Party) — The party the endpoint belongs to. Set when the endpoint is added. Exactly one party; each endpoint has one owner. Lets communications find the right channel for a party.
+
+### Contact Point Channel
+
+The values of contact point channel, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Contact Point Purpose
+
+The values of contact point purpose, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Contact Point Status
+
+The values of contact point status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Cost Center
 
@@ -416,7 +737,41 @@ Readable by every signed-in person.
 
 Fields:
   - **Code** (required) — The code by which the cost centre is known in postings and reports, such as 4100. Assigned by finance; stable, because history is reported under it.
+  - **Name** (required) — The name of the cost centre, such as "Plant Lyon – Assembly". Shown on reports and wherever the cost centre is chosen. Identifies the cost centre for people, with the code.
+  - **Category** (required, one of the Cost Center Category values) — Makes products or delivers services, so its costs flow into product cost. Sells and markets the company's offering; its costs are reported as selling expense. Runs general administration such as finance, HR and management; its costs stay o…
+  - **Valid From** (required) — The first day postings may be made to it. Set when the cost centre is created. Not later than the valid-to date.
+  - **Valid To** — The last day postings may be made to it. Set when the unit is closed or reorganised. Empty while it is open.
+  - **Status** (required, one of the Cost Center Status values) — Whether postings may currently be made to the cost centre. Moved on by controlling when a unit is paused or retired; budget owners check it before charging costs. Blocked and closed cost centres are refused on new postings, while their ear…
   - **Organization** (required, a Organization) — The organisation that the cost centre belongs to. Set at creation; limits the postings and budgets that can use it. Exactly one organisation: responsibility cannot be split between legal entities. Scopes cost reporting to the right entity.
+  - **Manager** (a Person) — The manager who answers for the cost centre's spending. Receives its reports and approves its costs above limits. One per cost centre. Should be reassigned when the manager changes.
+  - **Parent Cost Center** (a Cost Center) — The cost centre it rolls up into. Builds the hierarchy that reports are summed along. At most one parent. A cost centre cannot roll up into itself.
+  - **Profit Center** (a Profit Center) — The profit centre its costs belong to. Lets costs be reported against the revenue they support. At most one. Set by controlling.
+
+### Cost Center Category
+
+The values of cost center category, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Cost Center Status
+
+The values of cost center status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Country
 
@@ -605,7 +960,27 @@ Readable by every signed-in person.
 Fields:
   - **Code** (required) — The short code of the department, such as FIN-AP. Used in postings and reports; kept stable.
   - **Name** (required) — The name of the department as the organisation calls it, such as Finance or Field Operations. Entered by an administrator; shown in organisation charts, on documents and in reports that group people and costs by department.
+  - **Description** — What the department is responsible for and what kind of work it does. Read by people placing staff, positions or work, so they choose the right department. Free text written by the organisation's administrators.
+  - **Status** (required, one of the Department Status values) — Whether the department currently exists as part of the organisation. Set to inactive after a reorganisation closes or merges the department. Inactive departments are not offered when assigning people or work. The department exists and can…
   - **Organization** (required, a Organization) — Chosen when the department is created; reporting lines, headcount and budgets roll up through the organisation it belongs to. The organisation the department belongs to. Exactly one organisation: a department is part of a single organisati…
+  - **Business Unit** (a Business Unit) — The business unit the department is part of. Set where the organization is divided into business units. At most one. Used in business-unit reporting.
+  - **Parent Department** (a Department) — The department this one reports to. Builds the hierarchy used for approvals. At most one. Cannot be itself.
+  - **Manager** (a Person) — The person who leads the department. Approves its requests and receives its reports. One per department. Approval routing goes to this person.
+  - **Cost Center** (a Cost Center) — The cost centre that carries the department's costs. Defaulted onto the department's purchases and time. At most one. Set by controlling.
+  - **Location** (a Location) — Where the department is based. Used in directories and space planning. At most one. Staff may work elsewhere.
+
+### Department Status
+
+The values of department status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Exchange Rate
 
@@ -622,6 +997,8 @@ Fields:
   - **Expires At** — Optional end of the period during which the rate is valid. Used to prevent application of expired rates. When supplied, expiresAt must be later than effectiveAt. Defines the rate's validity window for transaction and reporting calculations.
   - **Source** (required) — Identifies the provider or business authority from which the rate was obtained. Used for audit, reconciliation, regulatory reporting, and rate governance. Source identifies provenance; it does not by itself determine which rate is applicab…
   - **Status** (required, one of the Exchange Rate Status values) — Being prepared; not yet used. In force and usable for conversion. Its validity period has ended; kept for past conversions. Withdrawn; must not be used. Lifecycle state of the exchange-rate record. Used by conversion services to determine…
+  - **From Currency** (required, a Currency) — Currency from which an amount is converted. Identifies the source denomination of the monetary amount being converted. Must differ from toCurrency for a meaningful exchange-rate conversion. Identifies the currency of the source Money value…
+  - **To Currency** (required, a Currency) — Currency into which an amount is converted. Identifies the target denomination of the converted monetary amount. Conversion direction is from fromCurrency to toCurrency; reversing the direction requires an appropriate inverse rate rather t…
 
 ### Exchange Rate Rate Type
 
@@ -683,9 +1060,45 @@ Readable by every signed-in person.
 
 Fields:
   - **Code** (required) — The reference of the forecast, such as FC-2026-Q3-V2. Assigned by finance; identifies version and cycle.
+  - **Name** (required) — A descriptive name for the forecast, such as "Q3 rolling cash outlook", that tells readers its purpose. Chosen by finance when the forecast is started and shown in reports and in lists of forecast versions. Identifies it for people.
+  - **As Of Date** (required) — The date the forecast is made as of — actuals up to it, estimates after it. Successive forecasts are compared by it. Within the fiscal year forecast.
+  - **Horizon Start** (required) — The first day covered by the forecast, from which the projected periods run. Set when the forecast is started, typically the day after the as-of date; it may not be later than the horizon end. Not later than the horizon end.
+  - **Horizon End** (required) — The last day the forecast covers. Usually the end of the fiscal year, or a rolling twelve months. Not earlier than the horizon start.
+  - **Forecast Type** (required, one of the Forecast Forecast Type values) — Says what kind of measures the forecast projects, such as cash, sales or headcount. Chosen when the forecast is created and decides which measures it holds. Cash forecasts are usually prepared weekly and financial forecasts monthly. Projec…
+  - **Total Revenue** — The total revenue the forecast expects over its whole horizon. Summed from the forecast detail lines rather than typed in; management compares it with the approved budget. Compared with the budget.
+  - **Total Cost** — The total cost the forecast expects over its whole horizon. Summed from the forecast detail lines rather than typed in; management compares it with the approved budget. Compared with the budget.
+  - **Assumptions** — The key assumptions behind the numbers, such as growth rates, exchange rates and timing of large receipts. Written by finance and read by management when reviewing; it should explain what changed since the previous forecast. Should state w…
+  - **Status** (required, one of the Forecast Status values) — Shows where the forecast is in review, from a draft to the current approved outlook. Moved on by its author and the reviewers as it is submitted, approved and eventually replaced. Only one approved forecast per scenario is current at a tim…
   - **Organization** (required, a Organization) — The organisation the forecast is for. Set when prepared. Exactly one organisation: forecasts are made for a particular entity. Scopes the projected figures.
   - **Scenario** (a Scenario) — The scenario of assumptions on which the forecast is based. Chosen when prepared. At most one scenario. Allows alternative projections to be compared. Identifies planning case.
   - **Fiscal Period** (a Fiscal Period) — The period the forecast covers. Set when prepared. At most one period. Places the projection in time. Aligns projection to reporting period.
+  - **Currency** (a Currency) — The currency of the amounts. Usually the company's reporting currency. One per forecast. All amounts use it.
+
+### Forecast Forecast Type
+
+The values of forecast forecast type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Forecast Status
+
+The values of forecast status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Foreign Exchange Transaction
 
@@ -695,6 +1108,47 @@ Readable by every signed-in person.
 
 Fields:
   - **Effective At** — When the exchange takes effect (the value date). Set from the deal; cash moves on this date.
+  - **Deal Number** (required) — Our reference for the deal. Assigned when the deal is recorded; matched with the bank's confirmation. Unique.
+  - **Deal Type** (required, one of the Foreign Exchange Transaction Deal Type values) — What kind of exchange deal it is. Chosen when recording; it decides how the deal is valued before settlement. Forwards and swaps are valued at each period end. Settled within the normal spot period, usually two business days. Settled on an…
+  - **Sold Amount** (required) — The amount of the currency the company sells. Agreed in the deal; paid out on the value date. In the sold currency.
+  - **Bought Amount** (required) — The amount of the currency the company buys. Agreed in the deal; received on the value date. In the bought currency; equals the sold amount times the rate.
+  - **Exchange Rate** (required) — The agreed rate, as units of the bought currency per unit of the sold currency. Agreed when dealing; checked against the bank's confirmation. The quoting direction is fixed so that amounts reconcile.
+  - **Trade Date** (required) — The day the dealer and the bank agreed the currency exchange. Recorded by the treasury dealer when the deal is struck; it may not be later than the value date and starts the exposure. Not later than the value date.
+  - **Value Date** (required) — The day the currencies are exchanged. Agreed in the deal; cash is moved on this day. Business days of both currencies apply.
+  - **Swap Reference** — The reference shared by the two legs of a swap. Set on both legs so they can be read together. Empty for spot and forward deals.
+  - **Purpose** — Why the deal was made, such as "pay supplier invoice batch 23" or "hedge Q3 USD receipts". Recorded for hedge documentation and later review. Hedge accounting requires it.
+  - **Confirmed At** — When the bank's confirmation was matched with the deal. Recorded by the back office. An unconfirmed deal near its value date is chased.
+  - **Settled At** — The moment both currency payments of the deal were completed. Recorded by treasury operations when the bank confirms settlement. It stays empty while the deal is open. Present once settled.
+  - **Status** (required, one of the Foreign Exchange Transaction Status values) — Shows how far the deal has progressed from being dealt to being settled or cancelled. Moved on by treasury as the bank confirms the deal and both payments are made. Only unsettled deals count in the open currency position. Agreed with the…
+  - **Sold Currency** (required, a Currency) — The currency the company sells. Chosen when recording the deal. One per deal. Different from the bought currency.
+  - **Counterparty** (required, a Organization) — The bank the deal is made with. Chosen when dealing; exposure to it is monitored. One bank per deal. Must be an approved dealing counterparty.
+  - **Paying Account** (a Bank Account) — The company account the sold currency is paid from. Chosen for settlement. One per deal. In the sold currency.
+
+### Foreign Exchange Transaction Deal Type
+
+The values of foreign exchange transaction deal type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Foreign Exchange Transaction Status
+
+The values of foreign exchange transaction status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Interest
 
@@ -704,6 +1158,58 @@ Readable by every signed-in person.
 
 Fields:
   - **Effective At** — The date and time as of which the interest was calculated. Set by the run, normally the end of the accrual period; it decides the period the interest belongs to.
+  - **Calculation Number** (required) — The reference of the calculation. Assigned when it is calculated; quoted on statements and postings. Unique.
+  - **Interest Type** (required, one of the Interest Interest Type values) — What the interest is on. Set by the run or person that calculates it; it decides whether the interest is income or expense. Read with the balance it refers to. Interest the company pays on borrowing. Interest the company earns on money pla…
+  - **Balance** (required) — The balance the interest is computed on. Taken from the loan, deposit or invoice for the period. In the calculation's currency.
+  - **Rate Percent** (required) — The annual rate applied, in percent. Taken from the agreement or the late-payment policy. For a floating rate, the rate in force for the period.
+  - **Day Count Basis** (required, one of the Interest Day Count Basis values) — The convention for counting days when working out interest for the period. Taken from the agreement; the same rate gives a different amount under each convention. Actual days elapsed divided by 360. Actual days elapsed divided by 365. Each…
+  - **Period Start** (required) — The first day of the period interest is computed for. Set by the run. Not later than the period end.
+  - **Period End** (required) — The last day of the period for which interest is calculated. Set by the interest run; periods for the same balance must not overlap. Periods for the same balance do not overlap.
+  - **Days** — How many days the interest is computed for under the day-count basis. Computed from the period. Shown so the amount can be checked.
+  - **Interest Amount** (required) — The interest due for the period. Computed as balance × rate × days ÷ basis; posted to the accounts. Rounded to the currency's smallest unit.
+  - **Posted At** — The date and time the interest was booked to the accounts. Recorded when finance posts the calculation; empty while the interest is only calculated. Present once posted.
+  - **Status** (required, one of the Interest Status values) — Shows whether the calculated interest has been booked to the accounts. Moved on by finance when it posts, cancels or reverses a calculation. Only posted interest appears in the accounts. Worked out and waiting to be checked and posted. Boo…
+  - **Invoice** (a Invoice) — The invoice charged late-payment interest. Set for late-payment interest. At most one per calculation. Charged to the invoice's customer.
+  - **Currency** (required, a Currency) — The currency of the balance and the interest. Taken from the balance. One per calculation. Balance and amount share it.
+
+### Interest Day Count Basis
+
+The values of interest day count basis, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Interest Interest Type
+
+The values of interest interest type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Interest Status
+
+The values of interest status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Invoice
 
@@ -826,6 +1332,21 @@ Readable by every signed-in person.
 Fields:
   - **Code** (required) — The two-letter ISO 639-1 code of the language, such as en or de. Taken from the standard; unique; used in locale settings and APIs.
   - **Name** (required) — The English name of the language, such as French or Portuguese. Loaded from the language reference data; it is shown in language pick-lists and reports, while the code remains the identifier.
+  - **Alpha3** — The three-letter ISO 639-3 code, such as fra. Used by systems that require three-letter codes. From the standard.
+  - **Direction** (required, one of the Language Direction values) — Whether the language is written left to right or right to left. Tells screens and documents how to lay out text. From the Unicode CLDR. Written left to right. Written right to left.
+
+### Language Direction
+
+The values of language direction, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Ledger
 
@@ -835,7 +1356,26 @@ Readable by every signed-in person.
 
 Fields:
   - **Status** (required, one of the Ledger Status values) — Whether the ledger is currently open to receive journal entries. Moved by finance as books are opened and closed; postings are accepted only while ACTIVE, and finished ledgers are kept for reporting. Being set up and not yet accepting entr…
+  - **Code** (required) — The code of the ledger, such as 0L. Chosen when the ledger is created; postings and reports refer to it. Unique.
+  - **Name** (required) — The name of the ledger, such as "Leading – French GAAP". Shown in posting and reporting screens. Identifies it for people.
+  - **Ledger Type** (required, one of the Ledger Ledger Type values) — Whether this is the company's main ledger or a parallel one. The leading ledger is the default for postings. One leading ledger per company. The main ledger, under local statutory rules. An additional ledger under another standard, such as…
+  - **Accounting Standard** — The accounting rules the ledger follows, such as "IFRS", "US GAAP" or "French GAAP". Decides valuation in parallel postings. Set when the ledger is created.
+  - **Chart Of Accounts** — The chart of accounts the ledger uses. Its accounts are the ones postings may use. Several ledgers may share a chart.
   - **Organization** (required, a Organization) — Exactly one organisation: a book is kept for a single legal entity. Organization owning accounting book. Defines legal/management accounting boundary. Posting and reporting. Journal entries must use compatible organization context.
+  - **Currency** (a Currency) — The currency the ledger is kept in. Set when the ledger is created. One per ledger. Usually the company's functional currency.
+
+### Ledger Ledger Type
+
+The values of ledger ledger type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Ledger Status
 
@@ -858,6 +1398,34 @@ Readable by every signed-in person.
 
 Fields:
   - **Occurred At** — When the entity was formed, or its record took effect. Set from the registration data.
+  - **Legal Name** (required) — The registered name, exactly as in the register. Printed on invoices, contracts and filings. A trading name may differ; this is the one the law recognises.
+  - **Registration Number** — The number under which the entity is registered, such as a company number or SIREN. Printed on documents where the law requires it; used in KYC checks. Unique within its jurisdiction.
+  - **Legal Form** — The legal form, such as "SAS", "GmbH", "Ltd" or "LLC". Printed after the name on documents. Each jurisdiction has its own forms.
+  - **Incorporation Date** — The day the company or organisation was legally formed, as shown on its certificate of incorporation. Copied from the official register when the entity is set up; used for age checks, filings and group structure charts. It can never fall a…
+  - **Dissolution Date** — The day the legal entity formally ceased to exist and was removed from the register. Entered by company secretarial when a dissolution is confirmed; it stays empty for entities that still exist. Only dissolved entities carry a date here.
+  - **Tax Identifier** — The entity's main tax number in its country. Printed on invoices and used in tax filings. Further registrations are recorded as tax registrations.
+  - **Vat Number** — The entity's VAT or sales-tax registration number. Printed on invoices; validated for cross-border trade. Empty for entities not registered for VAT.
+  - **Lei** — The Legal Entity Identifier, a 20-character global code. Required for financial transactions and regulatory reporting. Issued by an LEI operator and renewed every year.
+  - **Is Group Company** (required) — Whether the entity belongs to our own group. Separates the group's companies from customers' and suppliers' entities; intercompany transactions are between group companies. Group companies have their own accounts and filings.
+  - **Status** (required, one of the Legal Entity Status values) — Registered, in good standing and free to trade, sign contracts and issue invoices. Still registered but not trading, so it holds no live business activity. Being wound up by a liquidator; no new business should be started in its name. Stru…
+  - **Organization** (a Organization) — The organization this entity is the legal form of. Linked so that the organization's contracts and filings can be issued in the right name. At most one organization per entity. An organization may trade through several entities in differen…
+  - **Country** (a Country) — The country the entity is registered in. Decides which law, register and tax rules apply. One per entity. A branch abroad is not a separate entity.
+  - **Registered Address** (a Address) — The registered office. Printed on documents where the law requires it. One per entity. May differ from where the entity operates.
+  - **Functional Currency** (a Currency) — The currency the entity keeps its accounts in. Set by finance; translations to the group currency start from it. One per entity. Usually the currency of its country.
+  - **Parent Entity** (a Legal Entity) — The entity that owns this one in the group. Recorded for group companies; consolidation follows it. At most one parent. Minority holdings are not recorded here.
+
+### Legal Entity Status
+
+The values of legal entity status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Location
 
@@ -997,7 +1565,38 @@ Readable by every signed-in person.
 Fields:
   - **Code** (required) — The code of the relationship type or instance, such as SUBSIDIARY_OF. Chosen from the relationship list; used in queries and rules.
   - **Name** (required) — A readable description of the relationship, such as Acme Ltd is subsidiary of Acme Group. Entered when the relationship is created; shown in party views and lists so users can understand the link at a glance.
+  - **Relationship Type** (required, one of the Party Relationship Relationship Type values) — Describes how the first party stands towards the second, such as subsidiary, employee or guarantor. Chosen when the link is recorded; credit, compliance and group reporting use it to interpret the connection. Read from the first party to t…
+  - **Ownership Percent** — The share the parent or owner holds, for ownership relationships. Used in consolidation and beneficial-ownership checks. Between 0 and 100.
+  - **Valid From** — The first day on which the relationship between the two parties holds. Recorded when it is known, for example from a contract or register entry. It cannot be later than the valid-to date.
+  - **Valid To** — The last day on which the relationship between the two parties holds. Recorded when the relationship ends, for example on resignation or sale; empty while it still applies. Empty while the relationship continues.
+  - **Status** (required, one of the Party Relationship Status values) — Says whether the relationship between the two parties is still in force today. Set to ended by the person maintaining the record when the relationship stops. Ended relationships stay for history. The relationship is in force today. The rel…
   - **From Party** (required, a Party) — The party at the origin of the relationship. Chosen when the relationship is created. Exactly one origin party: a relationship always starts at a particular party. Together with the other party it identifies the relationship.
+
+### Party Relationship Relationship Type
+
+The values of party relationship relationship type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Party Relationship Status
+
+The values of party relationship status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Party Role
 
@@ -1112,8 +1711,34 @@ Readable by every signed-in person.
 
 Fields:
   - **Status** (required, one of the Payment Instruction Status values) — Where the instruction is in its path to the bank. Moved by treasury and the bank interface. Being prepared; not yet released. Released to the bank and awaiting execution. Executed by the bank. A final state. Withdrawn before execution. A f…
+  - **Instruction Number** (required) — The reference of the instruction. Assigned when it is created; carried in the payment file. Unique; the bank refuses duplicates.
+  - **Amount** (required) — The sum the bank is being told to pay to the payee. Taken from the approved invoices or entered by hand when the instruction is created, and checked at approval. In the paying account's currency unless a foreign payment is ordered.
+  - **Value Date** (required) — The day the payee should receive the money. Set by the payment run from due dates. Must be a business day for the currency.
+  - **Payee Name** (required) — The name of the payee as it is sent to the bank. Copied from the payee's record. Some banks check it against the account holder.
+  - **Payee Account** (required) — The payee's bank account number or IBAN to which the money will be sent. Copied from the payee's verified bank details; a change must be verified before it is used. Wrong details send money to the wrong place.
+  - **Payee Bank Code** — The payee bank's identifier, such as a BIC or routing number. Copied from the payee's bank details. Required for some payment methods.
+  - **Payment Method** (required, one of the Payment Instruction Payment Method values) — The way the bank is asked to move the money, from standard transfer to cheque. Chosen by treasury when creating the instruction; it decides the bank file format, the fee and the speed. Urgent and cross-border payments cost more. A standard…
+  - **Remittance Reference** — The reference the payee sees on their statement, such as the invoice numbers paid. Lets the payee match the payment. Length limited by the payment scheme.
+  - **Approved At** — The date and time the final approver authorised the instruction for release to the bank. Stamped on the last approval; treasury cannot send the instruction without it. Required before sending.
+  - **Sent At** — The date and time the instruction was transmitted to the bank. Stamped by the bank interface on transmission and used when reconciling with the bank statement. Filled only after sending.
+  - **Bank Status Message** — The status or rejection text the bank returned for this instruction. Copied from the bank's status report so treasury can see why a payment failed or was held. Explains rejections and holds.
   - **Bank Account** (required, a Bank Account) — The bank account from which the payment is to be made. Chosen when the instruction is created. Exactly one account: an instruction debits one account. Determines the bank channel, balances and approval limits. Supplies treasury settlement…
   - **Payment** (a Payment) — The payment that results from the instruction. Linked when the instruction has been executed. At most one payment; a draft or cancelled instruction produces none. Connects what was authorised to what was paid. Connects intent to settlement…
+  - **Payee** (a Party) — The party paid. Chosen when the instruction is created. One per instruction. Their verified bank details are used.
+  - **Approved By** (a Person) — Who gave the final approval. Recorded on approval. One per instruction; dual approval records the second approver here. Must hold payment authority for the amount.
+
+### Payment Instruction Payment Method
+
+The values of payment instruction payment method, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Payment Instruction Status
 
@@ -1267,7 +1892,27 @@ Readable by every signed-in person.
 
 Fields:
   - **Code** (required) — The short code of the profit centre, such as PC-NORTH. Unique within the organisation; used in imports, budgets and reports.
+  - **Name** (required) — The descriptive name of the profit centre as shown on management reports. Entered when controlling creates the profit centre and shown beside its code on reports and in pick lists. Read together with the code to pick the right centre.
+  - **Segment** — The reporting segment it belongs to in published accounts, if any. Used to prepare segment information for the financial statements. Several profit centres may make up one segment.
+  - **Valid From** (required) — The first day transactions may be assigned to it. Set when it is created. Not later than the valid-to date.
+  - **Valid To** — The last day transactions may be assigned to it. Set when it is closed. Empty while open.
+  - **Status** (required, one of the Profit Center Status values) — Says whether new transactions may still be assigned to this profit centre. Moved on by controlling when a centre is opened or retired. Closed profit centres are not offered in selection lists. Open and available when assigning revenue and…
   - **Organization** (required, a Organization) — The organisation the profit centre belongs to. Chosen when it is created. Exactly one organisation. Keeps profit analysis within the right company.
+  - **Manager** (a Person) — The manager responsible for the profit centre's results. Receives its reports. One per profit centre. Accountable for its margin.
+  - **Parent Profit Center** (a Profit Center) — The profit centre it rolls up into. Builds the reporting hierarchy. At most one parent. Cannot be itself.
+
+### Profit Center Status
+
+The values of profit center status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Purchase Order
 
@@ -1368,6 +2013,22 @@ Readable by every signed-in person.
 Fields:
   - **Code** (required) — The short code naming the scenario, such as BASE, UPSIDE or DOWNSIDE. Chosen by finance when the scenario is created, unique, and shown in planning screens and variance reports. Identifies baseline/upside/downside or named case. Does not i…
   - **Status** (required, one of the Scenario Status values) — Whether the scenario is still being defined, open for planning, or retired. Starts as DRAFT and is moved by finance; only ACTIVE scenarios accept new budget and forecast figures. Being defined and not yet used in planning. Available for bu…
+  - **Name** (required) — The title planners give to a set of planning assumptions, such as Best case 2027. Shown wherever a budget or forecast is tied to a scenario so users can choose between them. Identifies the scenario for people, beside its code.
+  - **Scenario Type** (required, one of the Scenario Scenario Type values) — The expected case that most plans are built on. A more favourable case than expected. A less favourable case than expected. A severe case used to test resilience. What kind of scenario it is. Reports show the base case first and the altern…
+  - **Assumptions** — The assumptions that define the scenario. Written by finance; read by everyone preparing plans under it. Should be specific enough to apply consistently.
+
+### Scenario Scenario Type
+
+The values of scenario scenario type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Scenario Status
 
@@ -1402,7 +2063,18 @@ Readable by every signed-in person.
 
 Fields:
   - **Status** (required, one of the Subscription Status values) — Where the customer's subscription is in its life: being set up, running, finished or cancelled. Starts as DRAFT; account management activates it at sign-up, and billing and entitlements apply only while it is active. The subscription is be…
+  - **Subscription Number** (required) — The reference of the subscription. Assigned at sign-up; shown on invoices and in the customer portal. Unique.
+  - **Quantity** (required) — How many units — users, seats, devices — are subscribed. Multiplies the plan's per-unit fee. Changes take effect from the next period unless prorated.
+  - **Start Date** (required) — The day on which the customer's subscription began. Recorded at sign-up and used for reporting on customer tenure. Not later than the end date.
+  - **Trial End Date** — The last day the customer can use the service free of charge. Set at sign-up from the plan's trial length; billing starts the day after. Empty when there was no trial.
+  - **Current Term Start** — The first day of the billing term the subscription is now in. Moved on automatically at each renewal. Not later than the current term end.
+  - **Current Term End** — The last day of the billing term the subscription is now in. Renewal is decided before this date, and billing for the next term follows it. Empty for subscriptions without fixed terms.
+  - **Auto Renew** (required) — Whether the subscription renews automatically at term end. Set by the customer or by contract. When off, the subscription expires at term end unless renewed.
+  - **Cancelled Date** — The day the customer cancelled. Recorded on cancellation; service may continue to term end. Present only on cancelled subscriptions.
+  - **Cancellation Reason** — The explanation the customer or staff gave for ending the subscription. Recorded at cancellation; churn analysis groups cancelled subscriptions by it. Present only on cancelled subscriptions.
   - **Customer** (a Customer) — The customer who subscribes. Chosen when created. At most one customer; empty until identified. Decides who is billed and served.
+  - **Plan** (required, a Subscription Plan) — The plan subscribed to. Chosen at sign-up; changed on upgrade or downgrade. One plan at a time. Its prices and entitlements apply.
+  - **Billing Cycle** (a Billing Cycle) — The cycle the subscription is billed on. Copied from the plan at sign-up. One per subscription. Decides the billing dates.
 
 ### Subscription Plan
 
@@ -1412,6 +2084,32 @@ Readable by every signed-in person.
 
 Fields:
   - **Status** (required, one of the Subscription Plan Status values) — Whether the plan is still being defined, on sale, retired after its run, or withdrawn. Starts as DRAFT; pricing managers activate it to offer it, and only an active plan can be chosen for new subscriptions. The plan is being defined and ca…
+  - **Code** (required) — The code of the plan, such as PRO-M-EUR. Used by billing, the portal and integrations. Unique.
+  - **Name** (required) — The name customers see, such as "Pro, monthly". Shown on the pricing page, in contracts and on invoices. Identifies the plan for people, with the code.
+  - **Description** — A description of what the plan includes and costs, written for customers. Shown on the pricing page and in sign-up emails to help people choose a plan. Must match the entitlements configured on the plan.
+  - **Recurring Fee** (required) — The fee charged each billing period. Charged by every billing run for each active subscription. Per unit when the plan is priced per user or per seat.
+  - **Pricing Unit** (required, one of the Subscription Plan Pricing Unit values) — What the recurring fee is charged per. Decides whether the fee is multiplied by the subscription's quantity. Read with the recurring fee. One fee for the whole subscription. The fee times the number of users. The fee times another counted…
+  - **Included Usage** — How much usage each period includes before overage is charged. Billing rates usage above it at the overage price. In the plan's usage unit.
+  - **Usage Unit** — The unit usage is measured in, such as "API calls" or "GB". Shown on invoices next to usage quantities. Usage records are in this unit.
+  - **Overage Price** — The price per unit of usage above what is included. Applied by usage rating. Empty when extra usage is not allowed or not charged.
+  - **Trial Days** — How many days a new subscriber may use the plan free. The first charge falls after the trial. Empty or zero for no trial.
+  - **Minimum Term Months** — The minimum commitment, in months. A subscription cannot be cancelled to take effect before it ends. Empty for no commitment.
+  - **Product** (a Product) — The product the plan sells. Linked for revenue reporting by product. One per plan. A product is usually sold in several plans.
+  - **Billing Cycle** (a Billing Cycle) — The cycle subscriptions on the plan are billed on. Copied to new subscriptions. One per plan. Monthly and annual variants are separate plans.
+  - **Currency** (required, a Currency) — The currency of the plan's prices. Set when designing the plan. One per plan. Each currency needs its own plan.
+
+### Subscription Plan Pricing Unit
+
+The values of subscription plan pricing unit, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Subscription Plan Status
 
@@ -1577,11 +2275,44 @@ Readable by every signed-in person.
 
 Fields:
   - **Status** (required, one of the Tax Code Status values) — Whether the tax code can be used on new transactions. Keeps retired codes from being chosen while history stays intact. Starts as DRAFT; set by tax staff. Only active codes are offered on documents. Being defined; not yet usable. In use on…
+  - **Code** (required) — The short code entered on transactions, such as FR-VAT-S. Chosen on order and invoice lines, or defaulted from the product and party. Unique.
+  - **Name** (required) — The name of the code, such as "France VAT standard". Shown where the code is chosen and on tax reports. Identifies the code for people.
+  - **Tax Type** (required, one of the Tax Code Tax Type values) — Which tax this code belongs to, such as VAT, sales tax or withholding. Chosen by tax staff when the code is set up; it decides which return the taxed transactions appear on and which rates are looked up. Read together with the category, wh…
+  - **Category** (required, one of the Tax Code Category values) — How the transaction is treated under the tax. Decides the rate and the reporting. Exempt and zero-rated are reported differently even though both charge no tax. Taxed at the standard rate. Taxed at a reduced rate. Taxable at 0%; input tax…
+  - **Return Box** — The box or line of the tax return the transactions are reported in. Used to prepare the return. Taken from the authority's return form.
+  - **Description** — Explains when this code should be chosen, including the kind of goods, services or customers it covers. Read by whoever codes an order or invoice line to pick the right treatment. For exempt and zero-rated codes it should cite the legal ba…
   - **Organization** (a Organization) — The organisation the code is set up for. Chosen when the code is company specific. At most one organisation; empty means it applies to all. Decides which company's returns the code feeds.
+  - **Jurisdiction** (a Tax Jurisdiction) — Where the tax applies. Set when the code is created. One per code. Its authority receives the return.
+
+### Tax Code Category
+
+The values of tax code category, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Tax Code Status
 
 The values of tax code status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Tax Code Tax Type
+
+The values of tax code tax type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
 
 Readable by every signed-in person.
 
@@ -1600,7 +2331,39 @@ Readable by every signed-in person.
 
 Fields:
   - **Status** (required, one of the Tax Jurisdiction Status values) — Shows whether this tax jurisdiction record is still being prepared, in force, or no longer in use. Moved by tax administrators; only active jurisdictions are offered when determining tax, and completed or cancelled ones are kept for histor…
+  - **Code** (required) — The code of the jurisdiction, such as FR or US-CA-LA. Used in tax codes, rates and reports. Unique.
+  - **Name** (required) — The name of the taxing authority's area, such as France, California or Cook County. Entered by tax administrators and shown wherever a jurisdiction is picked, on tax reports and on registrations. Identifies it for people.
+  - **Level** (required, one of the Tax Jurisdiction Level values) — A national tax authority covering a whole country. A state, province or region that levies its own tax. A county or district authority below the state. A city or municipality that adds its own local tax. A special taxing district, such as…
+  - **Filing Frequency** (one of the Tax Jurisdiction Filing Frequency values) — How often returns must normally be filed with this jurisdiction's authority. Used to build the filing calendar and reminders for tax staff. It may depend on the size of the business, so the registration states the frequency actually applic…
   - **Organization** (a Organization) — The organisation that is registered or reports in the jurisdiction. Chosen when the jurisdiction is company specific. At most one organisation. Decides whose returns go to the authority.
+  - **Country** (a Country) — The country the jurisdiction is in. Set when the jurisdiction is created. One per jurisdiction. Country-level jurisdictions name their own country.
+  - **Parent Jurisdiction** (a Tax Jurisdiction) — The larger jurisdiction this one lies within. Builds the hierarchy used to combine rates. At most one parent. Cannot be itself.
+
+### Tax Jurisdiction Filing Frequency
+
+The values of tax jurisdiction filing frequency, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Tax Jurisdiction Level
+
+The values of tax jurisdiction level, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Tax Jurisdiction Status
 
@@ -1627,6 +2390,12 @@ Fields:
   - **Rate Basis** (required, one of the Tax Rate Rate Basis values) — Whether the rate is a percentage of the taxable amount or a fixed amount per unit or document. Chosen when the rate is set up; tax calculation multiplies or adds accordingly. Decides how the rate figure is read. The rate is a percentage of…
   - **Effective From** (required) — The first date on which the rate applies to transactions. Set from the authority's announcement; a transaction is taxed at the rate whose period contains its tax date. Compared with the transaction tax date and the end of the period.
   - **Effective To** — The last date on which the rate applies; empty while it remains in force. Set when the authority changes the rate or the code stops being used; must not be before the start date. Compared with the transaction tax date.
+  - **Tax Code Label** — The code and jurisdiction the rate is for, as shown on screens. Filled from the tax code for display in rate lists. The tax code relationship is authoritative.
+  - **Rate Type** (required, one of the Tax Rate Rate Type values) — Whether the tax is a percentage or an amount per unit. Decides how the tax is computed. Excise duties are often per unit. A percentage of the taxable amount. A fixed amount per unit of quantity.
+  - **Rate Percent** — The tax as a percentage of the taxable amount, such as 20 for twenty percent. Entered by tax staff from the authority's published rate when the rate type is a percentage, and applied to the taxable amount of each line. Used when the rate t…
+  - **Amount Per Unit** — The tax charged per unit of quantity, such as a duty per litre or per kilogram. Entered when the rate type is per unit and multiplied by the quantity on the document line. Used when the rate type is per unit.
+  - **Valid From** (required) — The first day on which this rate may be applied to transactions. Set from the law or the authority's announcement; it must not be later than the valid-to date, and a transaction uses the rate whose period holds its tax date. Not later than…
+  - **Valid To** — The last day on which this rate applies, left empty while it remains in force. Set when a new rate replaces it; rates for one code and jurisdiction must not overlap, so the next rate starts the following day. Rates of one code and jurisdic…
   - **Organization** (a Organization) — The organisation the rate is set up for. Chosen when the rate is company specific. At most one organisation; empty means it applies to all. Decides which company's returns carry the tax.
   - **Tax Code** (required, a Tax Code) — The tax code whose treatment this rate carries. Chosen when the rate is created; tax calculation finds rates through the code on a document line. A rate belongs to one tax code; the same figure for another code is a separate rate. Links th…
   - **Tax Jurisdiction** (required, a Tax Jurisdiction) — The jurisdiction in which this rate is imposed. Chosen when the rate is created; matched to the place of supply or delivery. A rate applies in exactly one jurisdiction, since authorities set their own rates. Selects which authority's figur…
@@ -1634,6 +2403,19 @@ Fields:
 ### Tax Rate Rate Basis
 
 The values of tax rate rate basis, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Tax Rate Rate Type
+
+The values of tax rate rate type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
 
 Readable by every signed-in person.
 
@@ -1665,11 +2447,44 @@ Readable by every signed-in person.
 
 Fields:
   - **Status** (required, one of the Tax Registration Status values) — Whether the registration is valid for use. Prevents tax numbers that have lapsed from appearing on documents. Starts as DRAFT; set by tax staff. Only active registrations are printed on invoices. Applied for or being recorded; not yet vali…
+  - **Registration Number** (required) — The number the authority issued, such as a VAT number. Printed on invoices; validated for cross-border trade. Unique within its jurisdiction and tax.
+  - **Tax Type** (required, one of the Tax Registration Tax Type values) — The kind of tax this registration number was issued for, such as VAT or excise. Chosen when the registration is recorded; it decides which returns the registration drives. A company can hold several registrations in one country for differe…
+  - **Valid From** (required) — The day the registration takes effect. Tax may be charged under the number from this day. Not later than the valid-to date.
+  - **Valid To** — The last day on which the registration is valid. Set when the company deregisters or the authority withdraws the number; left empty while the registration is in force. Empty while it is in force.
+  - **Filing Frequency** (one of the Tax Registration Filing Frequency values) — How often returns are due under this registration, as set by the tax authority. Drives the company's filing calendar and the reminders sent to tax staff. Returns under this registration are due every month. Returns under this registration…
+  - **Last Validated Date** — When the number was last checked with the authority's register. Recorded by validation; numbers are rechecked periodically. Required for exempt cross-border sales in many jurisdictions.
   - **Organization** (a Organization) — The organisation that holds the registration. Chosen when recorded. At most one organisation. Decides which company files returns.
+  - **Jurisdiction** (a Tax Jurisdiction) — The jurisdiction of the registration. Chosen when recording it. One per registration. Its authority issued the number.
+
+### Tax Registration Filing Frequency
+
+The values of tax registration filing frequency, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Tax Registration Status
 
 The values of tax registration status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Tax Registration Tax Type
+
+The values of tax registration tax type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
 
 Readable by every signed-in person.
 
@@ -1733,7 +2548,32 @@ Readable by every signed-in person.
 
 Fields:
   - **Status** (required, one of the Tax Transaction Status values) — Where the tax transaction is in reporting. Shows whether the tax has been reported. Starts as DRAFT; moved by tax staff and returns. Only active transactions are included in a return. Calculated and not yet confirmed. Confirmed and due to…
+  - **Tax Transaction Number** (required) — The reference number of this tax record, used to find it on returns and audits. Assigned automatically when the tax is calculated and never reused. Unique.
+  - **Document Type** — The kind of source document the tax was computed on, such as a sales invoice or supplier bill. Set by tax determination and read with the document reference to trace the tax back to its source. Read with the document reference.
+  - **Document Reference** — The number of the document and line taxed. Lets the tax amount be traced to its source. Such as "INV-2024-03-0912/1".
+  - **Direction** (required, one of the Tax Transaction Direction values) — Whether the tax is charged to a customer or paid to a supplier. Decides the side of the return. Reverse-charge purchases give both an output and an input record. Tax charged on a sale. Tax paid on a purchase.
+  - **Tax Date** (required) — The tax point — the date that decides which period the tax belongs to. Usually the invoice date or the supply date, as the law says. Decides the rate and the return period.
+  - **Taxable Amount** (required) — The amount of the document line on which the tax was calculated, before the tax itself. Copied from the document line in the document's currency and multiplied by the rate to give the tax. In the document's currency.
+  - **Rate Percent** — The percentage rate that was applied to the taxable amount. Copied from the rate valid on the tax date and kept even if the rate later changes, so the original calculation can be explained. Kept even if the rate changes later.
+  - **Tax Amount** (required) — The tax computed on this line, after rounding. Rounded under the jurisdiction's rules and reported in the return box of its tax code. Rounded under the jurisdiction's rules.
+  - **Reported Period** — The return period the transaction was reported in, such as 2024-03. Set when the return is filed. Present once reported.
   - **Organization** (a Organization) — The organisation the tax is reported by. Chosen from the source document. At most one organisation. Decides which company's return includes it.
+  - **Invoice** (a Invoice) — The invoice the tax was computed on. Set by tax determination. At most one. Other taxable documents are named in the document reference.
+  - **Tax Code** (a Tax Code) — The tax code that was applied to the document line this record taxes. Taken from the line when tax is determined. Each tax record carries exactly one code, so a line taxed under two codes gives two records. Its return box decides where the…
+  - **Jurisdiction** (a Tax Jurisdiction) — The jurisdiction the tax is due to. From tax determination. One per record. Combined taxes give one record per jurisdiction.
+
+### Tax Transaction Direction
+
+The values of tax transaction direction, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Tax Transaction Status
 
@@ -1797,7 +2637,17 @@ Readable by every signed-in person.
 
 Fields:
   - **Status** (required, one of the Usage Record Status values) — Where the record is in billing. Shows whether usage has been confirmed and charged. Starts as DRAFT; moved by metering and billing. Only active records are charged. Received and not yet confirmed. Confirmed and waiting to be billed. Billed…
+  - **Usage Number** (required) — The reference number of this usage record, used when billing questions arise. Assigned when the record is received and unique across all records. Unique.
+  - **Source Reference** — The metering system's own identifier for the measurement. Used to refuse duplicates when a feed is resent. Unique per source.
+  - **Source** — The metering system that reported the measurement, such as an API gateway. Recorded on receipt and combined with the source reference to refuse duplicates when a feed is resent. Such as "api-gateway-eu".
+  - **Metric** (required) — What was measured, such as "API calls" or "Storage GB". Must match a usage unit of the subscription's plan. Unmatched metrics are rejected.
+  - **Quantity** (required) — How much of the metric was consumed in the measured period. Expressed in the metric's own unit and rated against the subscription's plan to produce a charge. In the metric's unit.
+  - **Period Start** (required) — The start of the period measured. Usage is billed in the billing period it falls in. Not later than the period end.
+  - **Period End** (required) — The end of the period measured. Usage is billed in the billing period it falls in. Not earlier than the period start.
+  - **Rejection Reason** — Why the record could not be rated. Read by billing operations to correct it. Present only on rejected records.
   - **Customer** (a Customer) — The customer whose usage it is. Chosen from the metered account. At most one customer; empty until matched. Decides whom to charge.
+  - **Subscription** (a Subscription) — The subscription the usage belongs to. Matched from the metering identifier. One per record. Its plan decides the price.
+  - **Charge** (a Charge) — The charge the usage was rated into. Set by rating. At most one. Present once rated.
 
 ### Usage Record Status
 
@@ -1826,13 +2676,48 @@ Fields:
   - **Planned Amount** (required) — The budgeted or forecast amount for the period. Copied from the budget or forecast when the variance is calculated, so later revisions do not change it. Compared with the actual amount to give the variance.
   - **Actual Amount** (required) — The amount actually incurred or earned in the period according to the ledger. Taken from posted accounting evidence when calculated; the variance never changes those entries. Compared with the planned amount.
   - **Variance Amount** (required) — The actual amount minus the planned amount; a positive figure is above plan. Calculated when the variance is produced; read by budget owners to see where spend or revenue departs from plan. The difference between the actual and planned amo…
+  - **Measure** (required) — What is being compared, such as travel expenses or revenue. Set by the calculation, usually an account or account group, so the owner knows which line departs from plan. Usually an account or account group.
+  - **Comparison Type** (required, one of the Variance Comparison Type values) — Which two figures are being set against each other. Chosen by the calculation and decides which figure acts as the plan. Posted actual results are compared with the approved budget. Posted actual results are compared with the current forec…
+  - **Variance Percent** — The variance as a percentage of the planned figure. Used to decide whether it needs explaining. Empty when the planned figure is zero.
+  - **Is Favourable** — Whether the difference is good for the business — more revenue or less cost. Computed from the measure's nature. Read with the amount.
+  - **Explanation** — Why the figures differ, in the owner's words. Written by the owner; required above the threshold. Read by management.
+  - **Status** (required, one of the Variance Status values) — How far the variance has progressed through explanation and review. Moved on by the owner and by controlling; only reviewed variances are reported as explained. Computed and waiting for the owner to explain it. The owner has written an exp…
   - **Organization** (required, a Organization) — The organisation the comparison is for. Chosen when created. Exactly one organisation. Decides whose budget is measured.
   - **Budget** (a Budget) — The budget used as the plan. Chosen when comparing with budget. At most one budget. Provides the planned figure. Supplies planned value source.
   - **Forecast** (a Forecast) — The forecast used as the expectation. Chosen when comparing with forecast. At most one forecast; empty if only a budget is used. Provides the expected figure. Supplies projected value source.
+  - **Cost Center** (a Cost Center) — The cost centre compared, when the variance is by cost centre. Set by the calculation. At most one. Its manager explains the variance.
+  - **Owner** (a Person) — The person who must explain the variance. Usually the cost-centre or budget owner. One per variance. Receives variances above the threshold.
+  - **Currency** (a Currency) — The currency of the amounts. The organization's reporting currency. One per variance. All amounts use it.
 
 ### Variance Basis
 
 The values of variance basis, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Variance Comparison Type
+
+The values of variance comparison type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Variance Status
+
+The values of variance status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
 
 Readable by every signed-in person.
 
@@ -1876,12 +2761,56 @@ Fields:
 - **INACTIVE** — Temporarily not offered, for example while a move is being confirmed; it can be reactivated.
 - **RETIRED** — No longer valid; kept only as history and in past documents.
 
+### Asset Acquisition Acquisition Type
+
+- **PURCHASE** — Bought from a supplier.
+- **CONSTRUCTION** — Built in-house or by contractors.
+- **LEASE** — Taken on under a lease recognised on the balance sheet.
+- **TRANSFER IN** — Received from another group company.
+- **DONATION** — Received free of charge.
+
+### Asset Acquisition Status
+
+- **RECORDED** — Entered and waiting to be capitalised.
+- **CAPITALIZED** — Posted to the accounts, so the asset is now depreciating.
+- **CANCELLED** — Entered in error and withdrawn before capitalisation.
+- **REVERSED** — Capitalised earlier and then reversed by a correcting entry.
+
+### Asset Class Depreciation Method
+
+- **STRAIGHT LINE** — An equal charge in every period of the useful life.
+- **DECLINING BALANCE** — A fixed percentage of the remaining book value in each period, so the charge falls over time.
+- **UNITS OF PRODUCTION** — A charge in proportion to use, such as hours run or units produced.
+- **NONE** — Not depreciated, as for land.
+
+### Asset Class Status
+
+- **ACTIVE** — Available for new assets.
+- **INACTIVE** — Kept for existing assets but not offered for new ones.
+
 ### Asset Depreciation Depreciation Method
 
 - **STRAIGHT** — Allocates depreciable value systematically over the defined useful life, normally producing an approximately even periodic depreciation amount.
 - **REM LIFE** — Calculates depreciation using the asset's remaining depreciable value and remaining useful life under the organization's remaining-life policy.
 - **RED BAL** — Applies a declining-balance approach in which depreciation is calculated at a defined rate against an appropriate declining carrying base.
 - **NBVSLUNIT** — Allocates depreciation based on usage units or output relative to the expected total units, appropriate where consumption rather than elapsed time drives asset value reduction.
+
+### Asset Disposal Disposal Method
+
+- **SALE** — Sold to an outside buyer for a price.
+- **SCRAP** — Scrapped or recycled with no resale.
+- **DONATION** — Given away free to another party or charity.
+- **TRADE IN** — Handed in as part payment for a replacement.
+- **LOSS OR THEFT** — Lost, stolen or destroyed and written off.
+- **TRANSFER OUT** — Transferred to another company in the group.
+
+### Asset Disposal Status
+
+- **REQUESTED** — Asked for and waiting for an approver.
+- **APPROVED** — Approved, so the asset may now be removed.
+- **COMPLETED** — The asset has gone and the disposal is posted.
+- **REJECTED** — Refused by the approver, so the asset stays.
+- **CANCELLED** — Withdrawn by the requester before completion.
 
 ### Asset Status
 
@@ -1891,6 +2820,25 @@ Fields:
 - **HELD** — The asset is intentionally retained but is not currently available for normal productive use, often pending inspection, disposition, or another decision.
 - **DISPOSED** — The organization has completed the disposition process and no longer treats the asset as an active managed resource.
 - **RETIRED** — The asset has been withdrawn from operational use, while historical records may remain available for audit and analysis.
+
+### Asset Transfer Status
+
+- **REQUESTED** — Asked for, but the asset has not moved yet.
+- **IN TRANSIT** — The asset has left and has not yet arrived.
+- **COMPLETED** — The receiver confirmed arrival and the register is updated.
+- **CANCELLED** — Called off before the move was completed.
+
+### Asset Transfer Transfer Type
+
+- **LOCATION** — The asset moves to another place.
+- **COST CENTER** — Another unit bears the asset's cost.
+- **CUSTODIAN** — Another person becomes responsible for the asset.
+- **INTERCOMPANY** — The asset moves to another group company.
+
+### Attachment Status
+
+- **ACTIVE** — Attached and part of the record's evidence.
+- **WITHDRAWN** — Removed from the record's evidence, but kept for the history.
 
 ### Bank Account Account Type
 
@@ -1907,12 +2855,27 @@ Fields:
 - **BLOCKED** — Temporarily frozen, for example for compliance reasons; no new payments should be routed to it.
 - **CLOSED** — Permanently closed; history remains for reconciliation and audit.
 
+### Billing Cycle Frequency
+
+- **WEEKLY** — Each billing period lasts one week.
+- **MONTHLY** — Each billing period lasts one calendar month.
+- **QUARTERLY** — Each billing period lasts three calendar months.
+- **SEMI ANNUAL** — Each billing period lasts six calendar months.
+- **ANNUAL** — Each billing period lasts one year.
+
 ### Billing Cycle Status
 
 - **DRAFT** — Being defined; not yet used by billing runs.
 - **ACTIVE** — In force; billing runs use it to determine charge periods.
 - **COMPLETED** — No longer used for new billing; past runs remain valid.
 - **CANCELLED** — Withdrawn before it was used.
+
+### Budget Budget Type
+
+- **OPERATING** — Plans revenue and day-to-day running costs.
+- **CAPITAL** — Plans investment in long-lived assets.
+- **CASH** — Plans cash receipts and payments over time.
+- **PROJECT** — Plans the cost of one specific project.
 
 ### Budget Status
 
@@ -1922,6 +2885,22 @@ Fields:
 - **ACTIVE** — The live budget against which spending is monitored.
 - **SUPERSEDED** — Replaced by a later version; kept as the record of what was once approved. A final state.
 - **CLOSED** — The period is over and the budget is closed for comparison with actuals. A final state.
+
+### Business Unit Status
+
+- **ACTIVE** — Operating and available for new assignments.
+- **INACTIVE** — No longer operating after a closure or merger.
+
+### Calendar Exception Exception Type
+
+- **PUBLIC HOLIDAY** — A public holiday on which work does not happen.
+- **COMPANY CLOSURE** — A day the company or site is closed.
+- **EXTRA WORKING DAY** — A normally free day that is worked.
+
+### Calendar Status
+
+- **ACTIVE** — In use and available to planners.
+- **INACTIVE** — Retired and no longer offered.
 
 ### Charge Charge Type
 
@@ -1938,6 +2917,44 @@ Fields:
 - **ACTIVE** — Confirmed and waiting to be invoiced.
 - **COMPLETED** — Invoiced; the charge has done its job.
 - **CANCELLED** — Withdrawn and will not be billed.
+
+### Contact Point Channel
+
+- **EMAIL** — An email address used for written messages.
+- **PHONE** — A landline telephone number.
+- **MOBILE** — A mobile telephone number.
+- **FAX** — A fax number, kept for partners who still use it.
+- **WEBSITE** — A web address of the party's site or page.
+- **MESSAGING** — A handle on a messaging app.
+
+### Contact Point Purpose
+
+- **GENERAL** — Any purpose, when nothing more specific applies.
+- **BILLING** — Invoices and statements sent to accounts payable.
+- **ORDERS** — Order confirmations and purchase orders.
+- **DELIVERY** — Delivery notices and arrival updates.
+- **SUPPORT** — Service and support enquiries.
+- **MARKETING** — Marketing communication, where consent allows.
+
+### Contact Point Status
+
+- **ACTIVE** — In use and offered for contact.
+- **INACTIVE** — No longer used and kept for history.
+- **INVALID** — Known not to work, such as a bouncing address.
+
+### Cost Center Category
+
+- **PRODUCTION** — Makes products or delivers services, so its costs flow into product cost.
+- **SALES** — Sells and markets the company's offering; its costs are reported as selling expense.
+- **ADMINISTRATION** — Runs general administration such as finance, HR and management; its costs stay out of product cost.
+- **RESEARCH** — Researches and develops new products and methods; its costs are reported as research and development expense.
+- **SERVICE** — Provides internal services to other cost centres, such as IT or maintenance, and is usually allocated onward.
+
+### Cost Center Status
+
+- **ACTIVE** — Open for postings and available when costs are assigned.
+- **BLOCKED** — Temporarily closed for postings, for example during a reorganisation or review.
+- **CLOSED** — No longer used for new postings; kept so past costs can still be reported.
 
 ### Credit Note Application Status
 
@@ -1999,6 +3016,11 @@ Fields:
 - **BLOCKED** — Held back from new business, for example for non-payment or compliance reasons.
 - **RETIRED** — Closed for good; history is kept.
 
+### Department Status
+
+- **ACTIVE** — The department exists and can receive people, positions and work.
+- **INACTIVE** — The department has been closed or merged away; it stays on record for history.
+
 ### Exchange Rate Rate Type
 
 - **SPOT** — The market rate at a moment in time.
@@ -2022,6 +3044,54 @@ Fields:
 - **SOFT CLOSED** — Normally closed but still open to postings by authorised finance staff, for adjustments.
 - **CLOSED** — Closed; no further postings and figures are final for reporting. A final state.
 - **LOCKED** — Frozen temporarily, for example during an audit or a month-end freeze; it can be reopened.
+
+### Forecast Forecast Type
+
+- **FINANCIAL** — Projects revenue, costs and profit over the horizon.
+- **CASH** — Projects receipts, payments and cash balances over the horizon.
+- **SALES** — Projects sales volumes and revenue by product or customer.
+- **HEADCOUNT** — Projects the number of people and the personnel cost they bring.
+
+### Forecast Status
+
+- **DRAFT** — Still being worked on by its author; no one has been asked to review it and it is not yet the current outlook.
+- **SUBMITTED** — Sent for review and waiting for the approver's decision.
+- **APPROVED** — Accepted by the approver and in use as the current outlook.
+- **SUPERSEDED** — Replaced by a later approved forecast and kept only for history.
+
+### Foreign Exchange Transaction Deal Type
+
+- **SPOT** — Settled within the normal spot period, usually two business days.
+- **FORWARD** — Settled on an agreed later date at a rate fixed now.
+- **SWAP** — One leg of a pair of opposite deals for different dates.
+
+### Foreign Exchange Transaction Status
+
+- **DEALT** — Agreed with the bank, but not yet matched with its confirmation.
+- **CONFIRMED** — Matched with the bank's confirmation and awaiting the value date.
+- **SETTLED** — Both currencies were exchanged on the value date.
+- **CANCELLED** — Cancelled by agreement with the bank before settlement.
+
+### Interest Day Count Basis
+
+- **ACT 360** — Actual days elapsed divided by 360.
+- **ACT 365** — Actual days elapsed divided by 365.
+- **THIRTY 360** — Each month counted as 30 days, divided by 360.
+
+### Interest Interest Type
+
+- **LOAN** — Interest the company pays on borrowing.
+- **DEPOSIT** — Interest the company earns on money placed with a bank.
+- **LATE PAYMENT** — Interest charged to a customer who paid late.
+- **CREDIT LINE** — Interest on a drawn credit facility.
+- **INTERCOMPANY** — Interest between group companies.
+
+### Interest Status
+
+- **CALCULATED** — Worked out and waiting to be checked and posted.
+- **POSTED** — Booked to the accounts.
+- **CANCELLED** — Found wrong before posting and replaced by a new calculation.
+- **REVERSED** — Posted, then undone by an opposite entry.
 
 ### Invoice Invoice Type
 
@@ -2055,12 +3125,31 @@ Fields:
 - **POSTED** — Recorded in the ledger; it affects balances and can no longer be edited.
 - **REVERSED** — Cancelled by a reversing entry; the original stays on record. A final state.
 
+### Language Direction
+
+- **LTR** — Written left to right.
+- **RTL** — Written right to left.
+
+### Ledger Ledger Type
+
+- **LEADING** — The main ledger, under local statutory rules.
+- **PARALLEL** — An additional ledger under another standard, such as the group's.
+- **TAX** — A ledger kept for tax purposes.
+- **MANAGEMENT** — A ledger for internal reporting only.
+
 ### Ledger Status
 
 - **DRAFT** — Being set up and not yet accepting entries.
 - **ACTIVE** — Open for posting journal entries.
 - **COMPLETED** — Closed for good after the final period. A final state.
 - **CANCELLED** — Set up but never used. A final state.
+
+### Legal Entity Status
+
+- **ACTIVE** — Registered, in good standing and free to trade, sign contracts and issue invoices.
+- **DORMANT** — Still registered but not trading, so it holds no live business activity.
+- **IN LIQUIDATION** — Being wound up by a liquidator; no new business should be started in its name.
+- **DISSOLVED** — Struck off the register and gone for good; no new contracts or invoices may use it.
 
 ### Location Location Type
 
@@ -2111,6 +3200,22 @@ Fields:
 - **PERSON** — The party represents an individual human being.
 - **ORGANIZATION** — The party represents a legal, commercial, governmental, nonprofit, or other organized body.
 
+### Party Relationship Relationship Type
+
+- **SUBSIDIARY OF** — The first party is a subsidiary owned by the second.
+- **BRANCH OF** — The first party is a branch operating as part of the second.
+- **EMPLOYEE OF** — The first party works for the second as an employee.
+- **AGENT OF** — The first party acts as an agent on behalf of the second.
+- **GUARANTOR FOR** — The first party guarantees the second party's obligations.
+- **BENEFICIAL OWNER OF** — The first party ultimately owns or controls the second.
+- **HOUSEHOLD MEMBER OF** — The first party lives in the same household as the second.
+- **OTHER** — Any other kind of link, explained in the relationship name.
+
+### Party Relationship Status
+
+- **ACTIVE** — The relationship is in force today.
+- **ENDED** — The relationship has stopped but is kept for history.
+
 ### Party Role Role Type
 
 - **CUSTOMER** — The party buys goods or services from the organization and is handled in sales and receivables.
@@ -2148,6 +3253,14 @@ Fields:
 
 - **RECEIPT** — Money received from a payer.
 - **DISBURSEMENT** — Money paid out to a payee.
+
+### Payment Instruction Payment Method
+
+- **CREDIT TRANSFER** — A standard bank transfer settled in the normal cycle.
+- **URGENT TRANSFER** — A same-day, high-value transfer that carries a higher fee.
+- **CROSS BORDER** — An international transfer to an account abroad, possibly with currency conversion.
+- **CHEQUE** — A cheque printed and issued by the bank.
+- **DIRECT DEBIT** — A debit collected from the payer's account under an existing mandate.
 
 ### Payment Instruction Status
 
@@ -2212,6 +3325,11 @@ Fields:
 - **BLOCKED** — Temporarily barred from trading, for example during a quality or compliance issue.
 - **RETIRED** — Removed from the catalogue; kept for history. A final state.
 
+### Profit Center Status
+
+- **ACTIVE** — Open and available when assigning revenue and costs.
+- **CLOSED** — Retired and kept only so past reports stay readable.
+
 ### Purchase Order Line Price Source
 
 - **PRICE LIST** — Taken from the supplier's published price list in force at the time.
@@ -2250,11 +3368,24 @@ Fields:
 - **FULFILLED** — Everything ordered has been delivered. A final state.
 - **CANCELLED** — Withdrawn before fulfilment. A final state.
 
+### Scenario Scenario Type
+
+- **BASE** — The expected case that most plans are built on.
+- **UPSIDE** — A more favourable case than expected.
+- **DOWNSIDE** — A less favourable case than expected.
+- **STRESS** — A severe case used to test resilience.
+
 ### Scenario Status
 
 - **DRAFT** — Being defined and not yet used in planning.
 - **ACTIVE** — Available for budgets and forecasts.
 - **ARCHIVED** — No longer used but kept for history. A final state.
+
+### Subscription Plan Pricing Unit
+
+- **FLAT** — One fee for the whole subscription.
+- **PER USER** — The fee times the number of users.
+- **PER UNIT** — The fee times another counted unit, such as devices or sites.
 
 ### Subscription Plan Status
 
@@ -2334,12 +3465,44 @@ Fields:
 - **SCRIPT** — A script run by the system.
 - **OTHER** — Work that fits no other type.
 
+### Tax Code Category
+
+- **STANDARD** — Taxed at the standard rate.
+- **REDUCED** — Taxed at a reduced rate.
+- **ZERO RATED** — Taxable at 0%; input tax remains recoverable.
+- **EXEMPT** — Outside the tax's charge; input tax is usually not recoverable.
+- **REVERSE CHARGE** — The buyer accounts for the tax instead of the seller.
+- **OUT OF SCOPE** — Not within the tax at all.
+
 ### Tax Code Status
 
 - **DRAFT** — Being defined; not yet usable.
 - **ACTIVE** — In use on transactions.
 - **COMPLETED** — No longer used on new transactions. A final state.
 - **CANCELLED** — Withdrawn before use. A final state.
+
+### Tax Code Tax Type
+
+- **VAT** — Value-added tax charged at each stage of supply and reclaimed on purchases.
+- **GST** — Goods and services tax, the value-added style tax used in countries such as Australia, India and Canada.
+- **SALES TAX** — Tax charged to the buyer at the point of sale and remitted by the seller.
+- **USE TAX** — Tax the buyer owes directly on purchases where no sales tax was charged by the supplier.
+- **WITHHOLDING** — Tax deducted from a payment to a supplier or employee and paid over to the authority.
+- **EXCISE** — Duty charged on specific goods such as fuel, alcohol or tobacco.
+
+### Tax Jurisdiction Filing Frequency
+
+- **MONTHLY** — A return is due every month.
+- **QUARTERLY** — A return is due every quarter.
+- **ANNUAL** — A single return is due once a year.
+
+### Tax Jurisdiction Level
+
+- **COUNTRY** — A national tax authority covering a whole country.
+- **STATE** — A state, province or region that levies its own tax.
+- **COUNTY** — A county or district authority below the state.
+- **CITY** — A city or municipality that adds its own local tax.
+- **SPECIAL DISTRICT** — A special taxing district, such as a transit or stadium district, with its own levy.
 
 ### Tax Jurisdiction Status
 
@@ -2353,6 +3516,11 @@ Fields:
 - **PERCENTAGE** — The rate is a percentage of the taxable amount.
 - **FIXED AMOUNT** — The rate is a fixed amount charged regardless of the taxable amount.
 
+### Tax Rate Rate Type
+
+- **PERCENT** — A percentage of the taxable amount.
+- **PER UNIT** — A fixed amount per unit of quantity.
+
 ### Tax Rate Status
 
 - **DRAFT** — Being defined; not yet applied.
@@ -2360,12 +3528,27 @@ Fields:
 - **COMPLETED** — Replaced or expired. A final state.
 - **CANCELLED** — Withdrawn before use. A final state.
 
+### Tax Registration Filing Frequency
+
+- **MONTHLY** — Returns under this registration are due every month.
+- **QUARTERLY** — Returns under this registration are due every quarter.
+- **ANNUAL** — Returns under this registration are due once a year.
+
 ### Tax Registration Status
 
 - **DRAFT** — Applied for or being recorded; not yet valid.
 - **ACTIVE** — Valid and in use.
 - **COMPLETED** — Ended, for example after deregistration. A final state.
 - **CANCELLED** — Withdrawn before use. A final state.
+
+### Tax Registration Tax Type
+
+- **VAT** — Registration for value-added tax.
+- **GST** — Registration for goods and services tax.
+- **SALES TAX** — Registration to collect and remit sales and use tax.
+- **PAYROLL** — Registration for payroll or employment taxes withheld from staff.
+- **CORPORATE INCOME** — Registration for tax on the company's profits.
+- **EXCISE** — Registration to handle goods subject to excise duty.
 
 ### Tax Rule Status
 
@@ -2382,6 +3565,11 @@ Fields:
 - **USE** — A tax on use of goods bought without sales tax.
 - **WITHHOLDING** — Tax held back from a payment.
 - **OTHER** — A tax of another kind.
+
+### Tax Transaction Direction
+
+- **OUTPUT** — Tax charged on a sale.
+- **INPUT** — Tax paid on a purchase.
 
 ### Tax Transaction Status
 
@@ -2419,6 +3607,20 @@ Fields:
 
 - **BUDGET** — Actuals are compared with the approved budget.
 - **FORECAST** — Actuals are compared with the latest forecast.
+
+### Variance Comparison Type
+
+- **ACTUAL VS BUDGET** — Posted actual results are compared with the approved budget.
+- **ACTUAL VS FORECAST** — Posted actual results are compared with the current forecast.
+- **FORECAST VS BUDGET** — The latest forecast is compared with the approved budget to show expected overruns.
+- **FORECAST VS PRIOR** — This forecast is compared with the previous forecast to show how expectations moved.
+
+### Variance Status
+
+- **CALCULATED** — Computed and waiting for the owner to explain it.
+- **EXPLAINED** — The owner has written an explanation for the difference.
+- **REVIEWED** — Controlling has examined and accepted the explanation.
+- **ACCEPTED** — The difference is under the threshold, so no explanation is needed.
 
 ## Lifecycles
 
@@ -2462,6 +3664,43 @@ Moves:
 - ACTIVE → EXPIRED (Expire)
 - INACTIVE → EXPIRED (Expire)
 
+### Party Relationship — Party Relationship Lifecycle
+
+Starts at **ACTIVE**.
+Final: **ENDED**.
+
+Moves:
+- ACTIVE → ENDED (End)
+
+### Legal Entity — Legal Entity Lifecycle
+
+Starts at **ACTIVE**.
+Final: **DISSOLVED**.
+
+Moves:
+- ACTIVE → DORMANT (Make Dormant)
+- DORMANT → ACTIVE (Resume Trading)
+- ACTIVE → IN LIQUIDATION (Liquidate)
+- DORMANT → IN LIQUIDATION (Liquidate)
+- IN LIQUIDATION → DISSOLVED (Dissolve)
+- DORMANT → DISSOLVED (Dissolve)
+
+### Business Unit — Business Unit Lifecycle
+
+Starts at **ACTIVE**.
+
+Moves:
+- ACTIVE → INACTIVE (Deactivate)
+- INACTIVE → ACTIVE (Reactivate)
+
+### Department — Department Lifecycle
+
+Starts at **ACTIVE**.
+
+Moves:
+- ACTIVE → INACTIVE (Deactivate)
+- INACTIVE → ACTIVE (Reactivate)
+
 ### Address — Address Lifecycle
 
 Starts at **ACTIVE**.
@@ -2472,6 +3711,16 @@ Moves:
 - INACTIVE → ACTIVE (Reactivate)
 - ACTIVE → RETIRED (Retire)
 - INACTIVE → RETIRED (Retire)
+
+### Contact Point — Contact Point Lifecycle
+
+Starts at **ACTIVE**.
+
+Moves:
+- ACTIVE → INACTIVE (Deactivate)
+- INACTIVE → ACTIVE (Reactivate)
+- ACTIVE → INVALID (Mark Invalid)
+- INVALID → ACTIVE (Reactivate)
 
 ### Location — Location Lifecycle
 
@@ -2519,6 +3768,22 @@ Moves:
 - INACTIVE → ACTIVE (Reactivate)
 - ACTIVE → RETIRED (Retire)
 - INACTIVE → RETIRED (Retire)
+
+### Calendar — Calendar Lifecycle
+
+Starts at **ACTIVE**.
+
+Moves:
+- ACTIVE → INACTIVE (Deactivate)
+- INACTIVE → ACTIVE (Reactivate)
+
+### Attachment — Attachment Lifecycle
+
+Starts at **ACTIVE**.
+Final: **WITHDRAWN**.
+
+Moves:
+- ACTIVE → WITHDRAWN (Withdraw)
 
 ### Task — Task Lifecycle
 
@@ -2677,6 +3942,17 @@ Moves:
 - APPROVED → SUPERSEDED (Mark Superseded)
 - ACTIVE → SUPERSEDED (Mark Superseded)
 
+### Forecast — Forecast Lifecycle
+
+Starts at **DRAFT**.
+Final: **SUPERSEDED**.
+
+Moves:
+- DRAFT → SUBMITTED (Submit)
+- SUBMITTED → DRAFT (Return)
+- SUBMITTED → APPROVED (Approve)
+- APPROVED → SUPERSEDED (Supersede)
+
 ### Scenario — Scenario Lifecycle
 
 Starts at **DRAFT**.
@@ -2685,6 +3961,36 @@ Final: **ARCHIVED**.
 Moves:
 - DRAFT → ACTIVE (Activate)
 - ACTIVE → ARCHIVED (Archive)
+
+### Cost Center — Cost Center Lifecycle
+
+Starts at **ACTIVE**.
+Final: **CLOSED**.
+
+Moves:
+- ACTIVE → BLOCKED (Block)
+- BLOCKED → ACTIVE (Unblock)
+- ACTIVE → CLOSED (Close)
+- BLOCKED → CLOSED (Close)
+
+### Profit Center — Profit Center Lifecycle
+
+Starts at **ACTIVE**.
+Final: **CLOSED**.
+
+Moves:
+- ACTIVE → CLOSED (Close)
+
+### Variance — Variance Lifecycle
+
+Starts at **CALCULATED**.
+Final: **REVIEWED**, **ACCEPTED**.
+
+Moves:
+- CALCULATED → EXPLAINED (Explain)
+- EXPLAINED → REVIEWED (Review)
+- EXPLAINED → CALCULATED (Return)
+- CALCULATED → ACCEPTED (Accept)
 
 ### Ledger — Ledger Lifecycle
 
@@ -2889,6 +4195,69 @@ Moves:
 - DRAFT → CANCELLED (Cancel)
 - ACTIVE → CANCELLED (Cancel)
 
+### Asset Class — Asset Class Lifecycle
+
+Starts at **ACTIVE**.
+
+Moves:
+- ACTIVE → INACTIVE (Deactivate)
+- INACTIVE → ACTIVE (Reactivate)
+
+### Asset Acquisition — Asset Acquisition Lifecycle
+
+Starts at **RECORDED**.
+Final: **CANCELLED**, **REVERSED**.
+
+Moves:
+- RECORDED → CAPITALIZED (Capitalize)
+- RECORDED → CANCELLED (Cancel)
+- CAPITALIZED → REVERSED (Reverse)
+
+### Asset Disposal — Asset Disposal Lifecycle
+
+Starts at **REQUESTED**.
+Final: **COMPLETED**, **REJECTED**, **CANCELLED**.
+
+Moves:
+- REQUESTED → APPROVED (Approve)
+- REQUESTED → REJECTED (Reject)
+- APPROVED → COMPLETED (Complete)
+- REQUESTED → CANCELLED (Cancel)
+- APPROVED → CANCELLED (Cancel)
+
+### Asset Transfer — Asset Transfer Lifecycle
+
+Starts at **REQUESTED**.
+Final: **COMPLETED**, **CANCELLED**.
+
+Moves:
+- REQUESTED → IN TRANSIT (Ship)
+- IN TRANSIT → COMPLETED (Receive)
+- REQUESTED → COMPLETED (Complete)
+- REQUESTED → CANCELLED (Cancel)
+- IN TRANSIT → CANCELLED (Cancel)
+
+### Foreign Exchange Transaction — Foreign Exchange Transaction Lifecycle
+
+Starts at **DEALT**.
+Final: **SETTLED**, **CANCELLED**.
+
+Moves:
+- DEALT → CONFIRMED (Confirm)
+- CONFIRMED → SETTLED (Settle)
+- DEALT → CANCELLED (Cancel)
+- CONFIRMED → CANCELLED (Cancel)
+
+### Interest — Interest Lifecycle
+
+Starts at **CALCULATED**.
+Final: **CANCELLED**, **REVERSED**.
+
+Moves:
+- CALCULATED → POSTED (Post)
+- CALCULATED → CANCELLED (Cancel)
+- POSTED → REVERSED (Reverse)
+
 ### Bank Account — Bank Account Lifecycle
 
 Starts at **PENDING**.
@@ -2937,7 +4306,7 @@ Moves:
 
 ## Roles
 
-- **User** — reads 141 of 141 record types
+- **User** — reads 188 of 188 record types
 - **Administrator** — reads and changes everything the lifecycles allow
 
 A refusal means the person's role does not allow it. Say which role does, from this list, and suggest their administrator.

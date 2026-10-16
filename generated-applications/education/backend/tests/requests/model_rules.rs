@@ -1,6 +1,6 @@
 //! The rules the *model* declared, and whether they reached the application.
 //!
-//! Generated: 2026-10-10T02:39:45.367Z
+//! Generated: 2026-10-16T07:46:09.945Z
 //! Project: education
 //!
 //! Every other rules suite creates a rule through the API and then checks that
@@ -33,6 +33,16 @@ const MODEL_RULES: &[(&str, &str, &str)] = &[
         "bus_party_role",
         "UPDATE",
     ),
+    (
+        "partyRelationshipInvariantsBeforeCreate",
+        "bus_party_relationship",
+        "CREATE",
+    ),
+    (
+        "partyRelationshipInvariantsBeforeUpdate",
+        "bus_party_relationship",
+        "UPDATE",
+    ),
     ("addressInvariantsBeforeCreate", "bus_address", "CREATE"),
     ("addressInvariantsBeforeUpdate", "bus_address", "UPDATE"),
     (
@@ -45,10 +55,32 @@ const MODEL_RULES: &[(&str, &str, &str)] = &[
         "bus_exchange_rate",
         "UPDATE",
     ),
+    ("calendarInvariantsBeforeCreate", "bus_calendar", "CREATE"),
+    ("calendarInvariantsBeforeUpdate", "bus_calendar", "UPDATE"),
+    (
+        "calendarExceptionInvariantsBeforeCreate",
+        "bus_calendar_exception",
+        "CREATE",
+    ),
+    (
+        "calendarExceptionInvariantsBeforeUpdate",
+        "bus_calendar_exception",
+        "UPDATE",
+    ),
     ("taskInvariantsBeforeCreate", "bus_task", "CREATE"),
     ("taskInvariantsBeforeUpdate", "bus_task", "UPDATE"),
     ("classInvariantsBeforeCreate", "bus_class", "CREATE"),
     ("classInvariantsBeforeUpdate", "bus_class", "UPDATE"),
+    (
+        "enrollmentInvariantsBeforeCreate",
+        "bus_enrollment",
+        "CREATE",
+    ),
+    (
+        "enrollmentInvariantsBeforeUpdate",
+        "bus_enrollment",
+        "UPDATE",
+    ),
     ("feeInvariantsBeforeCreate", "bus_fee", "CREATE"),
     ("feeInvariantsBeforeUpdate", "bus_fee", "UPDATE"),
     ("partyWorkflowsAfterUpdate", "bus_party", "UPDATE"),

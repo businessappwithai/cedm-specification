@@ -51,6 +51,28 @@ entity:
         usage: Set when the cart is created; the cart expires if it is still active then.
         relationshipContext: Read by the clean-up process.
         summary: Records when the expires event occurred. It establishes chronology, supports auditability, and helps coordinate related lifecycle and process activities.
+    - name: sessionReference
+      type: string
+      required: false
+      maxLength: 100
+      help:
+        summary: The shop session the cart belongs to, for shoppers not signed in.
+        usage: Lets a guest find their cart again.
+        relationshipContext: Replaced by the customer once they sign in.
+    - name: lastActivityAt
+      type: datetime
+      required: false
+      help:
+        summary: The moment the shopper most recently added, changed or removed something in the cart.
+        usage: Set by the shop on every change; carts idle for too long are treated as abandoned.
+        relationshipContext: Updated on every change.
+    - name: totalAmount
+      type: Money
+      required: false
+      help:
+        summary: The total of the cart's lines.
+        usage: Shown to the shopper and used in abandoned-cart reports.
+        relationshipContext: Recalculated at checkout.
   relationships:
     - name: customer
       target: Customer
@@ -70,9 +92,19 @@ entity:
         usage: Edited as the shopper adds and removes items.
         cardinalityMeaning: Any number of lines, none for an empty cart.
         context: The lines belong to the cart and go with it.
+    - name: salesOrder
+      target: SalesOrder
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The order the cart became at checkout.
+        usage: Set at checkout.
+        cardinalityMeaning: At most one.
+        context: Present once checked out.
   invariants:
     - id: CART-001
       rule: a CHECKED_OUT cart cannot be modified.
+    - {id: SHOPPING-CART-EXE-001, rule: "Total Amount cannot be negative.", violatedWhen: "total_amount != null and total_amount < 0", message: "Total Amount cannot be negative."}
   lifecycle:
     title: Shopping Cart Lifecycle
     attribute: status

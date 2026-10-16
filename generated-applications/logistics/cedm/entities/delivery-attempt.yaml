@@ -9,6 +9,59 @@ entity:
   attributes:
     - {name: deliveryAttemptId, type: uuid, required: true, immutable: true, help: {summary: The identity of the attempt., usage: Generated for each attempt; logs and retry decisions refer to it.}}
     - {name: occurredAt, type: datetime, required: false, help: {summary: When the attempt was made., usage: Set automatically; attempts are ordered by it when diagnosing a failure.}}
+    - name: attemptNumber
+      type: integer
+      required: true
+      help:
+        summary: Which try this was for the message — 1 for the first.
+        usage: Set by the integration layer.
+        relationshipContext: Unique within the message.
+    - name: attemptedAt
+      type: datetime
+      required: true
+      help:
+        summary: The date and time this attempt to deliver the payload was made.
+        usage: Stamped by the integration layer when the attempt starts, so support staff can reconstruct the order of events.
+        relationshipContext: A message's attempts are listed in this order.
+    - name: result
+      type: enum
+      required: true
+      values:
+        - SUCCESS
+        - REJECTED
+        - FAILED
+        - TIMEOUT
+      help:
+        summary: What came of this attempt to deliver the payload to the endpoint.
+        usage: Set from the endpoint's response; operators filter on it when diagnosing a delivery problem.
+        relationshipContext: Rejected messages are not retried, while failed and timed-out ones are tried again.
+        valueSemantics:
+          SUCCESS: The endpoint accepted the message and no further attempt is needed.
+          REJECTED: The endpoint refused the message as invalid, so retrying will not help.
+          FAILED: The endpoint could not be reached or answered with an error, so the message can be retried.
+          TIMEOUT: The endpoint did not answer in time, so the outcome is unknown and a retry is allowed.
+    - name: responseCode
+      type: string
+      required: false
+      maxLength: 20
+      help:
+        summary: The code the endpoint returned, such as an HTTP status.
+        usage: Read by operators diagnosing a failure.
+        relationshipContext: Meaning depends on the protocol.
+    - name: responseMessage
+      type: text
+      required: false
+      help:
+        summary: The text the endpoint sent back in answer to this attempt.
+        usage: Read by operators diagnosing why a delivery failed or was rejected.
+        relationshipContext: Can be long and is kept exactly as returned.
+    - name: durationMs
+      type: integer
+      required: false
+      help:
+        summary: How long the attempt took from sending to answer, in milliseconds.
+        usage: Used to spot slow or degrading endpoints before they start timing out.
+        relationshipContext: Measured by the integration layer, not entered by a person.
   relationships:
     - {name: message, target: Message, cardinality: '1', ownership: reference, help: {cardinalityMeaning: 'Exactly one message: every attempt tries to deliver a particular message.', summary: Message being delivered., businessMeaning: Supplies immutable payload identity., usage: Retry and delivery audit., workflowRole: Retries create distinct attempts and must not duplicate business effects.}}
     - {name: endpoint, target: IntegrationEndpoint, cardinality: '1', ownership: reference, help: {cardinalityMeaning: 'Exactly one endpoint: every attempt targets a specific destination.', summary: Destination endpoint attempted., businessMeaning: Defines delivery target., usage: Integration operations., workflowRole: Configuration changes do not rewrite historical attempts.}}

@@ -24,6 +24,44 @@ entity:
           RETIRED: Withdrawn; kept for history. A final state.
         businessMeaning: Controls future position assignment.
         relationshipContext: Historical employment remains valid.
+    - name: jobFamily
+      type: string
+      required: false
+      maxLength: 100
+      help:
+        summary: The family the job belongs to, such as Finance or Engineering.
+        usage: Used in workforce reporting and career paths.
+        relationshipContext: From the job architecture.
+    - name: jobLevel
+      type: string
+      required: false
+      maxLength: 20
+      help:
+        summary: The level or grade of the job.
+        usage: Links the job to a pay range.
+        relationshipContext: From the grading structure.
+    - name: description
+      type: text
+      required: false
+      help:
+        summary: A description of the duties and responsibilities of the job.
+        usage: Written by HR with the hiring manager; it is reused in job adverts and when positions are evaluated and graded.
+        relationshipContext: Free text.
+    - name: qualifications
+      type: text
+      required: false
+      help:
+        summary: The skills, education and experience the job requires.
+        usage: Used in recruiting and promotion decisions.
+        relationshipContext: Free text.
+    - name: flsaExempt
+      type: boolean
+      required: true
+      default: false
+      help:
+        summary: Whether the job is exempt from overtime rules where such rules apply.
+        usage: Decides how overtime is paid.
+        relationshipContext: Depends on local law.
   relationships:
     - {name: positions, target: Position, cardinality: 0..*, ownership: reference, help: {summary: The positions that are instances of this job., usage: Read to see where in the organisation the job is used., cardinalityMeaning: 'Any number of positions, from none for a new job to many for a common one.', workflowRole: Changes to the job description flow to every position of the job., businessMeaning: Instantiates reusable work definition in organization structure.}}
   invariants:

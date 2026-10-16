@@ -9,9 +9,147 @@ entity:
   attributes:
     - {name: lossEventId, type: uuid, required: true, immutable: true, help: {summary: 'The stable identity of the recorded loss, constant through reassessment and recovery.', usage: 'Generated when the loss is recorded; recoveries, incident links and risk analyses refer to it.'}}
     - {name: occurredAt, type: datetime, required: false, help: {summary: When the loss was suffered., usage: Set from the incident; used to place the loss in a reporting period.}}
-  relationships: []
+    - name: lossNumber
+      type: string
+      required: true
+      unique: true
+      maxLength: 40
+      help:
+        summary: The unique reference by which risk managers, auditors and insurers quote this loss.
+        usage: Assigned automatically when the loss is recorded and never reused, even if the loss is later withdrawn.
+        relationshipContext: No two loss events share a number.
+    - name: title
+      type: string
+      required: true
+      maxLength: 200
+      help:
+        summary: A one-line description of what was lost, such as stolen stock or a failed payment run.
+        usage: Entered when the loss is recorded and shown in loss reports and dashboards.
+        relationshipContext: Read alongside the loss number to identify the event.
+    - name: description
+      type: text
+      required: false
+      help:
+        summary: A narrative explaining how the loss came about and what it affected.
+        usage: Written by the risk analyst when recording the loss and updated as the assessment finds more.
+        relationshipContext: The linked incident holds the detailed facts of what happened.
+    - name: eventCategory
+      type: enum
+      required: true
+      default: EXECUTION_AND_PROCESS
+      values:
+        - INTERNAL_FRAUD
+        - EXTERNAL_FRAUD
+        - EMPLOYMENT_PRACTICES
+        - CLIENTS_PRODUCTS
+        - PHYSICAL_ASSETS
+        - SYSTEMS_FAILURE
+        - EXECUTION_AND_PROCESS
+      help:
+        summary: The risk category the loss falls under.
+        usage: Chosen when recording it; loss reports and capital models group by it.
+        relationshipContext: Follows the standard operational-risk event types.
+        valueSemantics:
+          INTERNAL_FRAUD: Fraud or theft by staff.
+          EXTERNAL_FRAUD: Fraud or theft by outsiders.
+          EMPLOYMENT_PRACTICES: Claims from employees or about workplace safety.
+          CLIENTS_PRODUCTS: Failures towards customers, or in the design of products.
+          PHYSICAL_ASSETS: Damage to property from disasters, accidents or vandalism.
+          SYSTEMS_FAILURE: Failure of systems or infrastructure.
+          EXECUTION_AND_PROCESS: Errors in processing transactions or managing processes.
+    - name: occurredDate
+      type: date
+      required: false
+      help:
+        summary: The day the event that caused the loss took place.
+        usage: Taken from the linked incident or investigation; it can differ from the day the loss was found.
+        relationshipContext: It cannot be later than the discovery date.
+    - name: discoveredDate
+      type: date
+      required: true
+      help:
+        summary: The day someone first realised the loss had happened and reported it.
+        usage: Recorded when the loss is reported; period-end loss reporting groups events by this date.
+        relationshipContext: Required, since losses are reported by discovery rather than occurrence.
+    - name: grossLoss
+      type: Money
+      required: true
+      help:
+        summary: The full value lost before any insurance payout, recovery or write-back reduces it.
+        usage: Estimated when the loss is first recorded and confirmed by the risk team during assessment.
+        relationshipContext: Held in the loss's own currency.
+    - name: recoveredAmount
+      type: Money
+      required: false
+      help:
+        summary: What has been recovered from insurance or third parties.
+        usage: Updated as recoveries come in.
+        relationshipContext: Not more than the gross loss.
+    - name: netLoss
+      type: Money
+      required: false
+      help:
+        summary: What the loss really cost the business once recoveries have been taken off.
+        usage: Worked out as the gross loss less the amount recovered; risk and finance reports use this figure.
+        relationshipContext: Changes whenever new recoveries are booked.
+    - name: status
+      type: enum
+      required: true
+      default: IDENTIFIED
+      values:
+        - IDENTIFIED
+        - ASSESSED
+        - CLOSED
+        - WITHDRAWN
+      help:
+        summary: Shows how far the loss has been assessed and whether its amounts can still change.
+        usage: Moved on by the risk team as estimates are confirmed and recoveries settle.
+        relationshipContext: Closed losses are frozen and no longer edited.
+        valueSemantics:
+          IDENTIFIED: The loss is known and recorded, but its amounts are still estimates.
+          ASSESSED: The amounts are confirmed, although further recoveries may still arrive.
+          CLOSED: Final amounts are recorded and the loss is frozen for reporting.
+          WITHDRAWN: The loss was recorded by mistake and is excluded from all totals.
+  relationships:
+    - name: incident
+      target: Incident
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The incident that caused the loss.
+        usage: Linked when the loss is recorded.
+        cardinalityMeaning: One incident per loss; an incident may cause several losses.
+        context: The incident's root cause explains the loss.
+    - name: risk
+      target: Risk
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The risk in the register the loss is an occurrence of.
+        usage: Linked so that the risk's assessment can be checked against real losses.
+        cardinalityMeaning: At most one per loss.
+        context: Frequent losses on a risk call its controls into question.
+    - name: legalEntity
+      target: LegalEntity
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The group company that bears the loss.
+        usage: Chosen when recording it.
+        cardinalityMeaning: One per loss.
+        context: The loss is booked in this entity's accounts.
+    - name: currency
+      target: Currency
+      cardinality: "1"
+      ownership: reference
+      help:
+        summary: The currency of the amounts.
+        usage: Set when recording it.
+        cardinalityMeaning: One per loss.
+        context: All amounts on the loss use it.
   invariants:
     - {id: LOSS-EVENT-001, rule: "Finalized evidence and effective history must be preserved; correction, reassessment, settlement or supersession must be explicit."}
+    - {id: LOSS-EVENT-EXE-001, rule: "Recovered Amount cannot be negative.", violatedWhen: "recovered_amount != null and recovered_amount < 0", message: "Recovered Amount cannot be negative."}
   help:
     summary: A record of realised financial, operational, physical, legal or other loss that can be attributed to a risk or incident.
     businessMeaning: Risk management is judged by outcomes. A loss event records what was actually lost, so risk estimates can be tested against reality and insurance and recovery claims can be supported.
@@ -19,4 +157,29 @@ entity:
     relationshipContext: A loss event is linked to the risk it materialised and to the incident that caused it.
     lifecycle: Finalised evidence and effective history are preserved; reassessments and recoveries are separate, explicit records.
     example: A 120,000 loss from a warehouse fire, linked to the fire incident and the property damage risk.
+  lifecycle:
+    title: Loss Event Lifecycle
+    attribute: status
+    states:
+      - IDENTIFIED
+      - ASSESSED
+      - CLOSED
+      - WITHDRAWN
+    initial: IDENTIFIED
+    terminal:
+      - CLOSED
+      - WITHDRAWN
+    transitions:
+      - from: IDENTIFIED
+        to: ASSESSED
+        action: assess
+      - from: ASSESSED
+        to: CLOSED
+        action: close
+      - from: IDENTIFIED
+        to: WITHDRAWN
+        action: withdraw
+      - from: ASSESSED
+        to: WITHDRAWN
+        action: withdraw
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-LOSS-EVENT}

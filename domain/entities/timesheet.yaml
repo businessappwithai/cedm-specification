@@ -45,6 +45,68 @@ entity:
           ACTIVE: Submitted and awaiting approval.
           COMPLETED: Approved and used for billing and cost. A final state.
           CANCELLED: Discarded. A final state.
+    - name: periodStart
+      type: date
+      required: true
+      help:
+        summary: The first day of the period that the timesheet covers.
+        usage: Usually a Monday; it must not be later than the period end.
+        relationshipContext: Not later than the period end.
+    - name: periodEnd
+      type: date
+      required: true
+      help:
+        summary: The last day of the period that the timesheet covers.
+        usage: Usually a Sunday; one person's timesheets for the same engagement must not overlap.
+        relationshipContext: Timesheets of one person do not overlap.
+    - name: totalHours
+      type: decimal
+      required: true
+      precision: 7
+      scale: 2
+      default: 0
+      help:
+        summary: All hours the person reported in the period, billable or not.
+        usage: Summed from the daily entries and never negative; the billable hours cannot exceed it.
+        relationshipContext: Not negative.
+    - name: billableHours
+      type: decimal
+      required: false
+      precision: 7
+      scale: 2
+      help:
+        summary: The hours that may be billed to the client.
+        usage: Used for billing and utilisation.
+        relationshipContext: Not more than the total hours.
+    - name: description
+      type: text
+      required: false
+      help:
+        summary: What was worked on.
+        usage: Read by the approver and, for billable work, often shown to the client.
+        relationshipContext: Should be specific enough to justify the hours.
+    - name: submittedAt
+      type: datetime
+      required: false
+      help:
+        summary: The date and time the person submitted the timesheet for approval.
+        usage: Recorded automatically on submission; late submissions are reported to managers.
+        relationshipContext: Late submission is reported.
+    - name: approvedAt
+      type: datetime
+      required: false
+      help:
+        summary: The date and time the approver accepted the timesheet.
+        usage: Recorded automatically on approval; billing and cost allocation wait for it.
+        relationshipContext: Required before billing.
+    - name: rejectionReason
+      type: string
+      required: false
+      maxLength: 500
+      help:
+        summary: The approver's explanation of why the timesheet was sent back.
+        usage: Written on rejection and read by the person to correct the entries before resubmitting; empty unless the timesheet was rejected.
+        relationshipContext: Present only when rejected.
   relationships:
     - name: context
       target: ProfessionalEngagement
@@ -65,6 +127,34 @@ entity:
         usage: Labor costing, project profitability, billing and audit.
         cardinalityMeaning: Zero or many ProjectCost records may derive from a Timesheet under governed allocation policy.
         workflowRole: Cost generation must be idempotent and based on eligible approved or completed time evidence.
+    - name: engagement
+      target: ProfessionalEngagement
+      cardinality: "1"
+      ownership: reference
+      help:
+        summary: The engagement the time was worked on.
+        usage: Chosen when entering time.
+        cardinalityMeaning: Every timesheet is for exactly one engagement.
+        context: Its rates decide the billing.
+    - name: person
+      target: Person
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: Whose time it is.
+        usage: Set when the timesheet is opened.
+        cardinalityMeaning: One per timesheet.
+        context: Their timesheets do not overlap.
+    - name: approvedBy
+      target: Person
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The person who reviewed and approved the timesheet.
+        usage: Recorded when approval is given, usually the person's manager or the engagement lead.
+        cardinalityMeaning: A timesheet has one approver, who must not be the person whose time it is.
+        workflowRole: Approval by this person releases the hours for billing and costing.
+        context: Must not be the person whose time it is.
 
   invariants:
     - id: TIMESHEET-001
@@ -73,6 +163,7 @@ entity:
       rule: Completed records must not be destructively rewritten; corrections require controlled amendment, replacement, reversal, or follow-up evidence appropriate to the domain.
     - id: TIMESHEET-003
       rule: Creation and lifecycle transitions must be idempotent and auditable.
+    - {id: TIMESHEET-EXE-001, rule: "Period End must not be earlier than period start.", violatedWhen: "period_start != null and period_end != null and period_end < period_start", message: "Period End cannot be earlier than period start."}
   lifecycle:
     title: Timesheet Lifecycle
     attribute: status

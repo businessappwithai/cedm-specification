@@ -71,6 +71,14 @@ entity:
           ACCEPTED: A reviewer confirmed the output and it may be acted on.
           OVERRIDDEN: A reviewer replaced the output with their own decision; the reviewer is recorded.
           REJECTED: A reviewer refused the output and it must not be acted on.
+    - name: overrideReason
+      type: string
+      required: false
+      maxLength: 500
+      help:
+        summary: The explanation a human reviewer gives for rejecting or changing the model's prediction.
+        usage: Written at the moment of overriding and analysed during model monitoring to find systematic weaknesses.
+        relationshipContext: Present only on predictions that a person has overridden.
   relationships:
     - name: model
       target: AIModel

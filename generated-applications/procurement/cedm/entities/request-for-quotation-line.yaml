@@ -11,6 +11,27 @@ entity:
     - {name: lineNumber, type: integer, required: true, minimum: 1, help: {summary: 'The position of the line within its request for quotation, as buyers and suppliers number it.', usage: Assigned by the buyer when building the RFQ; suppliers cite it when answering and buyers use it to match quotes line by line., businessMeaning: Human-facing reference for the requirement., relationshipContext: Unique within the parent RFQ.}}
     - {name: requestedQuantity, type: decimal, required: true, precision: 20, scale: 6, help: {summary: The quantity of the item the buyer asks each supplier to price on this line., usage: 'Copied from approved demand; every supplier quotes against the same figure so bids are comparable, and an award can split it.', businessMeaning: Defines the sourcing magnitude for this requirement., relationshipContext: Must reconcile with originating requisition demand and UOM.}}
     - {name: description, type: string, required: true, maxLength: 2000, help: {summary: 'The text telling suppliers exactly what is being sourced, including specification and any special requirement.', usage: 'Written by the buyer or taken from the requisition; suppliers price against it, so it must be precise enough to compare offers.', businessMeaning: Communicates what suppliers must price or propose., relationshipContext: Supplements Product and originating demand.}}
+    - name: requiredDate
+      type: date
+      required: false
+      help:
+        summary: The date by which the buyer needs the requested goods or services delivered.
+        usage: Copied from the approved requisition; suppliers state in their quotes whether they can meet it.
+        relationshipContext: Taken from the requisition.
+    - name: specification
+      type: text
+      required: false
+      help:
+        summary: The technical or quality requirements suppliers must meet.
+        usage: Attached to the request so quotes are comparable.
+        relationshipContext: Drawings and documents are attachments.
+    - name: targetPrice
+      type: Money
+      required: false
+      help:
+        summary: The price the buyer is hoping to pay for this line, held for internal use only.
+        usage: Used by buyers to judge incoming quotes and decide where to negotiate.
+        relationshipContext: Never shown to suppliers.
   relationships:
     - {name: requestForQuotation, target: RequestForQuotation, cardinality: "1", ownership: reference, inverse: lines, help: {summary: Parent sourcing solicitation., businessMeaning: "Supplies invited suppliers, deadlines, and sourcing lifecycle.", usage: RFQ execution and audit., cardinalityMeaning: Exactly one parent RFQ., workflowRole: Controls solicitation lifecycle.}}
     - {name: requisitionLine, target: PurchaseRequisitionLine, cardinality: "0..1", ownership: reference, help: {summary: Approved internal demand being sourced., businessMeaning: Preserves exact demand provenance., usage: Demand reconciliation and audit., cardinalityMeaning: Optional only for authorized sourcing not originating from a requisition line., workflowRole: "Supplies requested product, quantity, and need context."}}

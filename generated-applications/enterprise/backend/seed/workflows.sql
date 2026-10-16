@@ -241,6 +241,122 @@ ON CONFLICT (name) DO UPDATE SET
 
 INSERT INTO sys_workflow_definitions
   (name, entity_name, operation, trigger_type, bpmn_xml, description, is_active, is_model_managed, created_at, updated_at)
+VALUES ('ActivityFollowUpRequired', 'bus_activity', 'UPDATE',
+        'rule', '<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+  xmlns:appwithai="http://appwithai.io/schema/1.0"
+  id="Definitions_ActivityFollowUpRequired"
+  targetNamespace="http://appwithai.io/bpmn">
+  <bpmn:process id="Process_ActivityFollowUpRequired" isExecutable="true">
+    <bpmn:startEvent id="Process_ActivityFollowUpRequired_start"/>
+    <bpmn:serviceTask id="Process_ActivityFollowUpRequired_S1" name="Raise a task: follow up on">
+      <bpmn:extensionElements>
+        <appwithai:properties>
+        <appwithai:property name="nodeType" value="CreateEntity"/>
+        <appwithai:property name="entity" value="bus_task"/>
+        <appwithai:property name="as" value="taskId"/>
+        <appwithai:property name="fields" value="{&quot;code&quot;:&quot;ACTIVITY-FOLLOW-UP-{{id}}&quot;,&quot;name&quot;:&quot;Follow up on activity {{code}}&quot;,&quot;description&quot;:&quot;Activity {{code}} is now {{status}}. Check the records that depended on it and tell the people affected.&quot;,&quot;task_type&quot;:&quot;USER&quot;,&quot;status&quot;:&quot;CREATED&quot;,&quot;priority&quot;:&quot;NORMAL&quot;}"/>
+        </appwithai:properties>
+      </bpmn:extensionElements>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="Process_ActivityFollowUpRequired_end"/>
+    <bpmn:sequenceFlow id="Process_ActivityFollowUpRequired_flow_0" sourceRef="Process_ActivityFollowUpRequired_start" targetRef="Process_ActivityFollowUpRequired_S1"/>
+    <bpmn:sequenceFlow id="Process_ActivityFollowUpRequired_flow_1" sourceRef="Process_ActivityFollowUpRequired_S1" targetRef="Process_ActivityFollowUpRequired_end"/>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Process_ActivityFollowUpRequired">
+    <bpmndi:BPMNPlane id="BPMNPlane_Process_ActivityFollowUpRequired" bpmnElement="Process_ActivityFollowUpRequired">
+      <bpmndi:BPMNShape id="Process_ActivityFollowUpRequired_start_di" bpmnElement="Process_ActivityFollowUpRequired_start">
+        <dc:Bounds x="160" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_ActivityFollowUpRequired_S1_di" bpmnElement="Process_ActivityFollowUpRequired_S1">
+        <dc:Bounds x="256" y="100" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_ActivityFollowUpRequired_end_di" bpmnElement="Process_ActivityFollowUpRequired_end">
+        <dc:Bounds x="456" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Process_ActivityFollowUpRequired_flow_0_di" bpmnElement="Process_ActivityFollowUpRequired_flow_0">
+        <di:waypoint x="196" y="140"/>
+        <di:waypoint x="256" y="140"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Process_ActivityFollowUpRequired_flow_1_di" bpmnElement="Process_ActivityFollowUpRequired_flow_1">
+        <di:waypoint x="396" y="140"/>
+        <di:waypoint x="456" y="140"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>', 'When a activity is cancelled, a task asks someone to settle what depended on it.', TRUE, TRUE, NOW(), NOW())
+ON CONFLICT (name) DO UPDATE SET
+  entity_name      = EXCLUDED.entity_name,
+  operation        = EXCLUDED.operation,
+  trigger_type     = EXCLUDED.trigger_type,
+  bpmn_xml         = EXCLUDED.bpmn_xml,
+  description      = EXCLUDED.description,
+  is_model_managed = TRUE,
+  updated_at       = NOW();
+
+INSERT INTO sys_workflow_definitions
+  (name, entity_name, operation, trigger_type, bpmn_xml, description, is_active, is_model_managed, created_at, updated_at)
+VALUES ('BusinessEventExceptionRaised', 'bus_business_event', 'UPDATE',
+        'rule', '<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+  xmlns:appwithai="http://appwithai.io/schema/1.0"
+  id="Definitions_BusinessEventExceptionRaised"
+  targetNamespace="http://appwithai.io/bpmn">
+  <bpmn:process id="Process_BusinessEventExceptionRaised" isExecutable="true">
+    <bpmn:startEvent id="Process_BusinessEventExceptionRaised_start"/>
+    <bpmn:serviceTask id="Process_BusinessEventExceptionRaised_S1" name="Raise a task: resolve">
+      <bpmn:extensionElements>
+        <appwithai:properties>
+        <appwithai:property name="nodeType" value="CreateEntity"/>
+        <appwithai:property name="entity" value="bus_task"/>
+        <appwithai:property name="as" value="taskId"/>
+        <appwithai:property name="fields" value="{&quot;code&quot;:&quot;BUSINESS-EVENT-EXCEPTION-{{id}}&quot;,&quot;name&quot;:&quot;Resolve business event {{id}}&quot;,&quot;description&quot;:&quot;Business event {{id}} is now {{publication_status}}. Find out why it stopped and move it on or close it.&quot;,&quot;task_type&quot;:&quot;USER&quot;,&quot;status&quot;:&quot;CREATED&quot;,&quot;priority&quot;:&quot;HIGH&quot;}"/>
+        </appwithai:properties>
+      </bpmn:extensionElements>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="Process_BusinessEventExceptionRaised_end"/>
+    <bpmn:sequenceFlow id="Process_BusinessEventExceptionRaised_flow_0" sourceRef="Process_BusinessEventExceptionRaised_start" targetRef="Process_BusinessEventExceptionRaised_S1"/>
+    <bpmn:sequenceFlow id="Process_BusinessEventExceptionRaised_flow_1" sourceRef="Process_BusinessEventExceptionRaised_S1" targetRef="Process_BusinessEventExceptionRaised_end"/>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Process_BusinessEventExceptionRaised">
+    <bpmndi:BPMNPlane id="BPMNPlane_Process_BusinessEventExceptionRaised" bpmnElement="Process_BusinessEventExceptionRaised">
+      <bpmndi:BPMNShape id="Process_BusinessEventExceptionRaised_start_di" bpmnElement="Process_BusinessEventExceptionRaised_start">
+        <dc:Bounds x="160" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_BusinessEventExceptionRaised_S1_di" bpmnElement="Process_BusinessEventExceptionRaised_S1">
+        <dc:Bounds x="256" y="100" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_BusinessEventExceptionRaised_end_di" bpmnElement="Process_BusinessEventExceptionRaised_end">
+        <dc:Bounds x="456" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Process_BusinessEventExceptionRaised_flow_0_di" bpmnElement="Process_BusinessEventExceptionRaised_flow_0">
+        <di:waypoint x="196" y="140"/>
+        <di:waypoint x="256" y="140"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Process_BusinessEventExceptionRaised_flow_1_di" bpmnElement="Process_BusinessEventExceptionRaised_flow_1">
+        <di:waypoint x="396" y="140"/>
+        <di:waypoint x="456" y="140"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>', 'When a business event is failed, a high-priority task asks someone to resolve it.', TRUE, TRUE, NOW(), NOW())
+ON CONFLICT (name) DO UPDATE SET
+  entity_name      = EXCLUDED.entity_name,
+  operation        = EXCLUDED.operation,
+  trigger_type     = EXCLUDED.trigger_type,
+  bpmn_xml         = EXCLUDED.bpmn_xml,
+  description      = EXCLUDED.description,
+  is_model_managed = TRUE,
+  updated_at       = NOW();
+
+INSERT INTO sys_workflow_definitions
+  (name, entity_name, operation, trigger_type, bpmn_xml, description, is_active, is_model_managed, created_at, updated_at)
 VALUES ('BusinessTransactionFollowUpRequired', 'bus_business_transaction', 'UPDATE',
         'rule', '<?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"

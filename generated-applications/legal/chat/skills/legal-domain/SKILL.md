@@ -75,10 +75,34 @@ Fields:
   - **Agreement Type** (required, one of the Agreement Agreement Type values) — The kind of agreement, such as a service, supply or licence agreement. Chosen when recorded; decides which review and approval steps apply and how agreements are grouped in reports. Read with the parties to understand the commitment. An ag…
   - **Effective From** (required) — The date the agreement takes effect. Taken from the signed document; obligations are measured from it. Not later than the end date.
   - **Effective To** — The date the agreement ends; empty for an open-ended agreement. Taken from the signed document or set when it is terminated; must not be before the start date. Compared with today to show whether the agreement is in force.
+  - **Status** (required, one of the Agreement Status values) — Still being written and not yet sent to the other party. Shared with the other party and under discussion. Signed by every party but not yet effective. Effective and legally binding on the parties. Reached the end of its term without being…
+  - **Effective Date** — The day the agreement takes effect. Taken from the signed agreement; the agreement governs nothing before it. Must not be later than the expiry date.
+  - **Expiry Date** — The last day of the current term. Watched by the owner; renewal or termination must be decided before it. Empty for an agreement with no fixed end.
+  - **Signed Date** — The day the last party signed. Recorded on signature; it is evidence of when the parties became bound. Not later than the effective date in the usual case.
+  - **Auto Renew** (required) — Whether the agreement renews by itself at the end of its term. Set from the agreement's renewal clause; an automatically renewing agreement continues unless notice is given. Read with the renewal term and the notice period.
+  - **Renewal Term Months** — How long each automatic renewal lasts, in months. Used to work out the next expiry date when the agreement renews. Meaningful only when the agreement renews automatically.
+  - **Notice Period Days** — How many days' notice a party must give to end or stop renewing the agreement. Used to work out the last day on which notice can be given before the expiry date. Missing the notice date commits the business to another term.
+  - **Governing Law** — The law that governs the agreement. Taken from the agreement, such as "England and Wales" or "State of New York"; read when a dispute arises. Set together with the jurisdiction for disputes, which the agreement document states.
+  - **Description** — What the agreement covers and anything unusual about it. A summary for colleagues who need to know what the agreement allows without reading the document. The signed document remains the authoritative text.
+  - **First Party** (required, a Party) — The party on one side of the agreement, normally our own company. Chosen at registration. Every agreement has exactly one first party. When our company signs through a legal entity, that entity's party is the first party.
+  - **Owner** (a Person) — The colleague responsible for the agreement. Receives expiry and renewal reminders and answers questions about it. One owner per agreement. Should be reassigned when the owner leaves.
 
 ### Agreement Agreement Type
 
 The values of agreement agreement type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Agreement Status
+
+The values of agreement status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
 
 Readable by every signed-in person.
 
@@ -97,6 +121,31 @@ Readable by every signed-in person.
 
 Fields:
   - **Effective At** — When the attachment became part of the record. Set when the file is attached; used to show what evidence existed at a given moment.
+  - **File Name** (required) — The name of the file as uploaded. Shown in the record's list of attachments and used as the name when the file is downloaded. Not unique; the same name may be attached to many records.
+  - **Media Type** — The type of the file's content, such as application/pdf or image/jpeg. Detected on upload; it decides whether the file can be previewed. Taken from the file, not typed by the user.
+  - **Size Bytes** — The size of the file in bytes. Recorded on upload; used to enforce upload limits and to report storage use. Zero-size files are refused.
+  - **Storage Location** (required) — Where the file's content is stored. Set by the system on upload; users never type it. Moving files between stores updates it without changing the attachment.
+  - **Checksum** — A fingerprint of the file's content (SHA-256). Computed on upload; recomputing it later shows whether the file has been changed. Two attachments with the same checksum hold the same content.
+  - **Record Type** (required) — The kind of record the file is attached to, such as "Goods receipt". Set by the screen the file was attached from. Read with the record identifier to find the record.
+  - **Record** (required) — The identifier of the record the file is attached to. Set by the screen the file was attached from; the record's attachments are found by it. Together with the record type it identifies exactly one record.
+  - **Category** — What the file is, such as "Delivery note", "Certificate" or "Photograph". Chosen on upload so that the record's attachments can be told apart without opening them. Free choice of words, though each business usually agrees a short list.
+  - **Description** — A note about the file's content. Optional; useful when the file name does not say what the file shows. Free text.
+  - **Uploaded At** (required) — When the file was attached. Recorded by the system; the record's evidence is listed in this order. Not editable.
+  - **Status** (required, one of the Attachment Status values) — Whether the file still counts as evidence for the record. An attachment added by mistake is withdrawn; it stays visible in the history. Withdrawn attachments are not shown in the normal list. Attached and part of the record's evidence. Rem…
+  - **Uploaded By** (a Person) — The person who attached the file. Recorded on upload. One per attachment. Shown with the file so that reviewers know where it came from.
+
+### Attachment Status
+
+The values of attachment status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Business Unit
 
@@ -107,7 +156,25 @@ Readable by every signed-in person.
 Fields:
   - **Code** (required) — The short reference for the unit, such as CE or EMEA-RETAIL. Assigned by finance and used on reports and in postings; kept stable because history relies on it.
   - **Name** (required) — The full name of the business unit, as it appears in the organisation's structure and management accounts. Entered by management or finance when the unit is created; shown in organisation charts, selectors and segment reports.
+  - **Description** — What the business unit does. Read by people placing staff or costs in it. Free text.
+  - **Status** (required, one of the Business Unit Status values) — Whether the business unit is still operating. Set to inactive by an administrator after a reorganisation or closure. Inactive units are not offered for new assignments. Operating and available for new assignments. No longer operating after…
   - **Organization** (required, a Organization) — The organisation to which the unit belongs. Set when the unit is created. Exactly one organisation; a unit cannot stand alone. Rolls the unit's results up into its parent organisation.
+  - **Head** (a Person) — The executive responsible for the business unit. Receives its reports and approves its budgets. One per business unit. Accountable for its results.
+  - **Legal Entity** (a Legal Entity) — The company the business unit mainly trades through. Used for contracts and invoices made by the unit. At most one. A unit trading in several countries uses several entities; the main one is named.
+  - **Parent Unit** (a Business Unit) — The larger business unit this one is part of. Builds the hierarchy. At most one. Cannot be itself.
+
+### Business Unit Status
+
+The values of business unit status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Calendar
 
@@ -118,6 +185,41 @@ Readable by every signed-in person.
 Fields:
   - **Code** (required) — The short reference for the calendar, such as DE-NAT. Assigned by the administrator; used in configuration and reports; kept stable.
   - **Name** (required) — The descriptive name of the calendar, such as UK Working Days or Group Fiscal Calendar. Entered by the administrator who maintains it; shown wherever a schedule, service level or plan asks which calendar applies.
+  - **Working Days** (required) — The days of the normal working week, such as MON-FRI or MON-SAT. Days outside it are non-working unless an exception says otherwise. Exceptions override it for particular dates.
+  - **Time Zone** — The time zone of the calendar, such as Europe/Paris. Decides when a day starts and ends for deadlines. An IANA time-zone name.
+  - **Valid From** — The first day on which the calendar's working days and holidays apply. Set when the calendar is created. Not later than the valid-to date.
+  - **Valid To** — The last day on which the calendar's working days and holidays apply. Filled in when a newer calendar replaces this one. Left empty while the calendar is still in use.
+  - **Status** (required, one of the Calendar Status values) — Whether planners may use this calendar. Made inactive by an administrator once a newer calendar replaces it. Inactive calendars are not offered when choosing one. In use and available to planners. Retired and no longer offered.
+  - **Country** (a Country) — The country whose public holidays the calendar holds. Set for country calendars. At most one. Site calendars usually take their country's calendar as base.
+  - **Base Calendar** (a Calendar) — The calendar whose exceptions this one also follows. Set so a site calendar inherits the country's holidays. At most one base. Cannot be itself.
+
+Line items — **Calendar Exception**: kept inside each Calendar and reached by opening it, never on their own. One holiday, closure or extra working day in a calendar. Exceptions are what make a calendar accurate. Each records a date, what it is and whether work happens on it, so that working-day calculations skip holidays and closures and count extra working days. Entered each year for the coming year's ho…
+
+### Calendar Exception Exception Type
+
+The values of calendar exception exception type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Calendar Status
+
+The values of calendar status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### City
 
@@ -145,7 +247,52 @@ Readable by every signed-in person.
 Fields:
   - **Code** (required) — A short reference for the contact point. Assigned or imported; stays stable so integrations can match it.
   - **Name** (required) — A descriptive label for the endpoint, such as Head office switchboard. Shown wherever contact points are listed.
+  - **Channel** (required, one of the Contact Point Channel values) — An email address used for written messages. A landline telephone number. A mobile telephone number. A fax number, kept for partners who still use it. A web address of the party's site or page. A handle on a messaging app. What kind of chan…
+  - **Value** (required) — The address or number itself. Entered in its standard form — international format for phone numbers. Validated according to the channel.
+  - **Purpose** (required, one of the Contact Point Purpose values) — Any purpose, when nothing more specific applies. Invoices and statements sent to accounts payable. Order confirmations and purchase orders. Delivery notices and arrival updates. Service and support enquiries. Marketing communication, where…
+  - **Is Preferred** (required) — Whether this is the preferred channel for its purpose. Used first when several channels serve the same purpose. One preferred channel per party, channel and purpose.
+  - **Verified At** — When the channel was last confirmed to work. Recorded by a verification message or call. Unverified channels may be refused for sensitive messages.
+  - **Status** (required, one of the Contact Point Status values) — Whether the channel is still usable for reaching the party. Changed when the channel stops being used or a message to it bounces. Inactive and invalid channels are not offered for contact. In use and offered for contact. No longer used and…
   - **Party** (required, a Party) — The party the endpoint belongs to. Set when the endpoint is added. Exactly one party; each endpoint has one owner. Lets communications find the right channel for a party.
+
+### Contact Point Channel
+
+The values of contact point channel, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Contact Point Purpose
+
+The values of contact point purpose, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Contact Point Status
+
+The values of contact point status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Contract
 
@@ -164,7 +311,11 @@ Fields:
   - **Auto Renew** (required) — Whether the contract renews by itself at the end of its term. Set from the contract terms; renewal processes act on contracts with this on, unless notice is given.
   - **Owner Organization** (a Organization) — The part of the organisation that owns the relationship. Set at creation; receives renewal reminders and answers for performance. At most one owner. Gives the contract an internal owner.
 
+Line items — **Contract Clause**: kept inside each Contract and reached by opening it, never on their own. A clause that forms part of a contract, holding its effective wording or a reference to a structured term. A contract is made of clauses, and disputes turn on the exact words. Holding each clause as a record lets the organisation find, compare and reuse wording and show which clause applied when. A…
+
 Line items — **Contract Obligation**: kept inside each Contract and reached by opening it, never on their own. A specific obligation, commitment, deliverable or condition that arises from a contract and that one party must fulfil. A contract matters through what it makes people do. Tracking obligations individually shows what is due, who is responsible, and whether it was delivered, so breaches are noticed…
+
+Line items — **Contract Line**: kept inside each Contract and reached by opening it, never on their own. A line within a contract that fixes a specific product or service, its price, quantity, term or scope of obligation. Commercial contracts are priced and scoped line by line. Lines state exactly what is being bought or provided, and orders and invoices are checked against them. Added when a contract…
 
 ### Contract Amendment
 
@@ -174,27 +325,53 @@ Readable by every signed-in person.
 
 Fields:
   - **Effective At** — The date and time from which the amended terms apply. Entered from the signed amendment; terms before this moment remain those of the earlier text.
+  - **Amendment Number** (required) — The number of the amendment within its contract — 1 for the first, 2 for the second and so on. Assigned in order when the amendment is drafted. Unique within the contract.
+  - **Title** (required) — What the amendment changes, in one line. Shown in the contract's list of amendments. Identifies the amendment for people.
+  - **Amendment Type** (required, one of the Contract Amendment Amendment Type values) — What kind of change the amendment makes. Chosen when drafting; reports of price changes and extensions use it. An amendment making several kinds of change takes its main one. Changes prices or payment terms. Adds or removes products, servi…
+  - **Description** (required) — The changes, clause by clause. Written when drafting; read by everyone who applies the contract. The signed amendment document is authoritative.
+  - **Effective Date** (required) — The day the changed terms start to apply. Terms before this day remain as they were. May be after the signature date, never before it unless the parties agree a retroactive change.
+  - **Signed Date** — The day the last party signed the amendment, completing its execution. Recorded when the signed copy comes back, before the effective date arrives. Present once signed.
+  - **Status** (required, one of the Contract Amendment Status values) — Where the amendment stands between drafting and taking effect. Moved on by internal approval, the other party's reply and signature. Only signed amendments change the contract. Being written and not yet approved or shared. Approved interna…
   - **Contract** (required, a Contract) — The contract that is being amended. Set when the amendment is created. Exactly one contract; an amendment always modifies a single contract. Keeps the change attached to the agreement it changes.
 
-### Contract Clause
+### Contract Amendment Amendment Type
 
-A clause that forms part of a contract, holding its effective wording or a reference to a structured term. A contract is made of clauses, and disputes turn on the exact words. Holding each clause as a record lets the organisation find, compare and reuse wording and show which clause applied when. Added when a contract is drafted or amended; read by negotiators, reviewers and anyone checking what was promised. Each clause belongs to one Contract, and amendments may add or replace clauses. Executed clause text is evidence and is not silently rewritten; changes are recorded as superseding clause…
-
-Readable by every signed-in person.
-
-Fields:
-  - **Effective At** — When this wording of the clause took effect. Set from the contract or amendment that introduced it; the effective text on any date is the latest clause in force then.
-  - **Contract** (required, a Contract) — Exactly one contract: a clause has no meaning outside the agreement it belongs to. The contract of which the clause is a part. Set when the clause is created. Groups the clauses that make up the agreement.
-
-### Contract Line
-
-A line within a contract that fixes a specific product or service, its price, quantity, term or scope of obligation. Commercial contracts are priced and scoped line by line. Lines state exactly what is being bought or provided, and orders and invoices are checked against them. Added when a contract is drafted or amended; read when orders are placed, delivered and invoiced under the contract. Each line belongs to one Contract; orders, shipments and invoices draw on lines. Executed lines are evidence. A change in price or quantity is made by amendment, not by editing the signed line. Line 3 of…
+The values of contract amendment amendment type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
 
 Readable by every signed-in person.
 
 Fields:
-  - **Effective At** — When the line took effect. Set from the signed contract or amendment; the price and quantity that apply to an order are those of the line in force on the order date.
-  - **Contract** (required, a Contract) — Exactly one contract: a line is priced and scoped only within the agreement that contains it. The contract that contains the line. Set when the line is created. Places the line within the agreed commercial terms.
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Contract Amendment Status
+
+The values of contract amendment status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Contract Clause Category
+
+The values of contract clause category, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Contract Obligation Obligation Type
 
@@ -230,7 +407,43 @@ Readable by every signed-in person.
 
 Fields:
   - **Effective At** — The date and time from which the new term starts. Set from the renewal terms, normally the day after the previous term ended.
+  - **Renewal Number** (required) — The unique reference by which the renewal review is known to contract managers. Assigned when the renewal review is opened ahead of the notice deadline. Unique across all renewals.
+  - **Renewal Type** (required, one of the Contract Renewal Renewal Type values) — How the contract continues into a new term, by itself, by negotiation or by option. Taken from the contract's renewal clause when the review is opened. An automatic renewal happens unless notice is given by the deadline. Renews by itself u…
+  - **Current Term End** (required) — The last day of the current term. Copied from the contract when the review opens. The new term starts the day after.
+  - **Notice Deadline** — The last day notice can be given to stop the renewal. Watched by the contract manager; missing it means an automatic renewal goes ahead. Before the current term end.
+  - **New Term Start** — The first day of the contract's new term once the renewal is confirmed. Set by the contract manager when the renewal is confirmed. The day after the current term ends, normally.
+  - **New Term End** — The last day of the contract's new term once the renewal is confirmed. Set by the contract manager when the renewal is confirmed. Not earlier than the new term start.
+  - **Changed Terms** — What changes with the renewal, such as new prices. Written when the renewal is negotiated. Formal changes are recorded as an amendment.
+  - **Decided Date** — The day the renewal was confirmed or declined. Recorded with the decision so the notice deadline can be checked afterwards. Present once decided.
+  - **Status** (required, one of the Contract Renewal Status values) — Whether the renewal has been decided or is still being considered. Moved on by the contract manager as the decision is taken. Undecided renewals near their notice deadline are escalated. Being considered, with no decision yet. The contract…
   - **Contract** (required, a Contract) — Exactly one contract: a renewal extends a single agreement, and one contract may be renewed many times. The contract that is renewed. Set when the renewal is created. Extends the contract's period of effect.
+  - **Amendment** (a Contract Amendment) — The amendment recording the renewed terms. Linked when terms change on renewal. At most one. A renewal without changes needs no amendment.
+
+### Contract Renewal Renewal Type
+
+The values of contract renewal renewal type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Contract Renewal Status
+
+The values of contract renewal status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Contract Status
 
@@ -253,7 +466,55 @@ Readable by every signed-in person.
 
 Fields:
   - **Effective At** — The date and time from which the contract, or the named obligations, ceases to apply. Taken from the notice or agreement; later charges and obligations stop at this moment.
+  - **Termination Number** (required) — The unique reference by which the termination is known to legal and contract staff. Assigned when the notice is recorded against the contract. Unique across all terminations.
+  - **Initiated By** (required, one of the Contract Termination Initiated By values) — Which side of the contract gave notice and brought it to an end. Recorded with the notice, so exit obligations fall on the right party. Read together with the ground. We gave notice and ended it. The other party ended it. Both parties agre…
+  - **Ground** (required, one of the Contract Termination Ground values) — The reason in law or in the contract for which it was ended. Chosen when the notice is recorded; it decides whether penalties or damages may apply. Termination for breach usually needs evidence of the breach. Ended under a right to termina…
+  - **Notice Date** (required) — The day the termination notice was given or received. The notice period runs from this day, so it sets the earliest effective date. Not later than the effective date.
+  - **Effective Date** (required) — The day the contract ends. No obligations arise after it except those that survive. Notice date plus the contractual notice period, unless agreed otherwise.
+  - **Reason** — The circumstances behind the termination, written out in plain words. Entered by the person recording it and read later in any dispute. Free text.
+  - **Exit Obligations** — What remains to be done to close the contract out. Listed when recording the termination; ticked off before completion. Such as final invoicing, returning property, deleting data.
+  - **Termination Fee** — Any fee or penalty payable because of the termination. Recorded when the contract provides for one. Paid or invoiced separately.
+  - **Status** (required, one of the Contract Termination Status values) — Notice given or received; the contract still runs. The contract has ended; exit work under way. Exit work done, and the contract is closed. Notice withdrawn by agreement; the contract continues. Where the termination stands. Moved on as th…
   - **Contract** (required, a Contract) — Exactly one contract: a termination ends a single agreement, and an agreement can be ended only once. The contract being ended. Set when the termination is recorded. Closes the contract's period of effect.
+
+### Contract Termination Ground
+
+The values of contract termination ground, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Contract Termination Initiated By
+
+The values of contract termination initiated by, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Contract Termination Status
+
+The values of contract termination status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Country
 
@@ -304,7 +565,26 @@ Readable by every signed-in person.
 Fields:
   - **Code** (required) — The short code of the department, such as FIN-AP. Used in postings and reports; kept stable.
   - **Name** (required) — The name of the department as the organisation calls it, such as Finance or Field Operations. Entered by an administrator; shown in organisation charts, on documents and in reports that group people and costs by department.
+  - **Description** — What the department is responsible for and what kind of work it does. Read by people placing staff, positions or work, so they choose the right department. Free text written by the organisation's administrators.
+  - **Status** (required, one of the Department Status values) — Whether the department currently exists as part of the organisation. Set to inactive after a reorganisation closes or merges the department. Inactive departments are not offered when assigning people or work. The department exists and can…
   - **Organization** (required, a Organization) — Chosen when the department is created; reporting lines, headcount and budgets roll up through the organisation it belongs to. The organisation the department belongs to. Exactly one organisation: a department is part of a single organisati…
+  - **Business Unit** (a Business Unit) — The business unit the department is part of. Set where the organization is divided into business units. At most one. Used in business-unit reporting.
+  - **Parent Department** (a Department) — The department this one reports to. Builds the hierarchy used for approvals. At most one. Cannot be itself.
+  - **Manager** (a Person) — The person who leads the department. Approves its requests and receives its reports. One per department. Approval routing goes to this person.
+  - **Location** (a Location) — Where the department is based. Used in directories and space planning. At most one. Staff may work elsewhere.
+
+### Department Status
+
+The values of department status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Exchange Rate
 
@@ -321,6 +601,8 @@ Fields:
   - **Expires At** — Optional end of the period during which the rate is valid. Used to prevent application of expired rates. When supplied, expiresAt must be later than effectiveAt. Defines the rate's validity window for transaction and reporting calculations.
   - **Source** (required) — Identifies the provider or business authority from which the rate was obtained. Used for audit, reconciliation, regulatory reporting, and rate governance. Source identifies provenance; it does not by itself determine which rate is applicab…
   - **Status** (required, one of the Exchange Rate Status values) — Being prepared; not yet used. In force and usable for conversion. Its validity period has ended; kept for past conversions. Withdrawn; must not be used. Lifecycle state of the exchange-rate record. Used by conversion services to determine…
+  - **From Currency** (required, a Currency) — Currency from which an amount is converted. Identifies the source denomination of the monetary amount being converted. Must differ from toCurrency for a meaningful exchange-rate conversion. Identifies the currency of the source Money value…
+  - **To Currency** (required, a Currency) — Currency into which an amount is converted. Identifies the target denomination of the converted monetary amount. Conversion direction is from fromCurrency to toCurrency; reversing the direction requires an appropriate inverse rate rather t…
 
 ### Exchange Rate Rate Type
 
@@ -357,6 +639,21 @@ Readable by every signed-in person.
 Fields:
   - **Code** (required) — The two-letter ISO 639-1 code of the language, such as en or de. Taken from the standard; unique; used in locale settings and APIs.
   - **Name** (required) — The English name of the language, such as French or Portuguese. Loaded from the language reference data; it is shown in language pick-lists and reports, while the code remains the identifier.
+  - **Alpha3** — The three-letter ISO 639-3 code, such as fra. Used by systems that require three-letter codes. From the standard.
+  - **Direction** (required, one of the Language Direction values) — Whether the language is written left to right or right to left. Tells screens and documents how to lay out text. From the Unicode CLDR. Written left to right. Written right to left.
+
+### Language Direction
+
+The values of language direction, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Legal Case
 
@@ -366,7 +663,59 @@ Readable by every signed-in person.
 
 Fields:
   - **Occurred At** — When the case was opened or the event it records took place. Set when recorded; used to order the history of the matter.
+  - **Case Number** (required) — The court's or tribunal's reference for the case. Quoted on every filing and letter to the court. Unique within its forum.
+  - **Title** (required) — The name of the case, such as "ACME France v. Northwind Labs". Shown in case lists. Identifies the case for people.
+  - **Forum Type** (required, one of the Legal Case Forum Type values) — Says what kind of body hears the case, such as a court, tribunal or arbitration. Chosen when the case is opened; it decides the procedure and deadlines that apply. Read together with the forum that hears it. A state court of law hearing th…
+  - **Our Role** (required, one of the Legal Case Our Role values) — Says which side of the dispute the business is on in this case. Recorded when the case is opened. Decides whether an adverse outcome means a payment or a lost recovery. We started the proceedings. Proceedings were brought against us. We ar…
+  - **Stage** — The procedural stage reached, such as "Pleadings", "Expert phase" or "Awaiting judgment". Updated as the case moves on. Free wording; procedures differ by forum.
+  - **Filed Date** — The day the proceedings were formally filed with the forum. Recorded when the case starts; limitation periods and deadlines run from it, and it cannot be later than the judgment date. Not later than the judgment date.
+  - **Next Hearing Date** — The date of the next hearing. Updated after each hearing; feeds the hearing calendar. Empty when none is scheduled.
+  - **Judgment Date** — The day judgment was given or the settlement was signed. Recorded by the responsible lawyer together with the outcome; empty until the case is decided or settled. Present once decided or settled.
+  - **Amount Claimed** — The monetary amount claimed in the proceedings. Taken from the claim document and used for exposure reporting; expressed in the matter's currency. In the matter's currency.
+  - **Outcome** — A description of how the case ended, such as the judgment or settlement terms. Written by the responsible lawyer with the judgment or settlement, and required before the case is closed. Required to close.
+  - **Status** (required, one of the Legal Case Status values) — Shows where the case stands in its life, from filing through judgment to closure. Moved on by the responsible lawyer. Decided and settled cases must have an outcome. Started, with first steps under way. Pleadings and hearings are in progre…
   - **Legal Matter** (required, a Legal Matter) — The legal matter this case belongs to. Set when the case is opened. Exactly one matter: a case is a proceeding within a single matter. Collects the case's costs and outcomes with the rest of the matter. Groups case within broader legal wor…
+  - **Forum** (a Organization) — The court, tribunal or authority hearing the case. Chosen when opening it. One per case. Its rules set the deadlines.
+  - **Counterparty** (a Party) — The other side. Chosen when opening it. The main opponent; others are listed in the title. Usually the matter's counterparty.
+
+### Legal Case Forum Type
+
+The values of legal case forum type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Legal Case Our Role
+
+The values of legal case our role, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Legal Case Status
+
+The values of legal case status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Legal Entity
 
@@ -376,6 +725,34 @@ Readable by every signed-in person.
 
 Fields:
   - **Occurred At** — When the entity was formed, or its record took effect. Set from the registration data.
+  - **Legal Name** (required) — The registered name, exactly as in the register. Printed on invoices, contracts and filings. A trading name may differ; this is the one the law recognises.
+  - **Registration Number** — The number under which the entity is registered, such as a company number or SIREN. Printed on documents where the law requires it; used in KYC checks. Unique within its jurisdiction.
+  - **Legal Form** — The legal form, such as "SAS", "GmbH", "Ltd" or "LLC". Printed after the name on documents. Each jurisdiction has its own forms.
+  - **Incorporation Date** — The day the company or organisation was legally formed, as shown on its certificate of incorporation. Copied from the official register when the entity is set up; used for age checks, filings and group structure charts. It can never fall a…
+  - **Dissolution Date** — The day the legal entity formally ceased to exist and was removed from the register. Entered by company secretarial when a dissolution is confirmed; it stays empty for entities that still exist. Only dissolved entities carry a date here.
+  - **Tax Identifier** — The entity's main tax number in its country. Printed on invoices and used in tax filings. Further registrations are recorded as tax registrations.
+  - **Vat Number** — The entity's VAT or sales-tax registration number. Printed on invoices; validated for cross-border trade. Empty for entities not registered for VAT.
+  - **Lei** — The Legal Entity Identifier, a 20-character global code. Required for financial transactions and regulatory reporting. Issued by an LEI operator and renewed every year.
+  - **Is Group Company** (required) — Whether the entity belongs to our own group. Separates the group's companies from customers' and suppliers' entities; intercompany transactions are between group companies. Group companies have their own accounts and filings.
+  - **Status** (required, one of the Legal Entity Status values) — Registered, in good standing and free to trade, sign contracts and issue invoices. Still registered but not trading, so it holds no live business activity. Being wound up by a liquidator; no new business should be started in its name. Stru…
+  - **Organization** (a Organization) — The organization this entity is the legal form of. Linked so that the organization's contracts and filings can be issued in the right name. At most one organization per entity. An organization may trade through several entities in differen…
+  - **Country** (a Country) — The country the entity is registered in. Decides which law, register and tax rules apply. One per entity. A branch abroad is not a separate entity.
+  - **Registered Address** (a Address) — The registered office. Printed on documents where the law requires it. One per entity. May differ from where the entity operates.
+  - **Functional Currency** (a Currency) — The currency the entity keeps its accounts in. Set by finance; translations to the group currency start from it. One per entity. Usually the currency of its country.
+  - **Parent Entity** (a Legal Entity) — The entity that owns this one in the group. Recorded for group companies; consolidation follows it. At most one parent. Minority holdings are not recorded here.
+
+### Legal Entity Status
+
+The values of legal entity status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Legal Matter
 
@@ -385,6 +762,62 @@ Readable by every signed-in person.
 
 Fields:
   - **Occurred At** — When the matter was opened or the event that gave rise to it. Set at opening; used to order matters and compute limitation periods.
+  - **Matter Number** (required) — The reference of the matter. Assigned when it is opened; outside counsel bill against it. Unique.
+  - **Title** (required) — A short headline telling lawyers and the business what the dispute, advice request or transaction concerns. Typed by the legal team at intake and shown in matter lists, searches and cost reports. Read together with the matter number to pic…
+  - **Matter Type** (required, one of the Legal Matter Matter Type values) — What kind of legal work it is. Chosen at intake; workload and spend are reported by type. Litigation matters may have court cases. Advice on a question of law or a business proposal. Drafting, reviewing or negotiating an agreement. A dispu…
+  - **Description** — The background of the matter, the facts so far and what the business hopes to achieve through legal help. Written at intake by the requesting lawyer and extended as the matter develops; it may contain privileged advice. Access is limited t…
+  - **Opened Date** (required) — The day the legal team formally accepted the matter and began work on it. Set at intake, normally when the request is approved; it starts the clock for ageing and cost reporting. It cannot be later than the closing date.
+  - **Closed Date** — The day the legal work was finished and the matter was closed in the register. Recorded by the responsible lawyer together with the final outcome and last counsel invoice. Empty while the matter is open or on hold.
+  - **Budget** — The expected cost of outside counsel and expenses. Agreed at opening; spend is compared with it. In the matter's currency.
+  - **Spend To Date** — The total legal fees and expenses charged against the matter so far. Updated as outside counsel invoices are approved; the legal team compares it with the budget each month. Going over the budget needs approval from the matter owner.
+  - **Outcome Likelihood** (one of the Legal Matter Outcome Likelihood values) — How likely an adverse outcome is, in the legal team's judgement. Reviewed each quarter for disputes; finance provisions for probable losses. Read with the estimated exposure. An adverse outcome is very unlikely. An adverse outcome is possi…
+  - **Estimated Exposure** — How much the business could have to pay if the outcome is adverse. Estimated by the legal team for disputes. Used for provisions and disclosures.
+  - **Outcome** — How the matter ended. Written when it closes, such as "settled for 45,000 EUR" or "contract signed". Required to close a dispute.
+  - **Status** (required, one of the Legal Matter Status values) — Shows whether the matter is still being worked on, paused, or finished. Changed by the responsible lawyer as work starts, stalls or ends; closed matters need an outcome recorded. Closing a matter locks in its dates and final spend. Work is…
+  - **Legal Entity** (a Legal Entity) — The group company the matter is for. Chosen at intake. One per matter. Provisions are booked in this entity.
+  - **Counterparty** (a Party) — The other side, if there is one. Chosen for disputes and negotiations. The main counterparty; others are named in the description. Conflict checks look at it.
+  - **Responsible Lawyer** (a Person) — The in-house lawyer handling the matter. Assigned at intake. One per matter. Approves counsel invoices.
+  - **Outside Counsel** (a Organization) — The law firm instructed on the matter. Chosen when outside help is needed. The lead firm; others are noted in the description. Its invoices are checked against the budget.
+  - **Currency** (a Currency) — The currency of the budget, spend and exposure. Set at opening. One per matter. All money on the matter uses it.
+
+### Legal Matter Matter Type
+
+The values of legal matter matter type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Legal Matter Outcome Likelihood
+
+The values of legal matter outcome likelihood, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Legal Matter Status
+
+The values of legal matter status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Location
 
@@ -523,7 +956,38 @@ Readable by every signed-in person.
 Fields:
   - **Code** (required) — The code of the relationship type or instance, such as SUBSIDIARY_OF. Chosen from the relationship list; used in queries and rules.
   - **Name** (required) — A readable description of the relationship, such as Acme Ltd is subsidiary of Acme Group. Entered when the relationship is created; shown in party views and lists so users can understand the link at a glance.
+  - **Relationship Type** (required, one of the Party Relationship Relationship Type values) — Describes how the first party stands towards the second, such as subsidiary, employee or guarantor. Chosen when the link is recorded; credit, compliance and group reporting use it to interpret the connection. Read from the first party to t…
+  - **Ownership Percent** — The share the parent or owner holds, for ownership relationships. Used in consolidation and beneficial-ownership checks. Between 0 and 100.
+  - **Valid From** — The first day on which the relationship between the two parties holds. Recorded when it is known, for example from a contract or register entry. It cannot be later than the valid-to date.
+  - **Valid To** — The last day on which the relationship between the two parties holds. Recorded when the relationship ends, for example on resignation or sale; empty while it still applies. Empty while the relationship continues.
+  - **Status** (required, one of the Party Relationship Status values) — Says whether the relationship between the two parties is still in force today. Set to ended by the person maintaining the record when the relationship stops. Ended relationships stay for history. The relationship is in force today. The rel…
   - **From Party** (required, a Party) — The party at the origin of the relationship. Chosen when the relationship is created. Exactly one origin party: a relationship always starts at a particular party. Together with the other party it identifies the relationship.
+
+### Party Relationship Relationship Type
+
+The values of party relationship relationship type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Party Relationship Status
+
+The values of party relationship status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Party Role
 
@@ -648,6 +1112,14 @@ Readable by every signed-in person.
 
 Fields:
   - **Status** (required, one of the Renewal Status values) — The stage the renewal has reached on the way to a new term. Starts as DRAFT and is moved by account management as the customer is approached and a decision is reached; filters renewal pipeline reports. Being prepared by account management;…
+  - **Renewal Number** (required) — The reference by which sales and customers identify this particular renewal. Assigned when the renewal is created and quoted on renewal offers and reminders to the customer. Unique across all renewals.
+  - **Current Term End** (required) — The last day of the subscription's current term. Copied from the subscription; the renewal must be decided before it. The new term starts the day after.
+  - **New Term Start** — The first day of the period the customer will be entitled to once the renewal takes effect. Entered when the renewal is confirmed and passed on to billing and entitlement. Usually the day after the current term ends.
+  - **New Term End** — The last day of the period covered by the renewal. Entered when the renewal is confirmed; the next renewal decision falls due before this date. Not earlier than the new term start.
+  - **Current Value** — The recurring value of the subscription in its current term. Copied from the subscription; the basis for retention figures. Annualised for comparison.
+  - **Renewal Value** — The recurring value offered or agreed for the new term. Entered with the quote; compared with the current value for expansion or contraction. In the subscription's currency.
+  - **Is Automatic** (required) — Tells whether the renewal happens by itself or needs the customer's explicit agreement. Copied from the subscription terms when the renewal is created, so staff know whether to chase a confirmation. Automatic renewals still appear here so…
+  - **Churn Reason** — Why the customer did not renew. Recorded when the renewal is lost; churn analysis groups by it. Present only on churned renewals.
 
 ### Renewal Status
 
@@ -800,6 +1272,91 @@ Fields:
 - **NON DISCLOSURE** — An agreement to keep information confidential.
 - **OTHER** — An agreement that fits no other type.
 
+### Agreement Status
+
+- **DRAFT** — Still being written and not yet sent to the other party.
+- **IN NEGOTIATION** — Shared with the other party and under discussion.
+- **SIGNED** — Signed by every party but not yet effective.
+- **IN FORCE** — Effective and legally binding on the parties.
+- **EXPIRED** — Reached the end of its term without being renewed.
+- **TERMINATED** — Ended early by one or both parties.
+- **CANCELLED** — Abandoned before anyone signed it.
+
+### Attachment Status
+
+- **ACTIVE** — Attached and part of the record's evidence.
+- **WITHDRAWN** — Removed from the record's evidence, but kept for the history.
+
+### Business Unit Status
+
+- **ACTIVE** — Operating and available for new assignments.
+- **INACTIVE** — No longer operating after a closure or merger.
+
+### Calendar Exception Exception Type
+
+- **PUBLIC HOLIDAY** — A public holiday on which work does not happen.
+- **COMPANY CLOSURE** — A day the company or site is closed.
+- **EXTRA WORKING DAY** — A normally free day that is worked.
+
+### Calendar Status
+
+- **ACTIVE** — In use and available to planners.
+- **INACTIVE** — Retired and no longer offered.
+
+### Contact Point Channel
+
+- **EMAIL** — An email address used for written messages.
+- **PHONE** — A landline telephone number.
+- **MOBILE** — A mobile telephone number.
+- **FAX** — A fax number, kept for partners who still use it.
+- **WEBSITE** — A web address of the party's site or page.
+- **MESSAGING** — A handle on a messaging app.
+
+### Contact Point Purpose
+
+- **GENERAL** — Any purpose, when nothing more specific applies.
+- **BILLING** — Invoices and statements sent to accounts payable.
+- **ORDERS** — Order confirmations and purchase orders.
+- **DELIVERY** — Delivery notices and arrival updates.
+- **SUPPORT** — Service and support enquiries.
+- **MARKETING** — Marketing communication, where consent allows.
+
+### Contact Point Status
+
+- **ACTIVE** — In use and offered for contact.
+- **INACTIVE** — No longer used and kept for history.
+- **INVALID** — Known not to work, such as a bouncing address.
+
+### Contract Amendment Amendment Type
+
+- **PRICE** — Changes prices or payment terms.
+- **SCOPE** — Adds or removes products, services or sites.
+- **TERM** — Changes the duration or end date.
+- **PARTIES** — Changes a party, such as an assignment to a successor company.
+- **TERMS** — Changes other terms and conditions.
+
+### Contract Amendment Status
+
+- **DRAFT** — Being written and not yet approved or shared.
+- **APPROVED** — Approved internally, sent to the other party.
+- **SIGNED** — Signed by both parties.
+- **EFFECTIVE** — Its effective date has come; the contract now reflects it.
+- **REJECTED** — Refused by the other party.
+- **CANCELLED** — Dropped before signature, so the contract is unchanged.
+
+### Contract Clause Category
+
+- **LIABILITY** — Limits or exclusions of liability.
+- **INDEMNITY** — Indemnities between the parties.
+- **TERMINATION** — Rights and notice to end the contract.
+- **CONFIDENTIALITY** — Protection of confidential information.
+- **DATA PROTECTION** — Processing of personal data.
+- **PAYMENT** — Payment terms, invoicing and late payment.
+- **WARRANTY** — Warranties about goods or services.
+- **GOVERNING LAW** — The governing law and jurisdiction.
+- **INTELLECTUAL PROPERTY** — Ownership and licensing of rights.
+- **OTHER** — Any term that fits none of the other categories.
+
 ### Contract Obligation Obligation Type
 
 - **DELIVERY** — Goods or deliverables must be delivered.
@@ -819,6 +1376,18 @@ Fields:
 - **WAIVED** — Released by the other party; no longer required. A final state.
 - **CANCELLED** — No longer applicable, for example because the contract changed. A final state.
 
+### Contract Renewal Renewal Type
+
+- **AUTOMATIC** — Renews by itself unless a party gives notice.
+- **NEGOTIATED** — Renews only if the parties agree new terms.
+- **OPTION** — Renews if one party exercises its option to extend.
+
+### Contract Renewal Status
+
+- **UNDER REVIEW** — Being considered, with no decision yet.
+- **CONFIRMED** — The contract continues for the new term.
+- **DECLINED** — The contract ends at the current term end.
+
 ### Contract Status
 
 - **DRAFT** — Being written; not yet shared with the other party.
@@ -830,11 +1399,38 @@ Fields:
 - **TERMINATED** — Ended early by notice or breach.
 - **CANCELLED** — Withdrawn before it ever became active.
 
+### Contract Termination Ground
+
+- **CONVENIENCE** — Ended under a right to terminate without cause.
+- **BREACH** — Ended because the other party breached it.
+- **INSOLVENCY** — Ended because a party became insolvent.
+- **EXPIRY** — Ended at the end of its term without renewal.
+- **MUTUAL AGREEMENT** — Ended by agreement between both parties.
+- **FORCE MAJEURE** — Ended because performance became impossible.
+
+### Contract Termination Initiated By
+
+- **US** — We gave notice and ended it.
+- **COUNTERPARTY** — The other party ended it.
+- **MUTUAL** — Both parties agreed to end it.
+
+### Contract Termination Status
+
+- **NOTIFIED** — Notice given or received; the contract still runs.
+- **EFFECTIVE** — The contract has ended; exit work under way.
+- **COMPLETED** — Exit work done, and the contract is closed.
+- **WITHDRAWN** — Notice withdrawn by agreement; the contract continues.
+
 ### Currency Status
 
 - **ACTIVE** — Available for use on new prices, documents and payments.
 - **INACTIVE** — Temporarily not offered, for example while a market is closed; it can be reactivated.
 - **RETIRED** — No longer in use, such as a replaced national currency; historical amounts keep it.
+
+### Department Status
+
+- **ACTIVE** — The department exists and can receive people, positions and work.
+- **INACTIVE** — The department has been closed or merged away; it stays on record for history.
 
 ### Exchange Rate Rate Type
 
@@ -851,6 +1447,65 @@ Fields:
 - **ACTIVE** — In force and usable for conversion.
 - **EXPIRED** — Its validity period has ended; kept for past conversions.
 - **CANCELLED** — Withdrawn; must not be used.
+
+### Language Direction
+
+- **LTR** — Written left to right.
+- **RTL** — Written right to left.
+
+### Legal Case Forum Type
+
+- **COURT** — A state court of law hearing the dispute.
+- **TRIBUNAL** — A specialised tribunal, such as an employment tribunal.
+- **ARBITRATION** — A private arbitral tribunal chosen under an arbitration agreement.
+- **REGULATORY AUTHORITY** — A regulator deciding on a matter.
+
+### Legal Case Our Role
+
+- **CLAIMANT** — We started the proceedings.
+- **DEFENDANT** — Proceedings were brought against us.
+- **THIRD PARTY** — We are joined as a third party.
+- **INTERVENER** — We intervene in someone else's case.
+
+### Legal Case Status
+
+- **FILED** — Started, with first steps under way.
+- **PENDING** — Pleadings and hearings are in progress.
+- **DECIDED** — Judgment has been given.
+- **SETTLED** — Ended by a settlement between the parties.
+- **APPEALED** — Judgment appealed to a higher court; the appeal is recorded as its own case.
+- **CLOSED** — Finished, because the judgment became final or the appeal was decided.
+- **WITHDRAWN** — Withdrawn or dismissed without judgment on the merits.
+
+### Legal Entity Status
+
+- **ACTIVE** — Registered, in good standing and free to trade, sign contracts and issue invoices.
+- **DORMANT** — Still registered but not trading, so it holds no live business activity.
+- **IN LIQUIDATION** — Being wound up by a liquidator; no new business should be started in its name.
+- **DISSOLVED** — Struck off the register and gone for good; no new contracts or invoices may use it.
+
+### Legal Matter Matter Type
+
+- **ADVISORY** — Advice on a question of law or a business proposal.
+- **CONTRACT** — Drafting, reviewing or negotiating an agreement.
+- **LITIGATION** — A dispute before a court or tribunal.
+- **ARBITRATION** — A dispute before an arbitrator.
+- **REGULATORY** — Dealings with a regulator, including investigations.
+- **CORPORATE** — Company law work such as mergers, acquisitions and restructurings.
+- **EMPLOYMENT** — Employment disputes and advice.
+- **INTELLECTUAL PROPERTY** — Patents, trademarks, copyright and their enforcement.
+
+### Legal Matter Outcome Likelihood
+
+- **REMOTE** — An adverse outcome is very unlikely.
+- **POSSIBLE** — An adverse outcome is possible but not likely; disclosed rather than provided for.
+- **PROBABLE** — An adverse outcome is likely; a provision is needed.
+
+### Legal Matter Status
+
+- **OPEN** — Work is in progress.
+- **ON HOLD** — Waiting on the business, the counterparty or a court.
+- **CLOSED** — The work is finished and the outcome recorded.
 
 ### Location Location Type
 
@@ -900,6 +1555,22 @@ Fields:
 
 - **PERSON** — The party represents an individual human being.
 - **ORGANIZATION** — The party represents a legal, commercial, governmental, nonprofit, or other organized body.
+
+### Party Relationship Relationship Type
+
+- **SUBSIDIARY OF** — The first party is a subsidiary owned by the second.
+- **BRANCH OF** — The first party is a branch operating as part of the second.
+- **EMPLOYEE OF** — The first party works for the second as an employee.
+- **AGENT OF** — The first party acts as an agent on behalf of the second.
+- **GUARANTOR FOR** — The first party guarantees the second party's obligations.
+- **BENEFICIAL OWNER OF** — The first party ultimately owns or controls the second.
+- **HOUSEHOLD MEMBER OF** — The first party lives in the same household as the second.
+- **OTHER** — Any other kind of link, explained in the relationship name.
+
+### Party Relationship Status
+
+- **ACTIVE** — The relationship is in force today.
+- **ENDED** — The relationship has stopped but is kept for history.
 
 ### Party Role Role Type
 
@@ -1042,6 +1713,43 @@ Moves:
 - ACTIVE → EXPIRED (Expire)
 - INACTIVE → EXPIRED (Expire)
 
+### Party Relationship — Party Relationship Lifecycle
+
+Starts at **ACTIVE**.
+Final: **ENDED**.
+
+Moves:
+- ACTIVE → ENDED (End)
+
+### Legal Entity — Legal Entity Lifecycle
+
+Starts at **ACTIVE**.
+Final: **DISSOLVED**.
+
+Moves:
+- ACTIVE → DORMANT (Make Dormant)
+- DORMANT → ACTIVE (Resume Trading)
+- ACTIVE → IN LIQUIDATION (Liquidate)
+- DORMANT → IN LIQUIDATION (Liquidate)
+- IN LIQUIDATION → DISSOLVED (Dissolve)
+- DORMANT → DISSOLVED (Dissolve)
+
+### Business Unit — Business Unit Lifecycle
+
+Starts at **ACTIVE**.
+
+Moves:
+- ACTIVE → INACTIVE (Deactivate)
+- INACTIVE → ACTIVE (Reactivate)
+
+### Department — Department Lifecycle
+
+Starts at **ACTIVE**.
+
+Moves:
+- ACTIVE → INACTIVE (Deactivate)
+- INACTIVE → ACTIVE (Reactivate)
+
 ### Address — Address Lifecycle
 
 Starts at **ACTIVE**.
@@ -1052,6 +1760,16 @@ Moves:
 - INACTIVE → ACTIVE (Reactivate)
 - ACTIVE → RETIRED (Retire)
 - INACTIVE → RETIRED (Retire)
+
+### Contact Point — Contact Point Lifecycle
+
+Starts at **ACTIVE**.
+
+Moves:
+- ACTIVE → INACTIVE (Deactivate)
+- INACTIVE → ACTIVE (Reactivate)
+- ACTIVE → INVALID (Mark Invalid)
+- INVALID → ACTIVE (Reactivate)
 
 ### Location — Location Lifecycle
 
@@ -1099,6 +1817,22 @@ Moves:
 - INACTIVE → ACTIVE (Reactivate)
 - ACTIVE → RETIRED (Retire)
 - INACTIVE → RETIRED (Retire)
+
+### Calendar — Calendar Lifecycle
+
+Starts at **ACTIVE**.
+
+Moves:
+- ACTIVE → INACTIVE (Deactivate)
+- INACTIVE → ACTIVE (Reactivate)
+
+### Attachment — Attachment Lifecycle
+
+Starts at **ACTIVE**.
+Final: **WITHDRAWN**.
+
+Moves:
+- ACTIVE → WITHDRAWN (Withdraw)
 
 ### Task — Task Lifecycle
 
@@ -1161,6 +1895,55 @@ Moves:
 - OPEN → CANCELLED (Cancel)
 - IN PROGRESS → CANCELLED (Cancel)
 
+### Agreement — Agreement Lifecycle
+
+Starts at **DRAFT**.
+Final: **EXPIRED**, **TERMINATED**, **CANCELLED**.
+
+Moves:
+- DRAFT → IN NEGOTIATION (Send)
+- IN NEGOTIATION → DRAFT (Revise)
+- IN NEGOTIATION → SIGNED (Sign)
+- DRAFT → SIGNED (Sign)
+- SIGNED → IN FORCE (Take Effect)
+- IN FORCE → EXPIRED (Expire)
+- IN FORCE → TERMINATED (Terminate)
+- SIGNED → TERMINATED (Terminate)
+- DRAFT → CANCELLED (Cancel)
+- IN NEGOTIATION → CANCELLED (Cancel)
+
+### Contract Amendment — Contract Amendment Lifecycle
+
+Starts at **DRAFT**.
+Final: **EFFECTIVE**, **REJECTED**, **CANCELLED**.
+
+Moves:
+- DRAFT → APPROVED (Approve)
+- APPROVED → SIGNED (Sign)
+- SIGNED → EFFECTIVE (Take Effect)
+- APPROVED → REJECTED (Reject)
+- DRAFT → CANCELLED (Cancel)
+- APPROVED → CANCELLED (Cancel)
+
+### Contract Renewal — Contract Renewal Lifecycle
+
+Starts at **UNDER REVIEW**.
+Final: **CONFIRMED**, **DECLINED**.
+
+Moves:
+- UNDER REVIEW → CONFIRMED (Confirm)
+- UNDER REVIEW → DECLINED (Decline)
+
+### Contract Termination — Contract Termination Lifecycle
+
+Starts at **NOTIFIED**.
+Final: **COMPLETED**, **WITHDRAWN**.
+
+Moves:
+- NOTIFIED → EFFECTIVE (Take Effect)
+- EFFECTIVE → COMPLETED (Complete)
+- NOTIFIED → WITHDRAWN (Withdraw)
+
 ### Renewal — Renewal Lifecycle
 
 Starts at **DRAFT**.
@@ -1172,9 +1955,37 @@ Moves:
 - DRAFT → CANCELLED (Cancel)
 - ACTIVE → CANCELLED (Cancel)
 
+### Legal Case — Legal Case Lifecycle
+
+Starts at **FILED**.
+Final: **CLOSED**, **SETTLED**, **WITHDRAWN**.
+
+Moves:
+- FILED → PENDING (Proceed)
+- PENDING → DECIDED (Decide)
+- PENDING → SETTLED (Settle)
+- FILED → SETTLED (Settle)
+- DECIDED → CLOSED (Close)
+- DECIDED → APPEALED (Appeal)
+- APPEALED → CLOSED (Close)
+- APPEALED → SETTLED (Settle)
+- FILED → WITHDRAWN (Withdraw)
+- PENDING → WITHDRAWN (Withdraw)
+
+### Legal Matter — Legal Matter Lifecycle
+
+Starts at **OPEN**.
+Final: **CLOSED**.
+
+Moves:
+- OPEN → ON HOLD (Hold)
+- ON HOLD → OPEN (Resume)
+- OPEN → CLOSED (Close)
+- ON HOLD → CLOSED (Close)
+
 ## Roles
 
-- **User** — reads 59 of 59 record types
+- **User** — reads 87 of 87 record types
 - **Administrator** — reads and changes everything the lifecycles allow
 
 A refusal means the person's role does not allow it. Say which role does, from this list, and suggest their administrator.

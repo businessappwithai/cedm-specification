@@ -1,6 +1,6 @@
 //! The rules the *model* declared, and whether they reached the application.
 //!
-//! Generated: 2026-10-10T02:40:36.835Z
+//! Generated: 2026-10-16T07:47:15.768Z
 //! Project: legal
 //!
 //! Every other rules suite creates a rule through the API and then checks that
@@ -33,6 +33,16 @@ const MODEL_RULES: &[(&str, &str, &str)] = &[
         "bus_party_role",
         "UPDATE",
     ),
+    (
+        "partyRelationshipInvariantsBeforeCreate",
+        "bus_party_relationship",
+        "CREATE",
+    ),
+    (
+        "partyRelationshipInvariantsBeforeUpdate",
+        "bus_party_relationship",
+        "UPDATE",
+    ),
     ("addressInvariantsBeforeCreate", "bus_address", "CREATE"),
     ("addressInvariantsBeforeUpdate", "bus_address", "UPDATE"),
     (
@@ -45,12 +55,66 @@ const MODEL_RULES: &[(&str, &str, &str)] = &[
         "bus_exchange_rate",
         "UPDATE",
     ),
+    ("calendarInvariantsBeforeCreate", "bus_calendar", "CREATE"),
+    ("calendarInvariantsBeforeUpdate", "bus_calendar", "UPDATE"),
+    (
+        "calendarExceptionInvariantsBeforeCreate",
+        "bus_calendar_exception",
+        "CREATE",
+    ),
+    (
+        "calendarExceptionInvariantsBeforeUpdate",
+        "bus_calendar_exception",
+        "UPDATE",
+    ),
     ("taskInvariantsBeforeCreate", "bus_task", "CREATE"),
     ("taskInvariantsBeforeUpdate", "bus_task", "UPDATE"),
     ("contractInvariantsBeforeCreate", "bus_contract", "CREATE"),
     ("contractInvariantsBeforeUpdate", "bus_contract", "UPDATE"),
     ("agreementInvariantsBeforeCreate", "bus_agreement", "CREATE"),
     ("agreementInvariantsBeforeUpdate", "bus_agreement", "UPDATE"),
+    (
+        "contractLineInvariantsBeforeCreate",
+        "bus_contract_line",
+        "CREATE",
+    ),
+    (
+        "contractLineInvariantsBeforeUpdate",
+        "bus_contract_line",
+        "UPDATE",
+    ),
+    (
+        "contractRenewalInvariantsBeforeCreate",
+        "bus_contract_renewal",
+        "CREATE",
+    ),
+    (
+        "contractRenewalInvariantsBeforeUpdate",
+        "bus_contract_renewal",
+        "UPDATE",
+    ),
+    (
+        "contractTerminationInvariantsBeforeCreate",
+        "bus_contract_termination",
+        "CREATE",
+    ),
+    (
+        "contractTerminationInvariantsBeforeUpdate",
+        "bus_contract_termination",
+        "UPDATE",
+    ),
+    ("renewalInvariantsBeforeCreate", "bus_renewal", "CREATE"),
+    ("renewalInvariantsBeforeUpdate", "bus_renewal", "UPDATE"),
+    (
+        "legalMatterInvariantsBeforeCreate",
+        "bus_legal_matter",
+        "CREATE",
+    ),
+    (
+        "legalMatterInvariantsBeforeUpdate",
+        "bus_legal_matter",
+        "UPDATE",
+    ),
     ("partyWorkflowsAfterUpdate", "bus_party", "UPDATE"),
     (
         "exchangeRateWorkflowsAfterUpdate",
@@ -63,7 +127,23 @@ const MODEL_RULES: &[(&str, &str, &str)] = &[
         "bus_contract_obligation",
         "UPDATE",
     ),
+    ("agreementWorkflowsAfterUpdate", "bus_agreement", "UPDATE"),
+    (
+        "contractAmendmentWorkflowsAfterUpdate",
+        "bus_contract_amendment",
+        "UPDATE",
+    ),
+    (
+        "contractRenewalWorkflowsAfterUpdate",
+        "bus_contract_renewal",
+        "UPDATE",
+    ),
     ("renewalWorkflowsAfterUpdate", "bus_renewal", "UPDATE"),
+    (
+        "legalMatterWorkflowsAfterUpdate",
+        "bus_legal_matter",
+        "UPDATE",
+    ),
 ];
 
 /// Every rule reached `sys_rule_definitions`, bound to the physical

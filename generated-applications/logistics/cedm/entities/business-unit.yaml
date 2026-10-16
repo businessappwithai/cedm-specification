@@ -10,10 +10,69 @@ entity:
     - {name: businessUnitId, type: uuid, required: true, immutable: true, help: {summary: The identity of the business unit., usage: 'Generated on creation; budgets, transactions and reports refer to it.'}}
     - {name: code, type: string, required: true, maxLength: 100, help: {summary: 'The short reference for the unit, such as CE or EMEA-RETAIL.', usage: Assigned by finance and used on reports and in postings; kept stable because history relies on it.}}
     - {name: name, type: string, required: true, maxLength: 300, help: {summary: "The full name of the business unit, as it appears in the organisation's structure and management accounts.", usage: 'Entered by management or finance when the unit is created; shown in organisation charts, selectors and segment reports.'}}
+    - name: description
+      type: text
+      required: false
+      help:
+        summary: What the business unit does.
+        usage: Read by people placing staff or costs in it.
+        relationshipContext: Free text.
+    - name: status
+      type: enum
+      required: true
+      default: ACTIVE
+      values:
+        - ACTIVE
+        - INACTIVE
+      help:
+        summary: Whether the business unit is still operating.
+        usage: Set to inactive by an administrator after a reorganisation or closure.
+        relationshipContext: Inactive units are not offered for new assignments.
+        valueSemantics:
+          ACTIVE: Operating and available for new assignments.
+          INACTIVE: No longer operating after a closure or merger.
   relationships:
     - {name: organization, target: Organization, cardinality: "1", ownership: reference, help: {summary: The organisation to which the unit belongs., usage: Set when the unit is created., cardinalityMeaning: Exactly one organisation; a unit cannot stand alone., workflowRole: Rolls the unit's results up into its parent organisation.}}
+    - name: head
+      target: Person
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The executive responsible for the business unit.
+        usage: Receives its reports and approves its budgets.
+        cardinalityMeaning: One per business unit.
+        context: Accountable for its results.
+    - name: legalEntity
+      target: LegalEntity
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The company the business unit mainly trades through.
+        usage: Used for contracts and invoices made by the unit.
+        cardinalityMeaning: At most one.
+        context: A unit trading in several countries uses several entities; the main one is named.
+    - name: profitCenter
+      target: ProfitCenter
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The profit centre its results are reported on.
+        usage: Links the organization view to the reporting view.
+        cardinalityMeaning: At most one.
+        context: Set by controlling.
+    - name: parentUnit
+      target: BusinessUnit
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The larger business unit this one is part of.
+        usage: Builds the hierarchy.
+        cardinalityMeaning: At most one.
+        context: Cannot be itself.
   invariants:
     - {id: BUSINESS-UNIT-001, rule: Code and identity semantics must remain stable within the governing context and historical references must not be silently repointed.}
+    - id: BUSINESS-UNIT-002
+      rule: A Business Unit must not be its own ancestor through parentUnit; the parentUnit chain is acyclic.
   help:
     summary: A major business, division, product line or operating segment within an organisation.
     businessMeaning: Business units are how a large organisation divides its activity for management and reporting. They let results, budgets and responsibility be assigned to a meaningful segment rather than to the organisation as a whole.
@@ -21,4 +80,19 @@ entity:
     relationshipContext: Each business unit belongs to one Organization and groups the work and results of one part of it.
     lifecycle: A business unit keeps its code and identity stable. Reorganisations are recorded explicitly so earlier reports are not silently changed.
     example: The Consumer Electronics division of a manufacturer, with its own budget and profit target.
+  lifecycle:
+    title: Business Unit Lifecycle
+    attribute: status
+    states:
+      - ACTIVE
+      - INACTIVE
+    initial: ACTIVE
+    terminal: []
+    transitions:
+      - from: ACTIVE
+        to: INACTIVE
+        action: deactivate
+      - from: INACTIVE
+        to: ACTIVE
+        action: reactivate
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-BUSINESS-UNIT}

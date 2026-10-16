@@ -1,6 +1,6 @@
 //! The rules the *model* declared, and whether they reached the application.
 //!
-//! Generated: 2026-10-09T15:30:36.147Z
+//! Generated: 2026-10-16T07:48:59.779Z
 //! Project: sales
 //!
 //! Every other rules suite creates a rule through the API and then checks that
@@ -33,6 +33,16 @@ const MODEL_RULES: &[(&str, &str, &str)] = &[
         "bus_party_role",
         "UPDATE",
     ),
+    (
+        "partyRelationshipInvariantsBeforeCreate",
+        "bus_party_relationship",
+        "CREATE",
+    ),
+    (
+        "partyRelationshipInvariantsBeforeUpdate",
+        "bus_party_relationship",
+        "UPDATE",
+    ),
     ("addressInvariantsBeforeCreate", "bus_address", "CREATE"),
     ("addressInvariantsBeforeUpdate", "bus_address", "UPDATE"),
     (
@@ -43,6 +53,18 @@ const MODEL_RULES: &[(&str, &str, &str)] = &[
     (
         "exchangeRateInvariantsBeforeUpdate",
         "bus_exchange_rate",
+        "UPDATE",
+    ),
+    ("calendarInvariantsBeforeCreate", "bus_calendar", "CREATE"),
+    ("calendarInvariantsBeforeUpdate", "bus_calendar", "UPDATE"),
+    (
+        "calendarExceptionInvariantsBeforeCreate",
+        "bus_calendar_exception",
+        "CREATE",
+    ),
+    (
+        "calendarExceptionInvariantsBeforeUpdate",
+        "bus_calendar_exception",
         "UPDATE",
     ),
     ("taskInvariantsBeforeCreate", "bus_task", "CREATE"),
@@ -111,6 +133,14 @@ const MODEL_RULES: &[(&str, &str, &str)] = &[
         "bus_quotation_line",
         "UPDATE",
     ),
+    ("pricingInvariantsBeforeCreate", "bus_pricing", "CREATE"),
+    ("pricingInvariantsBeforeUpdate", "bus_pricing", "UPDATE"),
+    ("promotionInvariantsBeforeCreate", "bus_promotion", "CREATE"),
+    ("promotionInvariantsBeforeUpdate", "bus_promotion", "UPDATE"),
+    ("campaignInvariantsBeforeCreate", "bus_campaign", "CREATE"),
+    ("campaignInvariantsBeforeUpdate", "bus_campaign", "UPDATE"),
+    ("prospectInvariantsBeforeCreate", "bus_prospect", "CREATE"),
+    ("prospectInvariantsBeforeUpdate", "bus_prospect", "UPDATE"),
     ("partyWorkflowsAfterUpdate", "bus_party", "UPDATE"),
     (
         "exchangeRateWorkflowsAfterUpdate",
@@ -131,6 +161,8 @@ const MODEL_RULES: &[(&str, &str, &str)] = &[
     ),
     ("productWorkflowsAfterUpdate", "bus_product", "UPDATE"),
     ("supplierWorkflowsAfterUpdate", "bus_supplier", "UPDATE"),
+    ("promotionWorkflowsAfterUpdate", "bus_promotion", "UPDATE"),
+    ("campaignWorkflowsAfterUpdate", "bus_campaign", "UPDATE"),
     (
         "customerReturnWorkflowsAfterUpdate",
         "bus_customer_return",

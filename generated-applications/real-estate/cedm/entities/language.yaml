@@ -11,6 +11,28 @@ entity:
     - {name: languageId, type: uuid, required: true, immutable: true, help: {summary: 'The stable identity of the language record, constant even if its name or code is later corrected.', usage: 'Generated when the language is first loaded from the reference list; content, user preferences and translations refer to it.'}}
     - {name: code, type: string, required: true, unique: true, maxLength: 2, help: {summary: 'The two-letter ISO 639-1 code of the language, such as en or de.', usage: Taken from the standard; unique; used in locale settings and APIs.}}
     - {name: name, type: string, required: true, maxLength: 300, help: {summary: 'The English name of the language, such as French or Portuguese.', usage: 'Loaded from the language reference data; it is shown in language pick-lists and reports, while the code remains the identifier.'}}
+    - name: alpha3
+      type: string
+      required: false
+      maxLength: 3
+      help:
+        summary: The three-letter ISO 639-3 code, such as fra.
+        usage: Used by systems that require three-letter codes.
+        relationshipContext: From the standard.
+    - name: direction
+      type: enum
+      required: true
+      default: LTR
+      values:
+        - LTR
+        - RTL
+      help:
+        summary: Whether the language is written left to right or right to left.
+        usage: Tells screens and documents how to lay out text.
+        relationshipContext: From the Unicode CLDR.
+        valueSemantics:
+          LTR: Written left to right.
+          RTL: Written right to left.
   relationships: []
   invariants:
     - {id: LANGUAGE-001, rule: Code and identity semantics must remain stable within the governing context and historical references must not be silently repointed.}

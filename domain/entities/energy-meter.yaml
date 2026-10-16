@@ -69,6 +69,31 @@ entity:
       help:
         summary: The date the meter was installed.
         usage: Entered by the installer; consumption is billed from this date.
+    - name: isSmartMeter
+      type: boolean
+      required: true
+      default: false
+      help:
+        summary: Whether the meter sends readings automatically.
+        usage: Smart meters are read from their feed; others by hand.
+        relationshipContext: Read with the reading interval.
+    - name: readingIntervalMinutes
+      type: integer
+      required: false
+      help:
+        summary: How often a smart meter sends a reading, in minutes.
+        usage: Used to check that the feed is complete.
+        relationshipContext: Empty for meters read by hand.
+    - name: multiplier
+      type: decimal
+      required: true
+      precision: 12
+      scale: 4
+      default: 1
+      help:
+        summary: The factor applied to the register reading to get the real consumption.
+        usage: Set for meters behind current transformers.
+        relationshipContext: Usually 1.
   relationships:
     - name: location
       target: Location

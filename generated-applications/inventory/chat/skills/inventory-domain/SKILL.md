@@ -70,6 +70,31 @@ Readable by every signed-in person.
 
 Fields:
   - **Effective At** — When the attachment became part of the record. Set when the file is attached; used to show what evidence existed at a given moment.
+  - **File Name** (required) — The name of the file as uploaded. Shown in the record's list of attachments and used as the name when the file is downloaded. Not unique; the same name may be attached to many records.
+  - **Media Type** — The type of the file's content, such as application/pdf or image/jpeg. Detected on upload; it decides whether the file can be previewed. Taken from the file, not typed by the user.
+  - **Size Bytes** — The size of the file in bytes. Recorded on upload; used to enforce upload limits and to report storage use. Zero-size files are refused.
+  - **Storage Location** (required) — Where the file's content is stored. Set by the system on upload; users never type it. Moving files between stores updates it without changing the attachment.
+  - **Checksum** — A fingerprint of the file's content (SHA-256). Computed on upload; recomputing it later shows whether the file has been changed. Two attachments with the same checksum hold the same content.
+  - **Record Type** (required) — The kind of record the file is attached to, such as "Goods receipt". Set by the screen the file was attached from. Read with the record identifier to find the record.
+  - **Record** (required) — The identifier of the record the file is attached to. Set by the screen the file was attached from; the record's attachments are found by it. Together with the record type it identifies exactly one record.
+  - **Category** — What the file is, such as "Delivery note", "Certificate" or "Photograph". Chosen on upload so that the record's attachments can be told apart without opening them. Free choice of words, though each business usually agrees a short list.
+  - **Description** — A note about the file's content. Optional; useful when the file name does not say what the file shows. Free text.
+  - **Uploaded At** (required) — When the file was attached. Recorded by the system; the record's evidence is listed in this order. Not editable.
+  - **Status** (required, one of the Attachment Status values) — Whether the file still counts as evidence for the record. An attachment added by mistake is withdrawn; it stays visible in the history. Withdrawn attachments are not shown in the normal list. Attached and part of the record's evidence. Rem…
+  - **Uploaded By** (a Person) — The person who attached the file. Recorded on upload. One per attachment. Shown with the file so that reviewers know where it came from.
+
+### Attachment Status
+
+The values of attachment status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Business Unit
 
@@ -80,7 +105,25 @@ Readable by every signed-in person.
 Fields:
   - **Code** (required) — The short reference for the unit, such as CE or EMEA-RETAIL. Assigned by finance and used on reports and in postings; kept stable because history relies on it.
   - **Name** (required) — The full name of the business unit, as it appears in the organisation's structure and management accounts. Entered by management or finance when the unit is created; shown in organisation charts, selectors and segment reports.
+  - **Description** — What the business unit does. Read by people placing staff or costs in it. Free text.
+  - **Status** (required, one of the Business Unit Status values) — Whether the business unit is still operating. Set to inactive by an administrator after a reorganisation or closure. Inactive units are not offered for new assignments. Operating and available for new assignments. No longer operating after…
   - **Organization** (required, a Organization) — The organisation to which the unit belongs. Set when the unit is created. Exactly one organisation; a unit cannot stand alone. Rolls the unit's results up into its parent organisation.
+  - **Head** (a Person) — The executive responsible for the business unit. Receives its reports and approves its budgets. One per business unit. Accountable for its results.
+  - **Legal Entity** (a Legal Entity) — The company the business unit mainly trades through. Used for contracts and invoices made by the unit. At most one. A unit trading in several countries uses several entities; the main one is named.
+  - **Parent Unit** (a Business Unit) — The larger business unit this one is part of. Builds the hierarchy. At most one. Cannot be itself.
+
+### Business Unit Status
+
+The values of business unit status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Calendar
 
@@ -91,6 +134,41 @@ Readable by every signed-in person.
 Fields:
   - **Code** (required) — The short reference for the calendar, such as DE-NAT. Assigned by the administrator; used in configuration and reports; kept stable.
   - **Name** (required) — The descriptive name of the calendar, such as UK Working Days or Group Fiscal Calendar. Entered by the administrator who maintains it; shown wherever a schedule, service level or plan asks which calendar applies.
+  - **Working Days** (required) — The days of the normal working week, such as MON-FRI or MON-SAT. Days outside it are non-working unless an exception says otherwise. Exceptions override it for particular dates.
+  - **Time Zone** — The time zone of the calendar, such as Europe/Paris. Decides when a day starts and ends for deadlines. An IANA time-zone name.
+  - **Valid From** — The first day on which the calendar's working days and holidays apply. Set when the calendar is created. Not later than the valid-to date.
+  - **Valid To** — The last day on which the calendar's working days and holidays apply. Filled in when a newer calendar replaces this one. Left empty while the calendar is still in use.
+  - **Status** (required, one of the Calendar Status values) — Whether planners may use this calendar. Made inactive by an administrator once a newer calendar replaces it. Inactive calendars are not offered when choosing one. In use and available to planners. Retired and no longer offered.
+  - **Country** (a Country) — The country whose public holidays the calendar holds. Set for country calendars. At most one. Site calendars usually take their country's calendar as base.
+  - **Base Calendar** (a Calendar) — The calendar whose exceptions this one also follows. Set so a site calendar inherits the country's holidays. At most one base. Cannot be itself.
+
+Line items — **Calendar Exception**: kept inside each Calendar and reached by opening it, never on their own. One holiday, closure or extra working day in a calendar. Exceptions are what make a calendar accurate. Each records a date, what it is and whether work happens on it, so that working-day calculations skip holidays and closures and count extra working days. Entered each year for the coming year's ho…
+
+### Calendar Exception Exception Type
+
+The values of calendar exception exception type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Calendar Status
+
+The values of calendar status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### City
 
@@ -118,7 +196,52 @@ Readable by every signed-in person.
 Fields:
   - **Code** (required) — A short reference for the contact point. Assigned or imported; stays stable so integrations can match it.
   - **Name** (required) — A descriptive label for the endpoint, such as Head office switchboard. Shown wherever contact points are listed.
+  - **Channel** (required, one of the Contact Point Channel values) — An email address used for written messages. A landline telephone number. A mobile telephone number. A fax number, kept for partners who still use it. A web address of the party's site or page. A handle on a messaging app. What kind of chan…
+  - **Value** (required) — The address or number itself. Entered in its standard form — international format for phone numbers. Validated according to the channel.
+  - **Purpose** (required, one of the Contact Point Purpose values) — Any purpose, when nothing more specific applies. Invoices and statements sent to accounts payable. Order confirmations and purchase orders. Delivery notices and arrival updates. Service and support enquiries. Marketing communication, where…
+  - **Is Preferred** (required) — Whether this is the preferred channel for its purpose. Used first when several channels serve the same purpose. One preferred channel per party, channel and purpose.
+  - **Verified At** — When the channel was last confirmed to work. Recorded by a verification message or call. Unverified channels may be refused for sensitive messages.
+  - **Status** (required, one of the Contact Point Status values) — Whether the channel is still usable for reaching the party. Changed when the channel stops being used or a message to it bounces. Inactive and invalid channels are not offered for contact. In use and offered for contact. No longer used and…
   - **Party** (required, a Party) — The party the endpoint belongs to. Set when the endpoint is added. Exactly one party; each endpoint has one owner. Lets communications find the right channel for a party.
+
+### Contact Point Channel
+
+The values of contact point channel, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Contact Point Purpose
+
+The values of contact point purpose, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Contact Point Status
+
+The values of contact point status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Country
 
@@ -169,11 +292,43 @@ Readable by every signed-in person.
 Fields:
   - **Code** (required) — The short code of the department, such as FIN-AP. Used in postings and reports; kept stable.
   - **Name** (required) — The name of the department as the organisation calls it, such as Finance or Field Operations. Entered by an administrator; shown in organisation charts, on documents and in reports that group people and costs by department.
+  - **Description** — What the department is responsible for and what kind of work it does. Read by people placing staff, positions or work, so they choose the right department. Free text written by the organisation's administrators.
+  - **Status** (required, one of the Department Status values) — Whether the department currently exists as part of the organisation. Set to inactive after a reorganisation closes or merges the department. Inactive departments are not offered when assigning people or work. The department exists and can…
   - **Organization** (required, a Organization) — Chosen when the department is created; reporting lines, headcount and budgets roll up through the organisation it belongs to. The organisation the department belongs to. Exactly one organisation: a department is part of a single organisati…
+  - **Business Unit** (a Business Unit) — The business unit the department is part of. Set where the organization is divided into business units. At most one. Used in business-unit reporting.
+  - **Parent Department** (a Department) — The department this one reports to. Builds the hierarchy used for approvals. At most one. Cannot be itself.
+  - **Manager** (a Person) — The person who leads the department. Approves its requests and receives its reports. One per department. Approval routing goes to this person.
+  - **Location** (a Location) — Where the department is based. Used in directories and space planning. At most one. Staff may work elsewhere.
+
+### Department Status
+
+The values of department status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Dock Dock Type
 
 The values of dock dock type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Dock Status
+
+The values of dock status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
 
 Readable by every signed-in person.
 
@@ -199,6 +354,8 @@ Fields:
   - **Expires At** — Optional end of the period during which the rate is valid. Used to prevent application of expired rates. When supplied, expiresAt must be later than effectiveAt. Defines the rate's validity window for transaction and reporting calculations.
   - **Source** (required) — Identifies the provider or business authority from which the rate was obtained. Used for audit, reconciliation, regulatory reporting, and rate governance. Source identifies provenance; it does not by itself determine which rate is applicab…
   - **Status** (required, one of the Exchange Rate Status values) — Being prepared; not yet used. In force and usable for conversion. Its validity period has ended; kept for past conversions. Withdrawn; must not be used. Lifecycle state of the exchange-rate record. Used by conversion services to determine…
+  - **From Currency** (required, a Currency) — Currency from which an amount is converted. Identifies the source denomination of the monetary amount being converted. Must differ from toCurrency for a meaningful exchange-rate conversion. Identifies the currency of the source Money value…
+  - **To Currency** (required, a Currency) — Currency into which an amount is converted. Identifies the target denomination of the converted monetary amount. Conversion direction is from fromCurrency to toCurrency; reversing the direction requires an appropriate inverse rate rather t…
 
 ### Exchange Rate Rate Type
 
@@ -235,8 +392,26 @@ Readable by every signed-in person.
 Fields:
   - **Handling Unit Number** (required) — The scannable number on the unit's label, such as a pallet licence plate, by which warehouse staff identify it. Unique; printed on the label at creation and scanned during putaway, picking, staging and loading. Label/barcode identifier use…
   - **Type** (required, one of the Handling Unit Type values) — The physical form of the unit, such as a pallet or carton, which fixes its size and handling equipment. Chosen when the unit is created; capacity, equipment, packing and carrier planning read it. A palletised load moved by forklift or pall…
+  - **Gross Weight Kg** — The weight of the unit with its contents, in kilograms. Weighed or computed at packing; used for loading and freight. Includes packaging.
+  - **Length Cm** — The length of the unit, in centimetres. Used for loading plans and volumetric freight. Measured or taken from the packaging type.
+  - **Width Cm** — The width of the unit, in centimetres. Used for loading plans and volumetric freight. Measured or taken from the packaging type.
+  - **Height Cm** — The height of the packed unit, in centimetres, including any pallet base. Measured at packing or taken from the packaging type; used for loading plans, stacking limits and carrier quotes. Measured or taken from the packaging type.
+  - **Status** (required, one of the Handling Unit Status values) — Still being filled; goods can be added. Packed and labelled, and not to be reopened without unpacking. Has left the warehouse on its way to the destination. Arrived at its destination and was booked in. Unpacked, so its contents are loose…
   - **Inventory Location** (a Inventory Location) — Current warehouse location when stored. Provides operational custody position. Putaway, picking and count. Optional while in transit/shipped. Changes must reconcile to execution evidence.
   - **Parent Handling Unit** (a Handling Unit) — Outer handling unit containing this unit. Supports pallet/carton/tote nesting. Packing and logistics hierarchy. At most one parent. Nesting must remain acyclic.
+
+### Handling Unit Status
+
+The values of handling unit status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Handling Unit Type
 
@@ -261,10 +436,26 @@ Fields:
   - **Adjustment Number** (required) — The document number of the adjustment. Allocated from a number series; unique; used on approvals and audit reports. Operational/audit identifier. Distinct from movement number.
   - **Quantity Delta** (required) — The change to the recorded quantity: positive to add stock, negative to remove it. Entered or derived from a count; posted as a movement when approved. Positive increases and negative decreases the evidenced stock position. Must be support…
   - **Reason Code** (required) — The reason for the correction, such as counting variance, damage or theft. Chosen from the organisation's list; reports analyse shrinkage by reason. Explains why ledger stock differs from evidenced reality. Must not be used to conceal ordi…
+  - **Value Delta** — The value of the adjustment at the product's cost. Posted to the stock-adjustment account. Same sign as the quantity.
+  - **Approved At** — The date and time a manager approved the stock correction. Recorded on approval; adjustments above a value limit need approval before they can be posted, and it is empty until then. Present once approved.
+  - **Status** (required, one of the Inventory Adjustment Status values) — Shows how far the stock correction has progressed from request to posting. Moved on by the requester, the approver and the posting step. Only posted adjustments change the stock. Asked for and waiting for approval. Approved and waiting to…
   - **Inventory Movement** (required, a Inventory Movement) — The stock movement that carries out the correction. Created when the adjustment is posted; read to trace the stock change to its authorisation. Exactly one movement: each approved adjustment is posted as a single movement. Keeps the stock…
   - **Inventory Count** (a Inventory Count) — The count that revealed the discrepancy. Linked where the adjustment follows from a physical count. At most one count; some adjustments arise from damage reports or investigations. Provides the evidence for the correction. Connects observe…
   - **Product** (required, a Product) — The product whose recorded quantity is corrected. Set when the adjustment is created. Exactly one product: stock is corrected product by product. Determines which stock balance is changed. Identifies affected inventory item.
   - **Inventory Location** (required, a Inventory Location) — The stock location where the quantity is corrected. Set when the adjustment is created. Exactly one location: the quantity belongs to a specific place. Determines which location's balance is changed. Defines physical/accountable stock cont…
+
+### Inventory Adjustment Status
+
+The values of inventory adjustment status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Inventory Count
 
@@ -276,9 +467,39 @@ Fields:
   - **Count Number** (required) — The document number of the count. Allocated from a number series; unique; printed on count sheets. Operational identifier for count activity. Distinct from adjustment reference.
   - **Counted Quantity** (required) — The quantity actually found on the shelf. Entered by the counter; compared with the system quantity to find the variance. Evidence of stock reality at count time. Does not itself alter InventoryBalance.
   - **Counted At** (required) — When the count was made. Entered with the count; the system quantity at that time is the comparison. Anchors the count against ledger chronology. Movements around count time require controlled cutoff treatment.
+  - **System Quantity** — How many units the system expected at the time of the count. Snapshot taken when counting starts. The difference becomes an adjustment.
+  - **Difference** — The counted quantity minus the quantity the system holds for the location. Calculated for review by the supervisor; large differences are recounted before being adjusted. It may be negative. May be negative.
+  - **Count Type** (required, one of the Inventory Count Count Type values) — Says why the count was made, whether routine, year-end or after a problem. Chosen when the count is planned; it decides who counts and when. Annual counts freeze stock movements while they run. A routine count of some locations on a rollin…
+  - **Status** (required, one of the Inventory Count Status values) — Shows how far the count has progressed from planning to approval. Moved on by the counter and the supervisor. Differences are adjusted only from approved counts. Scheduled, but not yet counted. Counted, with a difference to review. A recou…
   - **Product** (required, a Product) — The product that was counted. Set when the count is entered. Exactly one product: each count line observes one item. Identifies which balance the count tests. Identifies observed item.
   - **Inventory Location** (required, a Inventory Location) — The location where the count was made. Set when the count is entered. Exactly one location. Identifies which balance the count tests. Defines physical/accountable stock scope.
   - **Lot** (a Lot) — Lot counted where applicable. Preserves batch-specific observation. Traceability and reconciliation. Required under lot-controlled count scope. Variance is lot-specific.
+
+### Inventory Count Count Type
+
+The values of inventory count count type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Inventory Count Status
+
+The values of inventory count status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Inventory Item
 
@@ -409,6 +630,9 @@ Fields:
   - **Transfer Number** (required) — The document number of the transfer. Allocated from a number series; unique; printed on the transfer order. Operational identifier for relocation work. Distinct from movement numbers.
   - **Requested Quantity** (required) — The quantity that is to be moved. Set when planned; the movements carry out the quantity actually moved. Defines transfer demand. Interpreted with Product and traceability identities.
   - **Status** (required, one of the Inventory Transfer Status values) — How far the transfer of stock between locations has progressed, from request to receipt. Moved by the warehouse as work is released, goods are picked and moved, and the target location receives them; completed or cancelled transfers cannot…
+  - **Moved Quantity** — The quantity that was actually moved between the two locations. Confirmed by the warehouse when the transfer is completed; a figure below the requested quantity means a partial transfer. Less than requested means a partial transfer.
+  - **Reason** — Why the stock is moved, such as replenishment or consolidation. Recorded when requesting the transfer. Free text.
+  - **Completed At** — The date and time the stock arrived at its destination location. Recorded by the warehouse when the transfer is completed; empty while it is still in progress. Present once completed.
   - **Product** (required, a Product) — The product that is moved. Set when planned. Exactly one product per transfer. Identifies the stock to move. Defines inventory item affected.
   - **Source Location** (required, a Inventory Location) — Exactly one source: a transfer takes stock from a single location, and a multi-source move is several transfers. The location the stock leaves. Set when planned. Determines where stock is picked. Defines transfer origin.
   - **Lot** (a Lot) — The lot being moved, if the product is lot-controlled. Chosen when the lot matters. At most one lot. Keeps traceability across the move. Preserves batch identity across relocation.
@@ -435,6 +659,21 @@ Readable by every signed-in person.
 Fields:
   - **Code** (required) — The two-letter ISO 639-1 code of the language, such as en or de. Taken from the standard; unique; used in locale settings and APIs.
   - **Name** (required) — The English name of the language, such as French or Portuguese. Loaded from the language reference data; it is shown in language pick-lists and reports, while the code remains the identifier.
+  - **Alpha3** — The three-letter ISO 639-3 code, such as fra. Used by systems that require three-letter codes. From the standard.
+  - **Direction** (required, one of the Language Direction values) — Whether the language is written left to right or right to left. Tells screens and documents how to lay out text. From the Unicode CLDR. Written left to right. Written right to left.
+
+### Language Direction
+
+The values of language direction, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Legal Entity
 
@@ -444,6 +683,34 @@ Readable by every signed-in person.
 
 Fields:
   - **Occurred At** — When the entity was formed, or its record took effect. Set from the registration data.
+  - **Legal Name** (required) — The registered name, exactly as in the register. Printed on invoices, contracts and filings. A trading name may differ; this is the one the law recognises.
+  - **Registration Number** — The number under which the entity is registered, such as a company number or SIREN. Printed on documents where the law requires it; used in KYC checks. Unique within its jurisdiction.
+  - **Legal Form** — The legal form, such as "SAS", "GmbH", "Ltd" or "LLC". Printed after the name on documents. Each jurisdiction has its own forms.
+  - **Incorporation Date** — The day the company or organisation was legally formed, as shown on its certificate of incorporation. Copied from the official register when the entity is set up; used for age checks, filings and group structure charts. It can never fall a…
+  - **Dissolution Date** — The day the legal entity formally ceased to exist and was removed from the register. Entered by company secretarial when a dissolution is confirmed; it stays empty for entities that still exist. Only dissolved entities carry a date here.
+  - **Tax Identifier** — The entity's main tax number in its country. Printed on invoices and used in tax filings. Further registrations are recorded as tax registrations.
+  - **Vat Number** — The entity's VAT or sales-tax registration number. Printed on invoices; validated for cross-border trade. Empty for entities not registered for VAT.
+  - **Lei** — The Legal Entity Identifier, a 20-character global code. Required for financial transactions and regulatory reporting. Issued by an LEI operator and renewed every year.
+  - **Is Group Company** (required) — Whether the entity belongs to our own group. Separates the group's companies from customers' and suppliers' entities; intercompany transactions are between group companies. Group companies have their own accounts and filings.
+  - **Status** (required, one of the Legal Entity Status values) — Registered, in good standing and free to trade, sign contracts and issue invoices. Still registered but not trading, so it holds no live business activity. Being wound up by a liquidator; no new business should be started in its name. Stru…
+  - **Organization** (a Organization) — The organization this entity is the legal form of. Linked so that the organization's contracts and filings can be issued in the right name. At most one organization per entity. An organization may trade through several entities in differen…
+  - **Country** (a Country) — The country the entity is registered in. Decides which law, register and tax rules apply. One per entity. A branch abroad is not a separate entity.
+  - **Registered Address** (a Address) — The registered office. Printed on documents where the law requires it. One per entity. May differ from where the entity operates.
+  - **Functional Currency** (a Currency) — The currency the entity keeps its accounts in. Set by finance; translations to the group currency start from it. One per entity. Usually the currency of its country.
+  - **Parent Entity** (a Legal Entity) — The entity that owns this one in the group. Recorded for group companies; consolidation follows it. At most one parent. Minority holdings are not recorded here.
+
+### Legal Entity Status
+
+The values of legal entity status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Location
 
@@ -574,6 +841,19 @@ Fields:
   - **Sequence** (required) — The position of the value in a dropdown, lowest first.
   - **Is Active** (required) — Whether the value is offered on new records.
 
+### Packaging Packaging Level
+
+The values of packaging packaging level, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
 ### Packing
 
 A warehouse task that groups picked goods into handling units and prepares them for shipment, keeping line, lot, serial, quantity and package traceability. Between picking and shipping, goods are put into boxes, cartons or pallets. Packing records which goods went into which package, so the customer's shipment is complete and any item can be traced to its package. Created when picked goods are ready to be packed; completed when packages are closed; read by shipping and customer service. Packing follows a Picking, fills a HandlingUnit and prepares a Shipment (and its lines). Packing is planned…
@@ -583,6 +863,9 @@ Readable by every signed-in person.
 Fields:
   - **Packed Quantity** (required) — The quantity of goods put into the package. Entered or scanned as goods are packed; compared with the picked quantity. Measures goods prepared for transport. Must not exceed eligible picked quantity.
   - **Status** (required, one of the Packing Status values) — Shows how far the packing task has progressed, from planned through packed, or into cancellation or exception. Updated by packers as work starts and finishes; shipping may proceed only once the task is packed. Created, not yet started. Pac…
+  - **Packing Number** (required) — The reference of the packing task. Printed on the packing slip and scanned at the packing station. Unique.
+  - **Packed At** — The date and time the packer finished and closed the packed handling unit. Recorded when the unit is closed and labelled, ready for the shipping area. Filled only once packing is done.
+  - **Exception Reason** — What went wrong, such as missing items or damage found. Written when the task goes into exception. Read by the supervisor who resolves it.
   - **Picking** (a Picking) — The pick that supplied the goods. Linked when packing follows a pick. At most one picking. Confirms that what is packed matches what was picked. Preserves pick-to-pack provenance.
   - **Handling Unit** (required, a Handling Unit) — The package, carton or pallet that the goods go into. Chosen when packing starts. Exactly one handling unit: each packing task fills one package. Gives the package contents and its identity. Establishes physical logistics identity.
 
@@ -633,7 +916,38 @@ Readable by every signed-in person.
 Fields:
   - **Code** (required) — The code of the relationship type or instance, such as SUBSIDIARY_OF. Chosen from the relationship list; used in queries and rules.
   - **Name** (required) — A readable description of the relationship, such as Acme Ltd is subsidiary of Acme Group. Entered when the relationship is created; shown in party views and lists so users can understand the link at a glance.
+  - **Relationship Type** (required, one of the Party Relationship Relationship Type values) — Describes how the first party stands towards the second, such as subsidiary, employee or guarantor. Chosen when the link is recorded; credit, compliance and group reporting use it to interpret the connection. Read from the first party to t…
+  - **Ownership Percent** — The share the parent or owner holds, for ownership relationships. Used in consolidation and beneficial-ownership checks. Between 0 and 100.
+  - **Valid From** — The first day on which the relationship between the two parties holds. Recorded when it is known, for example from a contract or register entry. It cannot be later than the valid-to date.
+  - **Valid To** — The last day on which the relationship between the two parties holds. Recorded when the relationship ends, for example on resignation or sale; empty while it still applies. Empty while the relationship continues.
+  - **Status** (required, one of the Party Relationship Status values) — Says whether the relationship between the two parties is still in force today. Set to ended by the person maintaining the record when the relationship stops. Ended relationships stay for history. The relationship is in force today. The rel…
   - **From Party** (required, a Party) — The party at the origin of the relationship. Chosen when the relationship is created. Exactly one origin party: a relationship always starts at a particular party. Together with the other party it identifies the relationship.
+
+### Party Relationship Relationship Type
+
+The values of party relationship relationship type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Party Relationship Status
+
+The values of party relationship status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Party Role
 
@@ -759,6 +1073,10 @@ Readable by every signed-in person.
 Fields:
   - **Quantity** (required) — The quantity to be picked. Set from the reservation or order line; the pick is confirmed against it. Defines execution demand. Must reconcile with reservation and inventory events.
   - **Status** (required, one of the Picking Status values) — Shows how far the pick task has advanced, from planned and released through picking to completion or a problem. Updated by warehouse staff and handheld scanners; a pick can be finished only from the in-progress state. The pick is created b…
+  - **Pick Number** (required) — The reference of the pick task. Shown on the picker's device and pick list. Unique.
+  - **Picked Quantity** — The number of units the picker actually took from the storage location. Confirmed by the picker on the handheld device; it is compared with the requested quantity. A figure below the requested quantity means a short pick.
+  - **Picked At** — The date and time the picker confirmed this pick on the handheld device. Recorded automatically on confirmation; supervisors use it to measure pick rates and delays. Filled only once picked.
+  - **Short Reason** — Why fewer units were picked than asked for. Entered by the picker on a short pick. Triggers a stock check of the location.
   - **Reservation** (a Inventory Reservation) — Inventory commitment supplying pick demand. Prevents picking unallocated demand where reservation is required. Fulfillment. Optional under non-reservation workflows. Consumption must reconcile.
   - **Source Location** (required, a Inventory Location) — Exactly one source location: each pick collects from a single storage position. Storage position picked from. Defines source custody. WMS execution. Must hold eligible stock.
   - **Handling Unit** (a Handling Unit) — At most one handling unit, the pallet or tote the goods are picked into. Handling unit used for picked stock. Supports tote/carton/pallet execution. Scanning and packing. Custody must reconcile.
@@ -832,6 +1150,8 @@ Readable by every signed-in person.
 Fields:
   - **Quantity** (required) — The amount of stock the worker is directed to move into the target storage location. Set when the task is planned and must be above zero; confirmation compares the quantity actually stored to this to show variances. Defines task execution…
   - **Status** (required, one of the Putaway Status values) — Where this storage task stands on the warehouse floor, from proposed to confirmed. Driven by warehouse orchestration and workers; completion needs movement evidence and completed and cancelled are final. Proposed by the system but not yet…
+  - **Putaway Number** (required) — The reference printed on the task that tells a warehouse operator where to store received goods. Assigned when the task is created and shown on the operator's handheld device; no two tasks share one. Quoted when reporting a problem with a…
+  - **Completed At** — When the goods were confirmed in their storage location. Recorded by the operator's device. Present once completed.
   - **Product** (required, a Product) — Each putaway moves one product; a mixed pallet is split into one putaway per product. Product being stored. Identifies handled inventory. Location eligibility. Must match transfer.
   - **Source Location** (required, a Inventory Location) — The stock comes from a single source location, such as the receiving dock. Receiving/staging origin. Current controlled position. Execution. Must contain eligible stock.
   - **Handling Unit** (a Handling Unit) — Physical pallet/carton/tote moved as unit. Supports scan-based execution. WMS mobility. Optional for loose stock. Handling-unit location must reconcile.
@@ -860,6 +1180,8 @@ Readable by every signed-in person.
 Fields:
   - **Serial Code** (required) — The code stamped on or issued for one physical unit, so it can be told apart from others of the same product. Scanned at receiving, picking, shipment, service and return; unique per product and used for warranty and traceability. Operation…
   - **Status** (required, one of the Serial Number Status values) — Where the individual unit stands in its life, from expected through stock and use to end of life. Starts as EXPECTED or AVAILABLE and changes as the unit moves; it decides whether the unit can be picked, shipped or serviced. Announced on a…
+  - **Manufactured Date** — The day on which this individual unit was produced. Taken from the manufacturer's or production record, and used to scope warranties and recalls. Not later than the warranty end date.
+  - **Warranty End Date** — The last day of the unit's warranty. Checked when the unit is returned or serviced. From the warranty terms.
   - **Inventory Transfer** (a Inventory Transfer) — The InventoryTransfer this SerialNumber belongs to.
   - **Inventory Count** (a Inventory Count) — The InventoryCount this SerialNumber belongs to.
   - **Product** (required, a Product) — Each serial number belongs to one product; the same number on another product is a different unit. Product model represented by the serial. Defines the standardized item type. Validation and master-data context. Every serial movement must…
@@ -1053,6 +1375,19 @@ Fields:
   - **Sequence** (required) — The position of the value in a dropdown, lowest first.
   - **Is Active** (required) — Whether the value is offered on new records.
 
+### Warehouse Zone Status
+
+The values of warehouse zone status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
 ### Warehouse Zone Zone Type
 
 The values of warehouse zone zone type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
@@ -1075,11 +1410,29 @@ Readable by every signed-in person.
 Fields:
   - **Wave Number** (required) — The number of the wave, such as WV-2026-0412, shown to supervisors and pickers. Unique; assigned when the wave is planned and used on task lists, labour planning and reporting for the shift. Operational identifier for grouped work. Distinc…
   - **Status** (required, one of the Wave Status values) — How far the batch of warehouse work has progressed, from planning through release to completion. Starts as PLANNED; moved by the warehouse system or supervisor as the wave is released, worked and finished. Orders and tasks are grouped but…
+  - **Wave Type** (required, one of the Wave Wave Type values) — The kind of work the wave releases to the floor. Chosen when the wave is planned and decides which tasks it groups; most waves are picking waves. Most waves are picking waves. Picking for outbound orders. Putting away received goods. Movin…
+  - **Released At** — The date and time the wave was released to workers on the floor. Recorded automatically at release and empty while the wave is still planned. Present once released.
+  - **Planned Completion At** — When the wave should be finished, usually to meet a carrier cut-off. Set when planning the wave. Late waves are flagged.
+  - **Completed At** — The date and time the last task in the wave was finished. Recorded when the wave completes and compared with the planned completion to measure lateness. Present once completed.
+  - **Task Count** — How many tasks, picks and putaways together, the wave contains. Calculated by the system and shown on the wave monitor so supervisors can size labour. Summed from its picks and putaways.
   - **Warehouse** (required, a Warehouse) — Each wave is run in one warehouse. Warehouse executing wave. Defines operating facility. Labor/task orchestration. Included tasks must be compatible with warehouse.
 
 ### Wave Status
 
 The values of wave status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Wave Wave Type
+
+The values of wave wave type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
 
 Readable by every signed-in person.
 
@@ -1108,11 +1461,61 @@ Fields:
 - **INACTIVE** — Temporarily not offered, for example while a move is being confirmed; it can be reactivated.
 - **RETIRED** — No longer valid; kept only as history and in past documents.
 
+### Attachment Status
+
+- **ACTIVE** — Attached and part of the record's evidence.
+- **WITHDRAWN** — Removed from the record's evidence, but kept for the history.
+
+### Business Unit Status
+
+- **ACTIVE** — Operating and available for new assignments.
+- **INACTIVE** — No longer operating after a closure or merger.
+
+### Calendar Exception Exception Type
+
+- **PUBLIC HOLIDAY** — A public holiday on which work does not happen.
+- **COMPANY CLOSURE** — A day the company or site is closed.
+- **EXTRA WORKING DAY** — A normally free day that is worked.
+
+### Calendar Status
+
+- **ACTIVE** — In use and available to planners.
+- **INACTIVE** — Retired and no longer offered.
+
+### Contact Point Channel
+
+- **EMAIL** — An email address used for written messages.
+- **PHONE** — A landline telephone number.
+- **MOBILE** — A mobile telephone number.
+- **FAX** — A fax number, kept for partners who still use it.
+- **WEBSITE** — A web address of the party's site or page.
+- **MESSAGING** — A handle on a messaging app.
+
+### Contact Point Purpose
+
+- **GENERAL** — Any purpose, when nothing more specific applies.
+- **BILLING** — Invoices and statements sent to accounts payable.
+- **ORDERS** — Order confirmations and purchase orders.
+- **DELIVERY** — Delivery notices and arrival updates.
+- **SUPPORT** — Service and support enquiries.
+- **MARKETING** — Marketing communication, where consent allows.
+
+### Contact Point Status
+
+- **ACTIVE** — In use and offered for contact.
+- **INACTIVE** — No longer used and kept for history.
+- **INVALID** — Known not to work, such as a bouncing address.
+
 ### Currency Status
 
 - **ACTIVE** — Available for use on new prices, documents and payments.
 - **INACTIVE** — Temporarily not offered, for example while a market is closed; it can be reactivated.
 - **RETIRED** — No longer in use, such as a replaced national currency; historical amounts keep it.
+
+### Department Status
+
+- **ACTIVE** — The department exists and can receive people, positions and work.
+- **INACTIVE** — The department has been closed or merged away; it stays on record for history.
 
 ### Dock Dock Type
 
@@ -1120,6 +1523,11 @@ Fields:
 - **OUTBOUND** — Shipping goods to customers or other sites.
 - **BIDIRECTIONAL** — Used for both receiving and shipping, as needed.
 - **CROSS DOCK** — Goods move straight from inbound to outbound without being stored.
+
+### Dock Status
+
+- **AVAILABLE** — In service and offered when appointments and loads are scheduled.
+- **OUT OF SERVICE** — Not usable, for example during repair, and left out of scheduling.
 
 ### Exchange Rate Rate Type
 
@@ -1137,6 +1545,14 @@ Fields:
 - **EXPIRED** — Its validity period has ended; kept for past conversions.
 - **CANCELLED** — Withdrawn; must not be used.
 
+### Handling Unit Status
+
+- **OPEN** — Still being filled; goods can be added.
+- **CLOSED** — Packed and labelled, and not to be reopened without unpacking.
+- **SHIPPED** — Has left the warehouse on its way to the destination.
+- **RECEIVED** — Arrived at its destination and was booked in.
+- **DISMANTLED** — Unpacked, so its contents are loose again.
+
 ### Handling Unit Type
 
 - **PALLET** — A palletised load moved by forklift or pallet truck.
@@ -1146,6 +1562,26 @@ Fields:
 - **DRUM** — A cylindrical drum or barrel holding liquids or bulk material.
 - **PACKAGE** — A general parcel that is none of the other forms.
 - **OTHER** — A governed unit type not covered by the listed forms.
+
+### Inventory Adjustment Status
+
+- **REQUESTED** — Asked for and waiting for approval.
+- **APPROVED** — Approved and waiting to be posted.
+- **POSTED** — Applied, so stock and accounts are updated.
+- **REJECTED** — Refused by the approver, so stock stays as it was.
+
+### Inventory Count Count Type
+
+- **CYCLE** — A routine count of some locations on a rolling schedule.
+- **ANNUAL** — The full year-end count of all stock.
+- **SPOT** — An unplanned count made after a problem was suspected.
+
+### Inventory Count Status
+
+- **PLANNED** — Scheduled, but not yet counted.
+- **COUNTED** — Counted, with a difference to review.
+- **RECOUNT** — A recount was ordered because the difference looked wrong.
+- **APPROVED** — Accepted by the supervisor, so any difference is adjusted.
 
 ### Inventory Item Status
 
@@ -1200,6 +1636,18 @@ Fields:
 - **IN PROGRESS** — The goods have been picked and are moving between the two locations.
 - **COMPLETED** — The goods have been received at the target location. A final state.
 - **CANCELLED** — Withdrawn before completion, with no further stock change. A final state.
+
+### Language Direction
+
+- **LTR** — Written left to right.
+- **RTL** — Written right to left.
+
+### Legal Entity Status
+
+- **ACTIVE** — Registered, in good standing and free to trade, sign contracts and issue invoices.
+- **DORMANT** — Still registered but not trading, so it holds no live business activity.
+- **IN LIQUIDATION** — Being wound up by a liquidator; no new business should be started in its name.
+- **DISSOLVED** — Struck off the register and gone for good; no new contracts or invoices may use it.
 
 ### Location Location Type
 
@@ -1256,6 +1704,13 @@ Fields:
 - **INACTIVE** — The organization is temporarily not selectable, for example while dormant, but its history is kept and it may return.
 - **RETIRED** — The organization has been permanently closed or merged away and cannot be selected again. A final state.
 
+### Packaging Packaging Level
+
+- **EACH** — The single sellable unit as a customer buys it.
+- **INNER** — A smaller inner pack grouped inside a case.
+- **CASE** — A shipping case or carton holding several units.
+- **PALLET** — A full pallet of cases ready to be moved by forklift.
+
 ### Packing Status
 
 - **PLANNED** — Created, not yet started.
@@ -1268,6 +1723,22 @@ Fields:
 
 - **PERSON** — The party represents an individual human being.
 - **ORGANIZATION** — The party represents a legal, commercial, governmental, nonprofit, or other organized body.
+
+### Party Relationship Relationship Type
+
+- **SUBSIDIARY OF** — The first party is a subsidiary owned by the second.
+- **BRANCH OF** — The first party is a branch operating as part of the second.
+- **EMPLOYEE OF** — The first party works for the second as an employee.
+- **AGENT OF** — The first party acts as an agent on behalf of the second.
+- **GUARANTOR FOR** — The first party guarantees the second party's obligations.
+- **BENEFICIAL OWNER OF** — The first party ultimately owns or controls the second.
+- **HOUSEHOLD MEMBER OF** — The first party lives in the same household as the second.
+- **OTHER** — Any other kind of link, explained in the relationship name.
+
+### Party Relationship Status
+
+- **ACTIVE** — The relationship is in force today.
+- **ENDED** — The relationship has stopped but is kept for history.
 
 ### Party Role Role Type
 
@@ -1440,6 +1911,11 @@ Fields:
 - **RETAIL** — A warehouse or backroom operation primarily supporting retail-store or direct retail fulfillment.
 - **OTHER** — A warehouse whose operating model is not adequately represented by the standard classifications.
 
+### Warehouse Zone Status
+
+- **ACTIVE** — The zone is open and can receive and release stock.
+- **INACTIVE** — The zone is closed or being refitted and takes no new stock.
+
 ### Warehouse Zone Zone Type
 
 - **RECEIVING** — Where inbound goods are unloaded and checked before putaway.
@@ -1460,6 +1936,12 @@ Fields:
 - **IN PROGRESS** — Workers are executing the picking, putaway or packing tasks.
 - **COMPLETED** — All the wave's work is done. A final state.
 - **CANCELLED** — The wave was abandoned and its tasks released for other planning. A final state.
+
+### Wave Wave Type
+
+- **PICKING** — Picking for outbound orders.
+- **PUTAWAY** — Putting away received goods.
+- **REPLENISHMENT** — Moving stock from reserve to picking locations.
 
 ## Lifecycles
 
@@ -1503,6 +1985,43 @@ Moves:
 - ACTIVE → EXPIRED (Expire)
 - INACTIVE → EXPIRED (Expire)
 
+### Party Relationship — Party Relationship Lifecycle
+
+Starts at **ACTIVE**.
+Final: **ENDED**.
+
+Moves:
+- ACTIVE → ENDED (End)
+
+### Legal Entity — Legal Entity Lifecycle
+
+Starts at **ACTIVE**.
+Final: **DISSOLVED**.
+
+Moves:
+- ACTIVE → DORMANT (Make Dormant)
+- DORMANT → ACTIVE (Resume Trading)
+- ACTIVE → IN LIQUIDATION (Liquidate)
+- DORMANT → IN LIQUIDATION (Liquidate)
+- IN LIQUIDATION → DISSOLVED (Dissolve)
+- DORMANT → DISSOLVED (Dissolve)
+
+### Business Unit — Business Unit Lifecycle
+
+Starts at **ACTIVE**.
+
+Moves:
+- ACTIVE → INACTIVE (Deactivate)
+- INACTIVE → ACTIVE (Reactivate)
+
+### Department — Department Lifecycle
+
+Starts at **ACTIVE**.
+
+Moves:
+- ACTIVE → INACTIVE (Deactivate)
+- INACTIVE → ACTIVE (Reactivate)
+
 ### Address — Address Lifecycle
 
 Starts at **ACTIVE**.
@@ -1513,6 +2032,16 @@ Moves:
 - INACTIVE → ACTIVE (Reactivate)
 - ACTIVE → RETIRED (Retire)
 - INACTIVE → RETIRED (Retire)
+
+### Contact Point — Contact Point Lifecycle
+
+Starts at **ACTIVE**.
+
+Moves:
+- ACTIVE → INACTIVE (Deactivate)
+- INACTIVE → ACTIVE (Reactivate)
+- ACTIVE → INVALID (Mark Invalid)
+- INVALID → ACTIVE (Reactivate)
 
 ### Location — Location Lifecycle
 
@@ -1560,6 +2089,22 @@ Moves:
 - INACTIVE → ACTIVE (Reactivate)
 - ACTIVE → RETIRED (Retire)
 - INACTIVE → RETIRED (Retire)
+
+### Calendar — Calendar Lifecycle
+
+Starts at **ACTIVE**.
+
+Moves:
+- ACTIVE → INACTIVE (Deactivate)
+- INACTIVE → ACTIVE (Reactivate)
+
+### Attachment — Attachment Lifecycle
+
+Starts at **ACTIVE**.
+Final: **WITHDRAWN**.
+
+Moves:
+- ACTIVE → WITHDRAWN (Withdraw)
 
 ### Task — Task Lifecycle
 
@@ -1629,6 +2174,27 @@ Moves:
 - PLANNED → CANCELLED (Cancel)
 - RELEASED → CANCELLED (Cancel)
 - IN PROGRESS → CANCELLED (Cancel)
+
+### Inventory Count — Inventory Count Lifecycle
+
+Starts at **PLANNED**.
+Final: **APPROVED**.
+
+Moves:
+- PLANNED → COUNTED (Count)
+- COUNTED → RECOUNT (Order Recount)
+- RECOUNT → COUNTED (Count)
+- COUNTED → APPROVED (Approve)
+
+### Inventory Adjustment — Inventory Adjustment Lifecycle
+
+Starts at **REQUESTED**.
+Final: **POSTED**, **REJECTED**.
+
+Moves:
+- REQUESTED → APPROVED (Approve)
+- REQUESTED → REJECTED (Reject)
+- APPROVED → POSTED (Post)
 
 ### Lot — Lot Lifecycle
 
@@ -1714,6 +2280,35 @@ Moves:
 - ACTIVE → SUSPENDED (Suspend)
 - SUSPENDED → ACTIVE (Resume)
 
+### Warehouse Zone — Warehouse Zone Lifecycle
+
+Starts at **ACTIVE**.
+
+Moves:
+- ACTIVE → INACTIVE (Deactivate)
+- INACTIVE → ACTIVE (Reactivate)
+
+### Dock — Dock Lifecycle
+
+Starts at **AVAILABLE**.
+
+Moves:
+- AVAILABLE → OUT OF SERVICE (Take Out Of Service)
+- OUT OF SERVICE → AVAILABLE (Return To Service)
+
+### Handling Unit — Handling Unit Lifecycle
+
+Starts at **OPEN**.
+Final: **DISMANTLED**.
+
+Moves:
+- OPEN → CLOSED (Close)
+- CLOSED → OPEN (Reopen)
+- CLOSED → SHIPPED (Ship)
+- SHIPPED → RECEIVED (Receive)
+- RECEIVED → DISMANTLED (Dismantle)
+- CLOSED → DISMANTLED (Dismantle)
+
 ### Putaway — Putaway Lifecycle
 
 Starts at **PLANNED**.
@@ -1783,7 +2378,7 @@ Moves:
 
 ## Roles
 
-- **User** — reads 83 of 83 record types
+- **User** — reads 104 of 104 record types
 - **Administrator** — reads and changes everything the lifecycles allow
 
 A refusal means the person's role does not allow it. Say which role does, from this list, and suggest their administrator.

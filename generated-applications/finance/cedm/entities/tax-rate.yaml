@@ -59,6 +59,58 @@ entity:
         summary: The last date on which the rate applies; empty while it remains in force.
         usage: Set when the authority changes the rate or the code stops being used; must not be before the start date.
         relationshipContext: Compared with the transaction tax date.
+    - name: taxCodeLabel
+      type: string
+      required: false
+      maxLength: 60
+      help:
+        summary: The code and jurisdiction the rate is for, as shown on screens.
+        usage: Filled from the tax code for display in rate lists.
+        relationshipContext: The tax code relationship is authoritative.
+    - name: rateType
+      type: enum
+      required: true
+      default: PERCENT
+      values:
+        - PERCENT
+        - PER_UNIT
+      help:
+        summary: Whether the tax is a percentage or an amount per unit.
+        usage: Decides how the tax is computed.
+        relationshipContext: Excise duties are often per unit.
+        valueSemantics:
+          PERCENT: A percentage of the taxable amount.
+          PER_UNIT: A fixed amount per unit of quantity.
+    - name: ratePercent
+      type: decimal
+      required: false
+      precision: 9
+      scale: 5
+      help:
+        summary: The tax as a percentage of the taxable amount, such as 20 for twenty percent.
+        usage: Entered by tax staff from the authority's published rate when the rate type is a percentage, and applied to the taxable amount of each line.
+        relationshipContext: Used when the rate type is percent.
+    - name: amountPerUnit
+      type: Money
+      required: false
+      help:
+        summary: The tax charged per unit of quantity, such as a duty per litre or per kilogram.
+        usage: Entered when the rate type is per unit and multiplied by the quantity on the document line.
+        relationshipContext: Used when the rate type is per unit.
+    - name: validFrom
+      type: date
+      required: true
+      help:
+        summary: The first day on which this rate may be applied to transactions.
+        usage: Set from the law or the authority's announcement; it must not be later than the valid-to date, and a transaction uses the rate whose period holds its tax date.
+        relationshipContext: Not later than the valid-to date.
+    - name: validTo
+      type: date
+      required: false
+      help:
+        summary: The last day on which this rate applies, left empty while it remains in force.
+        usage: Set when a new rate replaces it; rates for one code and jurisdiction must not overlap, so the next rate starts the following day.
+        relationshipContext: Rates of one code and jurisdiction do not overlap.
   relationships:
     - {name: organization, target: Organization, cardinality: 0..1, ownership: reference, help: {summary: The organisation the rate is set up for., usage: Chosen when the rate is company specific., cardinalityMeaning: At most one organisation; empty means it applies to all., workflowRole: Decides which company's returns carry the tax.}}
     - name: taxCode
@@ -79,6 +131,15 @@ entity:
         usage: Chosen when the rate is created; matched to the place of supply or delivery.
         cardinalityMeaning: A rate applies in exactly one jurisdiction, since authorities set their own rates.
         workflowRole: Selects which authority's figure applies and which return it feeds.
+    - name: jurisdiction
+      target: TaxJurisdiction
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The jurisdiction the rate applies in.
+        usage: Usually the code's jurisdiction.
+        cardinalityMeaning: One per rate.
+        context: Combined rates are separate rates per jurisdiction.
   invariants:
     - {id: TAX-RATE-001, rule: "This record must not silently duplicate or rewrite authoritative cash, accounting, tax, usage, entitlement, or billing evidence in another CEDM entity."}
     - id: TAX-RATE-002

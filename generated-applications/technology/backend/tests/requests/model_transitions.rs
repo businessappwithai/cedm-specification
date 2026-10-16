@@ -1,6 +1,6 @@
 //! The state machines the *model* drew, and whether the API enforces them.
 //!
-//! Generated: 2026-10-09T15:30:55.361Z
+//! Generated: 2026-10-16T07:49:23.407Z
 //! Project: technology
 //!
 //! `requests/rbac.rs` proves the topology guard works by seeding an edge of its
@@ -33,10 +33,25 @@ const MODEL_EDGES: &[(&str, &str, &str, &str)] = &[
     ("bus_party_role", "status", "INACTIVE", "ACTIVE"),
     ("bus_party_role", "status", "ACTIVE", "EXPIRED"),
     ("bus_party_role", "status", "INACTIVE", "EXPIRED"),
+    ("bus_party_relationship", "status", "ACTIVE", "ENDED"),
+    ("bus_legal_entity", "status", "ACTIVE", "DORMANT"),
+    ("bus_legal_entity", "status", "DORMANT", "ACTIVE"),
+    ("bus_legal_entity", "status", "ACTIVE", "IN_LIQUIDATION"),
+    ("bus_legal_entity", "status", "DORMANT", "IN_LIQUIDATION"),
+    ("bus_legal_entity", "status", "IN_LIQUIDATION", "DISSOLVED"),
+    ("bus_legal_entity", "status", "DORMANT", "DISSOLVED"),
+    ("bus_business_unit", "status", "ACTIVE", "INACTIVE"),
+    ("bus_business_unit", "status", "INACTIVE", "ACTIVE"),
+    ("bus_department", "status", "ACTIVE", "INACTIVE"),
+    ("bus_department", "status", "INACTIVE", "ACTIVE"),
     ("bus_address", "status", "ACTIVE", "INACTIVE"),
     ("bus_address", "status", "INACTIVE", "ACTIVE"),
     ("bus_address", "status", "ACTIVE", "RETIRED"),
     ("bus_address", "status", "INACTIVE", "RETIRED"),
+    ("bus_contact_point", "status", "ACTIVE", "INACTIVE"),
+    ("bus_contact_point", "status", "INACTIVE", "ACTIVE"),
+    ("bus_contact_point", "status", "ACTIVE", "INVALID"),
+    ("bus_contact_point", "status", "INVALID", "ACTIVE"),
     ("bus_location", "status", "PLANNED", "ACTIVE"),
     ("bus_location", "status", "ACTIVE", "CLOSED"),
     ("bus_location", "status", "ACTIVE", "INACTIVE"),
@@ -56,6 +71,9 @@ const MODEL_EDGES: &[(&str, &str, &str, &str)] = &[
     ("bus_unit_of_measure", "status", "INACTIVE", "ACTIVE"),
     ("bus_unit_of_measure", "status", "ACTIVE", "RETIRED"),
     ("bus_unit_of_measure", "status", "INACTIVE", "RETIRED"),
+    ("bus_calendar", "status", "ACTIVE", "INACTIVE"),
+    ("bus_calendar", "status", "INACTIVE", "ACTIVE"),
+    ("bus_attachment", "status", "ACTIVE", "WITHDRAWN"),
     ("bus_task", "status", "CREATED", "READY"),
     ("bus_task", "status", "READY", "ASSIGNED"),
     ("bus_task", "status", "ASSIGNED", "IN_PROGRESS"),
@@ -75,6 +93,20 @@ const MODEL_EDGES: &[(&str, &str, &str, &str)] = &[
     ("bus_task", "status", "ASSIGNED", "FAILED"),
     ("bus_task", "status", "IN_PROGRESS", "FAILED"),
     ("bus_task", "status", "BLOCKED", "FAILED"),
+    ("bus_message", "status", "QUEUED", "SENT"),
+    ("bus_message", "status", "SENT", "ACKNOWLEDGED"),
+    ("bus_message", "status", "QUEUED", "FAILED"),
+    ("bus_message", "status", "SENT", "FAILED"),
+    ("bus_message", "status", "FAILED", "SENT"),
+    ("bus_message", "status", "FAILED", "DEAD_LETTERED"),
+    ("bus_message", "status", "DEAD_LETTERED", "QUEUED"),
+    ("bus_message", "status", "DEAD_LETTERED", "DISCARDED"),
+    ("bus_integration_endpoint", "status", "PLANNED", "ACTIVE"),
+    ("bus_integration_endpoint", "status", "ACTIVE", "SUSPENDED"),
+    ("bus_integration_endpoint", "status", "SUSPENDED", "ACTIVE"),
+    ("bus_integration_endpoint", "status", "ACTIVE", "RETIRED"),
+    ("bus_integration_endpoint", "status", "SUSPENDED", "RETIRED"),
+    ("bus_integration_endpoint", "status", "PLANNED", "RETIRED"),
 ];
 
 /// The entity and starting state of the first machine, for the live check.

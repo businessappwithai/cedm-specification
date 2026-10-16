@@ -1,6 +1,6 @@
 //! The rules the *model* declared, and whether they reached the application.
 //!
-//! Generated: 2026-10-09T15:29:20.604Z
+//! Generated: 2026-10-16T07:47:22.176Z
 //! Project: life-sciences
 //!
 //! Every other rules suite creates a rule through the API and then checks that
@@ -33,6 +33,16 @@ const MODEL_RULES: &[(&str, &str, &str)] = &[
         "bus_party_role",
         "UPDATE",
     ),
+    (
+        "partyRelationshipInvariantsBeforeCreate",
+        "bus_party_relationship",
+        "CREATE",
+    ),
+    (
+        "partyRelationshipInvariantsBeforeUpdate",
+        "bus_party_relationship",
+        "UPDATE",
+    ),
     ("addressInvariantsBeforeCreate", "bus_address", "CREATE"),
     ("addressInvariantsBeforeUpdate", "bus_address", "UPDATE"),
     (
@@ -43,6 +53,18 @@ const MODEL_RULES: &[(&str, &str, &str)] = &[
     (
         "exchangeRateInvariantsBeforeUpdate",
         "bus_exchange_rate",
+        "UPDATE",
+    ),
+    ("calendarInvariantsBeforeCreate", "bus_calendar", "CREATE"),
+    ("calendarInvariantsBeforeUpdate", "bus_calendar", "UPDATE"),
+    (
+        "calendarExceptionInvariantsBeforeCreate",
+        "bus_calendar_exception",
+        "CREATE",
+    ),
+    (
+        "calendarExceptionInvariantsBeforeUpdate",
+        "bus_calendar_exception",
         "UPDATE",
     ),
     ("taskInvariantsBeforeCreate", "bus_task", "CREATE"),
@@ -61,6 +83,16 @@ const MODEL_RULES: &[(&str, &str, &str)] = &[
     ),
     ("sampleInvariantsBeforeCreate", "bus_sample", "CREATE"),
     ("sampleInvariantsBeforeUpdate", "bus_sample", "UPDATE"),
+    (
+        "chemicalBatchInvariantsBeforeCreate",
+        "bus_chemical_batch",
+        "CREATE",
+    ),
+    (
+        "chemicalBatchInvariantsBeforeUpdate",
+        "bus_chemical_batch",
+        "UPDATE",
+    ),
     ("productInvariantsBeforeCreate", "bus_product", "CREATE"),
     ("productInvariantsBeforeUpdate", "bus_product", "UPDATE"),
     ("partyWorkflowsAfterUpdate", "bus_party", "UPDATE"),

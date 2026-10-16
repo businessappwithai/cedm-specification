@@ -11,6 +11,38 @@ entity:
     - {name: adjustmentNumber, type: string, required: true, unique: true, maxLength: 100, help: {summary: The document number of the adjustment., usage: Allocated from a number series; unique; used on approvals and audit reports., businessMeaning: Operational/audit identifier., relationshipContext: Distinct from movement number.}}
     - {name: quantityDelta, type: decimal, required: true, precision: 20, scale: 6, help: {summary: 'The change to the recorded quantity: positive to add stock, negative to remove it.', usage: Entered or derived from a count; posted as a movement when approved., businessMeaning: Positive increases and negative decreases the evidenced stock position., relationshipContext: Must be supported by reason and evidence.}}
     - {name: reasonCode, type: string, required: true, maxLength: 100, help: {summary: 'The reason for the correction, such as counting variance, damage or theft.', usage: Chosen from the organisation's list; reports analyse shrinkage by reason., businessMeaning: Explains why ledger stock differs from evidenced reality., relationshipContext: Must not be used to conceal ordinary receipts/issues.}}
+    - name: valueDelta
+      type: Money
+      required: false
+      help:
+        summary: The value of the adjustment at the product's cost.
+        usage: Posted to the stock-adjustment account.
+        relationshipContext: Same sign as the quantity.
+    - name: approvedAt
+      type: datetime
+      required: false
+      help:
+        summary: The date and time a manager approved the stock correction.
+        usage: Recorded on approval; adjustments above a value limit need approval before they can be posted, and it is empty until then.
+        relationshipContext: Present once approved.
+    - name: status
+      type: enum
+      required: true
+      default: REQUESTED
+      values:
+        - REQUESTED
+        - APPROVED
+        - POSTED
+        - REJECTED
+      help:
+        summary: Shows how far the stock correction has progressed from request to posting.
+        usage: Moved on by the requester, the approver and the posting step.
+        relationshipContext: Only posted adjustments change the stock.
+        valueSemantics:
+          REQUESTED: Asked for and waiting for approval.
+          APPROVED: Approved and waiting to be posted.
+          POSTED: Applied, so stock and accounts are updated.
+          REJECTED: Refused by the approver, so stock stays as it was.
   relationships:
     - {name: product, target: Product, cardinality: '1', ownership: reference, help: {summary: The product whose recorded quantity is corrected., usage: Set when the adjustment is created., cardinalityMeaning: 'Exactly one product: stock is corrected product by product.', workflowRole: Determines which stock balance is changed., businessMeaning: Identifies affected inventory item.}}
     - {name: inventoryLocation, target: InventoryLocation, cardinality: '1', ownership: reference, help: {summary: The stock location where the quantity is corrected., usage: Set when the adjustment is created., cardinalityMeaning: 'Exactly one location: the quantity belongs to a specific place.', workflowRole: Determines which location's balance is changed., businessMeaning: Defines physical/accountable stock context.}}
@@ -21,6 +53,62 @@ entity:
     - {id: INVENTORY-ADJUSTMENT-002, rule: Every executed adjustment requires approved evidence and exactly one attributable inventory posting.}
     - {id: INVENTORY-ADJUSTMENT-003, rule: "Adjustment must not substitute for known receipt, issue, transfer, return or production transactions."}
     - {id: INVENTORY-ADJUSTMENT-004, rule: Posted correction is immutable; subsequent correction uses compensating adjustment.}
+    - {id: INVENTORY-ADJUSTMENT-EXE-001, rule: "A inventory adjustment that is approved states when (approved at).", violatedWhen: "status == \"APPROVED\" and approved_at == null", message: "Record approved at when the inventory adjustment is approved."}
+  workflows:
+    - name: ApprovalRequested
+      title: "Ask for a decision when a inventory adjustment is put forward"
+      description: "When a inventory adjustment is requested, a task asks someone to decide on it."
+      when: "status == \"REQUESTED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: decide on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "INVENTORY-ADJUSTMENT-APPROVAL-{{id}}"
+              name: "Decide on inventory adjustment {{adjustment_number}}"
+              description: "Inventory adjustment {{adjustment_number}} is now {{status}}. Approve it, return it for change or reject it; the move you make is recorded on the record."
+              task_type: "APPROVAL"
+              status: "CREATED"
+              priority: "NORMAL"
+    - name: FollowUpRequired
+      title: "Follow up when a inventory adjustment is ended"
+      description: "When a inventory adjustment is rejected, a task asks someone to settle what depended on it."
+      when: "status == \"REJECTED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "INVENTORY-ADJUSTMENT-FOLLOW-UP-{{id}}"
+              name: "Follow up on inventory adjustment {{adjustment_number}}"
+              description: "Inventory adjustment {{adjustment_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
+    - name: CompletionConfirmed
+      title: "Confirm when a inventory adjustment is done"
+      description: "When a inventory adjustment is posted, a task asks someone to confirm the outcome."
+      when: "status == \"POSTED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: confirm"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "INVENTORY-ADJUSTMENT-COMPLETED-{{id}}"
+              name: "Confirm inventory adjustment {{adjustment_number}}"
+              description: "Inventory adjustment {{adjustment_number}} is now {{status}}. Check the outcome is what was agreed and close any open items."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "LOW"
   help:
     summary: An authorised correction of an evidenced stock discrepancy, whose quantity change is carried out by a stock movement.
     businessMeaning: 'Stock records and shelves drift apart. An adjustment is the controlled way of putting them back in line: it states why, by how much and who approved it, and the actual change is posted as a movement so the stock ledger stays a complete history.'
@@ -29,4 +117,26 @@ entity:
     example: A count finds 38 units where the system shows 40; an adjustment of minus 2 with reason "counting variance" is approved and posted.
     lifecycle: Proposed → approved → posted → immutable historical evidence.
     changePropagation: Posting updates balances and variance analytics; corrections compensate rather than rewrite.
+  lifecycle:
+    title: Inventory Adjustment Lifecycle
+    attribute: status
+    states:
+      - REQUESTED
+      - APPROVED
+      - POSTED
+      - REJECTED
+    initial: REQUESTED
+    terminal:
+      - POSTED
+      - REJECTED
+    transitions:
+      - from: REQUESTED
+        to: APPROVED
+        action: approve
+      - from: REQUESTED
+        to: REJECTED
+        action: reject
+      - from: APPROVED
+        to: POSTED
+        action: post
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-INVENTORY-ADJUSTMENT}

@@ -20,9 +20,69 @@ entity:
           ACTIVE: Open for posting journal entries.
           COMPLETED: Closed for good after the final period. A final state.
           CANCELLED: Set up but never used. A final state.
+    - name: code
+      type: string
+      required: true
+      unique: true
+      maxLength: 20
+      help:
+        summary: The code of the ledger, such as 0L.
+        usage: Chosen when the ledger is created; postings and reports refer to it.
+        relationshipContext: Unique.
+    - name: name
+      type: string
+      required: true
+      maxLength: 150
+      help:
+        summary: The name of the ledger, such as "Leading – French GAAP".
+        usage: Shown in posting and reporting screens.
+        relationshipContext: Identifies it for people.
+    - name: ledgerType
+      type: enum
+      required: true
+      default: LEADING
+      values:
+        - LEADING
+        - PARALLEL
+        - TAX
+        - MANAGEMENT
+      help:
+        summary: Whether this is the company's main ledger or a parallel one.
+        usage: The leading ledger is the default for postings.
+        relationshipContext: One leading ledger per company.
+        valueSemantics:
+          LEADING: The main ledger, under local statutory rules.
+          PARALLEL: An additional ledger under another standard, such as the group's.
+          TAX: A ledger kept for tax purposes.
+          MANAGEMENT: A ledger for internal reporting only.
+    - name: accountingStandard
+      type: string
+      required: false
+      maxLength: 50
+      help:
+        summary: The accounting rules the ledger follows, such as "IFRS", "US GAAP" or "French GAAP".
+        usage: Decides valuation in parallel postings.
+        relationshipContext: Set when the ledger is created.
+    - name: chartOfAccounts
+      type: string
+      required: false
+      maxLength: 50
+      help:
+        summary: The chart of accounts the ledger uses.
+        usage: Its accounts are the ones postings may use.
+        relationshipContext: Several ledgers may share a chart.
   relationships:
     - {name: organization, target: Organization, cardinality: '1', ownership: reference, help: {cardinalityMeaning: 'Exactly one organisation: a book is kept for a single legal entity.', summary: Organization owning accounting book., businessMeaning: Defines legal/management accounting boundary., usage: Posting and reporting., workflowRole: Journal entries must use compatible organization context.}}
     - {name: journalEntries, target: JournalEntry, cardinality: 0..*, ownership: reference, help: {cardinalityMeaning: 'Any number of journal entries, which build up as the books are kept.', summary: Journal entries posted to ledger., businessMeaning: Supplies accounting evidence contained by book., usage: General ledger and reporting., workflowRole: Posted entries remain immutable.}}
+    - name: currency
+      target: Currency
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The currency the ledger is kept in.
+        usage: Set when the ledger is created.
+        cardinalityMeaning: One per ledger.
+        context: Usually the company's functional currency.
   invariants:
     - {id: LEDGER-001, rule: "This record must not silently duplicate or rewrite authoritative cash, accounting, tax, usage, entitlement, or billing evidence in another CEDM entity."}
   lifecycle:

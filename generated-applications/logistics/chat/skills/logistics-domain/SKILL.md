@@ -71,6 +71,31 @@ Readable by every signed-in person.
 
 Fields:
   - **Effective At** — When the attachment became part of the record. Set when the file is attached; used to show what evidence existed at a given moment.
+  - **File Name** (required) — The name of the file as uploaded. Shown in the record's list of attachments and used as the name when the file is downloaded. Not unique; the same name may be attached to many records.
+  - **Media Type** — The type of the file's content, such as application/pdf or image/jpeg. Detected on upload; it decides whether the file can be previewed. Taken from the file, not typed by the user.
+  - **Size Bytes** — The size of the file in bytes. Recorded on upload; used to enforce upload limits and to report storage use. Zero-size files are refused.
+  - **Storage Location** (required) — Where the file's content is stored. Set by the system on upload; users never type it. Moving files between stores updates it without changing the attachment.
+  - **Checksum** — A fingerprint of the file's content (SHA-256). Computed on upload; recomputing it later shows whether the file has been changed. Two attachments with the same checksum hold the same content.
+  - **Record Type** (required) — The kind of record the file is attached to, such as "Goods receipt". Set by the screen the file was attached from. Read with the record identifier to find the record.
+  - **Record** (required) — The identifier of the record the file is attached to. Set by the screen the file was attached from; the record's attachments are found by it. Together with the record type it identifies exactly one record.
+  - **Category** — What the file is, such as "Delivery note", "Certificate" or "Photograph". Chosen on upload so that the record's attachments can be told apart without opening them. Free choice of words, though each business usually agrees a short list.
+  - **Description** — A note about the file's content. Optional; useful when the file name does not say what the file shows. Free text.
+  - **Uploaded At** (required) — When the file was attached. Recorded by the system; the record's evidence is listed in this order. Not editable.
+  - **Status** (required, one of the Attachment Status values) — Whether the file still counts as evidence for the record. An attachment added by mistake is withdrawn; it stays visible in the history. Withdrawn attachments are not shown in the normal list. Attached and part of the record's evidence. Rem…
+  - **Uploaded By** (a Person) — The person who attached the file. Recorded on upload. One per attachment. Shown with the file so that reviewers know where it came from.
+
+### Attachment Status
+
+The values of attachment status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Business Unit
 
@@ -81,7 +106,25 @@ Readable by every signed-in person.
 Fields:
   - **Code** (required) — The short reference for the unit, such as CE or EMEA-RETAIL. Assigned by finance and used on reports and in postings; kept stable because history relies on it.
   - **Name** (required) — The full name of the business unit, as it appears in the organisation's structure and management accounts. Entered by management or finance when the unit is created; shown in organisation charts, selectors and segment reports.
+  - **Description** — What the business unit does. Read by people placing staff or costs in it. Free text.
+  - **Status** (required, one of the Business Unit Status values) — Whether the business unit is still operating. Set to inactive by an administrator after a reorganisation or closure. Inactive units are not offered for new assignments. Operating and available for new assignments. No longer operating after…
   - **Organization** (required, a Organization) — The organisation to which the unit belongs. Set when the unit is created. Exactly one organisation; a unit cannot stand alone. Rolls the unit's results up into its parent organisation.
+  - **Head** (a Person) — The executive responsible for the business unit. Receives its reports and approves its budgets. One per business unit. Accountable for its results.
+  - **Legal Entity** (a Legal Entity) — The company the business unit mainly trades through. Used for contracts and invoices made by the unit. At most one. A unit trading in several countries uses several entities; the main one is named.
+  - **Parent Unit** (a Business Unit) — The larger business unit this one is part of. Builds the hierarchy. At most one. Cannot be itself.
+
+### Business Unit Status
+
+The values of business unit status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Calendar
 
@@ -92,6 +135,41 @@ Readable by every signed-in person.
 Fields:
   - **Code** (required) — The short reference for the calendar, such as DE-NAT. Assigned by the administrator; used in configuration and reports; kept stable.
   - **Name** (required) — The descriptive name of the calendar, such as UK Working Days or Group Fiscal Calendar. Entered by the administrator who maintains it; shown wherever a schedule, service level or plan asks which calendar applies.
+  - **Working Days** (required) — The days of the normal working week, such as MON-FRI or MON-SAT. Days outside it are non-working unless an exception says otherwise. Exceptions override it for particular dates.
+  - **Time Zone** — The time zone of the calendar, such as Europe/Paris. Decides when a day starts and ends for deadlines. An IANA time-zone name.
+  - **Valid From** — The first day on which the calendar's working days and holidays apply. Set when the calendar is created. Not later than the valid-to date.
+  - **Valid To** — The last day on which the calendar's working days and holidays apply. Filled in when a newer calendar replaces this one. Left empty while the calendar is still in use.
+  - **Status** (required, one of the Calendar Status values) — Whether planners may use this calendar. Made inactive by an administrator once a newer calendar replaces it. Inactive calendars are not offered when choosing one. In use and available to planners. Retired and no longer offered.
+  - **Country** (a Country) — The country whose public holidays the calendar holds. Set for country calendars. At most one. Site calendars usually take their country's calendar as base.
+  - **Base Calendar** (a Calendar) — The calendar whose exceptions this one also follows. Set so a site calendar inherits the country's holidays. At most one base. Cannot be itself.
+
+Line items — **Calendar Exception**: kept inside each Calendar and reached by opening it, never on their own. One holiday, closure or extra working day in a calendar. Exceptions are what make a calendar accurate. Each records a date, what it is and whether work happens on it, so that working-day calculations skip holidays and closures and count extra working days. Entered each year for the coming year's ho…
+
+### Calendar Exception Exception Type
+
+The values of calendar exception exception type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Calendar Status
+
+The values of calendar status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Carrier
 
@@ -101,7 +179,41 @@ Readable by every signed-in person.
 
 Fields:
   - **Code** — The carrier's short code, such as the SCAC code used in North American freight. Entered when the carrier is set up; used on shipping documents and in EDI messages.
+  - **Name** (required) — The name the carrier trades under, as dispatchers and planners know it. Shown wherever a carrier is chosen for a booking or consignment. The legal name is held on its party record.
+  - **Carrier Type** (required, one of the Carrier Carrier Type values) — What kind of transport service the carrier mainly provides, such as road, rail or air. Planners filter the carriers they can book by it when choosing for a consignment. A carrier offering several modes is recorded with its main one. Road h…
+  - **Scac** — The Standard Carrier Alpha Code, used in North American and ocean documents. Printed on bills of lading and used in EDI. Four letters.
+  - **Iata Code** — The carrier's two or three character IATA airline code, for air carriers only. Printed on air waybills and used to match the carrier in airline schedules. Left empty for carriers that are not airlines.
+  - **Insurance Expiry Date** — When the carrier's liability insurance certificate expires. Watched so that bookings stop with uninsured carriers. A new certificate must be received before it.
+  - **On Time Percent** — The share of the carrier's deliveries that arrived on time, over the last review period. Updated by the carrier scorecard; read when choosing carriers. Between 0 and 100.
+  - **Tracking Url Template** — The web address for tracking a consignment, with a placeholder for the tracking number. Used to link customers and staff straight to the carrier's tracking page. Such as https://track.example.com/?id={tracking}.
+  - **Status** (required, one of the Carrier Status values) — Whether the carrier may currently be booked for shipments. Moved on by logistics procurement as the carrier is onboarded, approved, suspended or retired. Only approved carriers are offered when booking. Being onboarded and not yet bookable…
   - **Party** (required, a Party) — Exactly one party: the carrier role is played by a single legal or natural person. Canonical party providing carrier service. Separates logistics role from Party identity. Shipment tendering and performance. Carrier eligibility derives fro…
+
+### Carrier Carrier Type
+
+The values of carrier carrier type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Carrier Status
+
+The values of carrier status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### City
 
@@ -128,6 +240,47 @@ Readable by every signed-in person.
 
 Fields:
   - **Code** — The consignment or waybill number given to the grouping. Used by the carrier and customer to track and reference the movement.
+  - **Transport Document Number** — The number of the waybill, bill of lading or consignment note issued for the goods. Entered when the carrier issues the document; tracking and freight invoices quote it. Issued by the carrier, so it is known only after booking.
+  - **Transport Mode** (required, one of the Consignment Transport Mode values) — By truck or van. By train, on a rail freight service. By ship, on a vessel or container service. By aircraft, as air cargo. By a parcel or courier network. By more than one mode under one contract. How the goods travel. Chosen when booking…
+  - **Service Level** — The carrier's service ordered, such as "Express 24h" or "Groupage". Chosen when booking; it sets the promised transit time and the price. The carrier's own name for the service.
+  - **Incoterm** — The Incoterms rule that says who pays and bears risk for the carriage, such as DAP or FCA. Copied from the order; it decides whether the freight charge is ours or the customer's. Three-letter Incoterms 2020 code.
+  - **Package Count** — How many packages, pallets or pieces the carrier accepted. Counted at hand-over and printed on the transport document. Must match the labels; a shortfall on delivery is a claim.
+  - **Gross Weight Kg** — The total weight of the goods with packaging, in kilograms. Declared at booking and confirmed at hand-over; freight is usually charged on it. Compared with the carrier's measured weight on its invoice.
+  - **Volume M3** — The space the goods take, in cubic metres. Declared at booking; used for volumetric pricing and loading plans. Air and parcel carriers may charge on volume instead of weight.
+  - **Planned Pickup At** — When the carrier is due to collect the goods. Agreed at booking; the warehouse plans dispatch around it. Must not be later than the planned delivery.
+  - **Planned Delivery At** — When the goods are due at the destination. Promised by the carrier for the service ordered; customer delivery dates rely on it. Late delivery is measured against it.
+  - **Picked Up At** — When the carrier actually collected the goods. Recorded at hand-over; from this point the carrier is responsible. Present once the consignment is in transit.
+  - **Delivered At** — The date and time the goods were actually handed over at their destination. Taken from the proof of delivery and used to measure on-time performance. Present once the consignment is delivered.
+  - **Status** (required, one of the Consignment Status values) — Where the consignment is between planning and delivery. Moved on by booking, hand-over, tracking updates and the proof of delivery. An exception needs someone to act before the consignment can continue. Put together but not yet booked with…
+  - **Carrier** (a Carrier) — The transport company that carries the goods. Chosen when booking; its service, documents and invoice apply to the consignment. One carrier per consignment; a change of carrier means a new consignment. Subcontracted legs stay the carrier's…
+  - **Shipment** (a Shipment) — The shipment whose goods the consignment carries. Linked when the consignment is built from a shipment. The main shipment; consolidated consignments name their first shipment and list the rest in the notes. The shipment's status follows th…
+  - **Origin** (a Location) — Where the carrier collects the goods. Taken from the shipment or the warehouse dispatching it. One origin per consignment. Printed as the shipper's address on the transport document.
+
+### Consignment Status
+
+The values of consignment status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Consignment Transport Mode
+
+The values of consignment transport mode, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Contact Point
 
@@ -138,7 +291,52 @@ Readable by every signed-in person.
 Fields:
   - **Code** (required) — A short reference for the contact point. Assigned or imported; stays stable so integrations can match it.
   - **Name** (required) — A descriptive label for the endpoint, such as Head office switchboard. Shown wherever contact points are listed.
+  - **Channel** (required, one of the Contact Point Channel values) — An email address used for written messages. A landline telephone number. A mobile telephone number. A fax number, kept for partners who still use it. A web address of the party's site or page. A handle on a messaging app. What kind of chan…
+  - **Value** (required) — The address or number itself. Entered in its standard form — international format for phone numbers. Validated according to the channel.
+  - **Purpose** (required, one of the Contact Point Purpose values) — Any purpose, when nothing more specific applies. Invoices and statements sent to accounts payable. Order confirmations and purchase orders. Delivery notices and arrival updates. Service and support enquiries. Marketing communication, where…
+  - **Is Preferred** (required) — Whether this is the preferred channel for its purpose. Used first when several channels serve the same purpose. One preferred channel per party, channel and purpose.
+  - **Verified At** — When the channel was last confirmed to work. Recorded by a verification message or call. Unverified channels may be refused for sensitive messages.
+  - **Status** (required, one of the Contact Point Status values) — Whether the channel is still usable for reaching the party. Changed when the channel stops being used or a message to it bounces. Inactive and invalid channels are not offered for contact. In use and offered for contact. No longer used and…
   - **Party** (required, a Party) — The party the endpoint belongs to. Set when the endpoint is added. Exactly one party; each endpoint has one owner. Lets communications find the right channel for a party.
+
+### Contact Point Channel
+
+The values of contact point channel, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Contact Point Purpose
+
+The values of contact point purpose, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Contact Point Status
+
+The values of contact point status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Country
 
@@ -261,7 +459,14 @@ Readable by every signed-in person.
 
 Fields:
   - **Code** — The reference of the delivery, often the carrier's proof-of-delivery number. Entered on confirmation of handover; used in customer queries.
+  - **Delivered At** (required) — The date and time the goods were actually handed over to the recipient. Taken from the signed proof of delivery rather than typed in by hand. The legal delivery time used for invoicing and claims.
+  - **Received By** — The name of the person who accepted the goods. Taken from the signature on the proof of delivery. Should be someone authorised at the destination.
+  - **Outcome** (required, one of the Delivery Outcome values) — How the handover went, as recorded on the proof of delivery. Set from the proof of delivery by the carrier or driver, and read by customer service when something went wrong. Any outcome other than a clean delivery opens a claim or a follow…
+  - **Packages Delivered** — The number of packages or pallets actually handed over at the destination. Counted by the driver at handover and compared with the shipment's expected count to spot shortages. A difference from the shipment count is treated as an exception.
+  - **Condition Notes** — Remarks on the goods' condition made at hand-over. Written by the driver or recipient; evidence for claims. Remarks not made at delivery are hard to claim later.
+  - **Proof Reference** — The reference of the proof of delivery — signed note, photo or electronic signature. Linked so the proof can be produced on request. Files are attached to the delivery.
   - **Shipment** (required, a Shipment) — Exactly one shipment: a delivery is the final handover of a single shipment. Shipment observed by this event. Connects logistics evidence to transport transaction. Tracking and delivery proof. Event must not silently rewrite prior shipment…
+  - **Location** (a Location) — Where the goods were delivered. Usually the shipment's destination. One per delivery. A different place is an exception to investigate.
 
 ### Delivery Attempt
 
@@ -271,8 +476,40 @@ Readable by every signed-in person.
 
 Fields:
   - **Occurred At** — When the attempt was made. Set automatically; attempts are ordered by it when diagnosing a failure.
+  - **Attempt Number** (required) — Which try this was for the message — 1 for the first. Set by the integration layer. Unique within the message.
+  - **Attempted At** (required) — The date and time this attempt to deliver the payload was made. Stamped by the integration layer when the attempt starts, so support staff can reconstruct the order of events. A message's attempts are listed in this order.
+  - **Result** (required, one of the Delivery Attempt Result values) — What came of this attempt to deliver the payload to the endpoint. Set from the endpoint's response; operators filter on it when diagnosing a delivery problem. Rejected messages are not retried, while failed and timed-out ones are tried aga…
+  - **Response Code** — The code the endpoint returned, such as an HTTP status. Read by operators diagnosing a failure. Meaning depends on the protocol.
+  - **Response Message** — The text the endpoint sent back in answer to this attempt. Read by operators diagnosing why a delivery failed or was rejected. Can be long and is kept exactly as returned.
+  - **Duration Ms** — How long the attempt took from sending to answer, in milliseconds. Used to spot slow or degrading endpoints before they start timing out. Measured by the integration layer, not entered by a person.
   - **Message** (required, a Message) — Exactly one message: every attempt tries to deliver a particular message. Message being delivered. Supplies immutable payload identity. Retry and delivery audit. Retries create distinct attempts and must not duplicate business effects.
   - **Endpoint** (required, a Integration Endpoint) — Exactly one endpoint: every attempt targets a specific destination. Destination endpoint attempted. Defines delivery target. Integration operations. Configuration changes do not rewrite historical attempts.
+
+### Delivery Attempt Result
+
+The values of delivery attempt result, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Delivery Outcome
+
+The values of delivery outcome, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Department
 
@@ -283,7 +520,26 @@ Readable by every signed-in person.
 Fields:
   - **Code** (required) — The short code of the department, such as FIN-AP. Used in postings and reports; kept stable.
   - **Name** (required) — The name of the department as the organisation calls it, such as Finance or Field Operations. Entered by an administrator; shown in organisation charts, on documents and in reports that group people and costs by department.
+  - **Description** — What the department is responsible for and what kind of work it does. Read by people placing staff, positions or work, so they choose the right department. Free text written by the organisation's administrators.
+  - **Status** (required, one of the Department Status values) — Whether the department currently exists as part of the organisation. Set to inactive after a reorganisation closes or merges the department. Inactive departments are not offered when assigning people or work. The department exists and can…
   - **Organization** (required, a Organization) — Chosen when the department is created; reporting lines, headcount and budgets roll up through the organisation it belongs to. The organisation the department belongs to. Exactly one organisation: a department is part of a single organisati…
+  - **Business Unit** (a Business Unit) — The business unit the department is part of. Set where the organization is divided into business units. At most one. Used in business-unit reporting.
+  - **Parent Department** (a Department) — The department this one reports to. Builds the hierarchy used for approvals. At most one. Cannot be itself.
+  - **Manager** (a Person) — The person who leads the department. Approves its requests and receives its reports. One per department. Approval routing goes to this person.
+  - **Location** (a Location) — Where the department is based. Used in directories and space planning. At most one. Staff may work elsewhere.
+
+### Department Status
+
+The values of department status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Driver
 
@@ -325,6 +581,8 @@ Fields:
   - **Expires At** — Optional end of the period during which the rate is valid. Used to prevent application of expired rates. When supplied, expiresAt must be later than effectiveAt. Defines the rate's validity window for transaction and reporting calculations.
   - **Source** (required) — Identifies the provider or business authority from which the rate was obtained. Used for audit, reconciliation, regulatory reporting, and rate governance. Source identifies provenance; it does not by itself determine which rate is applicab…
   - **Status** (required, one of the Exchange Rate Status values) — Being prepared; not yet used. In force and usable for conversion. Its validity period has ended; kept for past conversions. Withdrawn; must not be used. Lifecycle state of the exchange-rate record. Used by conversion services to determine…
+  - **From Currency** (required, a Currency) — Currency from which an amount is converted. Identifies the source denomination of the monetary amount being converted. Must differ from toCurrency for a meaningful exchange-rate conversion. Identifies the currency of the source Money value…
+  - **To Currency** (required, a Currency) — Currency into which an amount is converted. Identifies the target denomination of the converted monetary amount. Conversion direction is from fromCurrency to toCurrency; reversing the direction requires an appropriate inverse rate rather t…
 
 ### Exchange Rate Rate Type
 
@@ -360,7 +618,41 @@ Readable by every signed-in person.
 
 Fields:
   - **Code** — The reference of the charge, often the carrier's charge code. Used to match against the carrier's invoice.
+  - **Charge Type** (required, one of the Freight Charge Charge Type values) — What the charge is for. Chosen when recording it; reports group transport cost by it. Surcharges are often a percentage of base freight. The basic transport price. An adjustment for fuel prices. An extra service, such as a tail lift, waiti…
+  - **Expected Amount** — What the charge should be under the agreed rates. Computed when the shipment is rated; the audit compares the invoice with it. Empty when there is no agreed rate.
+  - **Invoiced Amount** — The amount the carrier actually billed for the transport service. Entered from the carrier's invoice and compared with the expected amount during freight audit; differences may be disputed. Differences from the expected amount are audited.
+  - **Carrier Invoice Number** — The number of the carrier's invoice the charge is on. Entered with the invoiced amount. Several charges share one carrier invoice.
+  - **Dispute Reason** — The explanation of why the charge is being disputed with the carrier, such as a wrong rate or a surcharge not agreed. Written by the freight auditor when the invoiced amount differs from the expected one, and filled only on disputed charge…
+  - **Status** (required, one of the Freight Charge Status values) — Where the charge is in audit and payment. Moved on by freight audit and payment. Only approved charges are paid. Expected cost; not yet invoiced. Billed by the carrier; awaiting audit. Audited and approved for payment. The invoiced amount…
   - **Shipment** (a Shipment) — The shipment on which the charge is incurred. Set when the charge is attributed. At most one shipment; some charges are not tied to a single shipment. Drives landed-cost calculation. Attributes logistics cost.
+  - **Carrier** (a Carrier) — Names the carrier that is charging for the transport service. Taken from the shipment's consignment, so the auditor knows whose rates and invoice to check the charge against. Each charge belongs to at most one carrier, and may have none ye…
+  - **Currency** (required, a Currency) — The currency of the charge. The carrier's billing currency. One per charge. Both amounts use it.
+
+### Freight Charge Charge Type
+
+The values of freight charge charge type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Freight Charge Status
+
+The values of freight charge status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Fuel Transaction
 
@@ -402,6 +694,43 @@ Readable by every signed-in person.
 
 Fields:
   - **Code** — The reference by which the fulfilment is tracked, often derived from the order number. Used by customer service when answering "where is my order".
+  - **Status** (required, one of the Fulfillment Status values) — Released to the warehouse with stock reserved, but work has not yet started. Being picked from stock by warehouse staff. Picked and packed, and waiting for the carrier to collect it. Handed over to the carrier for delivery. Received by the…
+  - **Priority** (required, one of the Fulfillment Priority values) — How urgently the fulfillment is to be worked. Decides the order in which the warehouse picks. Taken from the order's delivery terms, such as express delivery. Can wait for the next regular wave. Worked in the normal order. Worked ahead of…
+  - **Released At** (required) — When the order was released to the warehouse. Set on release; fulfillment lead time is measured from it. Precedes every other step.
+  - **Promised Date** — The delivery date promised to the customer. Copied from the order; the fulfillment is late if it is not delivered by then. Customer service quotes it.
+  - **Shipped At** — The time the goods were handed over to the carrier. Recorded on dispatch and used for customer notifications and for judging whether the promised date will be met. Present once shipped.
+  - **Delivered At** — The time the customer received the goods. Taken from the carrier's proof of delivery; it is empty until delivery and closes the fulfillment. Present once delivered.
+  - **Hold Reason** — Why the fulfillment is on hold. Written when putting it on hold, so whoever resolves it knows what to fix. Present only while on hold.
+  - **Ship To Name** — The name the goods are addressed to. Copied from the order; printed on the shipping label. The full address is on the delivery location.
+  - **Sales Order** (a Sales Order) — The order being fulfilled. Set on release. One order per fulfillment; an order may need several fulfillments. The order's delivery status is derived from its fulfillments.
+  - **Shipment** (a Shipment) — The shipment that carries the goods. Linked when the goods are shipped. One shipment per fulfillment. The shipment's tracking feeds the fulfillment's delivery.
+  - **Delivery Location** (a Location) — Where the goods are delivered. Copied from the order. One delivery location per fulfillment. A change of address after release puts the fulfillment on hold.
+
+### Fulfillment Priority
+
+The values of fulfillment priority, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Fulfillment Status
+
+The values of fulfillment status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Integration Endpoint
 
@@ -411,6 +740,70 @@ Readable by every signed-in person.
 
 Fields:
   - **Occurred At** — When the endpoint was registered or last took effect. Set on registration or when its configuration changes; operators use it to tell which configuration applied to an old delivery.
+  - **Code** (required) — The code of the endpoint, such as BANKB-SFTP-PAY. Used in configuration and in message logs. Unique.
+  - **Name** (required) — A readable name for the endpoint, such as "Bank payment file upload", that people recognise in monitoring. Chosen by the integration team when registering the endpoint and shown on monitoring screens next to its code. Identifies the endpoi…
+  - **Direction** (required, one of the Integration Endpoint Direction values) — Whether data goes out through the endpoint, comes in, or both. Set when registering it. Inbound endpoints are watched for messages that stop arriving. Data comes into the application. Data goes out of the application. Data goes both ways.
+  - **Protocol** (required, one of the Integration Endpoint Protocol values) — How data travels to or from the endpoint. Set when registering it; it decides which adapter delivers the messages. Read with the address. A web service or REST API over HTTPS. Files exchanged over secure file transfer. Business documents e…
+  - **Address** (required) — Where the endpoint is reached — a URL, server and folder, or queue name. Entered by the integration administrator. Credentials are kept in a secrets store, never here.
+  - **Data Format** — The format of the data exchanged, such as "ISO 20022 pain.001", "EDIFACT DESADV" or "JSON". Recorded so that a change in the partner's format can be traced to the interfaces it affects. Message mappings depend on it.
+  - **Authentication Method** (required, one of the Integration Endpoint Authentication Method values) — No authentication, allowed only for internal endpoints carrying nothing sensitive. A secret key sent with each request. Access tokens obtained from an authorization server. A client certificate presented to prove the application's identity…
+  - **Credential Expiry Date** — When the credential used for the endpoint expires. Watched so that it is renewed before the interface stops working. Empty for credentials that do not expire.
+  - **Description** — What the endpoint is used for and anything unusual about it. Read by whoever investigates a failure. Free text.
+  - **Status** (required, one of the Integration Endpoint Status values) — Being built or tested, with no live traffic. In live use and receiving messages. Traffic stopped for now, with messages waiting. Decommissioned and no longer used. Whether the endpoint is in use. Moved on as the interface goes live, is pau…
+  - **Organization** (a Organization) — The organization whose system the endpoint belongs to. Chosen when registering it, such as the bank or carrier. One per endpoint. The partner's technical contact is found from it.
+  - **Owner** (a Person) — The person responsible for the endpoint on our side. Contacted when the endpoint fails or must change. One per endpoint. Receives credential-expiry reminders.
+
+### Integration Endpoint Authentication Method
+
+The values of integration endpoint authentication method, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Integration Endpoint Direction
+
+The values of integration endpoint direction, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Integration Endpoint Protocol
+
+The values of integration endpoint protocol, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Integration Endpoint Status
+
+The values of integration endpoint status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Inventory Movement
 
@@ -452,6 +845,21 @@ Readable by every signed-in person.
 Fields:
   - **Code** (required) — The two-letter ISO 639-1 code of the language, such as en or de. Taken from the standard; unique; used in locale settings and APIs.
   - **Name** (required) — The English name of the language, such as French or Portuguese. Loaded from the language reference data; it is shown in language pick-lists and reports, while the code remains the identifier.
+  - **Alpha3** — The three-letter ISO 639-3 code, such as fra. Used by systems that require three-letter codes. From the standard.
+  - **Direction** (required, one of the Language Direction values) — Whether the language is written left to right or right to left. Tells screens and documents how to lay out text. From the Unicode CLDR. Written left to right. Written right to left.
+
+### Language Direction
+
+The values of language direction, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Legal Entity
 
@@ -461,6 +869,34 @@ Readable by every signed-in person.
 
 Fields:
   - **Occurred At** — When the entity was formed, or its record took effect. Set from the registration data.
+  - **Legal Name** (required) — The registered name, exactly as in the register. Printed on invoices, contracts and filings. A trading name may differ; this is the one the law recognises.
+  - **Registration Number** — The number under which the entity is registered, such as a company number or SIREN. Printed on documents where the law requires it; used in KYC checks. Unique within its jurisdiction.
+  - **Legal Form** — The legal form, such as "SAS", "GmbH", "Ltd" or "LLC". Printed after the name on documents. Each jurisdiction has its own forms.
+  - **Incorporation Date** — The day the company or organisation was legally formed, as shown on its certificate of incorporation. Copied from the official register when the entity is set up; used for age checks, filings and group structure charts. It can never fall a…
+  - **Dissolution Date** — The day the legal entity formally ceased to exist and was removed from the register. Entered by company secretarial when a dissolution is confirmed; it stays empty for entities that still exist. Only dissolved entities carry a date here.
+  - **Tax Identifier** — The entity's main tax number in its country. Printed on invoices and used in tax filings. Further registrations are recorded as tax registrations.
+  - **Vat Number** — The entity's VAT or sales-tax registration number. Printed on invoices; validated for cross-border trade. Empty for entities not registered for VAT.
+  - **Lei** — The Legal Entity Identifier, a 20-character global code. Required for financial transactions and regulatory reporting. Issued by an LEI operator and renewed every year.
+  - **Is Group Company** (required) — Whether the entity belongs to our own group. Separates the group's companies from customers' and suppliers' entities; intercompany transactions are between group companies. Group companies have their own accounts and filings.
+  - **Status** (required, one of the Legal Entity Status values) — Registered, in good standing and free to trade, sign contracts and issue invoices. Still registered but not trading, so it holds no live business activity. Being wound up by a liquidator; no new business should be started in its name. Stru…
+  - **Organization** (a Organization) — The organization this entity is the legal form of. Linked so that the organization's contracts and filings can be issued in the right name. At most one organization per entity. An organization may trade through several entities in differen…
+  - **Country** (a Country) — The country the entity is registered in. Decides which law, register and tax rules apply. One per entity. A branch abroad is not a separate entity.
+  - **Registered Address** (a Address) — The registered office. Printed on documents where the law requires it. One per entity. May differ from where the entity operates.
+  - **Functional Currency** (a Currency) — The currency the entity keeps its accounts in. Set by finance; translations to the group currency start from it. One per entity. Usually the currency of its country.
+  - **Parent Entity** (a Legal Entity) — The entity that owns this one in the group. Recorded for group companies; consolidation follows it. At most one parent. Minority holdings are not recorded here.
+
+### Legal Entity Status
+
+The values of legal entity status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Load
 
@@ -470,6 +906,33 @@ Readable by every signed-in person.
 
 Fields:
   - **Code** — The load number printed on the loading list. Allocated by transport planning; used by drivers and the dock.
+  - **Vehicle Type** — The type of vehicle or container the load is planned for, such as "13.6 m curtainsider" or "40ft high cube". Chosen when planning; it sets the capacity the load must fit. The carrier provides a vehicle of this type.
+  - **Max Weight Kg** — The most weight the vehicle can carry, in kilograms. Taken from the vehicle type; the load must not exceed it. Legal limits apply as well as the vehicle's.
+  - **Max Volume M3** — The most volume the vehicle can hold, in cubic metres. Taken from the vehicle type. Pallet footprint often limits before volume does.
+  - **Planned Weight Kg** — The total weight of what is assigned to the load. Summed from the consignments and handling units. Must not exceed the maximum weight.
+  - **Planned Volume M3** — The total volume of what is assigned to the load. Summed from the consignments and handling units. Should not exceed the maximum volume.
+  - **Pallet Count** — How many pallets or handling units are on the load. Counted at loading; printed on the loading list. Checked on unloading.
+  - **Seal Number** — The number of the seal fixed on the vehicle or container after loading. Recorded at dispatch and checked on arrival. A broken or different seal is reported as an exception.
+  - **Planned Loading At** — The date and time the dock team expects to start loading the vehicle. Booked in the dock schedule when the load is planned; yard staff use it to assign doors and labour. It cannot be later than the planned departure.
+  - **Dispatched At** — The date and time the vehicle carrying the load actually left the site. Recorded by gate staff or the driver check-out; carriers and customers use it to judge on-time delivery. Filled only once the load has been dispatched.
+  - **Unloaded At** — The date and time the receiving site finished unloading the load at its destination. Confirmed by the receiving site on arrival; it closes the transport leg and starts goods receipt checks. Filled only after the load is unloaded.
+  - **Status** (required, one of the Load Status values) — Tells dock and transport teams where the load is in its journey, from planning to unloading. Moved forward by the dock as loading starts and the vehicle leaves, then by the receiving site on unloading. Only planned loads may still be chang…
+  - **Carrier** (a Carrier) — The carrier that moves the load. Chosen when booking the vehicle. One per load. The carrier is paid per load or per trip.
+  - **Trip** (a Trip) — The trip the load travels on. Linked when the load is put on a planned trip. One trip per load; a trip may carry several loads. The trip's route sets the sequence of stops.
+  - **Origin** (a Location) — The place the load starts from, where the vehicle is loaded and departs. Chosen when the load is planned, usually a warehouse or distribution site, and used for route and dock planning. At most one origin per load, though many loads may st…
+
+### Load Status
+
+The values of load status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Location
 
@@ -521,6 +984,45 @@ Readable by every signed-in person.
 
 Fields:
   - **Occurred At** — When the message was created or received. Set by the integration layer; used to order messages and to measure latency.
+  - **Message Type** (required) — What kind of message it is, such as "Sales order", "Despatch advice" or "pain.001 payment batch". Set by the integration layer; monitoring groups messages by it. Each type has its own mapping and format.
+  - **Direction** (required, one of the Message Direction values) — Says whether the business received this message from another system or sent it out. Set by the integration layer when the message is created; support staff filter on it when tracing a problem. Received messages are turned into business rec…
+  - **Correlation Reference** — The reference shared by all messages of one business transaction, such as an order number. Lets an operator follow an order or a payment run across every message about it. Set from the business record the message concerns.
+  - **External Reference** — The identifier the other system gave the message. Quoted when asking the partner about a message. Known once the other side has accepted or sent it.
+  - **Payload** — The content of the message as sent or received. Opened by operators investigating a failure. Sensitive content is masked or held encrypted according to policy.
+  - **Payload Format** — The format of the content, such as JSON, XML, EDIFACT or CSV. Recorded so that the content can be displayed correctly. Matches the endpoint's data format.
+  - **Sent At** — The time the message left the application, or arrived if it was received from outside. Stamped by the integration layer on transmission; support staff compare it with the acknowledgement time. Message lists are sorted by this time.
+  - **Acknowledged At** — When the other side confirmed it had the message. Recorded when an acknowledgement arrives. Not every protocol gives one.
+  - **Attempt Count** (required) — The number of times the system has tried to deliver or process this message. Raised by one on every try, including failed ones; operators watch it to spot messages that keep failing. Once it reaches the configured maximum the message is mo…
+  - **Error Detail** — What went wrong on the last failed attempt. Read by the operator deciding whether to resend, correct or discard. Present while the message is failing.
+  - **Status** (required, one of the Message Status values) — Where the message is in its delivery. Moved on by the integration layer and, for dead letters, by an operator. Failed and dead-lettered messages appear in the monitoring screen. Waiting to be sent or processed. Sent, or received and handed…
+  - **Endpoint** (a Integration Endpoint) — The endpoint the message went through. Set by the integration layer. One per message. Endpoint error rates are counted from its messages.
+  - **In Reply To** (a Message) — The message this one answers, such as an acknowledgement for an order. Set by the integration layer when it matches a reply. At most one. Lets the exchange be followed as a conversation.
+
+### Message Direction
+
+The values of message direction, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Message Status
+
+The values of message status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Organization
 
@@ -617,7 +1119,38 @@ Readable by every signed-in person.
 Fields:
   - **Code** (required) — The code of the relationship type or instance, such as SUBSIDIARY_OF. Chosen from the relationship list; used in queries and rules.
   - **Name** (required) — A readable description of the relationship, such as Acme Ltd is subsidiary of Acme Group. Entered when the relationship is created; shown in party views and lists so users can understand the link at a glance.
+  - **Relationship Type** (required, one of the Party Relationship Relationship Type values) — Describes how the first party stands towards the second, such as subsidiary, employee or guarantor. Chosen when the link is recorded; credit, compliance and group reporting use it to interpret the connection. Read from the first party to t…
+  - **Ownership Percent** — The share the parent or owner holds, for ownership relationships. Used in consolidation and beneficial-ownership checks. Between 0 and 100.
+  - **Valid From** — The first day on which the relationship between the two parties holds. Recorded when it is known, for example from a contract or register entry. It cannot be later than the valid-to date.
+  - **Valid To** — The last day on which the relationship between the two parties holds. Recorded when the relationship ends, for example on resignation or sale; empty while it still applies. Empty while the relationship continues.
+  - **Status** (required, one of the Party Relationship Status values) — Says whether the relationship between the two parties is still in force today. Set to ended by the person maintaining the record when the relationship stops. Ended relationships stay for history. The relationship is in force today. The rel…
   - **From Party** (required, a Party) — The party at the origin of the relationship. Chosen when the relationship is created. Exactly one origin party: a relationship always starts at a particular party. Together with the other party it identifies the relationship.
+
+### Party Relationship Relationship Type
+
+The values of party relationship relationship type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Party Relationship Status
+
+The values of party relationship status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Party Role
 
@@ -786,8 +1319,44 @@ Readable by every signed-in person.
 
 Fields:
   - **Code** — The short code of the route, such as R-NORTH. Used by dispatch and drivers.
+  - **Name** (required) — The name of the route, such as "Lyon – Milan via Turin". Shown in planning screens. Identifies the route for people, with the code.
+  - **Transport Mode** (required, one of the Route Transport Mode values) — The means by which vehicles on the route travel between its stops. Set when the route is defined and used to choose suitable vehicles and carriers. Multimodal journeys are split into one route per mode. Travelled by truck or van on public…
+  - **Stop Sequence** — The stops in the order they are served, between origin and destination. Lists intermediate stops, such as "Turin depot; Novara cross-dock". Origin and destination are linked separately.
+  - **Distance Km** — The total length of the route in kilometres, measured along its stops in order. Used by planners for cost and emission estimates and for comparing alternative routes. Measured along the stops in order.
+  - **Duration Minutes** — How long the route takes from first departure to last arrival. Used for delivery-date promising and driver planning. Includes planned stop times.
+  - **Operating Days** — The days the route runs, such as "Mon–Fri". Trips are created on these days. Holidays follow the calendar of the origin.
+  - **Departure Time** — The usual departure time, as HH:MM local time. Shown to warehouses so goods are ready. Local time of the origin.
+  - **Status** (required, one of the Route Status values) — Tells planners whether the route is being set up, in service, paused or withdrawn. Moved on by the transport planner as the route is launched, paused or discontinued. Only active routes generate trips. Still being designed and not yet in s…
+  - **Origin** (a Location) — The location from which every trip on this route departs. Chosen when the route is defined, usually a warehouse, hub or port. Exactly one starting location, because a route has a single point of departure. Gives trip planning its starting…
+  - **Carrier** (a Carrier) — The carrier that usually operates the route. Set when the route is contracted. At most one regular carrier. A trip may still be given to another carrier.
 
 Line items — **Stop**: kept inside each Route and reached by opening it, never on their own. Represents one ordered operational point on a transportation Route. Route defines the journey; Stop defines sequence and activity at a reusable Location. Transportation, fleet, logistics, dispatch, ETA planning and audit. Route and Location are mandatory; planned times support scheduling while trac…
+
+### Route Status
+
+The values of route status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Route Transport Mode
+
+The values of route transport mode, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Sales Order
 
@@ -971,7 +1540,39 @@ Readable by every signed-in person.
 
 Fields:
   - **Code** — The code of the event type, such as DEPARTED or DELIVERED. Gives events a consistent vocabulary across carriers. Entered by the source system; reports group by it. Read with the time and place.
+  - **Event Code** (required, one of the Tracking Event Event Code values) — The goods were collected from the shipper. The shipment left a hub, port or terminal. The shipment reached a hub, port or terminal. The shipment is moving between two points. The shipment was held for inspection or released by customs. The…
+  - **Event Time** (required) — When the event happened, in the place's local time converted to UTC. The timeline is sorted by it. Not the time the feed arrived.
+  - **Description** — The carrier's own wording of what happened, such as "Departed Novara hub". Shown on the shipment timeline exactly as received, beside the standard milestone. As received.
+  - **Place Name** — The name of the place reported, such as "Fercam hub Novara". Shown on the timeline when no location record matches. Matched to a location where possible.
+  - **Source** (required, one of the Tracking Event Source values) — Which channel supplied the event: a carrier feed, a vehicle device or a person. Set when the event is recorded; manual events are checked before they change a delivery promise. Manual events are checked before they change a promise. The ca…
   - **Shipment** (required, a Shipment) — Each event is about exactly one shipment, whose trail it extends. Shipment observed by this event. Connects logistics evidence to transport transaction. Tracking and delivery proof. Event must not silently rewrite prior shipment evidence.
+  - **Location** (a Location) — The known location where the event happened. Matched from the place name where possible. At most one. Empty when the place is not one of ours.
+
+### Tracking Event Event Code
+
+The values of tracking event event code, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Tracking Event Source
+
+The values of tracking event source, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Trip
 
@@ -1126,6 +1727,85 @@ Fields:
 - **INACTIVE** — Temporarily not offered, for example while a move is being confirmed; it can be reactivated.
 - **RETIRED** — No longer valid; kept only as history and in past documents.
 
+### Attachment Status
+
+- **ACTIVE** — Attached and part of the record's evidence.
+- **WITHDRAWN** — Removed from the record's evidence, but kept for the history.
+
+### Business Unit Status
+
+- **ACTIVE** — Operating and available for new assignments.
+- **INACTIVE** — No longer operating after a closure or merger.
+
+### Calendar Exception Exception Type
+
+- **PUBLIC HOLIDAY** — A public holiday on which work does not happen.
+- **COMPANY CLOSURE** — A day the company or site is closed.
+- **EXTRA WORKING DAY** — A normally free day that is worked.
+
+### Calendar Status
+
+- **ACTIVE** — In use and available to planners.
+- **INACTIVE** — Retired and no longer offered.
+
+### Carrier Carrier Type
+
+- **ROAD** — Road haulage, full or part loads.
+- **PARCEL** — Parcel and courier networks.
+- **RAIL** — Rail freight operators moving wagons or containers by train.
+- **OCEAN** — Shipping lines carrying containers or bulk cargo by sea.
+- **AIR** — Airlines and air cargo carriers.
+- **FORWARDER** — A freight forwarder arranging transport with other carriers.
+
+### Carrier Status
+
+- **PROSPECTIVE** — Being onboarded and not yet bookable.
+- **APPROVED** — Cleared by procurement and bookable for shipments.
+- **SUSPENDED** — Temporarily not bookable after service or compliance problems.
+- **INACTIVE** — No longer used and kept only for history.
+
+### Consignment Status
+
+- **PLANNED** — Put together but not yet booked with a carrier.
+- **BOOKED** — Booked; the carrier has confirmed collection.
+- **IN TRANSIT** — Collected by the carrier and on its way.
+- **DELIVERED** — Delivered and signed for at the destination.
+- **EXCEPTION** — The carrier reported a problem, such as damage, a failed delivery or a hold at customs.
+- **CANCELLED** — Called off before the carrier collected it.
+
+### Consignment Transport Mode
+
+- **ROAD** — By truck or van.
+- **RAIL** — By train, on a rail freight service.
+- **SEA** — By ship, on a vessel or container service.
+- **AIR** — By aircraft, as air cargo.
+- **PARCEL** — By a parcel or courier network.
+- **MULTIMODAL** — By more than one mode under one contract.
+
+### Contact Point Channel
+
+- **EMAIL** — An email address used for written messages.
+- **PHONE** — A landline telephone number.
+- **MOBILE** — A mobile telephone number.
+- **FAX** — A fax number, kept for partners who still use it.
+- **WEBSITE** — A web address of the party's site or page.
+- **MESSAGING** — A handle on a messaging app.
+
+### Contact Point Purpose
+
+- **GENERAL** — Any purpose, when nothing more specific applies.
+- **BILLING** — Invoices and statements sent to accounts payable.
+- **ORDERS** — Order confirmations and purchase orders.
+- **DELIVERY** — Delivery notices and arrival updates.
+- **SUPPORT** — Service and support enquiries.
+- **MARKETING** — Marketing communication, where consent allows.
+
+### Contact Point Status
+
+- **ACTIVE** — In use and offered for contact.
+- **INACTIVE** — No longer used and kept for history.
+- **INVALID** — Known not to work, such as a bouncing address.
+
 ### Currency Status
 
 - **ACTIVE** — Available for use on new prices, documents and payments.
@@ -1167,6 +1847,24 @@ Fields:
 - **BLOCKED** — Held back from new business, for example for non-payment or compliance reasons.
 - **RETIRED** — Closed for good; history is kept.
 
+### Delivery Attempt Result
+
+- **SUCCESS** — The endpoint accepted the message and no further attempt is needed.
+- **REJECTED** — The endpoint refused the message as invalid, so retrying will not help.
+- **FAILED** — The endpoint could not be reached or answered with an error, so the message can be retried.
+- **TIMEOUT** — The endpoint did not answer in time, so the outcome is unknown and a retry is allowed.
+
+### Delivery Outcome
+
+- **DELIVERED** — Handed over complete and in good condition.
+- **DELIVERED WITH EXCEPTION** — Handed over but short, over or damaged, so a claim or note is needed.
+- **REFUSED** — The recipient declined to accept the goods and they return to the sender.
+
+### Department Status
+
+- **ACTIVE** — The department exists and can receive people, positions and work.
+- **INACTIVE** — The department has been closed or merged away; it stays on record for history.
+
 ### Driver Status
 
 - **DRAFT** — Being onboarded; not yet cleared to drive.
@@ -1191,11 +1889,76 @@ Fields:
 - **EXPIRED** — Its validity period has ended; kept for past conversions.
 - **CANCELLED** — Withdrawn; must not be used.
 
+### Freight Charge Charge Type
+
+- **BASE FREIGHT** — The basic transport price.
+- **FUEL SURCHARGE** — An adjustment for fuel prices.
+- **ACCESSORIAL** — An extra service, such as a tail lift, waiting time or a delivery appointment.
+- **DUTY AND TAX** — Customs duty or import tax paid by the carrier for us.
+- **DEMURRAGE** — A fee for keeping a container or vehicle too long.
+- **OTHER** — Any other transport charge.
+
+### Freight Charge Status
+
+- **ESTIMATED** — Expected cost; not yet invoiced.
+- **INVOICED** — Billed by the carrier; awaiting audit.
+- **APPROVED** — Audited and approved for payment.
+- **DISPUTED** — The invoiced amount is challenged.
+- **PAID** — Paid to the carrier.
+
 ### Fuel Transaction Status
 
 - **RECORDED** — Captured, not yet checked.
 - **VERIFIED** — Checked against the receipt and vehicle; costs may be allocated. A final state.
 - **REVERSED** — Cancelled because it was wrong or duplicated; the original stays on record. A final state.
+
+### Fulfillment Priority
+
+- **LOW** — Can wait for the next regular wave.
+- **NORMAL** — Worked in the normal order.
+- **HIGH** — Worked ahead of normal fulfillments.
+- **URGENT** — Worked at once, for example a same-day order.
+
+### Fulfillment Status
+
+- **RELEASED** — Released to the warehouse with stock reserved, but work has not yet started.
+- **PICKING** — Being picked from stock by warehouse staff.
+- **PACKED** — Picked and packed, and waiting for the carrier to collect it.
+- **SHIPPED** — Handed over to the carrier for delivery.
+- **DELIVERED** — Received by the customer.
+- **ON HOLD** — Stopped by a problem that someone must resolve before work continues.
+- **CANCELLED** — Withdrawn because the order is no longer needed; no further work is done.
+
+### Integration Endpoint Authentication Method
+
+- **NONE** — No authentication, allowed only for internal endpoints carrying nothing sensitive.
+- **API KEY** — A secret key sent with each request.
+- **OAUTH2** — Access tokens obtained from an authorization server.
+- **CERTIFICATE** — A client certificate presented to prove the application's identity, which must be renewed before it expires.
+- **SSH KEY** — An SSH key pair, typically for file transfer.
+- **BASIC** — A user name and password.
+
+### Integration Endpoint Direction
+
+- **INBOUND** — Data comes into the application.
+- **OUTBOUND** — Data goes out of the application.
+- **BIDIRECTIONAL** — Data goes both ways.
+
+### Integration Endpoint Protocol
+
+- **HTTPS** — A web service or REST API over HTTPS.
+- **SFTP** — Files exchanged over secure file transfer.
+- **AS2** — Business documents exchanged over AS2.
+- **MESSAGE QUEUE** — Messages through a queue or event broker.
+- **EMAIL** — Messages sent or received as email.
+- **DATABASE** — Direct access to another system's database.
+
+### Integration Endpoint Status
+
+- **PLANNED** — Being built or tested, with no live traffic.
+- **ACTIVE** — In live use and receiving messages.
+- **SUSPENDED** — Traffic stopped for now, with messages waiting.
+- **RETIRED** — Decommissioned and no longer used.
 
 ### Inventory Movement Movement Type
 
@@ -1206,6 +1969,26 @@ Fields:
 - **RETURN** — Stock comes back from a customer or is returned to a supplier.
 - **RESERVATION** — Stock is set aside for a demand without moving.
 - **RELEASE** — A reservation is withdrawn and the stock becomes available again.
+
+### Language Direction
+
+- **LTR** — Written left to right.
+- **RTL** — Written right to left.
+
+### Legal Entity Status
+
+- **ACTIVE** — Registered, in good standing and free to trade, sign contracts and issue invoices.
+- **DORMANT** — Still registered but not trading, so it holds no live business activity.
+- **IN LIQUIDATION** — Being wound up by a liquidator; no new business should be started in its name.
+- **DISSOLVED** — Struck off the register and gone for good; no new contracts or invoices may use it.
+
+### Load Status
+
+- **PLANNED** — Shipments are still being assigned and the load can be freely changed.
+- **LOADING** — The vehicle is at the dock and goods are being put on board.
+- **DISPATCHED** — The vehicle has left the site and the load is in transit.
+- **UNLOADED** — The receiving site has taken the goods off the vehicle and the transport is complete.
+- **CANCELLED** — The load was called off before dispatch and its shipments return to planning.
 
 ### Location Location Type
 
@@ -1227,6 +2010,20 @@ Fields:
 - **INACTIVE** — Temporarily not used but expected to return to service.
 - **CLOSED** — Closed down, with no new assignments but history kept.
 - **RETIRED** — Removed from use altogether. A final state.
+
+### Message Direction
+
+- **INBOUND** — Received from an external system and waiting to be turned into business records.
+- **OUTBOUND** — Created by this application and sent to an external system.
+
+### Message Status
+
+- **QUEUED** — Waiting to be sent or processed.
+- **SENT** — Sent, or received and handed over for processing.
+- **ACKNOWLEDGED** — Confirmed by the other side, or processed successfully.
+- **FAILED** — The last attempt failed; it will be retried.
+- **DEAD LETTERED** — Given up after repeated failures; a person must act.
+- **DISCARDED** — Deliberately not delivered by an operator.
 
 ### Organization Organization Type
 
@@ -1255,6 +2052,22 @@ Fields:
 
 - **PERSON** — The party represents an individual human being.
 - **ORGANIZATION** — The party represents a legal, commercial, governmental, nonprofit, or other organized body.
+
+### Party Relationship Relationship Type
+
+- **SUBSIDIARY OF** — The first party is a subsidiary owned by the second.
+- **BRANCH OF** — The first party is a branch operating as part of the second.
+- **EMPLOYEE OF** — The first party works for the second as an employee.
+- **AGENT OF** — The first party acts as an agent on behalf of the second.
+- **GUARANTOR FOR** — The first party guarantees the second party's obligations.
+- **BENEFICIAL OWNER OF** — The first party ultimately owns or controls the second.
+- **HOUSEHOLD MEMBER OF** — The first party lives in the same household as the second.
+- **OTHER** — Any other kind of link, explained in the relationship name.
+
+### Party Relationship Status
+
+- **ACTIVE** — The relationship is in force today.
+- **ENDED** — The relationship has stopped but is kept for history.
 
 ### Party Role Role Type
 
@@ -1319,6 +2132,20 @@ Fields:
 - **DISCONTINUED** — Being phased out; existing stock may be sold but it is not reordered. A final state.
 - **BLOCKED** — Temporarily barred from trading, for example during a quality or compliance issue.
 - **RETIRED** — Removed from the catalogue; kept for history. A final state.
+
+### Route Status
+
+- **PLANNED** — Still being designed and not yet in service.
+- **ACTIVE** — Operating on its schedule.
+- **SUSPENDED** — Paused, for example out of season.
+- **RETIRED** — Permanently withdrawn and no longer operated.
+
+### Route Transport Mode
+
+- **ROAD** — Travelled by truck or van on public roads.
+- **RAIL** — Travelled by train on a rail network.
+- **SEA** — Travelled by ship between ports.
+- **AIR** — Travelled by aircraft between airports.
 
 ### Sales Order Line Price Source
 
@@ -1394,6 +2221,23 @@ Fields:
 - **NOTIFICATION** — A message to be sent.
 - **SCRIPT** — A script run by the system.
 - **OTHER** — Work that fits no other type.
+
+### Tracking Event Event Code
+
+- **PICKED UP** — The goods were collected from the shipper.
+- **DEPARTED** — The shipment left a hub, port or terminal.
+- **ARRIVED** — The shipment reached a hub, port or terminal.
+- **IN TRANSIT** — The shipment is moving between two points.
+- **CUSTOMS** — The shipment was held for inspection or released by customs.
+- **OUT FOR DELIVERY** — The shipment is on the final vehicle heading to the consignee.
+- **DELIVERED** — The shipment was handed over to the consignee, ending its journey.
+- **EXCEPTION** — Something went wrong, such as damage, delay or a failed delivery attempt, and needs attention.
+
+### Tracking Event Source
+
+- **CARRIER FEED** — The carrier's tracking feed or API.
+- **TELEMATICS** — A device on the vehicle or container.
+- **MANUAL** — Entered by a person.
 
 ### Trip Segment Mode
 
@@ -1497,6 +2341,43 @@ Moves:
 - ACTIVE → EXPIRED (Expire)
 - INACTIVE → EXPIRED (Expire)
 
+### Party Relationship — Party Relationship Lifecycle
+
+Starts at **ACTIVE**.
+Final: **ENDED**.
+
+Moves:
+- ACTIVE → ENDED (End)
+
+### Legal Entity — Legal Entity Lifecycle
+
+Starts at **ACTIVE**.
+Final: **DISSOLVED**.
+
+Moves:
+- ACTIVE → DORMANT (Make Dormant)
+- DORMANT → ACTIVE (Resume Trading)
+- ACTIVE → IN LIQUIDATION (Liquidate)
+- DORMANT → IN LIQUIDATION (Liquidate)
+- IN LIQUIDATION → DISSOLVED (Dissolve)
+- DORMANT → DISSOLVED (Dissolve)
+
+### Business Unit — Business Unit Lifecycle
+
+Starts at **ACTIVE**.
+
+Moves:
+- ACTIVE → INACTIVE (Deactivate)
+- INACTIVE → ACTIVE (Reactivate)
+
+### Department — Department Lifecycle
+
+Starts at **ACTIVE**.
+
+Moves:
+- ACTIVE → INACTIVE (Deactivate)
+- INACTIVE → ACTIVE (Reactivate)
+
 ### Address — Address Lifecycle
 
 Starts at **ACTIVE**.
@@ -1507,6 +2388,16 @@ Moves:
 - INACTIVE → ACTIVE (Reactivate)
 - ACTIVE → RETIRED (Retire)
 - INACTIVE → RETIRED (Retire)
+
+### Contact Point — Contact Point Lifecycle
+
+Starts at **ACTIVE**.
+
+Moves:
+- ACTIVE → INACTIVE (Deactivate)
+- INACTIVE → ACTIVE (Reactivate)
+- ACTIVE → INVALID (Mark Invalid)
+- INVALID → ACTIVE (Reactivate)
 
 ### Location — Location Lifecycle
 
@@ -1554,6 +2445,22 @@ Moves:
 - INACTIVE → ACTIVE (Reactivate)
 - ACTIVE → RETIRED (Retire)
 - INACTIVE → RETIRED (Retire)
+
+### Calendar — Calendar Lifecycle
+
+Starts at **ACTIVE**.
+
+Moves:
+- ACTIVE → INACTIVE (Deactivate)
+- INACTIVE → ACTIVE (Reactivate)
+
+### Attachment — Attachment Lifecycle
+
+Starts at **ACTIVE**.
+Final: **WITHDRAWN**.
+
+Moves:
+- ACTIVE → WITHDRAWN (Withdraw)
 
 ### Task — Task Lifecycle
 
@@ -1627,6 +2534,88 @@ Moves:
 - CONFIRMED → CANCELLED (Cancel)
 - ALLOCATED → CANCELLED (Cancel)
 - PARTIALLY FULFILLED → CANCELLED (Cancel)
+
+### Carrier — Carrier Lifecycle
+
+Starts at **PROSPECTIVE**.
+Final: **INACTIVE**.
+
+Moves:
+- PROSPECTIVE → APPROVED (Approve)
+- APPROVED → SUSPENDED (Suspend)
+- SUSPENDED → APPROVED (Reinstate)
+- APPROVED → INACTIVE (Deactivate)
+- SUSPENDED → INACTIVE (Deactivate)
+- PROSPECTIVE → INACTIVE (Reject)
+
+### Consignment — Consignment Lifecycle
+
+Starts at **PLANNED**.
+Final: **DELIVERED**, **CANCELLED**.
+
+Moves:
+- PLANNED → BOOKED (Book)
+- BOOKED → IN TRANSIT (Pick Up)
+- IN TRANSIT → DELIVERED (Deliver)
+- IN TRANSIT → EXCEPTION (Report Exception)
+- EXCEPTION → IN TRANSIT (Resolve)
+- EXCEPTION → DELIVERED (Deliver)
+- PLANNED → CANCELLED (Cancel)
+- BOOKED → CANCELLED (Cancel)
+
+### Freight Charge — Freight Charge Lifecycle
+
+Starts at **ESTIMATED**.
+Final: **PAID**.
+
+Moves:
+- ESTIMATED → INVOICED (Invoice)
+- INVOICED → APPROVED (Approve)
+- INVOICED → DISPUTED (Dispute)
+- DISPUTED → APPROVED (Approve)
+- APPROVED → PAID (Pay)
+
+### Fulfillment — Fulfillment Lifecycle
+
+Starts at **RELEASED**.
+Final: **DELIVERED**, **CANCELLED**.
+
+Moves:
+- RELEASED → PICKING (Start Picking)
+- PICKING → PACKED (Pack)
+- PACKED → SHIPPED (Ship)
+- SHIPPED → DELIVERED (Deliver)
+- RELEASED → ON HOLD (Hold)
+- PICKING → ON HOLD (Hold)
+- PACKED → ON HOLD (Hold)
+- ON HOLD → RELEASED (Release)
+- RELEASED → CANCELLED (Cancel)
+- ON HOLD → CANCELLED (Cancel)
+
+### Load — Load Lifecycle
+
+Starts at **PLANNED**.
+Final: **UNLOADED**, **CANCELLED**.
+
+Moves:
+- PLANNED → LOADING (Start Loading)
+- LOADING → DISPATCHED (Dispatch)
+- DISPATCHED → UNLOADED (Unload)
+- LOADING → PLANNED (Stop Loading)
+- PLANNED → CANCELLED (Cancel)
+
+### Route — Route Lifecycle
+
+Starts at **PLANNED**.
+Final: **RETIRED**.
+
+Moves:
+- PLANNED → ACTIVE (Activate)
+- ACTIVE → SUSPENDED (Suspend)
+- SUSPENDED → ACTIVE (Resume)
+- ACTIVE → RETIRED (Retire)
+- SUSPENDED → RETIRED (Retire)
+- PLANNED → RETIRED (Retire)
 
 ### Trip — Trip Lifecycle
 
@@ -1709,9 +2698,37 @@ Moves:
 - ACTIVE → RETIRED (Retire)
 - BLOCKED → RETIRED (Retire)
 
+### Message — Message Lifecycle
+
+Starts at **QUEUED**.
+Final: **ACKNOWLEDGED**, **DISCARDED**.
+
+Moves:
+- QUEUED → SENT (Send)
+- SENT → ACKNOWLEDGED (Acknowledge)
+- QUEUED → FAILED (Fail)
+- SENT → FAILED (Fail)
+- FAILED → SENT (Retry)
+- FAILED → DEAD LETTERED (Dead Letter)
+- DEAD LETTERED → QUEUED (Requeue)
+- DEAD LETTERED → DISCARDED (Discard)
+
+### Integration Endpoint — Integration Endpoint Lifecycle
+
+Starts at **PLANNED**.
+Final: **RETIRED**.
+
+Moves:
+- PLANNED → ACTIVE (Activate)
+- ACTIVE → SUSPENDED (Suspend)
+- SUSPENDED → ACTIVE (Resume)
+- ACTIVE → RETIRED (Retire)
+- SUSPENDED → RETIRED (Retire)
+- PLANNED → RETIRED (Retire)
+
 ## Roles
 
-- **User** — reads 86 of 86 record types
+- **User** — reads 120 of 120 record types
 - **Administrator** — reads and changes everything the lifecycles allow
 
 A refusal means the person's role does not allow it. Say which role does, from this list, and suggest their administrator.

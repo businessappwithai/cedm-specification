@@ -76,6 +76,31 @@ entity:
           MEASURED: Taken from a meter or direct measurement.
           CALCULATED: Computed from activity data using emission factors.
           ESTIMATED: Approximated where no data was available.
+    - name: activityAmount
+      type: decimal
+      required: false
+      precision: 18
+      scale: 4
+      help:
+        summary: The activity the emission was calculated from, such as kWh or litres.
+        usage: Kept so the calculation can be checked.
+        relationshipContext: Read with the emission factor.
+    - name: emissionFactor
+      type: decimal
+      required: false
+      precision: 18
+      scale: 8
+      help:
+        summary: The factor used to turn the activity into emissions.
+        usage: Kept so the calculation can be checked.
+        relationshipContext: From a recognised source, named in the notes.
+    - name: periodStart
+      type: date
+      required: false
+      help:
+        summary: The first day of the period the emission covers.
+        usage: Used with the measured date for period reporting.
+        relationshipContext: Not later than the measured date.
   relationships:
     - name: organization
       target: Organization

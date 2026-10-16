@@ -70,6 +70,31 @@ Readable by every signed-in person.
 
 Fields:
   - **Effective At** — When the attachment became part of the record. Set when the file is attached; used to show what evidence existed at a given moment.
+  - **File Name** (required) — The name of the file as uploaded. Shown in the record's list of attachments and used as the name when the file is downloaded. Not unique; the same name may be attached to many records.
+  - **Media Type** — The type of the file's content, such as application/pdf or image/jpeg. Detected on upload; it decides whether the file can be previewed. Taken from the file, not typed by the user.
+  - **Size Bytes** — The size of the file in bytes. Recorded on upload; used to enforce upload limits and to report storage use. Zero-size files are refused.
+  - **Storage Location** (required) — Where the file's content is stored. Set by the system on upload; users never type it. Moving files between stores updates it without changing the attachment.
+  - **Checksum** — A fingerprint of the file's content (SHA-256). Computed on upload; recomputing it later shows whether the file has been changed. Two attachments with the same checksum hold the same content.
+  - **Record Type** (required) — The kind of record the file is attached to, such as "Goods receipt". Set by the screen the file was attached from. Read with the record identifier to find the record.
+  - **Record** (required) — The identifier of the record the file is attached to. Set by the screen the file was attached from; the record's attachments are found by it. Together with the record type it identifies exactly one record.
+  - **Category** — What the file is, such as "Delivery note", "Certificate" or "Photograph". Chosen on upload so that the record's attachments can be told apart without opening them. Free choice of words, though each business usually agrees a short list.
+  - **Description** — A note about the file's content. Optional; useful when the file name does not say what the file shows. Free text.
+  - **Uploaded At** (required) — When the file was attached. Recorded by the system; the record's evidence is listed in this order. Not editable.
+  - **Status** (required, one of the Attachment Status values) — Whether the file still counts as evidence for the record. An attachment added by mistake is withdrawn; it stays visible in the history. Withdrawn attachments are not shown in the normal list. Attached and part of the record's evidence. Rem…
+  - **Uploaded By** (a Person) — The person who attached the file. Recorded on upload. One per attachment. Shown with the file so that reviewers know where it came from.
+
+### Attachment Status
+
+The values of attachment status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Audit Case
 
@@ -85,7 +110,42 @@ Fields:
   - **Opened On** (required) — The date the audit case was opened. Set when the case is created; the length of the case is measured from it. Not later than the closing date.
   - **Closed On** — The date the audit case was closed. Set when the case is closed; must not be before the opening date. Gives the duration of the case.
   - **Status** (required, one of the Audit Case Status values) — Where the audit case is in its life, from planning to closure. Starts as PLANNED; moved by the lead auditor as fieldwork, reporting and follow-up proceed. Decides whether findings can still be added. Scoped and scheduled; fieldwork has not…
+  - **Audit Type** (required, one of the Audit Case Audit Type values) — Who performs the audit and for whom. Chosen when the case is opened; it decides who receives the report and how findings are followed up. External and regulatory findings usually carry deadlines set by the auditor. Performed by the company…
+  - **Period From** — The first day of the period whose records are examined. Agreed in the scope; samples are drawn from this period. Must not be later than the end of the period.
+  - **Period To** — The last day of the period whose records are examined. Agreed in the scope. Usually before the fieldwork starts.
+  - **Fieldwork Start** — When the auditors start gathering evidence. Planned in the audit plan and confirmed with the audited unit. Must not be later than the fieldwork end.
+  - **Fieldwork End** — When evidence gathering is planned to finish. Planned in the audit plan; reporting starts after it. Delays beyond it are reported to the audit committee.
+  - **Report Issued Date** — The day the final report was issued. Recorded when the report is sent; the case can then be closed. A closed case has one.
+  - **Opinion** (one of the Audit Case Opinion values) — The auditors' overall conclusion. Given in the final report; summarizes how well the audited area is controlled. Read with the findings, whose severities support it. Controls are well designed and work as intended. Controls mostly work, wi…
   - **Lead Auditor** (a Party) — The person responsible for the audit. Chosen when the case is planned. At most one lead auditor; empty until one is appointed. Owns the conclusions and the report.
+  - **Audited Organization** (a Organization) — The company, unit or supplier audited. Chosen when the case is opened; the unit's audit history is listed from it. One audited organization per case; a multi-unit review is split into cases. Its management receives the report and owns the…
+  - **Compliance Requirement** (a Compliance Requirement) — The law, regulation or standard the audit tests against, where there is one. Chosen for regulatory and certification audits. At most one per case. Findings are then nonconformities against that requirement.
+
+### Audit Case Audit Type
+
+The values of audit case audit type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Audit Case Opinion
+
+The values of audit case opinion, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Audit Case Status
 
@@ -108,6 +168,43 @@ Readable by every signed-in person.
 
 Fields:
   - **Effective At** — When the audited action took place. Set from the time of the action, not the time of writing; events are ordered by it when reconstructing a sequence.
+  - **Event Type** (required) — What kind of action happened, such as "Record updated", "Sign-in failed" or "Approval granted". Set by the application; investigators filter the trail by it. Each kind of action is recorded under one consistent name.
+  - **Category** (required, one of the Audit Event Category values) — The broad class of the action. Used to route events to the people who review them and to set retention periods. Security events are kept longer and reviewed more often. Signing in or out, or a failed attempt. Access given, refused or chang…
+  - **Action** (required) — The specific action, such as create, update, delete, approve or export. Set by the application. Read with the event type and the record touched.
+  - **Occurred At** (required) — When the action happened, to the second, in UTC. Set by the application at the moment of the action; the trail is read in this order. Never edited.
+  - **Record Type** — The kind of record acted on, such as "Purchase order". Set by the application; empty for actions that touch no record, such as signing in. Read with the record identifier.
+  - **Record** — The identifier of the record acted on. Lets an investigator list every action ever taken on one record. Together with the record type it identifies the record.
+  - **Outcome** (required, one of the Audit Event Outcome values) — Whether the action succeeded. Failed actions matter as much as successful ones, for example repeated failed sign-ins. A denied action records the attempt even though nothing changed. The action was carried out. The action was attempted and…
+  - **Details** — What changed — for a change, the fields with their old and new values. Written by the application; read by investigators to see exactly what was done. Sensitive values are masked rather than recorded in clear.
+  - **Source Address** — The network address the action came from. Recorded by the application; used in security investigations. Treated as personal data in some jurisdictions.
+  - **Actor Name** — The name of the actor as it was at the time of the action. Kept so that the trail still reads correctly after the user is renamed or removed. For system actions it names the job or integration.
+  - **Audit Case** (a Audit Case) — The audit case that cites this event as evidence. Linked by an auditor gathering evidence; most events belong to no case. At most one case per event. Linking an event to a case does not change the event itself.
+
+### Audit Event Category
+
+The values of audit event category, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Audit Event Outcome
+
+The values of audit event outcome, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Business Unit
 
@@ -118,7 +215,25 @@ Readable by every signed-in person.
 Fields:
   - **Code** (required) — The short reference for the unit, such as CE or EMEA-RETAIL. Assigned by finance and used on reports and in postings; kept stable because history relies on it.
   - **Name** (required) — The full name of the business unit, as it appears in the organisation's structure and management accounts. Entered by management or finance when the unit is created; shown in organisation charts, selectors and segment reports.
+  - **Description** — What the business unit does. Read by people placing staff or costs in it. Free text.
+  - **Status** (required, one of the Business Unit Status values) — Whether the business unit is still operating. Set to inactive by an administrator after a reorganisation or closure. Inactive units are not offered for new assignments. Operating and available for new assignments. No longer operating after…
   - **Organization** (required, a Organization) — The organisation to which the unit belongs. Set when the unit is created. Exactly one organisation; a unit cannot stand alone. Rolls the unit's results up into its parent organisation.
+  - **Head** (a Person) — The executive responsible for the business unit. Receives its reports and approves its budgets. One per business unit. Accountable for its results.
+  - **Legal Entity** (a Legal Entity) — The company the business unit mainly trades through. Used for contracts and invoices made by the unit. At most one. A unit trading in several countries uses several entities; the main one is named.
+  - **Parent Unit** (a Business Unit) — The larger business unit this one is part of. Builds the hierarchy. At most one. Cannot be itself.
+
+### Business Unit Status
+
+The values of business unit status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Calendar
 
@@ -129,6 +244,41 @@ Readable by every signed-in person.
 Fields:
   - **Code** (required) — The short reference for the calendar, such as DE-NAT. Assigned by the administrator; used in configuration and reports; kept stable.
   - **Name** (required) — The descriptive name of the calendar, such as UK Working Days or Group Fiscal Calendar. Entered by the administrator who maintains it; shown wherever a schedule, service level or plan asks which calendar applies.
+  - **Working Days** (required) — The days of the normal working week, such as MON-FRI or MON-SAT. Days outside it are non-working unless an exception says otherwise. Exceptions override it for particular dates.
+  - **Time Zone** — The time zone of the calendar, such as Europe/Paris. Decides when a day starts and ends for deadlines. An IANA time-zone name.
+  - **Valid From** — The first day on which the calendar's working days and holidays apply. Set when the calendar is created. Not later than the valid-to date.
+  - **Valid To** — The last day on which the calendar's working days and holidays apply. Filled in when a newer calendar replaces this one. Left empty while the calendar is still in use.
+  - **Status** (required, one of the Calendar Status values) — Whether planners may use this calendar. Made inactive by an administrator once a newer calendar replaces it. Inactive calendars are not offered when choosing one. In use and available to planners. Retired and no longer offered.
+  - **Country** (a Country) — The country whose public holidays the calendar holds. Set for country calendars. At most one. Site calendars usually take their country's calendar as base.
+  - **Base Calendar** (a Calendar) — The calendar whose exceptions this one also follows. Set so a site calendar inherits the country's holidays. At most one base. Cannot be itself.
+
+Line items — **Calendar Exception**: kept inside each Calendar and reached by opening it, never on their own. One holiday, closure or extra working day in a calendar. Exceptions are what make a calendar accurate. Each records a date, what it is and whether work happens on it, so that working-day calculations skip holidays and closures and count extra working days. Entered each year for the coming year's ho…
+
+### Calendar Exception Exception Type
+
+The values of calendar exception exception type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Calendar Status
+
+The values of calendar status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### City
 
@@ -155,6 +305,72 @@ Readable by every signed-in person.
 
 Fields:
   - **Effective At** — When the requirement came into force. Set from the source law or contract; assessments compare evidence to the requirements in force on the assessment date.
+  - **Reference** (required) — The citation of the requirement within its source, such as "GDPR Art. 30(1)" or "ISO 27001 A.5.15". Entered when the requirement is recorded; controls and audit findings quote it. Unique across requirements, so the source is part of it.
+  - **Title** (required) — A short statement of what the requirement is about. Shown in compliance registers, such as "Record of processing activities". Identifies the requirement for people, with the reference.
+  - **Requirement Text** (required) — What the requirement demands, in the words of the source or a faithful summary. Read by control owners to design controls that meet it. The source document remains authoritative.
+  - **Source Type** (required, one of the Compliance Requirement Source Type values) — What kind of source the requirement comes from. Chosen when recording it; regulatory requirements carry legal risk, internal ones do not. Determines who may waive it — nobody inside the company can waive a law. An act of a legislature. A r…
+  - **Source Name** — The name of the law, regulation, standard or contract. Such as "Regulation (EU) 2016/679 (GDPR)". Several requirements share one source.
+  - **Jurisdiction** — Where the requirement applies, such as "European Union" or "State of California". Lets the business see which obligations apply to which operations. Empty for standards and contracts that apply wherever the company operates them.
+  - **Effective From** — The day the requirement starts to apply. Taken from the source; compliance must be in place by then. Must not be later than the end date.
+  - **Effective To** — The day the requirement stops applying. Set when the source is repealed or replaced. Empty while it applies.
+  - **Obligation Level** (required, one of the Compliance Requirement Obligation Level values) — Must be met, so any gap has to be remedied. Expected unless there is a documented reason not to. Good practice the business may choose to follow. How binding the requirement is. Decides how a gap is treated — a mandatory gap must be remedi…
+  - **Risk Rating** (one of the Compliance Requirement Risk Rating values) — Minor consequences if the requirement is missed. Noticeable penalties or harm. Heavy penalties, legal action or serious harm. Could stop the business or cause severe harm. How serious it would be to fail the requirement. Used to prioritize…
+  - **Status** (required, one of the Compliance Requirement Status values) — Whether the requirement currently applies to the business. Moved on by the compliance team after assessment. Only active requirements need working controls. Recorded and being assessed for applicability. Applies to the business and must be…
+  - **Applicability Note** — Why the requirement does or does not apply, and to which parts of the business. Written after the applicability assessment; required when marking it not applicable. Regulators may ask for this reasoning.
+  - **Owner** (a Person) — The person accountable for meeting the requirement. Assigned when it becomes active; receives assessment results and gaps. One owner per requirement. Usually the head of the function the requirement affects.
+  - **Policy** (a Policy) — The internal policy that restates the requirement for staff. Linked when a policy implements the requirement. At most one policy per requirement. The policy is how the requirement reaches the people who must follow it.
+
+### Compliance Requirement Obligation Level
+
+The values of compliance requirement obligation level, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Compliance Requirement Risk Rating
+
+The values of compliance requirement risk rating, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Compliance Requirement Source Type
+
+The values of compliance requirement source type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Compliance Requirement Status
+
+The values of compliance requirement status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Contact Point
 
@@ -165,7 +381,52 @@ Readable by every signed-in person.
 Fields:
   - **Code** (required) — A short reference for the contact point. Assigned or imported; stays stable so integrations can match it.
   - **Name** (required) — A descriptive label for the endpoint, such as Head office switchboard. Shown wherever contact points are listed.
+  - **Channel** (required, one of the Contact Point Channel values) — An email address used for written messages. A landline telephone number. A mobile telephone number. A fax number, kept for partners who still use it. A web address of the party's site or page. A handle on a messaging app. What kind of chan…
+  - **Value** (required) — The address or number itself. Entered in its standard form — international format for phone numbers. Validated according to the channel.
+  - **Purpose** (required, one of the Contact Point Purpose values) — Any purpose, when nothing more specific applies. Invoices and statements sent to accounts payable. Order confirmations and purchase orders. Delivery notices and arrival updates. Service and support enquiries. Marketing communication, where…
+  - **Is Preferred** (required) — Whether this is the preferred channel for its purpose. Used first when several channels serve the same purpose. One preferred channel per party, channel and purpose.
+  - **Verified At** — When the channel was last confirmed to work. Recorded by a verification message or call. Unverified channels may be refused for sensitive messages.
+  - **Status** (required, one of the Contact Point Status values) — Whether the channel is still usable for reaching the party. Changed when the channel stops being used or a message to it bounces. Inactive and invalid channels are not offered for contact. In use and offered for contact. No longer used and…
   - **Party** (required, a Party) — The party the endpoint belongs to. Set when the endpoint is added. Exactly one party; each endpoint has one owner. Lets communications find the right channel for a party.
+
+### Contact Point Channel
+
+The values of contact point channel, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Contact Point Purpose
+
+The values of contact point purpose, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Contact Point Status
+
+The values of contact point status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Control
 
@@ -180,12 +441,42 @@ Fields:
   - **Control Type** (required, one of the Control Control Type values) — How the control acts on a risk. Chosen when the control is defined; auditors use it to judge whether coverage is balanced. Stops a risk event from happening. Finds a risk event after it has happened. Limits damage and restores normal opera…
   - **Frequency** (required, one of the Control Frequency values) — Operates all the time, for example an automated system check. Performed once every working day by the control owner. Performed once every week, such as a weekly exception report review. Performed once every month, often at period close. Pe…
   - **Status** (required, one of the Control Status values) — Whether the control is being designed, in operation or ended. Set by the control owner; only ACTIVE controls are tested and relied on. Being designed; not yet operating. Operating and relied upon. Not currently operating, but may be reinst…
+  - **Automation** (required, one of the Control Automation values) — Whether a person or the system performs the control. Automated controls are tested differently from manual ones. Semi-automated controls have a manual review of system output. Performed by a person. The system prepares; a person reviews. P…
+  - **Is Key Control** (required) — Whether the control is relied on for financial reporting or a critical risk. Key controls are tested every year. Read with the risks it addresses.
+  - **Effectiveness** (required, one of the Control Effectiveness values) — Not yet tested, so its effectiveness is unknown. Designed and operating as intended. Works, but with weaknesses that need remedying. Does not achieve its purpose. The result of the latest test. Updated by the tester; ineffective controls l…
+  - **Last Tested Date** — The day the control was most recently tested for effectiveness. Set by the tester when a test is completed; testing plans prioritise controls not tested recently. Empty until the first test.
   - **Owner** (a Party) — The person or party accountable for the control operating. Set when the control is defined; receives test findings. At most one owner; a control without an owner is an assurance gap. Identifies who answers for the control.
   - **Organization** (a Organization) — The organisation in which the control operates. Set so controls can be scoped and tested per legal entity. At most one organisation. Scopes assurance work.
+
+### Control Automation
+
+The values of control automation, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Control Control Type
 
 The values of control control type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Control Effectiveness
+
+The values of control effectiveness, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
 
 Readable by every signed-in person.
 
@@ -271,7 +562,26 @@ Readable by every signed-in person.
 Fields:
   - **Code** (required) — The short code of the department, such as FIN-AP. Used in postings and reports; kept stable.
   - **Name** (required) — The name of the department as the organisation calls it, such as Finance or Field Operations. Entered by an administrator; shown in organisation charts, on documents and in reports that group people and costs by department.
+  - **Description** — What the department is responsible for and what kind of work it does. Read by people placing staff, positions or work, so they choose the right department. Free text written by the organisation's administrators.
+  - **Status** (required, one of the Department Status values) — Whether the department currently exists as part of the organisation. Set to inactive after a reorganisation closes or merges the department. Inactive departments are not offered when assigning people or work. The department exists and can…
   - **Organization** (required, a Organization) — Chosen when the department is created; reporting lines, headcount and budgets roll up through the organisation it belongs to. The organisation the department belongs to. Exactly one organisation: a department is part of a single organisati…
+  - **Business Unit** (a Business Unit) — The business unit the department is part of. Set where the organization is divided into business units. At most one. Used in business-unit reporting.
+  - **Parent Department** (a Department) — The department this one reports to. Builds the hierarchy used for approvals. At most one. Cannot be itself.
+  - **Manager** (a Person) — The person who leads the department. Approves its requests and receives its reports. One per department. Approval routing goes to this person.
+  - **Location** (a Location) — Where the department is based. Used in directories and space planning. At most one. Staff may work elsewhere.
+
+### Department Status
+
+The values of department status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Exchange Rate
 
@@ -288,6 +598,8 @@ Fields:
   - **Expires At** — Optional end of the period during which the rate is valid. Used to prevent application of expired rates. When supplied, expiresAt must be later than effectiveAt. Defines the rate's validity window for transaction and reporting calculations.
   - **Source** (required) — Identifies the provider or business authority from which the rate was obtained. Used for audit, reconciliation, regulatory reporting, and rate governance. Source identifies provenance; it does not by itself determine which rate is applicab…
   - **Status** (required, one of the Exchange Rate Status values) — Being prepared; not yet used. In force and usable for conversion. Its validity period has ended; kept for past conversions. Withdrawn; must not be used. Lifecycle state of the exchange-rate record. Used by conversion services to determine…
+  - **From Currency** (required, a Currency) — Currency from which an amount is converted. Identifies the source denomination of the monetary amount being converted. Must differ from toCurrency for a meaningful exchange-rate conversion. Identifies the currency of the source Money value…
+  - **To Currency** (required, a Currency) — Currency into which an amount is converted. Identifies the target denomination of the converted monetary amount. Conversion direction is from fromCurrency to toCurrency; reversing the direction requires an appropriate inverse rate rather t…
 
 ### Exchange Rate Rate Type
 
@@ -323,6 +635,45 @@ Readable by every signed-in person.
 
 Fields:
   - **Occurred At** — When the filing was submitted. Taken from the receipt; deadlines are checked against it.
+  - **Filing Number** (required) — The company's own internal reference for this filing, quoted in deadline calendars and correspondence. Unique; assigned when the filing is first recorded, before the authority has issued any reference of its own. The authority's reference…
+  - **Title** (required) — A short description of what is being filed, such as "Annual accounts 2023" or "Change of registered office". Written by the person preparing the filing and shown in deadline calendars, so that compliance staff can recognise it without open…
+  - **Filing Type** (required, one of the Filing Filing Type values) — What kind of filing it is. Chosen when recording it; deadlines and responsible teams differ by type. Read with the authority. A pleading or other submission to a court. A report or notification to a regulator. An annual return, accounts or…
+  - **Due Date** (required) — The last day the filing may be lodged. Taken from the law, the court's order or the authority's notice; calendars warn before it. A filing submitted after it is late.
+  - **Submitted At** — When the filing was lodged. Recorded on submission; it is the proof of meeting the deadline. Present once submitted.
+  - **Submission Channel** — How the filing was lodged, such as the authority's portal, post or in person. Recorded on submission. Some authorities accept only their own portal.
+  - **Acknowledgement Reference** — The reference the authority gave on receipt. Entered from the acknowledgement; quoted in any later correspondence. The evidence that the authority received the filing.
+  - **Fee Amount** — The fee the authority charged for accepting the filing, in the currency it was paid in. Entered once the fee is paid and used for expense tracking and budgeting of regulatory costs. Many filings carry no fee and leave it blank. Many filing…
+  - **Rejection Reason** — Why the authority rejected the filing. Recorded when it is rejected, so the corrected filing addresses it. Present only on rejected filings.
+  - **Status** (required, one of the Filing Status values) — Shows how far the filing has progressed, from being identified as required to the authority's answer. Moved on by the compliance team as the papers are prepared, lodged and answered. A required filing that is still unsubmitted after its du…
+  - **Authority** (a Organization) — The court, regulator, registry or tax authority the filing is made with. Chosen when recording it. One authority per filing. Its rules decide the format and the deadline.
+  - **Legal Entity** (a Legal Entity) — The company the filing is made for. Chosen when recording it; each company's filing calendar is drawn from these. One company per filing. Group companies each have their own filings.
+  - **Prepared By** (a Person) — The person responsible for preparing and lodging the filing. Receives deadline reminders. One per filing. Should be reassigned when they are absent near the deadline.
+
+### Filing Filing Type
+
+The values of filing filing type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Filing Status
+
+The values of filing status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Finding
 
@@ -332,8 +683,47 @@ Readable by every signed-in person.
 
 Fields:
   - **Effective At** — The moment from which the finding stands as an issued observation about the control or risk. Set at issue by the auditor or reviewer; ageing of open findings and remediation deadlines are measured from it.
+  - **Finding Number** (required) — The reference by which the finding is cited in the audit report and in follow-up with management. Unique; assigned when the auditor raises the finding and then used in tracking lists and committee reports. Unique.
+  - **Title** (required) — A one-line statement of the weakness found, readable without opening the full finding. Written by the auditor and shown in finding lists, dashboards and the issued report, so it should name the control or process affected. Identifies the f…
+  - **Condition** (required) — The facts of what the auditor found, including what was observed and the evidence behind it. Written by the auditor and agreed with management for accuracy before the report is issued; it should describe the situation, not the cause. Agree…
+  - **Root Cause** — The underlying reason the weakness arose, as agreed with management after analysis. The agreed action should address this cause; without it, fixes tend to treat only the symptoms and the same finding returns. Without it, fixes tend to addr…
+  - **Severity** (required, one of the Finding Severity values) — How serious the weakness is, rated by the auditor against the organisation's risk scale. Chosen when the finding is raised; it sets the due date for remediation, decides who is told, and feeds the audit's overall opinion. A minor weakness…
+  - **Agreed Action** — The corrective action that management committed to take in response to the finding. Written with the action owner after the finding is raised; the owner reports progress against it and the auditor later checks that it worked. The owner rep…
+  - **Due Date** — When the action is to be completed. Agreed with management; overdue findings are escalated. Set by severity.
+  - **Remediated Date** — The date the action owner reported that the agreed action had been completed. Recorded by the owner; it starts the auditor's verification, which follows before the finding can be closed. Verification follows.
+  - **Verified Date** — The date the auditor confirmed that the fix is in place and actually works. Recorded on verification and required to close the finding. It cannot be earlier than the remediated date. Not before the remediated date.
+  - **Status** (required, one of the Finding Status values) — Shows where the finding is in its life, from being raised through remediation to closure. Moved on by the action owner as work progresses, while only the auditor can close a finding after verifying the fix. Raised, but management has not y…
   - **Control** (a Control) — The control the finding is about. Set where a specific control failed. At most one control. Links the deficiency to the control to be fixed. Identifies deficient or tested control.
   - **Risk** (a Risk) — At most one risk, the exposure that the finding relates to. Risk informed by finding. Connects evidence to risk governance. Risk assessment and treatment. May trigger reassessment/treatment.
+  - **Audit Case** (a Audit Case) — The audit that raised the finding. Set when the finding is raised. One per finding. The audit report lists its findings.
+  - **Compliance Requirement** (a Compliance Requirement) — The requirement not met, for compliance findings. Linked for regulatory and certification audits. At most one. Makes the finding a nonconformity against the requirement.
+  - **Owner** (a Person) — The manager responsible for the action. Agreed with management. One per finding. Reports progress until closure.
+
+### Finding Severity
+
+The values of finding severity, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Finding Status
+
+The values of finding status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Language
 
@@ -344,6 +734,21 @@ Readable by every signed-in person.
 Fields:
   - **Code** (required) — The two-letter ISO 639-1 code of the language, such as en or de. Taken from the standard; unique; used in locale settings and APIs.
   - **Name** (required) — The English name of the language, such as French or Portuguese. Loaded from the language reference data; it is shown in language pick-lists and reports, while the code remains the identifier.
+  - **Alpha3** — The three-letter ISO 639-3 code, such as fra. Used by systems that require three-letter codes. From the standard.
+  - **Direction** (required, one of the Language Direction values) — Whether the language is written left to right or right to left. Tells screens and documents how to lay out text. From the Unicode CLDR. Written left to right. Written right to left.
+
+### Language Direction
+
+The values of language direction, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Legal Entity
 
@@ -353,6 +758,34 @@ Readable by every signed-in person.
 
 Fields:
   - **Occurred At** — When the entity was formed, or its record took effect. Set from the registration data.
+  - **Legal Name** (required) — The registered name, exactly as in the register. Printed on invoices, contracts and filings. A trading name may differ; this is the one the law recognises.
+  - **Registration Number** — The number under which the entity is registered, such as a company number or SIREN. Printed on documents where the law requires it; used in KYC checks. Unique within its jurisdiction.
+  - **Legal Form** — The legal form, such as "SAS", "GmbH", "Ltd" or "LLC". Printed after the name on documents. Each jurisdiction has its own forms.
+  - **Incorporation Date** — The day the company or organisation was legally formed, as shown on its certificate of incorporation. Copied from the official register when the entity is set up; used for age checks, filings and group structure charts. It can never fall a…
+  - **Dissolution Date** — The day the legal entity formally ceased to exist and was removed from the register. Entered by company secretarial when a dissolution is confirmed; it stays empty for entities that still exist. Only dissolved entities carry a date here.
+  - **Tax Identifier** — The entity's main tax number in its country. Printed on invoices and used in tax filings. Further registrations are recorded as tax registrations.
+  - **Vat Number** — The entity's VAT or sales-tax registration number. Printed on invoices; validated for cross-border trade. Empty for entities not registered for VAT.
+  - **Lei** — The Legal Entity Identifier, a 20-character global code. Required for financial transactions and regulatory reporting. Issued by an LEI operator and renewed every year.
+  - **Is Group Company** (required) — Whether the entity belongs to our own group. Separates the group's companies from customers' and suppliers' entities; intercompany transactions are between group companies. Group companies have their own accounts and filings.
+  - **Status** (required, one of the Legal Entity Status values) — Registered, in good standing and free to trade, sign contracts and issue invoices. Still registered but not trading, so it holds no live business activity. Being wound up by a liquidator; no new business should be started in its name. Stru…
+  - **Organization** (a Organization) — The organization this entity is the legal form of. Linked so that the organization's contracts and filings can be issued in the right name. At most one organization per entity. An organization may trade through several entities in differen…
+  - **Country** (a Country) — The country the entity is registered in. Decides which law, register and tax rules apply. One per entity. A branch abroad is not a separate entity.
+  - **Registered Address** (a Address) — The registered office. Printed on documents where the law requires it. One per entity. May differ from where the entity operates.
+  - **Functional Currency** (a Currency) — The currency the entity keeps its accounts in. Set by finance; translations to the group currency start from it. One per entity. Usually the currency of its country.
+  - **Parent Entity** (a Legal Entity) — The entity that owns this one in the group. Recorded for group companies; consolidation follows it. At most one parent. Minority holdings are not recorded here.
+
+### Legal Entity Status
+
+The values of legal entity status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Location
 
@@ -403,6 +836,45 @@ Readable by every signed-in person.
 
 Fields:
   - **Occurred At** — When the loss was suffered. Set from the incident; used to place the loss in a reporting period.
+  - **Loss Number** (required) — The unique reference by which risk managers, auditors and insurers quote this loss. Assigned automatically when the loss is recorded and never reused, even if the loss is later withdrawn. No two loss events share a number.
+  - **Title** (required) — A one-line description of what was lost, such as stolen stock or a failed payment run. Entered when the loss is recorded and shown in loss reports and dashboards. Read alongside the loss number to identify the event.
+  - **Description** — A narrative explaining how the loss came about and what it affected. Written by the risk analyst when recording the loss and updated as the assessment finds more. The linked incident holds the detailed facts of what happened.
+  - **Event Category** (required, one of the Loss Event Event Category values) — The risk category the loss falls under. Chosen when recording it; loss reports and capital models group by it. Follows the standard operational-risk event types. Fraud or theft by staff. Fraud or theft by outsiders. Claims from employees o…
+  - **Occurred Date** — The day the event that caused the loss took place. Taken from the linked incident or investigation; it can differ from the day the loss was found. It cannot be later than the discovery date.
+  - **Discovered Date** (required) — The day someone first realised the loss had happened and reported it. Recorded when the loss is reported; period-end loss reporting groups events by this date. Required, since losses are reported by discovery rather than occurrence.
+  - **Gross Loss** (required) — The full value lost before any insurance payout, recovery or write-back reduces it. Estimated when the loss is first recorded and confirmed by the risk team during assessment. Held in the loss's own currency.
+  - **Recovered Amount** — What has been recovered from insurance or third parties. Updated as recoveries come in. Not more than the gross loss.
+  - **Net Loss** — What the loss really cost the business once recoveries have been taken off. Worked out as the gross loss less the amount recovered; risk and finance reports use this figure. Changes whenever new recoveries are booked.
+  - **Status** (required, one of the Loss Event Status values) — Shows how far the loss has been assessed and whether its amounts can still change. Moved on by the risk team as estimates are confirmed and recoveries settle. Closed losses are frozen and no longer edited. The loss is known and recorded, b…
+  - **Risk** (a Risk) — The risk in the register the loss is an occurrence of. Linked so that the risk's assessment can be checked against real losses. At most one per loss. Frequent losses on a risk call its controls into question.
+  - **Legal Entity** (a Legal Entity) — The group company that bears the loss. Chosen when recording it. One per loss. The loss is booked in this entity's accounts.
+  - **Currency** (required, a Currency) — The currency of the amounts. Set when recording it. One per loss. All amounts on the loss use it.
+
+### Loss Event Event Category
+
+The values of loss event event category, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Loss Event Status
+
+The values of loss event status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Obligation
 
@@ -412,6 +884,59 @@ Readable by every signed-in person.
 
 Fields:
   - **Occurred At** — When the obligation arose. Set from the source; deadlines and limitation periods run from it.
+  - **Obligation Number** (required) — The unique reference people use when chasing or reporting on this duty. Assigned when the obligation is recorded and quoted in reminders, breach notices and compliance reports. No two obligations share a number.
+  - **Title** (required) — What has to be done, in one line. Shown in obligation calendars, such as "Deliver SOC 2 Type II report". Identifies the obligation for people, with the number.
+  - **Description** — The duty in full, as the source states it. Read by the owner to know exactly what must be done. The source remains authoritative.
+  - **Obligation Type** (required, one of the Obligation Obligation Type values) — The kind of duty owed, such as paying money, delivering goods or keeping information secret. Chosen when the obligation is recorded; it determines who monitors it and which evidence is expected. Payment duties usually also appear in the ac…
+  - **Source Reference** — Where the duty comes from, such as "MSA-2022-07, clause 14.3" or "GDPR Art. 33". Recorded so that the duty can be checked against its source. Read with the linked agreement, contract or requirement.
+  - **Is Owed By Us** (required) — Whether the duty is ours or the other party's. Separates what we must do from what we must make others do. Our own duties need an internal owner; others' need someone to follow them up.
+  - **Due Date** — The date the next performance is due. Owners are reminded before it; a duty not met by then is breached. Moved to the next occurrence when a recurring duty is met.
+  - **Frequency** (required, one of the Obligation Frequency values) — How often the duty has to be performed again, from a single event to every year. Chosen when recording the obligation; after each performance it drives the calculation of the next due date. One-off and ongoing duties have no next occurrenc…
+  - **Met Date** — The day the duty was last performed in full. Recorded by the owner alongside the evidence, such as a payment receipt or signed delivery note. Filled only once the obligation has been met.
+  - **Evidence** — How performance was shown, such as the report sent and its date. Recorded when met; auditors read it. Supporting files are attached to the obligation.
+  - **Status** (required, one of the Obligation Status values) — Not yet due, or due but not yet performed. The duty has been performed and the evidence recorded. The party owed the duty has formally released the other from it. The duty was not performed by its due date. Whether the duty has been met. M…
+  - **Obligor** (a Party) — The party that owes the duty. Chosen when recording it. One per obligation. Our own company when the duty is ours.
+  - **Owner** (a Person) — The person who sees that the duty is met or followed up. Receives due-date reminders. One per obligation. Should be reassigned when they leave.
+  - **Compliance Requirement** (a Compliance Requirement) — The legal or regulatory requirement the duty comes from. Linked when the source is a law or regulation. At most one per obligation. Breaches are compliance incidents.
+
+### Obligation Frequency
+
+The values of obligation frequency, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Obligation Obligation Type
+
+The values of obligation obligation type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Obligation Status
+
+The values of obligation status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Organization
 
@@ -507,7 +1032,38 @@ Readable by every signed-in person.
 Fields:
   - **Code** (required) — The code of the relationship type or instance, such as SUBSIDIARY_OF. Chosen from the relationship list; used in queries and rules.
   - **Name** (required) — A readable description of the relationship, such as Acme Ltd is subsidiary of Acme Group. Entered when the relationship is created; shown in party views and lists so users can understand the link at a glance.
+  - **Relationship Type** (required, one of the Party Relationship Relationship Type values) — Describes how the first party stands towards the second, such as subsidiary, employee or guarantor. Chosen when the link is recorded; credit, compliance and group reporting use it to interpret the connection. Read from the first party to t…
+  - **Ownership Percent** — The share the parent or owner holds, for ownership relationships. Used in consolidation and beneficial-ownership checks. Between 0 and 100.
+  - **Valid From** — The first day on which the relationship between the two parties holds. Recorded when it is known, for example from a contract or register entry. It cannot be later than the valid-to date.
+  - **Valid To** — The last day on which the relationship between the two parties holds. Recorded when the relationship ends, for example on resignation or sale; empty while it still applies. Empty while the relationship continues.
+  - **Status** (required, one of the Party Relationship Status values) — Says whether the relationship between the two parties is still in force today. Set to ended by the person maintaining the record when the relationship stops. Ended relationships stay for history. The relationship is in force today. The rel…
   - **From Party** (required, a Party) — The party at the origin of the relationship. Chosen when the relationship is created. Exactly one origin party: a relationship always starts at a particular party. Together with the other party it identifies the relationship.
+
+### Party Relationship Relationship Type
+
+The values of party relationship relationship type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Party Relationship Status
+
+The values of party relationship status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Party Role
 
@@ -681,7 +1237,97 @@ Readable by every signed-in person.
 
 Fields:
   - **Occurred At** — The date and time the assessment was made. Set when recorded; the sequence of assessments is ordered by it. Read with the risk to trace its exposure over time.
+  - **Assessment Number** (required) — The reference that identifies this dated review of a risk. Assigned when the assessment is started and quoted in reports and committee papers. Unique across all assessments.
+  - **Assessment Date** (required) — The calendar date that the assessed likelihood and impact are judged to apply to. Entered by the risk owner; trend charts plot each risk's assessments in order of this date. Usually the end of the review period.
+  - **Inherent Likelihood** (required, one of the Risk Assessment Inherent Likelihood values) — How likely the risk is to occur if no controls were in place at all. Judged by the risk owner against the agreed likelihood scale. Read with the inherent impact. May occur only in exceptional circumstances. Could occur but is not expected…
+  - **Inherent Impact** (required, one of the Risk Assessment Inherent Impact values) — Negligible effect that is absorbed in normal operations. Small, easily absorbed effect. Noticeable effect needing management attention. Serious effect on the organisation's objectives. Threatens the survival of the business. How bad the co…
+  - **Residual Likelihood** (required, one of the Risk Assessment Residual Likelihood values) — May occur only in exceptional circumstances. Could occur but is not expected during the period. Might occur at some time. Will probably occur at least once, even with controls working. Expected to occur, and likely to occur repeatedly, des…
+  - **Residual Impact** (required, one of the Risk Assessment Residual Impact values) — Negligible effect that is absorbed in normal operations. Small, easily absorbed effect. Noticeable effect needing management attention. Serious effect on the organisation's objectives. Threatens the survival of the business, even with cont…
+  - **Residual Rating** (required, one of the Risk Assessment Residual Rating values) — Accepted, with routine monitoring only. Accepted with monitoring by the owner. Needs treatment and management attention. Needs immediate treatment and board attention. The overall rating after controls, from the likelihood-impact matrix. R…
+  - **Controls Considered** — The controls relied on to reduce the risk. Listed by the owner; their effectiveness affects the residual rating. Control testing should support them.
+  - **Within Appetite** (required) — Whether the residual risk is within the appetite set for it. Concluded by the risk owner and confirmed by risk management. A risk outside appetite needs a treatment plan.
+  - **Conclusion** — The assessor's conclusion and any recommended action. Read by management and in the next review. Free text.
+  - **Status** (required, one of the Risk Assessment Status values) — Shows whether the assessment is still being written, awaiting review, accepted or replaced. Moved on by the owner submitting it and by risk management approving it. Only approved assessments appear in reports. Being completed by the owner.…
   - **Risk** (required, a Risk) — Each assessment evaluates one risk; a risk may have many assessments over time. Risk being assessed. Supplies risk identity and context. Risk governance and treatment. Assessment may drive controls/treatment without rewriting prior assessm…
+  - **Assessor** (a Person) — Who carried out the assessment. Recorded when starting it. One per assessment. Usually the risk owner.
+
+### Risk Assessment Inherent Impact
+
+The values of risk assessment inherent impact, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Risk Assessment Inherent Likelihood
+
+The values of risk assessment inherent likelihood, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Risk Assessment Residual Impact
+
+The values of risk assessment residual impact, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Risk Assessment Residual Likelihood
+
+The values of risk assessment residual likelihood, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Risk Assessment Residual Rating
+
+The values of risk assessment residual rating, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Risk Assessment Status
+
+The values of risk assessment status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Risk Impact
 
@@ -725,6 +1371,32 @@ Fields:
 ### Risk Treatment Status
 
 The values of risk treatment status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Risk Treatment Strategy
+
+The values of risk treatment strategy, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Risk Treatment Target Rating
+
+The values of risk treatment target rating, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
 
 Readable by every signed-in person.
 
@@ -864,6 +1536,26 @@ Fields:
 - **INACTIVE** — Temporarily not offered, for example while a move is being confirmed; it can be reactivated.
 - **RETIRED** — No longer valid; kept only as history and in past documents.
 
+### Attachment Status
+
+- **ACTIVE** — Attached and part of the record's evidence.
+- **WITHDRAWN** — Removed from the record's evidence, but kept for the history.
+
+### Audit Case Audit Type
+
+- **INTERNAL** — Performed by the company's own internal audit function.
+- **EXTERNAL** — Performed by the statutory or another independent auditor.
+- **REGULATORY** — Performed or required by a regulator.
+- **CERTIFICATION** — Performed by a certification body against a standard such as ISO 9001.
+- **SUPPLIER** — Performed by the company at a supplier's premises.
+
+### Audit Case Opinion
+
+- **SATISFACTORY** — Controls are well designed and work as intended.
+- **NEEDS IMPROVEMENT** — Controls mostly work, with weaknesses to correct.
+- **UNSATISFACTORY** — Significant weaknesses put the area's objectives at risk.
+- **NOT RATED** — The engagement did not give an overall opinion, such as a consulting review.
+
 ### Audit Case Status
 
 - **PLANNED** — Scoped and scheduled; fieldwork has not started.
@@ -872,12 +1564,109 @@ Fields:
 - **CLOSED** — All actions are done and the case is finished. A final state.
 - **CANCELLED** — Called off before it was reported. A final state.
 
+### Audit Event Category
+
+- **AUTHENTICATION** — Signing in or out, or a failed attempt.
+- **AUTHORIZATION** — Access given, refused or changed.
+- **DATA CHANGE** — A business record created, changed or deleted.
+- **DATA ACCESS** — A sensitive record read or exported.
+- **APPROVAL** — A decision recorded in an approval.
+- **CONFIGURATION** — A change to settings, rules or the application dictionary.
+- **SYSTEM** — An action taken by the system itself, such as a scheduled job.
+
+### Audit Event Outcome
+
+- **SUCCESS** — The action was carried out.
+- **FAILURE** — The action was attempted and failed for a technical or validation reason.
+- **DENIED** — The action was refused because the actor lacked the right to do it.
+
+### Business Unit Status
+
+- **ACTIVE** — Operating and available for new assignments.
+- **INACTIVE** — No longer operating after a closure or merger.
+
+### Calendar Exception Exception Type
+
+- **PUBLIC HOLIDAY** — A public holiday on which work does not happen.
+- **COMPANY CLOSURE** — A day the company or site is closed.
+- **EXTRA WORKING DAY** — A normally free day that is worked.
+
+### Calendar Status
+
+- **ACTIVE** — In use and available to planners.
+- **INACTIVE** — Retired and no longer offered.
+
+### Compliance Requirement Obligation Level
+
+- **MANDATORY** — Must be met, so any gap has to be remedied.
+- **RECOMMENDED** — Expected unless there is a documented reason not to.
+- **OPTIONAL** — Good practice the business may choose to follow.
+
+### Compliance Requirement Risk Rating
+
+- **LOW** — Minor consequences if the requirement is missed.
+- **MEDIUM** — Noticeable penalties or harm.
+- **HIGH** — Heavy penalties, legal action or serious harm.
+- **CRITICAL** — Could stop the business or cause severe harm.
+
+### Compliance Requirement Source Type
+
+- **LAW** — An act of a legislature.
+- **REGULATION** — A rule made by a regulator or under a law.
+- **STANDARD** — A voluntary standard the company has adopted or is certified against.
+- **CONTRACT** — An obligation taken on in a contract with a customer or supplier.
+- **INTERNAL POLICY** — A rule the company has set for itself.
+
+### Compliance Requirement Status
+
+- **IDENTIFIED** — Recorded and being assessed for applicability.
+- **ACTIVE** — Applies to the business and must be met.
+- **NOT APPLICABLE** — Assessed as not applying, with the reason recorded.
+- **RETIRED** — No longer applies because the source was repealed or replaced.
+
+### Contact Point Channel
+
+- **EMAIL** — An email address used for written messages.
+- **PHONE** — A landline telephone number.
+- **MOBILE** — A mobile telephone number.
+- **FAX** — A fax number, kept for partners who still use it.
+- **WEBSITE** — A web address of the party's site or page.
+- **MESSAGING** — A handle on a messaging app.
+
+### Contact Point Purpose
+
+- **GENERAL** — Any purpose, when nothing more specific applies.
+- **BILLING** — Invoices and statements sent to accounts payable.
+- **ORDERS** — Order confirmations and purchase orders.
+- **DELIVERY** — Delivery notices and arrival updates.
+- **SUPPORT** — Service and support enquiries.
+- **MARKETING** — Marketing communication, where consent allows.
+
+### Contact Point Status
+
+- **ACTIVE** — In use and offered for contact.
+- **INACTIVE** — No longer used and kept for history.
+- **INVALID** — Known not to work, such as a bouncing address.
+
+### Control Automation
+
+- **MANUAL** — Performed by a person.
+- **SEMI AUTOMATED** — The system prepares; a person reviews.
+- **AUTOMATED** — Performed by the system.
+
 ### Control Control Type
 
 - **PREVENTIVE** — Stops a risk event from happening.
 - **DETECTIVE** — Finds a risk event after it has happened.
 - **CORRECTIVE** — Limits damage and restores normal operation after an event.
 - **DIRECTIVE** — Tells people what they must or must not do, such as a policy or procedure.
+
+### Control Effectiveness
+
+- **NOT TESTED** — Not yet tested, so its effectiveness is unknown.
+- **EFFECTIVE** — Designed and operating as intended.
+- **PARTIALLY EFFECTIVE** — Works, but with weaknesses that need remedying.
+- **INEFFECTIVE** — Does not achieve its purpose.
 
 ### Control Frequency
 
@@ -903,6 +1692,11 @@ Fields:
 - **INACTIVE** — Temporarily not offered, for example while a market is closed; it can be reactivated.
 - **RETIRED** — No longer in use, such as a replaced national currency; historical amounts keep it.
 
+### Department Status
+
+- **ACTIVE** — The department exists and can receive people, positions and work.
+- **INACTIVE** — The department has been closed or merged away; it stays on record for history.
+
 ### Exchange Rate Rate Type
 
 - **SPOT** — The market rate at a moment in time.
@@ -918,6 +1712,51 @@ Fields:
 - **ACTIVE** — In force and usable for conversion.
 - **EXPIRED** — Its validity period has ended; kept for past conversions.
 - **CANCELLED** — Withdrawn; must not be used.
+
+### Filing Filing Type
+
+- **COURT** — A pleading or other submission to a court.
+- **REGULATORY** — A report or notification to a regulator.
+- **CORPORATE REGISTRY** — An annual return, accounts or a change notified to a company registry.
+- **TAX** — A tax return or declaration.
+- **INTELLECTUAL PROPERTY** — A patent, trademark or design application or renewal.
+- **OTHER** — Any other submission to an authority.
+
+### Filing Status
+
+- **REQUIRED** — Known to be needed, but nobody has started preparing it.
+- **IN PREPARATION** — The papers are being drawn up and have not yet been lodged with the authority.
+- **SUBMITTED** — Lodged with the authority, which has not yet answered.
+- **ACCEPTED** — The authority has accepted the filing; the obligation is met.
+- **REJECTED** — Refused by the authority, so a corrected filing is needed.
+- **WITHDRAWN** — Found not to be needed, or withdrawn after it was lodged.
+
+### Finding Severity
+
+- **LOW** — A minor weakness where an improvement is recommended but no urgent action is needed.
+- **MEDIUM** — A weakness to correct within the normal planning cycle.
+- **HIGH** — A significant weakness to correct promptly.
+- **CRITICAL** — A serious failure needing immediate action and senior attention.
+
+### Finding Status
+
+- **OPEN** — Raised, but management has not yet agreed an action.
+- **IN REMEDIATION** — An action has been agreed and is under way.
+- **REMEDIATED** — The owner reports the action complete and awaits verification.
+- **CLOSED** — Verified by the auditor, so nothing more is required.
+- **RISK ACCEPTED** — Management decided not to act, with the approval required to carry the risk.
+
+### Language Direction
+
+- **LTR** — Written left to right.
+- **RTL** — Written right to left.
+
+### Legal Entity Status
+
+- **ACTIVE** — Registered, in good standing and free to trade, sign contracts and issue invoices.
+- **DORMANT** — Still registered but not trading, so it holds no live business activity.
+- **IN LIQUIDATION** — Being wound up by a liquidator; no new business should be started in its name.
+- **DISSOLVED** — Struck off the register and gone for good; no new contracts or invoices may use it.
 
 ### Location Location Type
 
@@ -939,6 +1778,47 @@ Fields:
 - **INACTIVE** — Temporarily not used but expected to return to service.
 - **CLOSED** — Closed down, with no new assignments but history kept.
 - **RETIRED** — Removed from use altogether. A final state.
+
+### Loss Event Event Category
+
+- **INTERNAL FRAUD** — Fraud or theft by staff.
+- **EXTERNAL FRAUD** — Fraud or theft by outsiders.
+- **EMPLOYMENT PRACTICES** — Claims from employees or about workplace safety.
+- **CLIENTS PRODUCTS** — Failures towards customers, or in the design of products.
+- **PHYSICAL ASSETS** — Damage to property from disasters, accidents or vandalism.
+- **SYSTEMS FAILURE** — Failure of systems or infrastructure.
+- **EXECUTION AND PROCESS** — Errors in processing transactions or managing processes.
+
+### Loss Event Status
+
+- **IDENTIFIED** — The loss is known and recorded, but its amounts are still estimates.
+- **ASSESSED** — The amounts are confirmed, although further recoveries may still arrive.
+- **CLOSED** — Final amounts are recorded and the loss is frozen for reporting.
+- **WITHDRAWN** — The loss was recorded by mistake and is excluded from all totals.
+
+### Obligation Frequency
+
+- **ONCE** — Performed a single time and then finished.
+- **MONTHLY** — Falls due again every month after each performance.
+- **QUARTERLY** — Falls due again every three months after each performance.
+- **ANNUAL** — Falls due again once a year after each performance.
+- **ONGOING** — Applies continuously, as with confidentiality, so it never has a due date.
+
+### Obligation Obligation Type
+
+- **PAYMENT** — A duty to pay a sum of money by an agreed date.
+- **DELIVERY** — A duty to hand over goods, a service or a document.
+- **REPORTING** — A duty to report, notify or file information with someone.
+- **PERFORMANCE** — A duty to carry out an action or reach an agreed standard.
+- **CONFIDENTIALITY** — A duty to keep specified information secret from others.
+- **RESTRICTION** — A duty not to do something, such as competing or soliciting staff.
+
+### Obligation Status
+
+- **PENDING** — Not yet due, or due but not yet performed.
+- **MET** — The duty has been performed and the evidence recorded.
+- **WAIVED** — The party owed the duty has formally released the other from it.
+- **BREACHED** — The duty was not performed by its due date.
 
 ### Organization Organization Type
 
@@ -967,6 +1847,22 @@ Fields:
 
 - **PERSON** — The party represents an individual human being.
 - **ORGANIZATION** — The party represents a legal, commercial, governmental, nonprofit, or other organized body.
+
+### Party Relationship Relationship Type
+
+- **SUBSIDIARY OF** — The first party is a subsidiary owned by the second.
+- **BRANCH OF** — The first party is a branch operating as part of the second.
+- **EMPLOYEE OF** — The first party works for the second as an employee.
+- **AGENT OF** — The first party acts as an agent on behalf of the second.
+- **GUARANTOR FOR** — The first party guarantees the second party's obligations.
+- **BENEFICIAL OWNER OF** — The first party ultimately owns or controls the second.
+- **HOUSEHOLD MEMBER OF** — The first party lives in the same household as the second.
+- **OTHER** — Any other kind of link, explained in the relationship name.
+
+### Party Relationship Status
+
+- **ACTIVE** — The relationship is in force today.
+- **ENDED** — The relationship has stopped but is kept for history.
 
 ### Party Role Role Type
 
@@ -1022,6 +1918,52 @@ Fields:
 - **SUSPENDED** — The policy is temporarily not enforced, for example while it is revised, and may be reinstated.
 - **RETIRED** — The policy has been withdrawn or replaced and no longer applies. A final state.
 
+### Risk Assessment Inherent Impact
+
+- **INSIGNIFICANT** — Negligible effect that is absorbed in normal operations.
+- **MINOR** — Small, easily absorbed effect.
+- **MODERATE** — Noticeable effect needing management attention.
+- **MAJOR** — Serious effect on the organisation's objectives.
+- **SEVERE** — Threatens the survival of the business.
+
+### Risk Assessment Inherent Likelihood
+
+- **RARE** — May occur only in exceptional circumstances.
+- **UNLIKELY** — Could occur but is not expected during the period.
+- **POSSIBLE** — Might occur at some time.
+- **LIKELY** — Will probably occur at least once during the period.
+- **ALMOST CERTAIN** — Expected to occur, and likely to occur repeatedly.
+
+### Risk Assessment Residual Impact
+
+- **INSIGNIFICANT** — Negligible effect that is absorbed in normal operations.
+- **MINOR** — Small, easily absorbed effect.
+- **MODERATE** — Noticeable effect needing management attention.
+- **MAJOR** — Serious effect on the organisation's objectives.
+- **SEVERE** — Threatens the survival of the business, even with controls working.
+
+### Risk Assessment Residual Likelihood
+
+- **RARE** — May occur only in exceptional circumstances.
+- **UNLIKELY** — Could occur but is not expected during the period.
+- **POSSIBLE** — Might occur at some time.
+- **LIKELY** — Will probably occur at least once, even with controls working.
+- **ALMOST CERTAIN** — Expected to occur, and likely to occur repeatedly, despite the controls.
+
+### Risk Assessment Residual Rating
+
+- **LOW** — Accepted, with routine monitoring only.
+- **MEDIUM** — Accepted with monitoring by the owner.
+- **HIGH** — Needs treatment and management attention.
+- **VERY HIGH** — Needs immediate treatment and board attention.
+
+### Risk Assessment Status
+
+- **DRAFT** — Being completed by the owner.
+- **SUBMITTED** — Waiting for review by risk management.
+- **APPROVED** — Accepted as the current view of the risk.
+- **SUPERSEDED** — Replaced by a newer approved assessment.
+
 ### Risk Impact
 
 - **INSIGNIFICANT** — Negligible effect that needs no action.
@@ -1053,6 +1995,19 @@ Fields:
 - **ACTIVE** — Approved and the work is being carried out.
 - **COMPLETED** — The action has been done and its effect can be assessed. A final state.
 - **CANCELLED** — No longer needed or abandoned before completion. A final state.
+
+### Risk Treatment Strategy
+
+- **REDUCE** — Lower the likelihood or impact, usually through controls.
+- **AVOID** — Stop the activity that creates the risk.
+- **TRANSFER** — Pass the risk to another party, such as an insurer.
+- **ACCEPT** — Bear the risk knowingly.
+
+### Risk Treatment Target Rating
+
+- **LOW** — Accepted, with routine monitoring only.
+- **MEDIUM** — Accepted with monitoring by the owner.
+- **HIGH** — Still needs treatment and management attention.
 
 ### Task Priority
 
@@ -1142,6 +2097,43 @@ Moves:
 - ACTIVE → EXPIRED (Expire)
 - INACTIVE → EXPIRED (Expire)
 
+### Party Relationship — Party Relationship Lifecycle
+
+Starts at **ACTIVE**.
+Final: **ENDED**.
+
+Moves:
+- ACTIVE → ENDED (End)
+
+### Legal Entity — Legal Entity Lifecycle
+
+Starts at **ACTIVE**.
+Final: **DISSOLVED**.
+
+Moves:
+- ACTIVE → DORMANT (Make Dormant)
+- DORMANT → ACTIVE (Resume Trading)
+- ACTIVE → IN LIQUIDATION (Liquidate)
+- DORMANT → IN LIQUIDATION (Liquidate)
+- IN LIQUIDATION → DISSOLVED (Dissolve)
+- DORMANT → DISSOLVED (Dissolve)
+
+### Business Unit — Business Unit Lifecycle
+
+Starts at **ACTIVE**.
+
+Moves:
+- ACTIVE → INACTIVE (Deactivate)
+- INACTIVE → ACTIVE (Reactivate)
+
+### Department — Department Lifecycle
+
+Starts at **ACTIVE**.
+
+Moves:
+- ACTIVE → INACTIVE (Deactivate)
+- INACTIVE → ACTIVE (Reactivate)
+
 ### Address — Address Lifecycle
 
 Starts at **ACTIVE**.
@@ -1152,6 +2144,16 @@ Moves:
 - INACTIVE → ACTIVE (Reactivate)
 - ACTIVE → RETIRED (Retire)
 - INACTIVE → RETIRED (Retire)
+
+### Contact Point — Contact Point Lifecycle
+
+Starts at **ACTIVE**.
+
+Moves:
+- ACTIVE → INACTIVE (Deactivate)
+- INACTIVE → ACTIVE (Reactivate)
+- ACTIVE → INVALID (Mark Invalid)
+- INVALID → ACTIVE (Reactivate)
 
 ### Location — Location Lifecycle
 
@@ -1199,6 +2201,22 @@ Moves:
 - INACTIVE → ACTIVE (Reactivate)
 - ACTIVE → RETIRED (Retire)
 - INACTIVE → RETIRED (Retire)
+
+### Calendar — Calendar Lifecycle
+
+Starts at **ACTIVE**.
+
+Moves:
+- ACTIVE → INACTIVE (Deactivate)
+- INACTIVE → ACTIVE (Reactivate)
+
+### Attachment — Attachment Lifecycle
+
+Starts at **ACTIVE**.
+Final: **WITHDRAWN**.
+
+Moves:
+- ACTIVE → WITHDRAWN (Withdraw)
 
 ### Task — Task Lifecycle
 
@@ -1285,6 +2303,42 @@ Moves:
 - PLANNED → CANCELLED (Cancel)
 - IN PROGRESS → CANCELLED (Cancel)
 
+### Compliance Requirement — Compliance Requirement Lifecycle
+
+Starts at **IDENTIFIED**.
+Final: **RETIRED**.
+
+Moves:
+- IDENTIFIED → ACTIVE (Activate)
+- IDENTIFIED → NOT APPLICABLE (Mark Not Applicable)
+- NOT APPLICABLE → ACTIVE (Activate)
+- ACTIVE → RETIRED (Retire)
+- NOT APPLICABLE → RETIRED (Retire)
+
+### Finding — Finding Lifecycle
+
+Starts at **OPEN**.
+Final: **CLOSED**, **RISK ACCEPTED**.
+
+Moves:
+- OPEN → IN REMEDIATION (Agree Action)
+- IN REMEDIATION → REMEDIATED (Remediate)
+- REMEDIATED → CLOSED (Verify)
+- REMEDIATED → IN REMEDIATION (Reject Fix)
+- OPEN → RISK ACCEPTED (Accept Risk)
+- IN REMEDIATION → RISK ACCEPTED (Accept Risk)
+
+### Risk Assessment — Risk Assessment Lifecycle
+
+Starts at **DRAFT**.
+Final: **SUPERSEDED**.
+
+Moves:
+- DRAFT → SUBMITTED (Submit)
+- SUBMITTED → DRAFT (Return)
+- SUBMITTED → APPROVED (Approve)
+- APPROVED → SUPERSEDED (Supersede)
+
 ### Risk Treatment — Risk Treatment Lifecycle
 
 Starts at **DRAFT**.
@@ -1296,9 +2350,47 @@ Moves:
 - DRAFT → CANCELLED (Cancel)
 - ACTIVE → CANCELLED (Cancel)
 
+### Filing — Filing Lifecycle
+
+Starts at **REQUIRED**.
+Final: **ACCEPTED**, **REJECTED**, **WITHDRAWN**.
+
+Moves:
+- REQUIRED → IN PREPARATION (Start)
+- IN PREPARATION → SUBMITTED (Submit)
+- REQUIRED → SUBMITTED (Submit)
+- SUBMITTED → ACCEPTED (Accept)
+- SUBMITTED → REJECTED (Reject)
+- REQUIRED → WITHDRAWN (Withdraw)
+- IN PREPARATION → WITHDRAWN (Withdraw)
+- SUBMITTED → WITHDRAWN (Withdraw)
+
+### Obligation — Obligation Lifecycle
+
+Starts at **PENDING**.
+Final: **MET**, **WAIVED**.
+
+Moves:
+- PENDING → MET (Meet)
+- PENDING → WAIVED (Waive)
+- PENDING → BREACHED (Breach)
+- BREACHED → MET (Cure)
+- BREACHED → WAIVED (Waive)
+
+### Loss Event — Loss Event Lifecycle
+
+Starts at **IDENTIFIED**.
+Final: **CLOSED**, **WITHDRAWN**.
+
+Moves:
+- IDENTIFIED → ASSESSED (Assess)
+- ASSESSED → CLOSED (Close)
+- IDENTIFIED → WITHDRAWN (Withdraw)
+- ASSESSED → WITHDRAWN (Withdraw)
+
 ## Roles
 
-- **User** — reads 64 of 64 record types
+- **User** — reads 104 of 104 record types
 - **Administrator** — reads and changes everything the lifecycles allow
 
 A refusal means the person's role does not allow it. Say which role does, from this list, and suggest their administrator.

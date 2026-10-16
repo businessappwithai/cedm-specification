@@ -1,6 +1,6 @@
 //! The rules the *model* declared, and whether they reached the application.
 //!
-//! Generated: 2026-10-09T15:29:30.126Z
+//! Generated: 2026-10-16T07:47:34.984Z
 //! Project: maintenance
 //!
 //! Every other rules suite creates a rule through the API and then checks that
@@ -33,6 +33,16 @@ const MODEL_RULES: &[(&str, &str, &str)] = &[
         "bus_party_role",
         "UPDATE",
     ),
+    (
+        "partyRelationshipInvariantsBeforeCreate",
+        "bus_party_relationship",
+        "CREATE",
+    ),
+    (
+        "partyRelationshipInvariantsBeforeUpdate",
+        "bus_party_relationship",
+        "UPDATE",
+    ),
     ("addressInvariantsBeforeCreate", "bus_address", "CREATE"),
     ("addressInvariantsBeforeUpdate", "bus_address", "UPDATE"),
     (
@@ -43,6 +53,18 @@ const MODEL_RULES: &[(&str, &str, &str)] = &[
     (
         "exchangeRateInvariantsBeforeUpdate",
         "bus_exchange_rate",
+        "UPDATE",
+    ),
+    ("calendarInvariantsBeforeCreate", "bus_calendar", "CREATE"),
+    ("calendarInvariantsBeforeUpdate", "bus_calendar", "UPDATE"),
+    (
+        "calendarExceptionInvariantsBeforeCreate",
+        "bus_calendar_exception",
+        "CREATE",
+    ),
+    (
+        "calendarExceptionInvariantsBeforeUpdate",
+        "bus_calendar_exception",
         "UPDATE",
     ),
     ("taskInvariantsBeforeCreate", "bus_task", "CREATE"),
@@ -79,6 +101,16 @@ const MODEL_RULES: &[(&str, &str, &str)] = &[
         "bus_repair_estimate_line",
         "UPDATE",
     ),
+    (
+        "sparePartInvariantsBeforeCreate",
+        "bus_spare_part",
+        "CREATE",
+    ),
+    (
+        "sparePartInvariantsBeforeUpdate",
+        "bus_spare_part",
+        "UPDATE",
+    ),
     ("containerInvariantsBeforeCreate", "bus_container", "CREATE"),
     ("containerInvariantsBeforeUpdate", "bus_container", "UPDATE"),
     ("productInvariantsBeforeCreate", "bus_product", "CREATE"),
@@ -100,6 +132,7 @@ const MODEL_RULES: &[(&str, &str, &str)] = &[
         "bus_repair_estimate",
         "UPDATE",
     ),
+    ("failureWorkflowsAfterUpdate", "bus_failure", "UPDATE"),
     ("productWorkflowsAfterUpdate", "bus_product", "UPDATE"),
 ];
 

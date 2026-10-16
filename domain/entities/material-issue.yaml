@@ -11,6 +11,27 @@ entity:
     - {name: issueNumber, type: string, required: true, unique: true, maxLength: 100, help: {summary: 'The document number of the issue, printed on the pick list.', usage: Allocated from a number series; unique; used by storekeepers and in audits., businessMeaning: Operational traceability identifier., relationshipContext: Distinct from inventory movement number.}}
     - {name: quantity, type: decimal, required: true, precision: 20, scale: 6, help: {summary: The quantity of the component issued to the work order., usage: Entered at issue; the stock movement posts the same quantity and the work order's consumed quantity increases by it., businessMeaning: Amount authorized for production consumption., relationshipContext: Interpreted with component Product/UOM/lot/serial.}}
     - {name: issuedAt, type: datetime, required: true, help: {summary: When the material left the store for production., usage: Set at issue; the consumption is costed as of this time., businessMeaning: Establishes production consumption chronology., relationshipContext: Must align with attributable movement.}}
+    - name: issueType
+      type: enum
+      required: true
+      default: ISSUE
+      values:
+        - ISSUE
+        - RETURN
+      help:
+        summary: Whether material goes to the order or comes back from it.
+        usage: Returns reverse earlier issues.
+        relationshipContext: Return quantities are entered as positive with this type.
+        valueSemantics:
+          ISSUE: Material issued to the order.
+          RETURN: Unused material returned from the order.
+    - name: costAmount
+      type: Money
+      required: false
+      help:
+        summary: The value of the components taken from stock and charged to the production order.
+        usage: Calculated when the issue is posted and booked as material cost on the work order.
+        relationshipContext: Priced at the product's current cost rather than its purchase price.
   relationships:
     - {name: workOrder, target: ManufacturingWorkOrder, cardinality: '1', ownership: reference, help: {summary: The manufacturing work order that receives the material., usage: Chosen when the issue is made., cardinalityMeaning: 'Exactly one work order: material is issued to one production job at a time.', workflowRole: Adds the material to the job's actual consumption and cost., businessMeaning: Identifies authorized manufacturing demand.}}
     - {name: bomComponent, target: BOMComponent, cardinality: 0..1, ownership: reference, help: {summary: The bill-of-material line that the issue satisfies., usage: Linked where the issue follows the bill; left empty for substitutions or extras., cardinalityMeaning: At most one component line., workflowRole: Lets production compare actual to planned consumption., businessMeaning: Connects actual issue to standard material demand.}}

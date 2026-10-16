@@ -58,6 +58,29 @@ entity:
           ACTIVE: In service and operating.
           MAINTENANCE: Out of service while maintenance or repair is carried out.
           DECOMMISSIONED: Permanently retired from service. A final state.
+    - name: capacityUnit
+      type: string
+      required: false
+      maxLength: 10
+      help:
+        summary: The unit of the capacity, such as kW, MW or kWh.
+        usage: Read with the capacity.
+        relationshipContext: Power for generators, energy for storage.
+    - name: commissionedDate
+      type: date
+      required: false
+      help:
+        summary: The date the asset was put into service.
+        usage: Starts the asset's operating history and is used to calculate age and plan maintenance.
+        relationshipContext: Not in the future.
+    - name: fuelType
+      type: string
+      required: false
+      maxLength: 50
+      help:
+        summary: The energy source, such as solar, wind, gas or grid electricity.
+        usage: Used in emission and renewable-share reporting.
+        relationshipContext: Free text from the operator's list.
   relationships:
     - name: location
       target: Location

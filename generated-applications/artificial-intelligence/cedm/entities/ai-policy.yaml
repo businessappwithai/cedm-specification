@@ -41,6 +41,68 @@ entity:
         summary: Where the policy stands, from drafting to adoption and closure.
         usage: Moved by the governance function; only ACTIVE policies are enforced when a model is approved or deployed.
         relationshipContext: Status changes can affect related AIModel workflows but never erase historical evidence.
+    - name: name
+      type: string
+      required: true
+      maxLength: 150
+      help:
+        summary: The title by which the policy is known to governance staff and model owners, for example Customer Data Use Policy.
+        usage: Shown wherever a policy is chosen or attached to a model, so it should be distinctive.
+        relationshipContext: Identifies it for people.
+    - name: riskClass
+      type: enum
+      required: true
+      default: LIMITED
+      values:
+        - MINIMAL
+        - LIMITED
+        - HIGH
+        - PROHIBITED
+      help:
+        summary: The risk class of the AI uses the policy covers.
+        usage: Decides how strict its requirements are.
+        relationshipContext: Follows the business's AI risk classification.
+        valueSemantics:
+          MINIMAL: Little risk to people or the business.
+          LIMITED: Some risk; transparency needed.
+          HIGH: Significant risk; approval, testing and human oversight needed.
+          PROHIBITED: Uses that are not allowed.
+    - name: requirements
+      type: text
+      required: true
+      help:
+        summary: What models under the policy must do — tests, approvals, oversight, monitoring.
+        usage: Read by developers and reviewers.
+        relationshipContext: Evaluations are checked against it.
+    - name: humanOversightRequired
+      type: boolean
+      required: true
+      default: false
+      help:
+        summary: Whether a person must be able to review and override the model's outputs.
+        usage: Checked before deployment.
+        relationshipContext: Required for high-risk uses.
+    - name: reviewFrequencyMonths
+      type: integer
+      required: false
+      help:
+        summary: How often models under the policy must be re-evaluated, in months.
+        usage: Drives re-evaluation reminders.
+        relationshipContext: Empty when no periodic review is required.
+    - name: effectiveFrom
+      type: date
+      required: false
+      help:
+        summary: The first day on which the policy is binding on the models it covers.
+        usage: Set when the policy is approved, so teams know from which date to comply.
+        relationshipContext: Never later than the date the policy stops applying.
+    - name: effectiveTo
+      type: date
+      required: false
+      help:
+        summary: The last day on which the policy still applies to the models it covers.
+        usage: Filled in when a newer policy replaces it or it is withdrawn.
+        relationshipContext: Left empty for as long as the policy remains in force.
   relationships:
     - name: context
       target: AIModel
@@ -51,6 +113,24 @@ entity:
         usage: Chosen when the policy is created; its controls apply to that model and its predictions.
         cardinalityMeaning: Exactly one model per policy; a model may be governed by one policy at a time through its policy link.
         workflowRole: Ties the controls to the thing they constrain so approval and deployment can check them.
+    - name: owner
+      target: Person
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The person responsible for the policy.
+        usage: Keeps it current.
+        cardinalityMeaning: One per policy.
+        context: Usually the head of AI governance.
+    - name: complianceRequirement
+      target: ComplianceRequirement
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The law or standard the policy implements.
+        usage: Linked so a change in the law shows which policies to revisit.
+        cardinalityMeaning: At most one.
+        context: Such as an article of an AI regulation.
   invariants:
     - id: AIPOLICY-001
       rule: The governing AIModel relationship is required and must reference a valid record.
@@ -58,6 +138,7 @@ entity:
       rule: Completed records must not be destructively rewritten; corrections require controlled amendment, replacement, reversal, or follow-up evidence appropriate to the domain.
     - id: AIPOLICY-003
       rule: Creation and lifecycle transitions must be idempotent and auditable.
+    - {id: AI-POLICY-EXE-001, rule: "Effective To must not be earlier than effective from.", violatedWhen: "effective_from != null and effective_to != null and effective_to < effective_from", message: "Effective To cannot be earlier than effective from."}
   lifecycle:
     title: AI Policy Lifecycle
     attribute: status

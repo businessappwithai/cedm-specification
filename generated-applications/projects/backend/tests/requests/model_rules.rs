@@ -1,6 +1,6 @@
 //! The rules the *model* declared, and whether they reached the application.
 //!
-//! Generated: 2026-10-10T02:41:29.366Z
+//! Generated: 2026-10-16T07:48:19.912Z
 //! Project: projects
 //!
 //! Every other rules suite creates a rule through the API and then checks that
@@ -33,6 +33,16 @@ const MODEL_RULES: &[(&str, &str, &str)] = &[
         "bus_party_role",
         "UPDATE",
     ),
+    (
+        "partyRelationshipInvariantsBeforeCreate",
+        "bus_party_relationship",
+        "CREATE",
+    ),
+    (
+        "partyRelationshipInvariantsBeforeUpdate",
+        "bus_party_relationship",
+        "UPDATE",
+    ),
     ("addressInvariantsBeforeCreate", "bus_address", "CREATE"),
     ("addressInvariantsBeforeUpdate", "bus_address", "UPDATE"),
     (
@@ -45,10 +55,44 @@ const MODEL_RULES: &[(&str, &str, &str)] = &[
         "bus_exchange_rate",
         "UPDATE",
     ),
+    ("calendarInvariantsBeforeCreate", "bus_calendar", "CREATE"),
+    ("calendarInvariantsBeforeUpdate", "bus_calendar", "UPDATE"),
+    (
+        "calendarExceptionInvariantsBeforeCreate",
+        "bus_calendar_exception",
+        "CREATE",
+    ),
+    (
+        "calendarExceptionInvariantsBeforeUpdate",
+        "bus_calendar_exception",
+        "UPDATE",
+    ),
     ("taskInvariantsBeforeCreate", "bus_task", "CREATE"),
     ("taskInvariantsBeforeUpdate", "bus_task", "UPDATE"),
     ("projectInvariantsBeforeCreate", "bus_project", "CREATE"),
     ("projectInvariantsBeforeUpdate", "bus_project", "UPDATE"),
+    (
+        "projectPhaseInvariantsBeforeCreate",
+        "bus_project_phase",
+        "CREATE",
+    ),
+    (
+        "projectPhaseInvariantsBeforeUpdate",
+        "bus_project_phase",
+        "UPDATE",
+    ),
+    (
+        "resourceAssignmentInvariantsBeforeCreate",
+        "bus_resource_assignment",
+        "CREATE",
+    ),
+    (
+        "resourceAssignmentInvariantsBeforeUpdate",
+        "bus_resource_assignment",
+        "UPDATE",
+    ),
+    ("timesheetInvariantsBeforeCreate", "bus_timesheet", "CREATE"),
+    ("timesheetInvariantsBeforeUpdate", "bus_timesheet", "UPDATE"),
     (
         "projectCostInvariantsBeforeCreate",
         "bus_project_cost",

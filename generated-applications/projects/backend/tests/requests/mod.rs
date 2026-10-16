@@ -5,7 +5,7 @@
 //! every business suite depends on — then the per-entity CRUD and rules
 //! modules, which are generated one per entity in the model.
 //!
-//! Generated: 2026-10-16T05:36:43.036Z
+//! Generated: 2026-10-16T07:48:19.903Z
 //! Project: projects
 
 mod accounts;
@@ -35,19 +35,30 @@ mod crud_address;
 mod crud_address_address_type;
 mod crud_address_status;
 mod crud_attachment;
+mod crud_attachment_status;
 mod crud_business_unit;
+mod crud_business_unit_status;
 mod crud_calendar;
+mod crud_calendar_exception;
+mod crud_calendar_exception_exception_type;
+mod crud_calendar_status;
 mod crud_city;
 mod crud_contact_point;
+mod crud_contact_point_channel;
+mod crud_contact_point_purpose;
+mod crud_contact_point_status;
 mod crud_country;
 mod crud_currency;
 mod crud_currency_status;
 mod crud_department;
+mod crud_department_status;
 mod crud_exchange_rate;
 mod crud_exchange_rate_rate_type;
 mod crud_exchange_rate_status;
 mod crud_language;
+mod crud_language_direction;
 mod crud_legal_entity;
+mod crud_legal_entity_status;
 mod crud_location;
 mod crud_location_location_type;
 mod crud_location_status;
@@ -60,6 +71,8 @@ mod crud_organization_status;
 mod crud_party;
 mod crud_party_party_type;
 mod crud_party_relationship;
+mod crud_party_relationship_relationship_type;
+mod crud_party_relationship_status;
 mod crud_party_role;
 mod crud_party_role_role_type;
 mod crud_party_role_status;
@@ -97,19 +110,30 @@ mod rules_address;
 mod rules_address_address_type;
 mod rules_address_status;
 mod rules_attachment;
+mod rules_attachment_status;
 mod rules_business_unit;
+mod rules_business_unit_status;
 mod rules_calendar;
+mod rules_calendar_exception;
+mod rules_calendar_exception_exception_type;
+mod rules_calendar_status;
 mod rules_city;
 mod rules_contact_point;
+mod rules_contact_point_channel;
+mod rules_contact_point_purpose;
+mod rules_contact_point_status;
 mod rules_country;
 mod rules_currency;
 mod rules_currency_status;
 mod rules_department;
+mod rules_department_status;
 mod rules_exchange_rate;
 mod rules_exchange_rate_rate_type;
 mod rules_exchange_rate_status;
 mod rules_language;
+mod rules_language_direction;
 mod rules_legal_entity;
+mod rules_legal_entity_status;
 mod rules_location;
 mod rules_location_location_type;
 mod rules_location_status;
@@ -122,6 +146,8 @@ mod rules_organization_status;
 mod rules_party;
 mod rules_party_party_type;
 mod rules_party_relationship;
+mod rules_party_relationship_relationship_type;
+mod rules_party_relationship_status;
 mod rules_party_role;
 mod rules_party_role_role_type;
 mod rules_party_role_status;

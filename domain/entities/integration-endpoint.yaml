@@ -9,7 +9,150 @@ entity:
   attributes:
     - {name: integrationEndpointId, type: uuid, required: true, immutable: true, help: {summary: 'The identity of the endpoint, independent of its current address.', usage: 'Generated on registration; subscriptions and delivery attempts refer to it, so the URL can change without breaking them.'}}
     - {name: occurredAt, type: datetime, required: false, help: {summary: When the endpoint was registered or last took effect., usage: Set on registration or when its configuration changes; operators use it to tell which configuration applied to an old delivery.}}
-  relationships: []
+    - name: code
+      type: string
+      required: true
+      unique: true
+      maxLength: 40
+      help:
+        summary: The code of the endpoint, such as BANKB-SFTP-PAY.
+        usage: Used in configuration and in message logs.
+        relationshipContext: Unique.
+    - name: name
+      type: string
+      required: true
+      maxLength: 150
+      help:
+        summary: A readable name for the endpoint, such as "Bank payment file upload", that people recognise in monitoring.
+        usage: Chosen by the integration team when registering the endpoint and shown on monitoring screens next to its code.
+        relationshipContext: Identifies the endpoint for people, with the code.
+    - name: direction
+      type: enum
+      required: true
+      default: OUTBOUND
+      values:
+        - INBOUND
+        - OUTBOUND
+        - BIDIRECTIONAL
+      help:
+        summary: Whether data goes out through the endpoint, comes in, or both.
+        usage: Set when registering it.
+        relationshipContext: Inbound endpoints are watched for messages that stop arriving.
+        valueSemantics:
+          INBOUND: Data comes into the application.
+          OUTBOUND: Data goes out of the application.
+          BIDIRECTIONAL: Data goes both ways.
+    - name: protocol
+      type: enum
+      required: true
+      default: HTTPS
+      values:
+        - HTTPS
+        - SFTP
+        - AS2
+        - MESSAGE_QUEUE
+        - EMAIL
+        - DATABASE
+      help:
+        summary: How data travels to or from the endpoint.
+        usage: Set when registering it; it decides which adapter delivers the messages.
+        relationshipContext: Read with the address.
+        valueSemantics:
+          HTTPS: A web service or REST API over HTTPS.
+          SFTP: Files exchanged over secure file transfer.
+          AS2: Business documents exchanged over AS2.
+          MESSAGE_QUEUE: Messages through a queue or event broker.
+          EMAIL: Messages sent or received as email.
+          DATABASE: Direct access to another system's database.
+    - name: address
+      type: string
+      required: true
+      maxLength: 500
+      help:
+        summary: Where the endpoint is reached — a URL, server and folder, or queue name.
+        usage: Entered by the integration administrator.
+        relationshipContext: Credentials are kept in a secrets store, never here.
+    - name: dataFormat
+      type: string
+      required: false
+      maxLength: 100
+      help:
+        summary: The format of the data exchanged, such as "ISO 20022 pain.001", "EDIFACT DESADV" or "JSON".
+        usage: Recorded so that a change in the partner's format can be traced to the interfaces it affects.
+        relationshipContext: Message mappings depend on it.
+    - name: authenticationMethod
+      type: enum
+      required: true
+      default: API_KEY
+      values:
+        - NONE
+        - API_KEY
+        - OAUTH2
+        - CERTIFICATE
+        - SSH_KEY
+        - BASIC
+      help:
+        valueSemantics:
+          NONE: No authentication, allowed only for internal endpoints carrying nothing sensitive.
+          API_KEY: A secret key sent with each request.
+          OAUTH2: Access tokens obtained from an authorization server.
+          CERTIFICATE: A client certificate presented to prove the application's identity, which must be renewed before it expires.
+          SSH_KEY: An SSH key pair, typically for file transfer.
+          BASIC: A user name and password.
+        summary: How the application proves its identity to the endpoint.
+        usage: Set when registering it; the secret itself is in the secrets store.
+        relationshipContext: Certificate- and key-based methods need renewal before expiry.
+    - name: credentialExpiryDate
+      type: date
+      required: false
+      help:
+        summary: When the credential used for the endpoint expires.
+        usage: Watched so that it is renewed before the interface stops working.
+        relationshipContext: Empty for credentials that do not expire.
+    - name: description
+      type: text
+      required: false
+      help:
+        summary: What the endpoint is used for and anything unusual about it.
+        usage: Read by whoever investigates a failure.
+        relationshipContext: Free text.
+    - name: status
+      type: enum
+      required: true
+      default: PLANNED
+      values:
+        - PLANNED
+        - ACTIVE
+        - SUSPENDED
+        - RETIRED
+      help:
+        valueSemantics:
+          PLANNED: Being built or tested, with no live traffic.
+          ACTIVE: In live use and receiving messages.
+          SUSPENDED: Traffic stopped for now, with messages waiting.
+          RETIRED: Decommissioned and no longer used.
+        summary: Whether the endpoint is in use.
+        usage: Moved on as the interface goes live, is paused or is decommissioned.
+        relationshipContext: Only active endpoints receive messages.
+  relationships:
+    - name: organization
+      target: Organization
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The organization whose system the endpoint belongs to.
+        usage: Chosen when registering it, such as the bank or carrier.
+        cardinalityMeaning: One per endpoint.
+        context: The partner's technical contact is found from it.
+    - name: owner
+      target: Person
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The person responsible for the endpoint on our side.
+        usage: Contacted when the endpoint fails or must change.
+        cardinalityMeaning: One per endpoint.
+        context: Receives credential-expiry reminders.
   invariants:
     - {id: INTEGRATION-ENDPOINT-001, rule: Delivery retries and corrections must preserve auditable evidence and must not duplicate downstream business effects.}
   help:
@@ -20,4 +163,34 @@ entity:
     lifecycle: Delivery retries and corrections keep auditable evidence and never duplicate downstream business effects.
     example: The partner's order-status webhook, to which the application posts "shipment.dispatched" events.
     whenUsed: Used for event publication, message exchange, delivery, retry, reconciliation, integration operations, and audit.
+  lifecycle:
+    title: Integration Endpoint Lifecycle
+    attribute: status
+    states:
+      - PLANNED
+      - ACTIVE
+      - SUSPENDED
+      - RETIRED
+    initial: PLANNED
+    terminal:
+      - RETIRED
+    transitions:
+      - from: PLANNED
+        to: ACTIVE
+        action: activate
+      - from: ACTIVE
+        to: SUSPENDED
+        action: suspend
+      - from: SUSPENDED
+        to: ACTIVE
+        action: resume
+      - from: ACTIVE
+        to: RETIRED
+        action: retire
+      - from: SUSPENDED
+        to: RETIRED
+        action: retire
+      - from: PLANNED
+        to: RETIRED
+        action: retire
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-INTEGRATION-ENDPOINT}

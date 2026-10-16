@@ -68,124 +68,184 @@ INSERT INTO sys_reference (sys_reference_id, name, description, validation_type,
 VALUES (1001, 'AddressStatus', 'Values allowed for AddressStatus', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_reference (sys_reference_id, name, description, validation_type, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES (1002, 'CurrencyStatus', 'Values allowed for CurrencyStatus', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES (1002, 'AttachmentStatus', 'Values allowed for AttachmentStatus', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_reference (sys_reference_id, name, description, validation_type, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES (1003, 'DockDockType', 'Values allowed for DockDockType', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES (1003, 'BusinessUnitStatus', 'Values allowed for BusinessUnitStatus', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_reference (sys_reference_id, name, description, validation_type, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES (1004, 'ExchangeRateRateType', 'Values allowed for ExchangeRateRateType', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES (1004, 'CalendarExceptionExceptionType', 'Values allowed for CalendarExceptionExceptionType', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_reference (sys_reference_id, name, description, validation_type, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES (1005, 'ExchangeRateStatus', 'Values allowed for ExchangeRateStatus', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES (1005, 'CalendarStatus', 'Values allowed for CalendarStatus', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_reference (sys_reference_id, name, description, validation_type, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES (1006, 'HandlingUnitType', 'Values allowed for HandlingUnitType', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES (1006, 'ContactPointChannel', 'Values allowed for ContactPointChannel', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_reference (sys_reference_id, name, description, validation_type, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES (1007, 'InventoryItemStatus', 'Values allowed for InventoryItemStatus', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES (1007, 'ContactPointPurpose', 'Values allowed for ContactPointPurpose', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_reference (sys_reference_id, name, description, validation_type, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES (1008, 'InventoryLocationLocationType', 'Values allowed for InventoryLocationLocationType', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES (1008, 'ContactPointStatus', 'Values allowed for ContactPointStatus', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_reference (sys_reference_id, name, description, validation_type, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES (1009, 'InventoryLocationStatus', 'Values allowed for InventoryLocationStatus', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES (1009, 'CurrencyStatus', 'Values allowed for CurrencyStatus', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_reference (sys_reference_id, name, description, validation_type, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES (1010, 'InventoryMovementMovementType', 'Values allowed for InventoryMovementMovementType', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES (1010, 'DepartmentStatus', 'Values allowed for DepartmentStatus', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_reference (sys_reference_id, name, description, validation_type, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES (1011, 'InventoryReservationStatus', 'Values allowed for InventoryReservationStatus', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES (1011, 'DockDockType', 'Values allowed for DockDockType', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_reference (sys_reference_id, name, description, validation_type, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES (1012, 'InventoryTransferStatus', 'Values allowed for InventoryTransferStatus', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES (1012, 'DockStatus', 'Values allowed for DockStatus', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_reference (sys_reference_id, name, description, validation_type, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES (1013, 'LocationLocationType', 'Values allowed for LocationLocationType', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES (1013, 'ExchangeRateRateType', 'Values allowed for ExchangeRateRateType', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_reference (sys_reference_id, name, description, validation_type, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES (1014, 'LocationStatus', 'Values allowed for LocationStatus', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES (1014, 'ExchangeRateStatus', 'Values allowed for ExchangeRateStatus', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_reference (sys_reference_id, name, description, validation_type, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES (1015, 'LotStatus', 'Values allowed for LotStatus', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES (1015, 'HandlingUnitStatus', 'Values allowed for HandlingUnitStatus', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_reference (sys_reference_id, name, description, validation_type, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES (1016, 'OrganizationOrganizationType', 'Values allowed for OrganizationOrganizationType', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES (1016, 'HandlingUnitType', 'Values allowed for HandlingUnitType', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_reference (sys_reference_id, name, description, validation_type, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES (1017, 'OrganizationPartyType', 'Values allowed for OrganizationPartyType', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES (1017, 'InventoryAdjustmentStatus', 'Values allowed for InventoryAdjustmentStatus', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_reference (sys_reference_id, name, description, validation_type, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES (1018, 'OrganizationStatus', 'Values allowed for OrganizationStatus', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES (1018, 'InventoryCountCountType', 'Values allowed for InventoryCountCountType', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_reference (sys_reference_id, name, description, validation_type, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES (1019, 'PackingStatus', 'Values allowed for PackingStatus', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES (1019, 'InventoryCountStatus', 'Values allowed for InventoryCountStatus', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_reference (sys_reference_id, name, description, validation_type, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES (1020, 'PartyPartyType', 'Values allowed for PartyPartyType', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES (1020, 'InventoryItemStatus', 'Values allowed for InventoryItemStatus', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_reference (sys_reference_id, name, description, validation_type, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES (1021, 'PartyRoleRoleType', 'Values allowed for PartyRoleRoleType', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES (1021, 'InventoryLocationLocationType', 'Values allowed for InventoryLocationLocationType', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_reference (sys_reference_id, name, description, validation_type, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES (1022, 'PartyRoleStatus', 'Values allowed for PartyRoleStatus', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES (1022, 'InventoryLocationStatus', 'Values allowed for InventoryLocationStatus', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_reference (sys_reference_id, name, description, validation_type, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES (1023, 'PartyStatus', 'Values allowed for PartyStatus', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES (1023, 'InventoryMovementMovementType', 'Values allowed for InventoryMovementMovementType', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_reference (sys_reference_id, name, description, validation_type, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES (1024, 'PersonGender', 'Values allowed for PersonGender', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES (1024, 'InventoryReservationStatus', 'Values allowed for InventoryReservationStatus', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_reference (sys_reference_id, name, description, validation_type, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES (1025, 'PersonPartyType', 'Values allowed for PersonPartyType', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES (1025, 'InventoryTransferStatus', 'Values allowed for InventoryTransferStatus', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_reference (sys_reference_id, name, description, validation_type, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES (1026, 'PersonStatus', 'Values allowed for PersonStatus', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES (1026, 'LanguageDirection', 'Values allowed for LanguageDirection', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_reference (sys_reference_id, name, description, validation_type, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES (1027, 'PickingStatus', 'Values allowed for PickingStatus', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES (1027, 'LegalEntityStatus', 'Values allowed for LegalEntityStatus', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_reference (sys_reference_id, name, description, validation_type, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES (1028, 'ProductProductType', 'Values allowed for ProductProductType', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES (1028, 'LocationLocationType', 'Values allowed for LocationLocationType', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_reference (sys_reference_id, name, description, validation_type, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES (1029, 'ProductStatus', 'Values allowed for ProductStatus', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES (1029, 'LocationStatus', 'Values allowed for LocationStatus', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_reference (sys_reference_id, name, description, validation_type, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES (1030, 'PutawayStatus', 'Values allowed for PutawayStatus', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES (1030, 'LotStatus', 'Values allowed for LotStatus', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_reference (sys_reference_id, name, description, validation_type, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES (1031, 'SerialNumberStatus', 'Values allowed for SerialNumberStatus', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES (1031, 'OrganizationOrganizationType', 'Values allowed for OrganizationOrganizationType', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_reference (sys_reference_id, name, description, validation_type, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES (1032, 'TaskPriority', 'Values allowed for TaskPriority', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES (1032, 'OrganizationPartyType', 'Values allowed for OrganizationPartyType', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_reference (sys_reference_id, name, description, validation_type, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES (1033, 'TaskStatus', 'Values allowed for TaskStatus', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES (1033, 'OrganizationStatus', 'Values allowed for OrganizationStatus', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_reference (sys_reference_id, name, description, validation_type, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES (1034, 'TaskTaskType', 'Values allowed for TaskTaskType', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES (1034, 'PackagingPackagingLevel', 'Values allowed for PackagingPackagingLevel', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_reference (sys_reference_id, name, description, validation_type, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES (1035, 'UnitOfMeasureCategory', 'Values allowed for UnitOfMeasureCategory', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES (1035, 'PackingStatus', 'Values allowed for PackingStatus', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_reference (sys_reference_id, name, description, validation_type, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES (1036, 'UnitOfMeasureStatus', 'Values allowed for UnitOfMeasureStatus', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES (1036, 'PartyPartyType', 'Values allowed for PartyPartyType', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_reference (sys_reference_id, name, description, validation_type, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES (1037, 'WarehouseLocationType', 'Values allowed for WarehouseLocationType', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES (1037, 'PartyRelationshipRelationshipType', 'Values allowed for PartyRelationshipRelationshipType', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_reference (sys_reference_id, name, description, validation_type, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES (1038, 'WarehouseStatus', 'Values allowed for WarehouseStatus', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES (1038, 'PartyRelationshipStatus', 'Values allowed for PartyRelationshipStatus', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_reference (sys_reference_id, name, description, validation_type, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES (1039, 'WarehouseWarehouseType', 'Values allowed for WarehouseWarehouseType', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES (1039, 'PartyRoleRoleType', 'Values allowed for PartyRoleRoleType', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_reference (sys_reference_id, name, description, validation_type, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES (1040, 'WarehouseZoneZoneType', 'Values allowed for WarehouseZoneZoneType', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES (1040, 'PartyRoleStatus', 'Values allowed for PartyRoleStatus', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_reference (sys_reference_id, name, description, validation_type, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES (1041, 'WaveStatus', 'Values allowed for WaveStatus', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES (1041, 'PartyStatus', 'Values allowed for PartyStatus', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_reference (sys_reference_id, name, description, validation_type, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES (1042, 'PersonGender', 'Values allowed for PersonGender', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_reference (sys_reference_id, name, description, validation_type, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES (1043, 'PersonPartyType', 'Values allowed for PersonPartyType', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_reference (sys_reference_id, name, description, validation_type, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES (1044, 'PersonStatus', 'Values allowed for PersonStatus', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_reference (sys_reference_id, name, description, validation_type, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES (1045, 'PickingStatus', 'Values allowed for PickingStatus', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_reference (sys_reference_id, name, description, validation_type, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES (1046, 'ProductProductType', 'Values allowed for ProductProductType', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_reference (sys_reference_id, name, description, validation_type, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES (1047, 'ProductStatus', 'Values allowed for ProductStatus', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_reference (sys_reference_id, name, description, validation_type, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES (1048, 'PutawayStatus', 'Values allowed for PutawayStatus', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_reference (sys_reference_id, name, description, validation_type, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES (1049, 'SerialNumberStatus', 'Values allowed for SerialNumberStatus', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_reference (sys_reference_id, name, description, validation_type, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES (1050, 'TaskPriority', 'Values allowed for TaskPriority', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_reference (sys_reference_id, name, description, validation_type, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES (1051, 'TaskStatus', 'Values allowed for TaskStatus', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_reference (sys_reference_id, name, description, validation_type, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES (1052, 'TaskTaskType', 'Values allowed for TaskTaskType', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_reference (sys_reference_id, name, description, validation_type, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES (1053, 'UnitOfMeasureCategory', 'Values allowed for UnitOfMeasureCategory', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_reference (sys_reference_id, name, description, validation_type, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES (1054, 'UnitOfMeasureStatus', 'Values allowed for UnitOfMeasureStatus', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_reference (sys_reference_id, name, description, validation_type, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES (1055, 'WarehouseLocationType', 'Values allowed for WarehouseLocationType', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_reference (sys_reference_id, name, description, validation_type, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES (1056, 'WarehouseStatus', 'Values allowed for WarehouseStatus', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_reference (sys_reference_id, name, description, validation_type, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES (1057, 'WarehouseWarehouseType', 'Values allowed for WarehouseWarehouseType', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_reference (sys_reference_id, name, description, validation_type, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES (1058, 'WarehouseZoneStatus', 'Values allowed for WarehouseZoneStatus', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_reference (sys_reference_id, name, description, validation_type, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES (1059, 'WarehouseZoneZoneType', 'Values allowed for WarehouseZoneZoneType', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_reference (sys_reference_id, name, description, validation_type, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES (1060, 'WaveStatus', 'Values allowed for WaveStatus', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_reference (sys_reference_id, name, description, validation_type, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES (1061, 'WaveWaveType', 'Values allowed for WaveWaveType', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_ref_list (sys_ref_list_id, sys_reference_id, value, name, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('38deb37e-3823-5036-b29e-f832b6f0fee9', 100, 'S', 'System Only', 'S', TRUE, 'system', 'system', NOW(), NOW())
@@ -257,13 +317,13 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('e94dca77-bd05-5e1f-bb8e-a09563fa784b', 'd2fe6355-66a0-571c-a7fa-db3dda5aa628', 'id', 'Id', 'The stable internal identity of the party. Identifies the real-world person or organization represented by this record without changing when the party changes roles or business relationships. Used as the identity anchor for party roles, addresses, transactions, contracts, ownership, audit, and integrations. PartyId identifies the root party; role-specific identifiers such as Customer.customerId must not be used as substitutes for party identity.', 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('0f983feb-5f5c-565a-9779-31b9cc2e9d53', 'd2fe6355-66a0-571c-a7fa-db3dda5aa628', 'party_type', 'Party Type', 'Identifies whether the party is a person or an organization. Determines which party specialization is applicable and prevents business processes from interpreting an organization as an individual or vice versa. Used to select Person or Organization details and to drive validation, forms, search, reporting, and role assignment. PERSON requires the Person specialization; ORGANIZATION requires the Organization specialization. The party represents an individual human being. The party represents a legal, commercial, governmental, nonprofit, or other organized body.', 1020, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('0f983feb-5f5c-565a-9779-31b9cc2e9d53', 'd2fe6355-66a0-571c-a7fa-db3dda5aa628', 'party_type', 'Party Type', 'Identifies whether the party is a person or an organization. Determines which party specialization is applicable and prevents business processes from interpreting an organization as an individual or vice versa. Used to select Person or Organization details and to drive validation, forms, search, reporting, and role assignment. PERSON requires the Person specialization; ORGANIZATION requires the Organization specialization. The party represents an individual human being. The party represents a legal, commercial, governmental, nonprofit, or other organized body.', 1036, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('a6803a09-9e55-572b-9bf9-d4691f2ba0bd', 'd2fe6355-66a0-571c-a7fa-db3dda5aa628', 'display_name', 'Display Name', 'The business-facing name by which the party is normally displayed and recognized. Provides a consistent human-readable representation independent of whether the party is a person or organization. Used in forms, search results, documents, transactions, reports, notifications, and user interfaces. It is a presentation identity for the Party and does not replace legal names, person names, or organization registration names stored by specializations.', 10, 300, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, FALSE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('2db0fbdc-b045-5035-9f2d-ea5fbc1843d0', 'd2fe6355-66a0-571c-a7fa-db3dda5aa628', 'status', 'Status', 'Controls whether the party may participate in new business activity. Represents the operational lifecycle of the party relationship with the enterprise, not the party''s legal existence. Used by onboarding, transaction validation, account maintenance, compliance, and deactivation processes. A party may remain historically referenced after becoming INACTIVE, BLOCKED, or RETIRED; lifecycle state therefore does not imply deletion. The party is available for normal business participation. The party is retained but is not normally eligible for new activity. Business activity is restricted pending resolution of a business, risk, compliance, or operational condition. The party relationship is permanently ended for normal operational use while historical references remain valid.', 1023, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 40, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('2db0fbdc-b045-5035-9f2d-ea5fbc1843d0', 'd2fe6355-66a0-571c-a7fa-db3dda5aa628', 'status', 'Status', 'Controls whether the party may participate in new business activity. Represents the operational lifecycle of the party relationship with the enterprise, not the party''s legal existence. Used by onboarding, transaction validation, account maintenance, compliance, and deactivation processes. A party may remain historically referenced after becoming INACTIVE, BLOCKED, or RETIRED; lifecycle state therefore does not imply deletion. The party is available for normal business participation. The party is retained but is not normally eligible for new activity. Business activity is restricted pending resolution of a business, risk, compliance, or operational condition. The party relationship is permanently ended for normal operational use while historical references remain valid.', 1041, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 40, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('32577101-0711-5c8e-bafa-580adf25cecf', 'd2fe6355-66a0-571c-a7fa-db3dda5aa628', 'external_reference', 'External Reference', 'An identifier assigned to the party by an external system or business partner. Preserves a cross-system identity that allows CEDM to reconcile a party with another master-data system. Used for integrations, migration, reconciliation, EDI, synchronization, and external lookup. It is not the canonical CEDM identity; Party.partyId remains the internal identity while externalReference provides interoperability context.', 10, 200, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 50, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -333,19 +393,19 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('2295bb2b-7cb9-5495-a6f5-2926d7872b68', '5da5ba8b-1bc4-5169-8617-10914072e011', 'date_of_birth', 'Date Of Birth', 'The person''s date of birth, recorded where age or verified identity matters to a process. Optional and sensitive; collected only where needed, for example for age checks, payroll or identity verification. sensitive person attribute subject to access policy. eligibility/verification where applicable.', 15, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 80, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('302b83e1-75b5-58b5-83c2-be4e1bcfc5c0', '5da5ba8b-1bc4-5169-8617-10914072e011', 'gender', 'Gender', 'The person''s gender as recorded for the organisation''s lawful purposes. Entered only where there is a need and a lawful basis, normally by the person; never used to decide eligibility. The person identifies and is recorded as female. The person identifies and is recorded as male. The person identifies as neither exclusively male nor exclusively female. The person identifies in a way not covered by the other values. The gender is not recorded, because it was not needed or the person chose not to say. person attribute and not role. process-specific.', 1024, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 90, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('302b83e1-75b5-58b5-83c2-be4e1bcfc5c0', '5da5ba8b-1bc4-5169-8617-10914072e011', 'gender', 'Gender', 'The person''s gender as recorded for the organisation''s lawful purposes. Entered only where there is a need and a lawful basis, normally by the person; never used to decide eligibility. The person identifies and is recorded as female. The person identifies and is recorded as male. The person identifies as neither exclusively male nor exclusively female. The person identifies in a way not covered by the other values. The gender is not recorded, because it was not needed or the person chose not to say. person attribute and not role. process-specific.', 1042, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 90, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('c5ad68b8-1705-5311-8c66-f2311fa969dc', '5da5ba8b-1bc4-5169-8617-10914072e011', 'nationality_id', 'Nationality', 'The country whose nationality the person holds. Chosen from the list of countries; used by identity and compliance processes. Not Party identity; process-specific.', 19, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 100, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('959df56a-33ac-538d-8e61-ddee8fec32d7', '5da5ba8b-1bc4-5169-8617-10914072e011', 'party_type', 'Party Type', 'Identifies whether the party is a person or an organization. Determines which party specialization is applicable and prevents business processes from interpreting an organization as an individual or vice versa. Used to select Person or Organization details and to drive validation, forms, search, reporting, and role assignment. PERSON requires the Person specialization; ORGANIZATION requires the Organization specialization. The party represents an individual human being. The party represents a legal, commercial, governmental, nonprofit, or other organized body.', 1025, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 110, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('959df56a-33ac-538d-8e61-ddee8fec32d7', '5da5ba8b-1bc4-5169-8617-10914072e011', 'party_type', 'Party Type', 'Identifies whether the party is a person or an organization. Determines which party specialization is applicable and prevents business processes from interpreting an organization as an individual or vice versa. Used to select Person or Organization details and to drive validation, forms, search, reporting, and role assignment. PERSON requires the Person specialization; ORGANIZATION requires the Organization specialization. The party represents an individual human being. The party represents a legal, commercial, governmental, nonprofit, or other organized body.', 1043, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 110, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('63d6fdf5-ad7c-5e47-8a13-4586be57a5ae', '5da5ba8b-1bc4-5169-8617-10914072e011', 'display_name', 'Display Name', 'The business-facing name by which the party is normally displayed and recognized. Provides a consistent human-readable representation independent of whether the party is a person or organization. Used in forms, search results, documents, transactions, reports, notifications, and user interfaces. It is a presentation identity for the Party and does not replace legal names, person names, or organization registration names stored by specializations.', 10, 300, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, FALSE, FALSE, FALSE, TRUE, TRUE, 120, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('eb6a16c2-e02e-5b67-8026-e8d959322529', '5da5ba8b-1bc4-5169-8617-10914072e011', 'status', 'Status', 'Controls whether the party may participate in new business activity. Represents the operational lifecycle of the party relationship with the enterprise, not the party''s legal existence. Used by onboarding, transaction validation, account maintenance, compliance, and deactivation processes. A party may remain historically referenced after becoming INACTIVE, BLOCKED, or RETIRED; lifecycle state therefore does not imply deletion. The party is available for normal business participation. The party is retained but is not normally eligible for new activity. Business activity is restricted pending resolution of a business, risk, compliance, or operational condition. The party relationship is permanently ended for normal operational use while historical references remain valid.', 1026, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 130, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('eb6a16c2-e02e-5b67-8026-e8d959322529', '5da5ba8b-1bc4-5169-8617-10914072e011', 'status', 'Status', 'Controls whether the party may participate in new business activity. Represents the operational lifecycle of the party relationship with the enterprise, not the party''s legal existence. Used by onboarding, transaction validation, account maintenance, compliance, and deactivation processes. A party may remain historically referenced after becoming INACTIVE, BLOCKED, or RETIRED; lifecycle state therefore does not imply deletion. The party is available for normal business participation. The party is retained but is not normally eligible for new activity. Business activity is restricted pending resolution of a business, risk, compliance, or operational condition. The party relationship is permanently ended for normal operational use while historical references remain valid.', 1044, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 130, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('3b46ff41-f160-5163-adce-873306068c86', '5da5ba8b-1bc4-5169-8617-10914072e011', 'external_reference', 'External Reference', 'An identifier assigned to the party by an external system or business partner. Preserves a cross-system identity that allows CEDM to reconcile a party with another master-data system. Used for integrations, migration, reconciliation, EDI, synchronization, and external lookup. It is not the canonical CEDM identity; Party.partyId remains the internal identity while externalReference provides interoperability context.', 10, 200, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 140, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -408,7 +468,7 @@ VALUES ('80511db0-f4f0-53e7-abf8-d7737c6aa557', 'Organization', 'Maintain Organi
 
 Id and Party are unique: no two Organization records may share the same value, and a save that would duplicate one is rejected. Party, Code, Name, Organization Type, Status, Party Type and Display Name must be filled in before the record can be saved.
 
-Every Organization points at Party and Person. Choose the linked record from the lookup on those fields rather than typing an identifier. Party Role, Business Unit, Department, Address, Location, Task, Inventory Item and Warehouse refer back to Organization, so what you change here can affect those records.
+Every Organization points at Party and Person. Choose the linked record from the lookup on those fields rather than typing an identifier. Party Role, Legal Entity, Business Unit, Department, Address, Location, Task, Inventory Item and Warehouse refer back to Organization, so what you change here can affect those records.
 
 Every save starts as a Draft. The business rules and workflows attached to Organization then run together in a single transaction: if all of them succeed the record becomes Final; if any of them fails, nothing they changed is kept — the record stays Draft and the reason is written onto it so you can fix the cause and retry. An Organization with no rules or workflows attached is marked Final immediately.', 'building-2', 'M', FALSE, TRUE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
@@ -431,10 +491,10 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('59258d68-3256-5ec6-81a2-0fcd06f6db27', 'b6f167bb-5187-55e3-beba-51f9548af656', 'name', 'Name', 'Common organizational name used in business operations. Used in search, forms, reports, documents, and transactions. LegalName may differ and provides formal legal identity. Provides human-readable organizational identification.', 10, 200, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 40, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('3e6666f4-6f65-541d-85d3-7d9682e7ff4d', 'b6f167bb-5187-55e3-beba-51f9548af656', 'organization_type', 'Organization Type', 'Classifies the organizational structure represented by the specialization, from whole enterprise down to department or branch. Used for hierarchy, authorization, reporting, transaction scope, and organizational selection; chosen when the unit is created. The top-level group or enterprise that owns every other organizational unit beneath it. A separate legal entity or operating company, usually with its own registrations, books and tax identifiers. A unit organized around a line of business or market, which may span several legal entities. A large internal division grouping departments under a common head or function. A functional team within a company or division, such as finance or warehouse operations. A geographically separate office, store or site operating under a parent organization. A company controlled by a parent organization but trading as a separate legal entity. A structure that fits none of the other types and is explained in its name or description. Organization type describes structure, not commercial role. Customer/Supplier behavior belongs to PartyRole specializations. Controls applicable organizational hierarchy and operating-context rules.', 1016, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 50, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('3e6666f4-6f65-541d-85d3-7d9682e7ff4d', 'b6f167bb-5187-55e3-beba-51f9548af656', 'organization_type', 'Organization Type', 'Classifies the organizational structure represented by the specialization, from whole enterprise down to department or branch. Used for hierarchy, authorization, reporting, transaction scope, and organizational selection; chosen when the unit is created. The top-level group or enterprise that owns every other organizational unit beneath it. A separate legal entity or operating company, usually with its own registrations, books and tax identifiers. A unit organized around a line of business or market, which may span several legal entities. A large internal division grouping departments under a common head or function. A functional team within a company or division, such as finance or warehouse operations. A geographically separate office, store or site operating under a parent organization. A company controlled by a parent organization but trading as a separate legal entity. A structure that fits none of the other types and is explained in its name or description. Organization type describes structure, not commercial role. Customer/Supplier behavior belongs to PartyRole specializations. Controls applicable organizational hierarchy and operating-context rules.', 1031, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 50, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('6007015e-2f43-5c9e-972c-b8a8106ffb17', 'b6f167bb-5187-55e3-beba-51f9548af656', 'status', 'Status', 'Lifecycle of the organizational specialization, deciding whether the unit may be selected in new transactions. Controls whether the organization can normally be selected as an organizational scope; set by master-data staff. The organization is being set up and is not yet available for use in transactions. The organization is in use and can be selected as an organizational scope in new records. The organization is temporarily not selectable, for example while dormant, but its history is kept and it may return. The organization has been permanently closed or merged away and cannot be selected again. A final state. Organization status does not replace Party.status or PartyRole.status; all applicable states must permit new activity. Governs organizational use while preserving historical relationships.', 1018, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 60, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('6007015e-2f43-5c9e-972c-b8a8106ffb17', 'b6f167bb-5187-55e3-beba-51f9548af656', 'status', 'Status', 'Lifecycle of the organizational specialization, deciding whether the unit may be selected in new transactions. Controls whether the organization can normally be selected as an organizational scope; set by master-data staff. The organization is being set up and is not yet available for use in transactions. The organization is in use and can be selected as an organizational scope in new records. The organization is temporarily not selectable, for example while dormant, but its history is kept and it may return. The organization has been permanently closed or merged away and cannot be selected again. A final state. Organization status does not replace Party.status or PartyRole.status; all applicable states must permit new activity. Governs organizational use while preserving historical relationships.', 1033, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 60, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('54eab129-8e50-546f-9fec-f3d70e6e012e', 'b6f167bb-5187-55e3-beba-51f9548af656', 'legal_name', 'Legal Name', 'Formal legal name of the organization. Used for contracts, invoices, tax, regulatory reporting, and legal documentation. LegalName is distinct from the operational name. Supplies legal presentation and compliance context.', 10, 300, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 70, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -446,7 +506,7 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('759e27d4-6672-5cad-b6f5-dac36a758bd8', 'b6f167bb-5187-55e3-beba-51f9548af656', 'tax_identifier', 'Tax Identifier', 'Tax identifier applicable to the organization in a relevant jurisdiction. Used for tax determination, invoices, reporting, and compliance. Tax identity may vary by jurisdiction and should not replace Party identity. Supports tax-rule applicability and statutory reporting.', 10, 100, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 90, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('1ca924d0-c51c-5c46-b428-9a93e55a8c26', 'b6f167bb-5187-55e3-beba-51f9548af656', 'party_type', 'Party Type', 'Identifies whether the party is a person or an organization. Determines which party specialization is applicable and prevents business processes from interpreting an organization as an individual or vice versa. Used to select Person or Organization details and to drive validation, forms, search, reporting, and role assignment. PERSON requires the Person specialization; ORGANIZATION requires the Organization specialization. The party represents an individual human being. The party represents a legal, commercial, governmental, nonprofit, or other organized body.', 1017, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 100, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('1ca924d0-c51c-5c46-b428-9a93e55a8c26', 'b6f167bb-5187-55e3-beba-51f9548af656', 'party_type', 'Party Type', 'Identifies whether the party is a person or an organization. Determines which party specialization is applicable and prevents business processes from interpreting an organization as an individual or vice versa. Used to select Person or Organization details and to drive validation, forms, search, reporting, and role assignment. PERSON requires the Person specialization; ORGANIZATION requires the Organization specialization. The party represents an individual human being. The party represents a legal, commercial, governmental, nonprofit, or other organized body.', 1032, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 100, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('9ed7fcc6-2961-5f1e-a541-99e121113147', 'b6f167bb-5187-55e3-beba-51f9548af656', 'display_name', 'Display Name', 'The business-facing name by which the party is normally displayed and recognized. Provides a consistent human-readable representation independent of whether the party is a person or organization. Used in forms, search results, documents, transactions, reports, notifications, and user interfaces. It is a presentation identity for the Party and does not replace legal names, person names, or organization registration names stored by specializations.', 10, 300, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 110, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -534,7 +594,7 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('bde52128-688a-5682-ab8b-bde8692efb40', '00d3211a-a05b-5fe8-b4ad-7f1b8b04727e', 'party_id', 'Party', 'The party that holds the role. Set when the role is assigned and not changed. One Party may have multiple PartyRoles simultaneously or historically. Connects role-specific processing back to the canonical identity.', 19, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('d0a47b71-e5d5-553a-829d-009537ca957c', '00d3211a-a05b-5fe8-b4ad-7f1b8b04727e', 'role_type', 'Role Type', 'The kind of role the party plays, such as customer, supplier, employee or partner. Chosen when the role is assigned; decides which specialised record (customer, supplier and so on) carries its detail. The party buys goods or services from the organization and is handled in sales and receivables. The party sells goods or services to the organization and is handled in procurement and payables. The party works for the organization under an employment relationship. The party collaborates with the organization commercially, such as a reseller or alliance member. The party transports goods or people for the organization. The party acts on behalf of the organization or of another party, usually for a commission. The party provides labour or services under a contract rather than as an employee. The party holds an ownership or beneficial interest in an asset or organization. The party provides capital to the organization in return for a financial return or equity stake. A role that fits none of the listed kinds and is explained in the role code or description. Separate from Party.partyType, which describes whether the participant is a person or organization. Selects the applicable downstream role specialization and business process.', 1021, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('d0a47b71-e5d5-553a-829d-009537ca957c', '00d3211a-a05b-5fe8-b4ad-7f1b8b04727e', 'role_type', 'Role Type', 'The kind of role the party plays, such as customer, supplier, employee or partner. Chosen when the role is assigned; decides which specialised record (customer, supplier and so on) carries its detail. The party buys goods or services from the organization and is handled in sales and receivables. The party sells goods or services to the organization and is handled in procurement and payables. The party works for the organization under an employment relationship. The party collaborates with the organization commercially, such as a reseller or alliance member. The party transports goods or people for the organization. The party acts on behalf of the organization or of another party, usually for a commission. The party provides labour or services under a contract rather than as an employee. The party holds an ownership or beneficial interest in an asset or organization. The party provides capital to the organization in return for a financial return or equity stake. A role that fits none of the listed kinds and is explained in the role code or description. Separate from Party.partyType, which describes whether the participant is a person or organization. Selects the applicable downstream role specialization and business process.', 1039, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('af0b4d5a-e09c-5920-bd7d-442f8cba263b', '00d3211a-a05b-5fe8-b4ad-7f1b8b04727e', 'code', 'Code', 'An optional code for the role. Used by integrations that identify the role separately from the party. Identifies the role instance and must not replace Party or specialized role identifiers.', 10, 100, NULL, FALSE, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, TRUE, TRUE, 40, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -546,7 +606,7 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('8f0890de-927a-5ccd-b544-583a9d9057eb', '00d3211a-a05b-5fe8-b4ad-7f1b8b04727e', 'valid_to', 'Valid To', 'The last date on which the role still applies to the party. Set when the role ends, such as a contract expiry; empty while open-ended, and later use of the role is refused. Historical transactions may continue referencing the role after validTo. Prevents new use after role expiration while preserving historical attribution.', 15, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 60, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('b65f4db1-d6d4-526a-bea4-b0b6f4460baa', '00d3211a-a05b-5fe8-b4ad-7f1b8b04727e', 'status', 'Status', 'Whether the party currently holds the role and may be used in it. Set by master-data staff; only active roles are offered in selections, and expired is reached when the validity ends. The party currently holds the role. Dormant but may resume. Ended; kept for history. A final state. Role status is independent of Party.status and other PartyRole statuses. ACTIVE permits normal role use; INACTIVE temporarily prevents ordinary use; EXPIRED represents ended validity.', 1022, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 70, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('b65f4db1-d6d4-526a-bea4-b0b6f4460baa', '00d3211a-a05b-5fe8-b4ad-7f1b8b04727e', 'status', 'Status', 'Whether the party currently holds the role and may be used in it. Set by master-data staff; only active roles are offered in selections, and expired is reached when the validity ends. The party currently holds the role. Dormant but may resume. Ended; kept for history. A final state. Role status is independent of Party.status and other PartyRole statuses. ACTIVE permits normal role use; INACTIVE temporarily prevents ordinary use; EXPIRED represents ended validity.', 1040, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 70, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('1a423fe6-df6d-5c12-8ffd-445b2f504f7d', '00d3211a-a05b-5fe8-b4ad-7f1b8b04727e', 'person_id', 'Person', 'The Person this PartyRole belongs to.', 19, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 80, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -592,9 +652,9 @@ ON CONFLICT DO NOTHING;
 -- Party Relationship (bus_party_relationship)
 -- --------------------------------------------------------------------------
 INSERT INTO sys_window (sys_window_id, name, description, help, icon, window_type, is_sales_transaction, is_default, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('762e30a8-d7cd-5a20-83ac-acf3e9da7ab4', 'Party Relationship', 'Maintain Party Relationship records', 'Create, find and maintain Party Relationship records. The list shows every Party Relationship you have access to — select a row to open it, or use New to add one. Each row is a single Party Relationship, described by 4 fields.
+VALUES ('762e30a8-d7cd-5a20-83ac-acf3e9da7ab4', 'Party Relationship', 'Maintain Party Relationship records', 'Create, find and maintain Party Relationship records. The list shows every Party Relationship you have access to — select a row to open it, or use New to add one. Each row is a single Party Relationship, described by 9 fields.
 
-Id is unique: no two Party Relationship records may share the same value, and a save that would duplicate one is rejected. Code, Name and From Party must be filled in before the record can be saved.
+Id is unique: no two Party Relationship records may share the same value, and a save that would duplicate one is rejected. Code, Name, Relationship Type, Status and From Party must be filled in before the record can be saved.
 
 Every save starts as a Draft. The business rules and workflows attached to Party Relationship then run together in a single transaction: if all of them succeed the record becomes Final; if any of them fails, nothing they changed is kept — the record stays Draft and the reason is written onto it so you can fix the cause and retry. A Party Relationship with no rules or workflows attached is marked Final immediately.', 'users', 'M', FALSE, TRUE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
@@ -602,7 +662,7 @@ INSERT INTO sys_table (sys_table_id, table_name, name, description, icon, access
 VALUES ('4f3a14cc-83f9-56fe-ae63-ef73d8339fdd', 'bus_party_relationship', 'Party Relationship', 'A time-bound relationship between two parties that describes how they stand to each other in business, legal, household, employment or another way. Parties are connected to each other: a company to its subsidiary, a person to their employer, one household member to another. Recording the relationship, with its dates, lets the organisation see who is connected to whom and since when. Created when a relationship is established; ended when it stops; read by sales, compliance and customer service. A relationship runs from one Party to another. Code and identity stay stable, and the relationship''s history is kept when it ends or changes. "Subsidiary of": Acme Ltd is a subsidiary of Acme Holdings from 1 January 2019.', 'users', 'A', FALSE, FALSE, FALSE, TRUE, '762e30a8-d7cd-5a20-83ac-acf3e9da7ab4', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_tab (sys_tab_id, sys_window_id, sys_table_id, name, help, tab_level, seq_no, is_single_row, has_tree, is_info_tab, is_translation_tab, is_read_only, is_insert_record, is_advanced_tab, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('c6e0f6ef-4b9b-579b-be1b-b378a2d0479c', '762e30a8-d7cd-5a20-83ac-acf3e9da7ab4', '4f3a14cc-83f9-56fe-ae63-ef73d8339fdd', 'Party Relationship', 'Shows one Party Relationship at a time. Fields are grouped: General carries the identifying fields and Details carries the rest. 3 fields marked with a red asterisk (*) must have a value before Save will accept the record. Any field showing a ? beside its label has help of its own; click it for the rules that apply there.', 0, 10, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('c6e0f6ef-4b9b-579b-be1b-b378a2d0479c', '762e30a8-d7cd-5a20-83ac-acf3e9da7ab4', '4f3a14cc-83f9-56fe-ae63-ef73d8339fdd', 'Party Relationship', 'Shows one Party Relationship at a time. Fields are grouped: General carries the identifying fields and Details carries the rest. 5 fields marked with a red asterisk (*) must have a value before Save will accept the record. Any field showing a ? beside its label has help of its own; click it for the rules that apply there.', 0, 10, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('679aab2d-f156-5efa-85cb-16486b4a0d0f', '4f3a14cc-83f9-56fe-ae63-ef73d8339fdd', 'id', 'Id', 'The identity of the relationship. Generated on creation; documents and reports refer to it.', 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -614,7 +674,22 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('045e78a6-984d-5be0-ae83-3ddac3bfe605', '4f3a14cc-83f9-56fe-ae63-ef73d8339fdd', 'name', 'Name', 'A readable description of the relationship, such as Acme Ltd is subsidiary of Acme Group. Entered when the relationship is created; shown in party views and lists so users can understand the link at a glance.', 10, 300, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('23a4a679-d03b-5cc5-8914-3bebdfaa34b2', '4f3a14cc-83f9-56fe-ae63-ef73d8339fdd', 'from_party_id', 'From Party', 'The party at the origin of the relationship. Chosen when the relationship is created. Exactly one origin party: a relationship always starts at a particular party. Together with the other party it identifies the relationship.', 19, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 40, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('5ec79f45-1667-5ec6-b6da-2fb599c1063f', '4f3a14cc-83f9-56fe-ae63-ef73d8339fdd', 'relationship_type', 'Relationship Type', 'Describes how the first party stands towards the second, such as subsidiary, employee or guarantor. Chosen when the link is recorded; credit, compliance and group reporting use it to interpret the connection. Read from the first party to the second. The first party is a subsidiary owned by the second. The first party is a branch operating as part of the second. The first party works for the second as an employee. The first party acts as an agent on behalf of the second. The first party guarantees the second party''s obligations. The first party ultimately owns or controls the second. The first party lives in the same household as the second. Any other kind of link, explained in the relationship name.', 1037, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 40, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('e417a1e2-4d26-515b-a54c-484b8ae592ec', '4f3a14cc-83f9-56fe-ae63-ef73d8339fdd', 'ownership_percent', 'Ownership Percent', 'The share the parent or owner holds, for ownership relationships. Used in consolidation and beneficial-ownership checks. Between 0 and 100.', 12, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 50, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('599efdbd-0c93-591c-8b9a-2b47cc856072', '4f3a14cc-83f9-56fe-ae63-ef73d8339fdd', 'valid_from', 'Valid From', 'The first day on which the relationship between the two parties holds. Recorded when it is known, for example from a contract or register entry. It cannot be later than the valid-to date.', 15, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 60, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('9f1427da-39ce-56a4-a53f-15b25c10c68f', '4f3a14cc-83f9-56fe-ae63-ef73d8339fdd', 'valid_to', 'Valid To', 'The last day on which the relationship between the two parties holds. Recorded when the relationship ends, for example on resignation or sale; empty while it still applies. Empty while the relationship continues.', 15, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 70, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('474b404e-2eb6-5bd6-b4ae-8ea36fc80b13', '4f3a14cc-83f9-56fe-ae63-ef73d8339fdd', 'status', 'Status', 'Says whether the relationship between the two parties is still in force today. Set to ended by the person maintaining the record when the relationship stops. Ended relationships stay for history. The relationship is in force today. The relationship has stopped but is kept for history.', 1038, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 80, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('23a4a679-d03b-5cc5-8914-3bebdfaa34b2', '4f3a14cc-83f9-56fe-ae63-ef73d8339fdd', 'from_party_id', 'From Party', 'The party at the origin of the relationship. Chosen when the relationship is created. Exactly one origin party: a relationship always starts at a particular party. Together with the other party it identifies the relationship.', 19, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 90, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 UPDATE sys_column SET ref_table_name = 'bus_party' WHERE sys_column_id = '23a4a679-d03b-5cc5-8914-3bebdfaa34b2';
 INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
@@ -627,7 +702,22 @@ INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_
 VALUES ('8fe3bac5-9d43-5ca3-bc16-7cdb92a220e4', 'c6e0f6ef-4b9b-579b-be1b-b378a2d0479c', '045e78a6-984d-5be0-ae83-3ddac3bfe605', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Name', 'A readable description of the relationship, such as Acme Ltd is subsidiary of Acme Group. Entered when the relationship is created; shown in party views and lists so users can understand the link at a glance. Required — the record cannot be saved while this is empty. Up to 300 characters.', 30, 30, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('170875a9-0ea1-5293-a208-e731934c7938', 'c6e0f6ef-4b9b-579b-be1b-b378a2d0479c', '23a4a679-d03b-5cc5-8914-3bebdfaa34b2', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'From Party', 'The party at the origin of the relationship. Chosen when the relationship is created. Exactly one origin party: a relationship always starts at a particular party. Together with the other party it identifies the relationship. Required — the record cannot be saved while this is empty.', 40, 40, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('29a86754-bc9c-5df7-bfb0-3fc835c7f17d', 'c6e0f6ef-4b9b-579b-be1b-b378a2d0479c', '5ec79f45-1667-5ec6-b6da-2fb599c1063f', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Relationship Type', 'Describes how the first party stands towards the second, such as subsidiary, employee or guarantor. Chosen when the link is recorded; credit, compliance and group reporting use it to interpret the connection. Read from the first party to the second. The first party is a subsidiary owned by the second. The first party is a branch operating as part of the second. The first party works for the second as an employee. The first party acts as an agent on behalf of the second. The first party guarantees the second party''s obligations. The first party ultimately owns or controls the second. The first party lives in the same household as the second. Any other kind of link, explained in the relationship name. Required — the record cannot be saved while this is empty.', 40, 40, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('b76464b5-5959-5ffc-9891-96b5804e3e6d', 'c6e0f6ef-4b9b-579b-be1b-b378a2d0479c', 'e417a1e2-4d26-515b-a54c-484b8ae592ec', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Ownership Percent', 'The share the parent or owner holds, for ownership relationships. Used in consolidation and beneficial-ownership checks. Between 0 and 100.', 50, 50, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('22fd2899-ed20-545e-89d0-1a54a72e5671', 'c6e0f6ef-4b9b-579b-be1b-b378a2d0479c', '599efdbd-0c93-591c-8b9a-2b47cc856072', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Valid From', 'The first day on which the relationship between the two parties holds. Recorded when it is known, for example from a contract or register entry. It cannot be later than the valid-to date.', 60, 60, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('dd6518f2-8dc3-5d72-8506-0cf9e591cc94', 'c6e0f6ef-4b9b-579b-be1b-b378a2d0479c', '9f1427da-39ce-56a4-a53f-15b25c10c68f', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Valid To', 'The last day on which the relationship between the two parties holds. Recorded when the relationship ends, for example on resignation or sale; empty while it still applies. Empty while the relationship continues.', 70, 70, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('a5dd9940-f9c4-582d-9a51-1b886868094f', 'c6e0f6ef-4b9b-579b-be1b-b378a2d0479c', '474b404e-2eb6-5bd6-b4ae-8ea36fc80b13', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Status', 'Says whether the relationship between the two parties is still in force today. Set to ended by the person maintaining the record when the relationship stops. Ended relationships stay for history. The relationship is in force today. The relationship has stopped but is kept for history. Required — the record cannot be saved while this is empty.', 80, 80, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('170875a9-0ea1-5293-a208-e731934c7938', 'c6e0f6ef-4b9b-579b-be1b-b378a2d0479c', '23a4a679-d03b-5cc5-8914-3bebdfaa34b2', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'From Party', 'The party at the origin of the relationship. Chosen when the relationship is created. Exactly one origin party: a relationship always starts at a particular party. Together with the other party it identifies the relationship. Required — the record cannot be saved while this is empty.', 90, 90, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_access (sys_access_id, sys_role_id, sys_table_id, sys_window_id, access_type_table, is_read_only, is_exclude, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('b865658b-b3d6-5124-8279-cd01a3cc5b91', (SELECT sys_role_id FROM sys_role WHERE name = 'Administrator'), '4f3a14cc-83f9-56fe-ae63-ef73d8339fdd', '762e30a8-d7cd-5a20-83ac-acf3e9da7ab4', 'W', FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -640,9 +730,11 @@ ON CONFLICT DO NOTHING;
 -- Legal Entity (bus_legal_entity)
 -- --------------------------------------------------------------------------
 INSERT INTO sys_window (sys_window_id, name, description, help, icon, window_type, is_sales_transaction, is_default, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('9090aba2-dbbd-5ca1-90f0-02b3583f8e61', 'Legal Entity', 'Maintain Legal Entity records', 'Create, find and maintain Legal Entity records. The list shows every Legal Entity you have access to — select a row to open it, or use New to add one. Each row is a single Legal Entity, described by 2 fields.
+VALUES ('9090aba2-dbbd-5ca1-90f0-02b3583f8e61', 'Legal Entity', 'Maintain Legal Entity records', 'Create, find and maintain Legal Entity records. The list shows every Legal Entity you have access to — select a row to open it, or use New to add one. Each row is a single Legal Entity, described by 17 fields.
 
-Id is unique: no two Legal Entity records may share the same value, and a save that would duplicate one is rejected.
+Id is unique: no two Legal Entity records may share the same value, and a save that would duplicate one is rejected. Legal Name, Is Group Company and Status must be filled in before the record can be saved.
+
+Every Legal Entity points at Organization and Country. Choose the linked record from the lookup on those fields rather than typing an identifier. Business Unit refers back to Legal Entity, so what you change here can affect that record.
 
 Every save starts as a Draft. The business rules and workflows attached to Legal Entity then run together in a single transaction: if all of them succeed the record becomes Final; if any of them fails, nothing they changed is kept — the record stays Draft and the reason is written onto it so you can fix the cause and retry. A Legal Entity with no rules or workflows attached is marked Final immediately.', 'database', 'M', FALSE, TRUE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
@@ -650,7 +742,7 @@ INSERT INTO sys_table (sys_table_id, table_name, name, description, icon, access
 VALUES ('17d02544-6b81-5571-b51b-ecadb71adaa4', 'bus_legal_entity', 'Legal Entity', 'A legally recognised organisation or person that can hold rights and obligations, registrations, contracts, assets, liabilities or filings. Contracts are signed and taxes are paid by legal entities, not by business units. Knowing exactly which entity is involved determines liability, reporting and registration duties. Registered when an entity is formed or acquired; referenced by contracts, filings and ledgers. Contracts, filings and accounting books refer to the legal entity. Finalised evidence and effective history are preserved; changes such as name changes or mergers are recorded explicitly. Acme Holdings GmbH, a limited company registered in Germany.', 'database', 'A', FALSE, FALSE, FALSE, TRUE, '9090aba2-dbbd-5ca1-90f0-02b3583f8e61', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_tab (sys_tab_id, sys_window_id, sys_table_id, name, help, tab_level, seq_no, is_single_row, has_tree, is_info_tab, is_translation_tab, is_read_only, is_insert_record, is_advanced_tab, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('e67047fe-fd90-5bfa-a43f-baa4f6db8179', '9090aba2-dbbd-5ca1-90f0-02b3583f8e61', '17d02544-6b81-5571-b51b-ecadb71adaa4', 'Legal Entity', 'Shows one Legal Entity at a time. Fields are grouped: General carries the identifying fields and Details carries the rest. Any field showing a ? beside its label has help of its own; click it for the rules that apply there.', 0, 10, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('e67047fe-fd90-5bfa-a43f-baa4f6db8179', '9090aba2-dbbd-5ca1-90f0-02b3583f8e61', '17d02544-6b81-5571-b51b-ecadb71adaa4', 'Legal Entity', 'Shows one Legal Entity at a time. Fields are grouped: General carries the identifying fields and Details carries the rest. 3 fields marked with a red asterisk (*) must have a value before Save will accept the record. Organization and Country are lookups — search the linked records instead of entering an identifier by hand. Any field showing a ? beside its label has help of its own; click it for the rules that apply there.', 0, 10, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('a1dda532-3fb3-5b45-bb50-12c6004eec06', '17d02544-6b81-5571-b51b-ecadb71adaa4', 'id', 'Id', 'The stable identity of the legal entity, kept even when its name or registration details change. Generated on registration; contracts, filings, assets and liabilities refer to the entity through it rather than through its name.', 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -658,11 +750,104 @@ ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('bb568034-9a53-512d-a90f-e2b681fb45e1', '17d02544-6b81-5571-b51b-ecadb71adaa4', 'occurred_at', 'Occurred At', 'When the entity was formed, or its record took effect. Set from the registration data.', 16, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('5335afed-ebe4-5c64-8907-6a91edd28d3f', '17d02544-6b81-5571-b51b-ecadb71adaa4', 'legal_name', 'Legal Name', 'The registered name, exactly as in the register. Printed on invoices, contracts and filings. A trading name may differ; this is the one the law recognises.', 10, 300, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('efdac9ab-24e8-5851-a20a-4ddac76462e9', '17d02544-6b81-5571-b51b-ecadb71adaa4', 'registration_number', 'Registration Number', 'The number under which the entity is registered, such as a company number or SIREN. Printed on documents where the law requires it; used in KYC checks. Unique within its jurisdiction.', 10, 60, NULL, FALSE, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, TRUE, TRUE, 40, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('106d304e-40dc-54e7-bf15-dab27db498a2', '17d02544-6b81-5571-b51b-ecadb71adaa4', 'legal_form', 'Legal Form', 'The legal form, such as "SAS", "GmbH", "Ltd" or "LLC". Printed after the name on documents. Each jurisdiction has its own forms.', 10, 60, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 50, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('b4ebd115-f74b-5d3d-8571-40f5b2d87a4c', '17d02544-6b81-5571-b51b-ecadb71adaa4', 'incorporation_date', 'Incorporation Date', 'The day the company or organisation was legally formed, as shown on its certificate of incorporation. Copied from the official register when the entity is set up; used for age checks, filings and group structure charts. It can never fall after the dissolution date.', 15, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 60, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('a77affd0-fd79-5463-a565-c2714018bb10', '17d02544-6b81-5571-b51b-ecadb71adaa4', 'dissolution_date', 'Dissolution Date', 'The day the legal entity formally ceased to exist and was removed from the register. Entered by company secretarial when a dissolution is confirmed; it stays empty for entities that still exist. Only dissolved entities carry a date here.', 15, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 70, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('110a13a3-06a1-5c77-b98d-623ad4c567a1', '17d02544-6b81-5571-b51b-ecadb71adaa4', 'tax_identifier', 'Tax Identifier', 'The entity''s main tax number in its country. Printed on invoices and used in tax filings. Further registrations are recorded as tax registrations.', 10, 60, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 80, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('2ffddb44-d41e-52b7-baea-aceb6da1b174', '17d02544-6b81-5571-b51b-ecadb71adaa4', 'vat_number', 'Vat Number', 'The entity''s VAT or sales-tax registration number. Printed on invoices; validated for cross-border trade. Empty for entities not registered for VAT.', 10, 30, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 90, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('3ecb5cbd-ad11-5b52-9f56-2be545e8440a', '17d02544-6b81-5571-b51b-ecadb71adaa4', 'lei', 'Lei', 'The Legal Entity Identifier, a 20-character global code. Required for financial transactions and regulatory reporting. Issued by an LEI operator and renewed every year.', 10, 20, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 100, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('8cd3445c-7ced-58dc-85ce-7b3351db3b34', '17d02544-6b81-5571-b51b-ecadb71adaa4', 'is_group_company', 'Is Group Company', 'Whether the entity belongs to our own group. Separates the group''s companies from customers'' and suppliers'' entities; intercompany transactions are between group companies. Group companies have their own accounts and filings.', 20, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 110, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('4b1825a2-ff8b-5d4d-ab9c-bb1e5ca1e0cc', '17d02544-6b81-5571-b51b-ecadb71adaa4', 'status', 'Status', 'Registered, in good standing and free to trade, sign contracts and issue invoices. Still registered but not trading, so it holds no live business activity. Being wound up by a liquidator; no new business should be started in its name. Struck off the register and gone for good; no new contracts or invoices may use it. Whether the entity exists and trades. Updated from the register or by company secretarial. Contracts and invoices must not be issued in the name of a dissolved entity.', 1027, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 120, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('4dcc2973-c354-520f-a0b2-d5413ba9e3f0', '17d02544-6b81-5571-b51b-ecadb71adaa4', 'organization_id', 'Organization', 'The organization this entity is the legal form of. Linked so that the organization''s contracts and filings can be issued in the right name. At most one organization per entity. An organization may trade through several entities in different countries.', 19, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 130, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('e9250dbf-1ac2-51f6-a02f-6d5050794476', '17d02544-6b81-5571-b51b-ecadb71adaa4', 'country_id', 'Country', 'The country the entity is registered in. Decides which law, register and tax rules apply. One per entity. A branch abroad is not a separate entity.', 19, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 140, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('75326831-c49a-5669-b8c9-d3a2acd57562', '17d02544-6b81-5571-b51b-ecadb71adaa4', 'registered_address_id', 'Registered Address', 'The registered office. Printed on documents where the law requires it. One per entity. May differ from where the entity operates.', 19, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 150, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('42be024d-a1e6-5eb5-a2a9-f3218774be6d', '17d02544-6b81-5571-b51b-ecadb71adaa4', 'functional_currency_id', 'Functional Currency', 'The currency the entity keeps its accounts in. Set by finance; translations to the group currency start from it. One per entity. Usually the currency of its country.', 19, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 160, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('f0e1986d-bec9-56e2-a1e5-f16c6751d3ab', '17d02544-6b81-5571-b51b-ecadb71adaa4', 'parent_entity_id', 'Parent Entity', 'The entity that owns this one in the group. Recorded for group companies; consolidation follows it. At most one parent. Minority holdings are not recorded here.', 19, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 170, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+UPDATE sys_column SET ref_table_name = 'bus_address' WHERE sys_column_id = '75326831-c49a-5669-b8c9-d3a2acd57562';
+UPDATE sys_column SET ref_table_name = 'bus_currency' WHERE sys_column_id = '42be024d-a1e6-5eb5-a2a9-f3218774be6d';
+UPDATE sys_column SET ref_table_name = 'bus_legal_entity' WHERE sys_column_id = 'f0e1986d-bec9-56e2-a1e5-f16c6751d3ab';
 INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('e118092c-bb7e-5168-a5fe-2bb6caa84e1b', 'e67047fe-fd90-5bfa-a43f-baa4f6db8179', 'a1dda532-3fb3-5b45-bb50-12c6004eec06', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Id', 'The stable identity of the legal entity, kept even when its name or registration details change. Generated on registration; contracts, filings, assets and liabilities refer to the entity through it rather than through its name. Must be unique: a save is rejected if another Legal Entity already uses this value.', 10, 10, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('c5cc57e0-6a01-5a80-a8f7-ea4915084227', 'e67047fe-fd90-5bfa-a43f-baa4f6db8179', 'bb568034-9a53-512d-a90f-e2b681fb45e1', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Occurred At', 'When the entity was formed, or its record took effect. Set from the registration data.', 20, 20, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('c7024de2-fa95-5d52-98f8-d31de119a4fb', 'e67047fe-fd90-5bfa-a43f-baa4f6db8179', '5335afed-ebe4-5c64-8907-6a91edd28d3f', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Legal Name', 'The registered name, exactly as in the register. Printed on invoices, contracts and filings. A trading name may differ; this is the one the law recognises. Required — the record cannot be saved while this is empty. Up to 300 characters.', 30, 30, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('be281965-e949-5d1e-8102-6b414756968d', 'e67047fe-fd90-5bfa-a43f-baa4f6db8179', 'efdac9ab-24e8-5851-a20a-4ddac76462e9', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Registration Number', 'The number under which the entity is registered, such as a company number or SIREN. Printed on documents where the law requires it; used in KYC checks. Unique within its jurisdiction. Up to 60 characters.', 40, 40, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('663a81db-e849-5a92-8440-3b24ced8f89b', 'e67047fe-fd90-5bfa-a43f-baa4f6db8179', '106d304e-40dc-54e7-bf15-dab27db498a2', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Legal Form', 'The legal form, such as "SAS", "GmbH", "Ltd" or "LLC". Printed after the name on documents. Each jurisdiction has its own forms. Up to 60 characters.', 50, 50, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('15197f40-7071-55b6-90de-87863c395610', 'e67047fe-fd90-5bfa-a43f-baa4f6db8179', 'b4ebd115-f74b-5d3d-8571-40f5b2d87a4c', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Incorporation Date', 'The day the company or organisation was legally formed, as shown on its certificate of incorporation. Copied from the official register when the entity is set up; used for age checks, filings and group structure charts. It can never fall after the dissolution date.', 60, 60, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('df80ec94-ee0c-5630-82a3-1fd2bfd9f213', 'e67047fe-fd90-5bfa-a43f-baa4f6db8179', 'a77affd0-fd79-5463-a565-c2714018bb10', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Dissolution Date', 'The day the legal entity formally ceased to exist and was removed from the register. Entered by company secretarial when a dissolution is confirmed; it stays empty for entities that still exist. Only dissolved entities carry a date here.', 70, 70, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('b493d79d-b319-5ffa-93cf-d1ea06637a5d', 'e67047fe-fd90-5bfa-a43f-baa4f6db8179', '110a13a3-06a1-5c77-b98d-623ad4c567a1', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Tax Identifier', 'The entity''s main tax number in its country. Printed on invoices and used in tax filings. Further registrations are recorded as tax registrations. Up to 60 characters.', 80, 80, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('5138225f-06fe-52fe-afae-b6bc982b6a79', 'e67047fe-fd90-5bfa-a43f-baa4f6db8179', '2ffddb44-d41e-52b7-baea-aceb6da1b174', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Vat Number', 'The entity''s VAT or sales-tax registration number. Printed on invoices; validated for cross-border trade. Empty for entities not registered for VAT. Up to 30 characters.', 90, 90, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('c9b9395d-a8e7-529c-9a0e-766ae29d5e2a', 'e67047fe-fd90-5bfa-a43f-baa4f6db8179', '3ecb5cbd-ad11-5b52-9f56-2be545e8440a', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Lei', 'The Legal Entity Identifier, a 20-character global code. Required for financial transactions and regulatory reporting. Issued by an LEI operator and renewed every year. Up to 20 characters.', 100, 100, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('e1291a23-5834-507a-b029-d40eecc169f5', 'e67047fe-fd90-5bfa-a43f-baa4f6db8179', '8cd3445c-7ced-58dc-85ce-7b3351db3b34', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Is Group Company', 'Whether the entity belongs to our own group. Separates the group''s companies from customers'' and suppliers'' entities; intercompany transactions are between group companies. Group companies have their own accounts and filings. Required — the record cannot be saved while this is empty.', 110, 110, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('6735a024-0961-5582-a5b4-918e09f4ff74', 'e67047fe-fd90-5bfa-a43f-baa4f6db8179', '4b1825a2-ff8b-5d4d-ab9c-bb1e5ca1e0cc', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Status', 'Registered, in good standing and free to trade, sign contracts and issue invoices. Still registered but not trading, so it holds no live business activity. Being wound up by a liquidator; no new business should be started in its name. Struck off the register and gone for good; no new contracts or invoices may use it. Whether the entity exists and trades. Updated from the register or by company secretarial. Contracts and invoices must not be issued in the name of a dissolved entity. Required — the record cannot be saved while this is empty.', 120, 120, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('ba490ca9-f30a-5400-be5f-d99d2b2b8163', 'e67047fe-fd90-5bfa-a43f-baa4f6db8179', '4dcc2973-c354-520f-a0b2-d5413ba9e3f0', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Organization', 'The organization this entity is the legal form of. Linked so that the organization''s contracts and filings can be issued in the right name. At most one organization per entity. An organization may trade through several entities in different countries.', 130, 130, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('3f100160-44cc-52a5-8adc-4ac2932c24e6', 'e67047fe-fd90-5bfa-a43f-baa4f6db8179', 'e9250dbf-1ac2-51f6-a02f-6d5050794476', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Country', 'The country the entity is registered in. Decides which law, register and tax rules apply. One per entity. A branch abroad is not a separate entity.', 140, 140, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('12912c2b-7823-5508-9f3c-b291170a2449', 'e67047fe-fd90-5bfa-a43f-baa4f6db8179', '75326831-c49a-5669-b8c9-d3a2acd57562', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Registered Address', 'The registered office. Printed on documents where the law requires it. One per entity. May differ from where the entity operates.', 150, 150, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('9314667e-3670-5127-bfe4-eb76fc07244b', 'e67047fe-fd90-5bfa-a43f-baa4f6db8179', '42be024d-a1e6-5eb5-a2a9-f3218774be6d', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Functional Currency', 'The currency the entity keeps its accounts in. Set by finance; translations to the group currency start from it. One per entity. Usually the currency of its country.', 160, 160, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('4f54e949-32ef-5ad4-b67f-5d54820e25ce', 'e67047fe-fd90-5bfa-a43f-baa4f6db8179', 'f0e1986d-bec9-56e2-a1e5-f16c6751d3ab', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Parent Entity', 'The entity that owns this one in the group. Recorded for group companies; consolidation follows it. At most one parent. Minority holdings are not recorded here.', 170, 170, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_access (sys_access_id, sys_role_id, sys_table_id, sys_window_id, access_type_table, is_read_only, is_exclude, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('dac85bb8-f675-53c2-8265-c987d8ade9c5', (SELECT sys_role_id FROM sys_role WHERE name = 'Administrator'), '17d02544-6b81-5571-b51b-ecadb71adaa4', '9090aba2-dbbd-5ca1-90f0-02b3583f8e61', 'W', FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -675,11 +860,11 @@ ON CONFLICT DO NOTHING;
 -- Business Unit (bus_business_unit)
 -- --------------------------------------------------------------------------
 INSERT INTO sys_window (sys_window_id, name, description, help, icon, window_type, is_sales_transaction, is_default, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('f204afed-a5f6-5e85-9b91-1cbd94c0a9e8', 'Business Unit', 'Maintain Business Unit records', 'Create, find and maintain Business Unit records. The list shows every Business Unit you have access to — select a row to open it, or use New to add one. Each row is a single Business Unit, described by 4 fields.
+VALUES ('f204afed-a5f6-5e85-9b91-1cbd94c0a9e8', 'Business Unit', 'Maintain Business Unit records', 'Create, find and maintain Business Unit records. The list shows every Business Unit you have access to — select a row to open it, or use New to add one. Each row is a single Business Unit, described by 9 fields.
 
-Id is unique: no two Business Unit records may share the same value, and a save that would duplicate one is rejected. Code, Name and Organization must be filled in before the record can be saved.
+Id is unique: no two Business Unit records may share the same value, and a save that would duplicate one is rejected. Code, Name, Status and Organization must be filled in before the record can be saved.
 
-Every Business Unit points at Organization. Choose the linked record from the lookup on those fields rather than typing an identifier.
+Every Business Unit points at Organization and Legal Entity. Choose the linked record from the lookup on those fields rather than typing an identifier. Department refers back to Business Unit, so what you change here can affect that record.
 
 Every save starts as a Draft. The business rules and workflows attached to Business Unit then run together in a single transaction: if all of them succeed the record becomes Final; if any of them fails, nothing they changed is kept — the record stays Draft and the reason is written onto it so you can fix the cause and retry. A Business Unit with no rules or workflows attached is marked Final immediately.', 'table', 'M', FALSE, TRUE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
@@ -687,7 +872,7 @@ INSERT INTO sys_table (sys_table_id, table_name, name, description, icon, access
 VALUES ('c6e5ae18-41ef-572e-9d7b-6c8e1c372a85', 'bus_business_unit', 'Business Unit', 'A major business, division, product line or operating segment within an organisation. Business units are how a large organisation divides its activity for management and reporting. They let results, budgets and responsibility be assigned to a meaningful segment rather than to the organisation as a whole. Defined by management and finance; assigned to people, transactions and budgets; read when reporting by segment. Each business unit belongs to one Organization and groups the work and results of one part of it. A business unit keeps its code and identity stable. Reorganisations are recorded explicitly so earlier reports are not silently changed. The Consumer Electronics division of a manufacturer, with its own budget and profit target.', 'table', 'A', FALSE, FALSE, FALSE, TRUE, 'f204afed-a5f6-5e85-9b91-1cbd94c0a9e8', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_tab (sys_tab_id, sys_window_id, sys_table_id, name, help, tab_level, seq_no, is_single_row, has_tree, is_info_tab, is_translation_tab, is_read_only, is_insert_record, is_advanced_tab, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('aa4fc69b-2309-59c5-b526-341f534de267', 'f204afed-a5f6-5e85-9b91-1cbd94c0a9e8', 'c6e5ae18-41ef-572e-9d7b-6c8e1c372a85', 'Business Unit', 'Shows one Business Unit at a time. Fields are grouped: General carries the identifying fields and Details carries the rest. 3 fields marked with a red asterisk (*) must have a value before Save will accept the record. Organization is a lookup — search the linked records instead of entering an identifier by hand. Any field showing a ? beside its label has help of its own; click it for the rules that apply there.', 0, 10, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('aa4fc69b-2309-59c5-b526-341f534de267', 'f204afed-a5f6-5e85-9b91-1cbd94c0a9e8', 'c6e5ae18-41ef-572e-9d7b-6c8e1c372a85', 'Business Unit', 'Shows one Business Unit at a time. Fields are grouped: General carries the identifying fields and Details carries the rest. 4 fields marked with a red asterisk (*) must have a value before Save will accept the record. Organization and Legal Entity are lookups — search the linked records instead of entering an identifier by hand. Any field showing a ? beside its label has help of its own; click it for the rules that apply there.', 0, 10, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('43815089-5edb-5a6b-b35c-613cf3ac19c5', 'c6e5ae18-41ef-572e-9d7b-6c8e1c372a85', 'id', 'Id', 'The identity of the business unit. Generated on creation; budgets, transactions and reports refer to it.', 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -699,8 +884,25 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('f92e96b6-4f76-5783-a62c-3939b52e6ea5', 'c6e5ae18-41ef-572e-9d7b-6c8e1c372a85', 'name', 'Name', 'The full name of the business unit, as it appears in the organisation''s structure and management accounts. Entered by management or finance when the unit is created; shown in organisation charts, selectors and segment reports.', 10, 300, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('be830e01-e779-57a8-970b-53fb4e2ec669', 'c6e5ae18-41ef-572e-9d7b-6c8e1c372a85', 'organization_id', 'Organization', 'The organisation to which the unit belongs. Set when the unit is created. Exactly one organisation; a unit cannot stand alone. Rolls the unit''s results up into its parent organisation.', 19, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 40, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('53da4a3d-c6ef-57cf-9abc-cdd8c38c3f54', 'c6e5ae18-41ef-572e-9d7b-6c8e1c372a85', 'description', 'Description', 'What the business unit does. Read by people placing staff or costs in it. Free text.', 14, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 40, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('8ab318dd-390f-54d7-8fc0-162dd516f5cd', 'c6e5ae18-41ef-572e-9d7b-6c8e1c372a85', 'status', 'Status', 'Whether the business unit is still operating. Set to inactive by an administrator after a reorganisation or closure. Inactive units are not offered for new assignments. Operating and available for new assignments. No longer operating after a closure or merger.', 1003, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 50, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('be830e01-e779-57a8-970b-53fb4e2ec669', 'c6e5ae18-41ef-572e-9d7b-6c8e1c372a85', 'organization_id', 'Organization', 'The organisation to which the unit belongs. Set when the unit is created. Exactly one organisation; a unit cannot stand alone. Rolls the unit''s results up into its parent organisation.', 19, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 60, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('8efd2330-21e7-5b9d-86cd-1852a0cd5db4', 'c6e5ae18-41ef-572e-9d7b-6c8e1c372a85', 'head_id', 'Head', 'The executive responsible for the business unit. Receives its reports and approves its budgets. One per business unit. Accountable for its results.', 19, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 70, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('f529dabb-736c-5858-920b-57313ae6c16e', 'c6e5ae18-41ef-572e-9d7b-6c8e1c372a85', 'legal_entity_id', 'Legal Entity', 'The company the business unit mainly trades through. Used for contracts and invoices made by the unit. At most one. A unit trading in several countries uses several entities; the main one is named.', 19, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 80, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('e5449ac9-2b5d-54f5-9b53-4aef88f6e494', 'c6e5ae18-41ef-572e-9d7b-6c8e1c372a85', 'parent_unit_id', 'Parent Unit', 'The larger business unit this one is part of. Builds the hierarchy. At most one. Cannot be itself.', 19, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 90, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+UPDATE sys_column SET ref_table_name = 'bus_person' WHERE sys_column_id = '8efd2330-21e7-5b9d-86cd-1852a0cd5db4';
+UPDATE sys_column SET ref_table_name = 'bus_business_unit' WHERE sys_column_id = 'e5449ac9-2b5d-54f5-9b53-4aef88f6e494';
 INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('5a223032-c19b-595e-be31-fb5a8574de83', 'aa4fc69b-2309-59c5-b526-341f534de267', '43815089-5edb-5a6b-b35c-613cf3ac19c5', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Id', 'The identity of the business unit. Generated on creation; budgets, transactions and reports refer to it. Must be unique: a save is rejected if another Business Unit already uses this value.', 10, 10, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
@@ -711,7 +913,22 @@ INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_
 VALUES ('cd92230b-94ca-5146-ae56-ce91a46653d4', 'aa4fc69b-2309-59c5-b526-341f534de267', 'f92e96b6-4f76-5783-a62c-3939b52e6ea5', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Name', 'The full name of the business unit, as it appears in the organisation''s structure and management accounts. Entered by management or finance when the unit is created; shown in organisation charts, selectors and segment reports. Required — the record cannot be saved while this is empty. Up to 300 characters.', 30, 30, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('c154496d-8824-5b4e-aeb7-8ed40358ebd3', 'aa4fc69b-2309-59c5-b526-341f534de267', 'be830e01-e779-57a8-970b-53fb4e2ec669', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Organization', 'The organisation to which the unit belongs. Set when the unit is created. Exactly one organisation; a unit cannot stand alone. Rolls the unit''s results up into its parent organisation. Required — the record cannot be saved while this is empty.', 40, 40, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('14dea140-560c-56d4-ba69-5e816cee1684', 'aa4fc69b-2309-59c5-b526-341f534de267', '53da4a3d-c6ef-57cf-9abc-cdd8c38c3f54', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Description', 'What the business unit does. Read by people placing staff or costs in it. Free text.', 40, 40, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('7a5208f4-28dd-5652-8e4b-3dc8b22fa9ca', 'aa4fc69b-2309-59c5-b526-341f534de267', '8ab318dd-390f-54d7-8fc0-162dd516f5cd', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Status', 'Whether the business unit is still operating. Set to inactive by an administrator after a reorganisation or closure. Inactive units are not offered for new assignments. Operating and available for new assignments. No longer operating after a closure or merger. Required — the record cannot be saved while this is empty.', 50, 50, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('c154496d-8824-5b4e-aeb7-8ed40358ebd3', 'aa4fc69b-2309-59c5-b526-341f534de267', 'be830e01-e779-57a8-970b-53fb4e2ec669', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Organization', 'The organisation to which the unit belongs. Set when the unit is created. Exactly one organisation; a unit cannot stand alone. Rolls the unit''s results up into its parent organisation. Required — the record cannot be saved while this is empty.', 60, 60, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('bd9df2ef-43be-58ee-9ebb-d546d88df869', 'aa4fc69b-2309-59c5-b526-341f534de267', '8efd2330-21e7-5b9d-86cd-1852a0cd5db4', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Head', 'The executive responsible for the business unit. Receives its reports and approves its budgets. One per business unit. Accountable for its results.', 70, 70, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('4e253f36-a86f-5f2c-bda4-49b088aa9fd7', 'aa4fc69b-2309-59c5-b526-341f534de267', 'f529dabb-736c-5858-920b-57313ae6c16e', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Legal Entity', 'The company the business unit mainly trades through. Used for contracts and invoices made by the unit. At most one. A unit trading in several countries uses several entities; the main one is named.', 80, 80, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('3b08512d-5453-53d5-b243-9f9a55ec2d4e', 'aa4fc69b-2309-59c5-b526-341f534de267', 'e5449ac9-2b5d-54f5-9b53-4aef88f6e494', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Parent Unit', 'The larger business unit this one is part of. Builds the hierarchy. At most one. Cannot be itself.', 90, 90, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_access (sys_access_id, sys_role_id, sys_table_id, sys_window_id, access_type_table, is_read_only, is_exclude, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('190199bd-dadd-5e26-b1ee-9bd290bccbfa', (SELECT sys_role_id FROM sys_role WHERE name = 'Administrator'), 'c6e5ae18-41ef-572e-9d7b-6c8e1c372a85', 'f204afed-a5f6-5e85-9b91-1cbd94c0a9e8', 'W', FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -724,11 +941,11 @@ ON CONFLICT DO NOTHING;
 -- Department (bus_department)
 -- --------------------------------------------------------------------------
 INSERT INTO sys_window (sys_window_id, name, description, help, icon, window_type, is_sales_transaction, is_default, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('2206dcc0-1635-5ca7-8658-b579997fb56c', 'Department', 'Maintain Department records', 'Create, find and maintain Department records. The list shows every Department you have access to — select a row to open it, or use New to add one. Each row is a single Department, described by 4 fields.
+VALUES ('2206dcc0-1635-5ca7-8658-b579997fb56c', 'Department', 'Maintain Department records', 'Create, find and maintain Department records. The list shows every Department you have access to — select a row to open it, or use New to add one. Each row is a single Department, described by 10 fields.
 
-Id is unique: no two Department records may share the same value, and a save that would duplicate one is rejected. Code, Name and Organization must be filled in before the record can be saved.
+Id is unique: no two Department records may share the same value, and a save that would duplicate one is rejected. Code, Name, Status and Organization must be filled in before the record can be saved.
 
-Every Department points at Organization. Choose the linked record from the lookup on those fields rather than typing an identifier.
+Every Department points at Organization, Business Unit and Location. Choose the linked record from the lookup on those fields rather than typing an identifier.
 
 Every save starts as a Draft. The business rules and workflows attached to Department then run together in a single transaction: if all of them succeed the record becomes Final; if any of them fails, nothing they changed is kept — the record stays Draft and the reason is written onto it so you can fix the cause and retry. A Department with no rules or workflows attached is marked Final immediately.', 'table', 'M', FALSE, TRUE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
@@ -736,7 +953,7 @@ INSERT INTO sys_table (sys_table_id, table_name, name, description, icon, access
 VALUES ('53d11992-222a-516f-905c-a6afbd4b2db6', 'bus_department', 'Department', 'A unit of an organisation that groups people, positions, responsibilities and work. Departments are how people are organised day to day. They define reporting lines, budgets and responsibilities. Defined by HR and management; assigned to people and positions; used in reporting and approvals. A department belongs to an Organization (or one of its business units). Code and identity stay stable. Reorganisations are recorded explicitly so earlier reports do not change. The Accounts Payable department of the finance function.', 'table', 'A', FALSE, FALSE, FALSE, TRUE, '2206dcc0-1635-5ca7-8658-b579997fb56c', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_tab (sys_tab_id, sys_window_id, sys_table_id, name, help, tab_level, seq_no, is_single_row, has_tree, is_info_tab, is_translation_tab, is_read_only, is_insert_record, is_advanced_tab, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('618df7d3-68fe-59df-9963-54db1b7d5a88', '2206dcc0-1635-5ca7-8658-b579997fb56c', '53d11992-222a-516f-905c-a6afbd4b2db6', 'Department', 'Shows one Department at a time. Fields are grouped: General carries the identifying fields and Details carries the rest. 3 fields marked with a red asterisk (*) must have a value before Save will accept the record. Organization is a lookup — search the linked records instead of entering an identifier by hand. Any field showing a ? beside its label has help of its own; click it for the rules that apply there.', 0, 10, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('618df7d3-68fe-59df-9963-54db1b7d5a88', '2206dcc0-1635-5ca7-8658-b579997fb56c', '53d11992-222a-516f-905c-a6afbd4b2db6', 'Department', 'Shows one Department at a time. Fields are grouped: General carries the identifying fields and Details carries the rest. 4 fields marked with a red asterisk (*) must have a value before Save will accept the record. Organization, Business Unit and Location are lookups — search the linked records instead of entering an identifier by hand. Any field showing a ? beside its label has help of its own; click it for the rules that apply there.', 0, 10, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('667c7d7f-79bc-529d-b8b2-94f4b2a5c3aa', '53d11992-222a-516f-905c-a6afbd4b2db6', 'id', 'Id', 'The identity of the department. Generated on creation; people, positions and budgets refer to it.', 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -748,8 +965,27 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('275155df-953f-513c-b474-126842fcb5fb', '53d11992-222a-516f-905c-a6afbd4b2db6', 'name', 'Name', 'The name of the department as the organisation calls it, such as Finance or Field Operations. Entered by an administrator; shown in organisation charts, on documents and in reports that group people and costs by department.', 10, 300, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('4a268505-8b2b-51ac-aa39-b577e9367b83', '53d11992-222a-516f-905c-a6afbd4b2db6', 'organization_id', 'Organization', 'Chosen when the department is created; reporting lines, headcount and budgets roll up through the organisation it belongs to. The organisation the department belongs to. Exactly one organisation: a department is part of a single organisation. Places the department in the reporting structure.', 19, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 40, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('db08fe42-ec95-59cb-aa57-3050347c3734', '53d11992-222a-516f-905c-a6afbd4b2db6', 'description', 'Description', 'What the department is responsible for and what kind of work it does. Read by people placing staff, positions or work, so they choose the right department. Free text written by the organisation''s administrators.', 14, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 40, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('e6f4b04e-e8ba-5e36-b3be-b5f2ef50dfca', '53d11992-222a-516f-905c-a6afbd4b2db6', 'status', 'Status', 'Whether the department currently exists as part of the organisation. Set to inactive after a reorganisation closes or merges the department. Inactive departments are not offered when assigning people or work. The department exists and can receive people, positions and work. The department has been closed or merged away; it stays on record for history.', 1010, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 50, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('4a268505-8b2b-51ac-aa39-b577e9367b83', '53d11992-222a-516f-905c-a6afbd4b2db6', 'organization_id', 'Organization', 'Chosen when the department is created; reporting lines, headcount and budgets roll up through the organisation it belongs to. The organisation the department belongs to. Exactly one organisation: a department is part of a single organisation. Places the department in the reporting structure.', 19, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 60, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('e4a3107f-86c2-54e9-92ba-76bfe044ed8b', '53d11992-222a-516f-905c-a6afbd4b2db6', 'business_unit_id', 'Business Unit', 'The business unit the department is part of. Set where the organization is divided into business units. At most one. Used in business-unit reporting.', 19, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 70, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('cfe7acde-c7c5-5541-aee9-7fefa172148d', '53d11992-222a-516f-905c-a6afbd4b2db6', 'parent_department_id', 'Parent Department', 'The department this one reports to. Builds the hierarchy used for approvals. At most one. Cannot be itself.', 19, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 80, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('054a9ddd-c003-524d-94b4-2ed0500bbdc3', '53d11992-222a-516f-905c-a6afbd4b2db6', 'manager_id', 'Manager', 'The person who leads the department. Approves its requests and receives its reports. One per department. Approval routing goes to this person.', 19, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 90, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('d8ca66da-a440-54ae-871e-eb6040683da2', '53d11992-222a-516f-905c-a6afbd4b2db6', 'location_id', 'Location', 'Where the department is based. Used in directories and space planning. At most one. Staff may work elsewhere.', 19, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 100, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+UPDATE sys_column SET ref_table_name = 'bus_person' WHERE sys_column_id = '054a9ddd-c003-524d-94b4-2ed0500bbdc3';
 INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('2f25a3d4-0832-5e95-b499-06c96b9c407a', '618df7d3-68fe-59df-9963-54db1b7d5a88', '667c7d7f-79bc-529d-b8b2-94f4b2a5c3aa', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Id', 'The identity of the department. Generated on creation; people, positions and budgets refer to it. Must be unique: a save is rejected if another Department already uses this value.', 10, 10, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
@@ -760,7 +996,25 @@ INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_
 VALUES ('7e4cae03-60c9-5f01-8c19-e4b596a7246c', '618df7d3-68fe-59df-9963-54db1b7d5a88', '275155df-953f-513c-b474-126842fcb5fb', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Name', 'The name of the department as the organisation calls it, such as Finance or Field Operations. Entered by an administrator; shown in organisation charts, on documents and in reports that group people and costs by department. Required — the record cannot be saved while this is empty. Up to 300 characters.', 30, 30, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('304b9fc7-9014-52ef-b699-91b1fc0b4712', '618df7d3-68fe-59df-9963-54db1b7d5a88', '4a268505-8b2b-51ac-aa39-b577e9367b83', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Organization', 'Chosen when the department is created; reporting lines, headcount and budgets roll up through the organisation it belongs to. The organisation the department belongs to. Exactly one organisation: a department is part of a single organisation. Places the department in the reporting structure. Required — the record cannot be saved while this is empty.', 40, 40, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('a74e4cc3-ff0f-5341-b065-0d2572b0c360', '618df7d3-68fe-59df-9963-54db1b7d5a88', 'db08fe42-ec95-59cb-aa57-3050347c3734', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Description', 'What the department is responsible for and what kind of work it does. Read by people placing staff, positions or work, so they choose the right department. Free text written by the organisation''s administrators.', 40, 40, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('1c13e7ab-ca68-5ab6-bb2e-3ce9071f1fa9', '618df7d3-68fe-59df-9963-54db1b7d5a88', 'e6f4b04e-e8ba-5e36-b3be-b5f2ef50dfca', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Status', 'Whether the department currently exists as part of the organisation. Set to inactive after a reorganisation closes or merges the department. Inactive departments are not offered when assigning people or work. The department exists and can receive people, positions and work. The department has been closed or merged away; it stays on record for history. Required — the record cannot be saved while this is empty.', 50, 50, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('304b9fc7-9014-52ef-b699-91b1fc0b4712', '618df7d3-68fe-59df-9963-54db1b7d5a88', '4a268505-8b2b-51ac-aa39-b577e9367b83', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Organization', 'Chosen when the department is created; reporting lines, headcount and budgets roll up through the organisation it belongs to. The organisation the department belongs to. Exactly one organisation: a department is part of a single organisation. Places the department in the reporting structure. Required — the record cannot be saved while this is empty.', 60, 60, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('c1a7c1bd-2b58-5497-905c-ecc7e7edfef8', '618df7d3-68fe-59df-9963-54db1b7d5a88', 'e4a3107f-86c2-54e9-92ba-76bfe044ed8b', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Business Unit', 'The business unit the department is part of. Set where the organization is divided into business units. At most one. Used in business-unit reporting.', 70, 70, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('ef2f1f7a-bb8b-5074-844d-e55fe66b1c7f', '618df7d3-68fe-59df-9963-54db1b7d5a88', 'cfe7acde-c7c5-5541-aee9-7fefa172148d', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Parent Department', 'The department this one reports to. Builds the hierarchy used for approvals. At most one. Cannot be itself.', 80, 80, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('11995b09-e055-5060-8e14-de71e2505d91', '618df7d3-68fe-59df-9963-54db1b7d5a88', '054a9ddd-c003-524d-94b4-2ed0500bbdc3', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Manager', 'The person who leads the department. Approves its requests and receives its reports. One per department. Approval routing goes to this person.', 90, 90, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('dedac9ff-8d95-5863-bfd8-7571da5c6c5d', '618df7d3-68fe-59df-9963-54db1b7d5a88', 'd8ca66da-a440-54ae-871e-eb6040683da2', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Location', 'Where the department is based. Used in directories and space planning. At most one. Staff may work elsewhere.', 100, 100, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_access (sys_access_id, sys_role_id, sys_table_id, sys_window_id, access_type_table, is_read_only, is_exclude, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('98733213-e37b-5bf9-bb61-7ba553cef263', (SELECT sys_role_id FROM sys_role WHERE name = 'Administrator'), '53d11992-222a-516f-905c-a6afbd4b2db6', '2206dcc0-1635-5ca7-8658-b579997fb56c', 'W', FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -902,9 +1156,9 @@ ON CONFLICT DO NOTHING;
 -- Contact Point (bus_contact_point)
 -- --------------------------------------------------------------------------
 INSERT INTO sys_window (sys_window_id, name, description, help, icon, window_type, is_sales_transaction, is_default, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('197249bf-a0bf-5728-be61-780204e9c971', 'Contact Point', 'Maintain Contact Point records', 'Create, find and maintain Contact Point records. The list shows every Contact Point you have access to — select a row to open it, or use New to add one. Each row is a single Contact Point, described by 4 fields.
+VALUES ('197249bf-a0bf-5728-be61-780204e9c971', 'Contact Point', 'Maintain Contact Point records', 'Create, find and maintain Contact Point records. The list shows every Contact Point you have access to — select a row to open it, or use New to add one. Each row is a single Contact Point, described by 10 fields.
 
-Id is unique: no two Contact Point records may share the same value, and a save that would duplicate one is rejected. Code, Name and Party must be filled in before the record can be saved.
+Id is unique: no two Contact Point records may share the same value, and a save that would duplicate one is rejected. Code, Name, Channel, Value, Purpose, Is Preferred, Status and Party must be filled in before the record can be saved.
 
 Every Contact Point points at Party. Choose the linked record from the lookup on those fields rather than typing an identifier.
 
@@ -914,7 +1168,7 @@ INSERT INTO sys_table (sys_table_id, table_name, name, description, icon, access
 VALUES ('09566746-a263-5fb3-92a1-7c09d08ec34d', 'bus_contact_point', 'Contact Point', 'A communication endpoint for a party, such as an email address, telephone number, web address or other channel. Reaching someone requires a specific address. A contact point holds each one with its own status, so messages go to working endpoints and old ones are not lost. Added when a party gives an email, phone or other channel; read by communications, notifications and service processes. Each contact point belongs to one Party, which may have several. Code and identity stay stable, and an endpoint that is retired remains in history. The billing team''s email address invoices@acme.example, recorded for a customer.', 'database', 'A', FALSE, FALSE, FALSE, TRUE, '197249bf-a0bf-5728-be61-780204e9c971', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_tab (sys_tab_id, sys_window_id, sys_table_id, name, help, tab_level, seq_no, is_single_row, has_tree, is_info_tab, is_translation_tab, is_read_only, is_insert_record, is_advanced_tab, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('ee4456ba-100d-59eb-8896-2992a5be9439', '197249bf-a0bf-5728-be61-780204e9c971', '09566746-a263-5fb3-92a1-7c09d08ec34d', 'Contact Point', 'Shows one Contact Point at a time. Fields are grouped: General carries the identifying fields and Details carries the rest. 3 fields marked with a red asterisk (*) must have a value before Save will accept the record. Party is a lookup — search the linked records instead of entering an identifier by hand. Any field showing a ? beside its label has help of its own; click it for the rules that apply there.', 0, 10, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('ee4456ba-100d-59eb-8896-2992a5be9439', '197249bf-a0bf-5728-be61-780204e9c971', '09566746-a263-5fb3-92a1-7c09d08ec34d', 'Contact Point', 'Shows one Contact Point at a time. Fields are grouped: General carries the identifying fields and Details carries the rest. 8 fields marked with a red asterisk (*) must have a value before Save will accept the record. Party is a lookup — search the linked records instead of entering an identifier by hand. Any field showing a ? beside its label has help of its own; click it for the rules that apply there.', 0, 10, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('c173eafa-bd8b-5089-b8d2-f72e4d04d51d', '09566746-a263-5fb3-92a1-7c09d08ec34d', 'id', 'Id', 'The identity of the contact point. Generated on creation; messages and preferences refer to it.', 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -926,7 +1180,25 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('25362451-f02c-5252-9a65-8ad0cdf1a6d9', '09566746-a263-5fb3-92a1-7c09d08ec34d', 'name', 'Name', 'A descriptive label for the endpoint, such as Head office switchboard. Shown wherever contact points are listed.', 10, 300, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('141a9654-3199-5ac2-a1bc-d82df0eda469', '09566746-a263-5fb3-92a1-7c09d08ec34d', 'party_id', 'Party', 'The party the endpoint belongs to. Set when the endpoint is added. Exactly one party; each endpoint has one owner. Lets communications find the right channel for a party.', 19, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 40, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('a7d9d83b-f204-5639-8a2f-32a70b8bab23', '09566746-a263-5fb3-92a1-7c09d08ec34d', 'channel', 'Channel', 'An email address used for written messages. A landline telephone number. A mobile telephone number. A fax number, kept for partners who still use it. A web address of the party''s site or page. A handle on a messaging app. What kind of channel it is. Chosen when adding it; decides how the value is validated. Read with the value.', 1006, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 40, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('14669467-2b4c-57df-bdd3-a1f50da9138e', '09566746-a263-5fb3-92a1-7c09d08ec34d', 'value', 'Value', 'The address or number itself. Entered in its standard form — international format for phone numbers. Validated according to the channel.', 10, 320, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 50, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('66260463-16a5-5a05-bd8a-f8ac0b092e21', '09566746-a263-5fb3-92a1-7c09d08ec34d', 'purpose', 'Purpose', 'Any purpose, when nothing more specific applies. Invoices and statements sent to accounts payable. Order confirmations and purchase orders. Delivery notices and arrival updates. Service and support enquiries. Marketing communication, where consent allows. What the channel is used for. Processes pick the contact point for their purpose. A channel used for several purposes takes the main one.', 1007, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 60, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('6d2ea0cc-10e0-5f56-b208-21bf0077bbfb', '09566746-a263-5fb3-92a1-7c09d08ec34d', 'is_preferred', 'Is Preferred', 'Whether this is the preferred channel for its purpose. Used first when several channels serve the same purpose. One preferred channel per party, channel and purpose.', 20, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 70, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('99f09071-7aeb-5d4a-ad87-fde4482655f2', '09566746-a263-5fb3-92a1-7c09d08ec34d', 'verified_at', 'Verified At', 'When the channel was last confirmed to work. Recorded by a verification message or call. Unverified channels may be refused for sensitive messages.', 16, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 80, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('b3b7b497-7624-5e6a-af46-6c6d3aa19f7d', '09566746-a263-5fb3-92a1-7c09d08ec34d', 'status', 'Status', 'Whether the channel is still usable for reaching the party. Changed when the channel stops being used or a message to it bounces. Inactive and invalid channels are not offered for contact. In use and offered for contact. No longer used and kept for history. Known not to work, such as a bouncing address.', 1008, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 90, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('141a9654-3199-5ac2-a1bc-d82df0eda469', '09566746-a263-5fb3-92a1-7c09d08ec34d', 'party_id', 'Party', 'The party the endpoint belongs to. Set when the endpoint is added. Exactly one party; each endpoint has one owner. Lets communications find the right channel for a party.', 19, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 100, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('d9418ed4-ef9a-5dc9-916a-dd26c4ae240b', 'ee4456ba-100d-59eb-8896-2992a5be9439', 'c173eafa-bd8b-5089-b8d2-f72e4d04d51d', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Id', 'The identity of the contact point. Generated on creation; messages and preferences refer to it. Must be unique: a save is rejected if another Contact Point already uses this value.', 10, 10, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -938,7 +1210,25 @@ INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_
 VALUES ('a1ecfdf2-ef8e-594a-847e-ad356e86b4d1', 'ee4456ba-100d-59eb-8896-2992a5be9439', '25362451-f02c-5252-9a65-8ad0cdf1a6d9', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Name', 'A descriptive label for the endpoint, such as Head office switchboard. Shown wherever contact points are listed. Required — the record cannot be saved while this is empty. Up to 300 characters.', 30, 30, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('88bac0b2-5d23-5614-bc30-e2a3cd405c2d', 'ee4456ba-100d-59eb-8896-2992a5be9439', '141a9654-3199-5ac2-a1bc-d82df0eda469', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Party', 'The party the endpoint belongs to. Set when the endpoint is added. Exactly one party; each endpoint has one owner. Lets communications find the right channel for a party. Required — the record cannot be saved while this is empty.', 40, 40, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('b68ea883-8a18-5e4e-98cc-b81c9d2b2ede', 'ee4456ba-100d-59eb-8896-2992a5be9439', 'a7d9d83b-f204-5639-8a2f-32a70b8bab23', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Channel', 'An email address used for written messages. A landline telephone number. A mobile telephone number. A fax number, kept for partners who still use it. A web address of the party''s site or page. A handle on a messaging app. What kind of channel it is. Chosen when adding it; decides how the value is validated. Read with the value. Required — the record cannot be saved while this is empty.', 40, 40, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('c4603ed0-533e-5094-b7d5-a6f5077f06ff', 'ee4456ba-100d-59eb-8896-2992a5be9439', '14669467-2b4c-57df-bdd3-a1f50da9138e', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Value', 'The address or number itself. Entered in its standard form — international format for phone numbers. Validated according to the channel. Required — the record cannot be saved while this is empty. Up to 320 characters.', 50, 50, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('b46bf350-99d6-5465-8c22-d1f91330f005', 'ee4456ba-100d-59eb-8896-2992a5be9439', '66260463-16a5-5a05-bd8a-f8ac0b092e21', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Purpose', 'Any purpose, when nothing more specific applies. Invoices and statements sent to accounts payable. Order confirmations and purchase orders. Delivery notices and arrival updates. Service and support enquiries. Marketing communication, where consent allows. What the channel is used for. Processes pick the contact point for their purpose. A channel used for several purposes takes the main one. Required — the record cannot be saved while this is empty.', 60, 60, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('146be1ea-d40a-53aa-a4f3-9f1775388d6f', 'ee4456ba-100d-59eb-8896-2992a5be9439', '6d2ea0cc-10e0-5f56-b208-21bf0077bbfb', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Is Preferred', 'Whether this is the preferred channel for its purpose. Used first when several channels serve the same purpose. One preferred channel per party, channel and purpose. Required — the record cannot be saved while this is empty.', 70, 70, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('9fc23e55-f46b-536e-9944-7b9bd1075716', 'ee4456ba-100d-59eb-8896-2992a5be9439', '99f09071-7aeb-5d4a-ad87-fde4482655f2', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Verified At', 'When the channel was last confirmed to work. Recorded by a verification message or call. Unverified channels may be refused for sensitive messages.', 80, 80, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('7bd06cc4-dade-57da-874e-d9b2efe04db4', 'ee4456ba-100d-59eb-8896-2992a5be9439', 'b3b7b497-7624-5e6a-af46-6c6d3aa19f7d', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Status', 'Whether the channel is still usable for reaching the party. Changed when the channel stops being used or a message to it bounces. Inactive and invalid channels are not offered for contact. In use and offered for contact. No longer used and kept for history. Known not to work, such as a bouncing address. Required — the record cannot be saved while this is empty.', 90, 90, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('88bac0b2-5d23-5614-bc30-e2a3cd405c2d', 'ee4456ba-100d-59eb-8896-2992a5be9439', '141a9654-3199-5ac2-a1bc-d82df0eda469', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Party', 'The party the endpoint belongs to. Set when the endpoint is added. Exactly one party; each endpoint has one owner. Lets communications find the right channel for a party. Required — the record cannot be saved while this is empty.', 100, 100, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_access (sys_access_id, sys_role_id, sys_table_id, sys_window_id, access_type_table, is_read_only, is_exclude, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('84461edb-0beb-56ea-9fd7-e5998a6c1f75', (SELECT sys_role_id FROM sys_role WHERE name = 'Administrator'), '09566746-a263-5fb3-92a1-7c09d08ec34d', '197249bf-a0bf-5728-be61-780204e9c971', 'W', FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -955,7 +1245,7 @@ VALUES ('9e5e6c48-bd21-52f4-ba71-7466c3d444df', 'Location', 'Maintain Location r
 
 Id and Code are unique: no two Location records may share the same value, and a save that would duplicate one is rejected. Code, Name, Location Type and Status must be filled in before the record can be saved.
 
-Every Location points at Address, Organization, Product and Warehouse. Choose the linked record from the lookup on those fields rather than typing an identifier. Warehouse refers back to Location, so what you change here can affect that record.
+Every Location points at Address, Organization, Product and Warehouse. Choose the linked record from the lookup on those fields rather than typing an identifier. Department and Warehouse refer back to Location, so what you change here can affect those records.
 
 Every save starts as a Draft. The business rules and workflows attached to Location then run together in a single transaction: if all of them succeed the record becomes Final; if any of them fails, nothing they changed is kept — the record stays Draft and the reason is written onto it so you can fix the cause and retry. A Location with no rules or workflows attached is marked Final immediately.', 'map-pin', 'M', FALSE, TRUE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
@@ -975,10 +1265,10 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('84e6d299-cc9b-504b-ba78-048bf938771c', '991db5fd-462d-5437-a145-020d30003020', 'name', 'Name', 'The name by which people refer to the place, such as Rotterdam Depot. Entered by the administrator when the location is created; shown in lists, maps and documents, and may be changed without breaking references.', 10, 200, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('2fefc11a-8a06-5dbf-bced-93d3815539d8', '991db5fd-462d-5437-a145-020d30003020', 'location_type', 'Location Type', 'A geographic site that may contain several buildings. A building or area for storing goods. A retail outlet where goods are sold to customers. A place where office work is done. A place where goods are made. An open area for storing or staging equipment or containers. A harbour or terminal. A base for vehicles and equipment. A logical place with no physical presence, such as an online store. Any other kind of place. What kind of place it is. Chosen at creation; decides which processes can use the location.', 1013, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 40, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('2fefc11a-8a06-5dbf-bced-93d3815539d8', '991db5fd-462d-5437-a145-020d30003020', 'location_type', 'Location Type', 'A geographic site that may contain several buildings. A building or area for storing goods. A retail outlet where goods are sold to customers. A place where office work is done. A place where goods are made. An open area for storing or staging equipment or containers. A harbour or terminal. A base for vehicles and equipment. A logical place with no physical presence, such as an online store. Any other kind of place. What kind of place it is. Chosen at creation; decides which processes can use the location.', 1028, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 40, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('8565a249-b34e-5807-bea3-7c07dcf5debc', '991db5fd-462d-5437-a145-020d30003020', 'status', 'Status', 'Expected but not yet in use. In use and offered for new assignments. Temporarily not used but expected to return to service. Closed down, with no new assignments but history kept. Removed from use altogether. A final state. Whether the place is in use. Set by the administrator; only ACTIVE locations are offered for new assignments.', 1014, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 50, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('8565a249-b34e-5807-bea3-7c07dcf5debc', '991db5fd-462d-5437-a145-020d30003020', 'status', 'Status', 'Expected but not yet in use. In use and offered for new assignments. Temporarily not used but expected to return to service. Closed down, with no new assignments but history kept. Removed from use altogether. A final state. Whether the place is in use. Set by the administrator; only ACTIVE locations are offered for new assignments.', 1029, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 50, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('ef0d6a70-3373-5c31-81bc-943487ce7d17', '991db5fd-462d-5437-a145-020d30003020', 'address_id', 'Address', 'The postal address of the location. Chosen from the address list; used for deliveries, mapping and tax.', 19, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 60, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -1040,7 +1330,7 @@ VALUES ('4c1f1aae-4c99-5a8f-8e7d-fdae1bc8190a', 'Country', 'Maintain Country rec
 
 Id and Code are unique: no two Country records may share the same value, and a save that would duplicate one is rejected. Code and Name must be filled in before the record can be saved.
 
-Every Country points at Currency. Choose the linked record from the lookup on those fields rather than typing an identifier. Address, State Province and City refer back to Country, so what you change here can affect those records.
+Every Country points at Currency. Choose the linked record from the lookup on those fields rather than typing an identifier. Legal Entity, Address, State Province, City and Calendar refer back to Country, so what you change here can affect those records.
 
 Every save starts as a Draft. The business rules and workflows attached to Country then run together in a single transaction: if all of them succeed the record becomes Final; if any of them fails, nothing they changed is kept — the record stays Draft and the reason is written onto it so you can fix the cause and retry. A Country with no rules or workflows attached is marked Final immediately.', 'globe', 'M', FALSE, TRUE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
@@ -1244,9 +1534,9 @@ ON CONFLICT DO NOTHING;
 -- Language (bus_language)
 -- --------------------------------------------------------------------------
 INSERT INTO sys_window (sys_window_id, name, description, help, icon, window_type, is_sales_transaction, is_default, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('1208e4f7-47dd-5ab7-afbf-5113e868e389', 'Language', 'Maintain Language records', 'Create, find and maintain Language records. The list shows every Language you have access to — select a row to open it, or use New to add one. Each row is a single Language, described by 3 fields.
+VALUES ('1208e4f7-47dd-5ab7-afbf-5113e868e389', 'Language', 'Maintain Language records', 'Create, find and maintain Language records. The list shows every Language you have access to — select a row to open it, or use New to add one. Each row is a single Language, described by 5 fields.
 
-Id and Code are unique: no two Language records may share the same value, and a save that would duplicate one is rejected. Code and Name must be filled in before the record can be saved.
+Id and Code are unique: no two Language records may share the same value, and a save that would duplicate one is rejected. Code, Name and Direction must be filled in before the record can be saved.
 
 Every save starts as a Draft. The business rules and workflows attached to Language then run together in a single transaction: if all of them succeed the record becomes Final; if any of them fails, nothing they changed is kept — the record stays Draft and the reason is written onto it so you can fix the cause and retry. A Language with no rules or workflows attached is marked Final immediately.', 'languages', 'M', FALSE, TRUE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
@@ -1254,7 +1544,7 @@ INSERT INTO sys_table (sys_table_id, table_name, name, description, icon, access
 VALUES ('27342068-a40b-53f7-9765-492cb91392cf', 'bus_language', 'Language', 'A language used for localisation, communication preferences, content and reporting. People read and write in different languages. A language record lets the application offer translations, remember preferences and tag content with the language it is written in. Loaded from the standard language registry; chosen on user profiles, documents and messages. Parties, users and content refer to a language; the language itself depends on nothing. Code and identity stay stable, and history is never silently rewritten. English, with code en.', 'languages', 'A', FALSE, FALSE, FALSE, TRUE, '1208e4f7-47dd-5ab7-afbf-5113e868e389', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_tab (sys_tab_id, sys_window_id, sys_table_id, name, help, tab_level, seq_no, is_single_row, has_tree, is_info_tab, is_translation_tab, is_read_only, is_insert_record, is_advanced_tab, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('2403d428-bcb7-5b2a-9ce6-c64d1ac9bd40', '1208e4f7-47dd-5ab7-afbf-5113e868e389', '27342068-a40b-53f7-9765-492cb91392cf', 'Language', 'Shows one Language at a time. Fields are grouped: General carries the identifying fields and Details carries the rest. 2 fields marked with a red asterisk (*) must have a value before Save will accept the record. Any field showing a ? beside its label has help of its own; click it for the rules that apply there.', 0, 10, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('2403d428-bcb7-5b2a-9ce6-c64d1ac9bd40', '1208e4f7-47dd-5ab7-afbf-5113e868e389', '27342068-a40b-53f7-9765-492cb91392cf', 'Language', 'Shows one Language at a time. Fields are grouped: General carries the identifying fields and Details carries the rest. 3 fields marked with a red asterisk (*) must have a value before Save will accept the record. Any field showing a ? beside its label has help of its own; click it for the rules that apply there.', 0, 10, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('fdb58f0d-85a7-5c2d-9890-42d6c7cfae8f', '27342068-a40b-53f7-9765-492cb91392cf', 'id', 'Id', 'The stable identity of the language record, constant even if its name or code is later corrected. Generated when the language is first loaded from the reference list; content, user preferences and translations refer to it.', 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -1265,6 +1555,12 @@ ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('f994b195-1122-50db-ba9b-f9c2cec20451', '27342068-a40b-53f7-9765-492cb91392cf', 'name', 'Name', 'The English name of the language, such as French or Portuguese. Loaded from the language reference data; it is shown in language pick-lists and reports, while the code remains the identifier.', 10, 300, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('99baa4e7-1a17-5fe3-9d00-d35559a0ba6d', '27342068-a40b-53f7-9765-492cb91392cf', 'alpha3', 'Alpha3', 'The three-letter ISO 639-3 code, such as fra. Used by systems that require three-letter codes. From the standard.', 10, 3, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 40, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('f0a1a9ce-d8e7-57bd-ab2d-3667cd27cb0d', '27342068-a40b-53f7-9765-492cb91392cf', 'direction', 'Direction', 'Whether the language is written left to right or right to left. Tells screens and documents how to lay out text. From the Unicode CLDR. Written left to right. Written right to left.', 1026, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 50, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
 INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('fa9921ad-ec8f-53a9-88e1-1342c945de23', '2403d428-bcb7-5b2a-9ce6-c64d1ac9bd40', 'fdb58f0d-85a7-5c2d-9890-42d6c7cfae8f', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Id', 'The stable identity of the language record, constant even if its name or code is later corrected. Generated when the language is first loaded from the reference list; content, user preferences and translations refer to it. Must be unique: a save is rejected if another Language already uses this value.', 10, 10, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
@@ -1273,6 +1569,12 @@ VALUES ('07d623be-60c7-54e5-a08d-7984c7f9cc5f', '2403d428-bcb7-5b2a-9ce6-c64d1ac
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('af68646a-07af-56f1-a3c6-05b1b09b25bb', '2403d428-bcb7-5b2a-9ce6-c64d1ac9bd40', 'f994b195-1122-50db-ba9b-f9c2cec20451', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Name', 'The English name of the language, such as French or Portuguese. Loaded from the language reference data; it is shown in language pick-lists and reports, while the code remains the identifier. Required — the record cannot be saved while this is empty. Up to 300 characters.', 30, 30, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('98aa9494-1828-55be-ba1d-e1a58ee65925', '2403d428-bcb7-5b2a-9ce6-c64d1ac9bd40', '99baa4e7-1a17-5fe3-9d00-d35559a0ba6d', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Alpha3', 'The three-letter ISO 639-3 code, such as fra. Used by systems that require three-letter codes. From the standard. Up to 3 characters.', 40, 40, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('7f645bc9-f0f3-5023-a615-eb90854bda80', '2403d428-bcb7-5b2a-9ce6-c64d1ac9bd40', 'f0a1a9ce-d8e7-57bd-ab2d-3667cd27cb0d', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Direction', 'Whether the language is written left to right or right to left. Tells screens and documents how to lay out text. From the Unicode CLDR. Written left to right. Written right to left. Required — the record cannot be saved while this is empty.', 50, 50, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_access (sys_access_id, sys_role_id, sys_table_id, sys_window_id, access_type_table, is_read_only, is_exclude, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('952f0145-7d70-5bb7-921d-cea65cf29dca', (SELECT sys_role_id FROM sys_role WHERE name = 'Administrator'), '27342068-a40b-53f7-9765-492cb91392cf', '1208e4f7-47dd-5ab7-afbf-5113e868e389', 'W', FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -1315,7 +1617,7 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('17e96e9d-ea96-5cf9-91d8-ccc4d1078855', 'c05fd902-ed8c-51d5-ab92-769a217755c4', 'decimal_places', 'Decimal Places', 'Standard number of decimal places normally used when representing amounts in this currency. Used for amount formatting, rounding, validation, invoicing, payment processing, and accounting presentation. Transaction-specific precision or financial-system rules may be stricter; this field does not itself define rounding policy. Supplies a currency-level precision baseline to monetary workflows.', 11, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 50, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('877634d7-657c-5af4-b1bd-c5d4ccb236b7', 'c05fd902-ed8c-51d5-ab92-769a217755c4', 'status', 'Status', 'Available for use on new prices, documents and payments. Temporarily not offered, for example while a market is closed; it can be reactivated. No longer in use, such as a replaced national currency; historical amounts keep it. Controls whether the currency is available for new monetary transactions. Used by pricing, order, invoicing, payment, banking, and accounting validation. Retiring a currency must not invalidate historical transactions expressed in that currency. New transactions should use ACTIVE currencies unless an authorized legacy exception applies.', 1002, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 60, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('877634d7-657c-5af4-b1bd-c5d4ccb236b7', 'c05fd902-ed8c-51d5-ab92-769a217755c4', 'status', 'Status', 'Available for use on new prices, documents and payments. Temporarily not offered, for example while a market is closed; it can be reactivated. No longer in use, such as a replaced national currency; historical amounts keep it. Controls whether the currency is available for new monetary transactions. Used by pricing, order, invoicing, payment, banking, and accounting validation. Retiring a currency must not invalidate historical transactions expressed in that currency. New transactions should use ACTIVE currencies unless an authorized legacy exception applies.', 1009, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 60, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('aa9b8d2e-3cfe-5eac-be1e-e29df4caa7b7', '37219935-8c27-597a-86e1-a7467a1c6112', 'b1ad08ad-9ce5-51ff-98b7-ec7eb5295829', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Id', 'Stable identity of the currency master record. Referenced by monetary transactions and financial master data. Identifies the currency definition, not a monetary amount or an exchange-rate observation. Allows Product pricing, SalesOrder, Invoice, Payment, BankTransaction, PaymentAllocation, and accounting records to resolve the same currency. Must be unique: a save is rejected if another Currency already uses this value.', 10, 10, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -1346,9 +1648,9 @@ ON CONFLICT DO NOTHING;
 -- Exchange Rate (bus_exchange_rate)
 -- --------------------------------------------------------------------------
 INSERT INTO sys_window (sys_window_id, name, description, help, icon, window_type, is_sales_transaction, is_default, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('00e6026c-30e5-5c26-b766-24b2c0fcbd1b', 'Exchange Rate', 'Maintain Exchange Rate records', 'Create, find and maintain Exchange Rate records. The list shows every Exchange Rate you have access to — select a row to open it, or use New to add one. Each row is a single Exchange Rate, described by 9 fields.
+VALUES ('00e6026c-30e5-5c26-b766-24b2c0fcbd1b', 'Exchange Rate', 'Maintain Exchange Rate records', 'Create, find and maintain Exchange Rate records. The list shows every Exchange Rate you have access to — select a row to open it, or use New to add one. Each row is a single Exchange Rate, described by 11 fields.
 
-Id is unique: no two Exchange Rate records may share the same value, and a save that would duplicate one is rejected. From Currency, To Currency, Rate, Rate Type, Effective At, Source and Status must be filled in before the record can be saved.
+Id is unique: no two Exchange Rate records may share the same value, and a save that would duplicate one is rejected. From Currency, To Currency, Rate, Rate Type, Effective At, Source, Status, From Currency and To Currency must be filled in before the record can be saved.
 
 Every save starts as a Draft. The business rules and workflows attached to Exchange Rate then run together in a single transaction: if all of them succeed the record becomes Final; if any of them fails, nothing they changed is kept — the record stays Draft and the reason is written onto it so you can fix the cause and retry. An Exchange Rate with no rules or workflows attached is marked Final immediately.', 'list', 'M', FALSE, TRUE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
@@ -1356,7 +1658,7 @@ INSERT INTO sys_table (sys_table_id, table_name, name, description, icon, access
 VALUES ('456e69cd-981f-57cb-8604-a53a2deea9d8', 'bus_exchange_rate', 'Exchange Rate', 'Represents an auditable conversion rate between two currencies for a defined time and business purpose. ExchangeRate is the conversion context between Currency denominations; it is not itself money, a payment, or an accounting entry. Used by multi-currency orders, invoices, payments, payment allocations, bank reconciliation, accounting, consolidation, and financial reporting. Currency defines denominations. Money carries amount plus currency. ExchangeRate provides the conversion between two Money values. PaymentAllocation and accounting consume the rate when cross-currency conversion is permitted. Source Money + source Currency → select valid ExchangeRate by rate type/effective time/source → convert → target Money → preserve ExchangeRate reference and rounding result. The selected rate becomes historical evidence of the conversion decision. Rate is created or imported, activated for its validity window, expires or is cancelled, while historical transactions retain the original rate reference. A customer invoice is USD 1,000 and payment is EUR. An approved EUR-to-USD ExchangeRate is selected according to settlement policy. The Payment remains EUR, the Invoice remains USD, PaymentAllocation records the conversion context, and accounting retains the rate used rather than later recalculating the historical settlement.', 'list', 'A', FALSE, FALSE, FALSE, TRUE, '00e6026c-30e5-5c26-b766-24b2c0fcbd1b', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_tab (sys_tab_id, sys_window_id, sys_table_id, name, help, tab_level, seq_no, is_single_row, has_tree, is_info_tab, is_translation_tab, is_read_only, is_insert_record, is_advanced_tab, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('b88f6d82-0257-5c26-a55c-38ec8e06fcf6', '00e6026c-30e5-5c26-b766-24b2c0fcbd1b', '456e69cd-981f-57cb-8604-a53a2deea9d8', 'Exchange Rate', 'Shows one Exchange Rate at a time. Fields are grouped: General carries the identifying fields and Details carries the rest. 7 fields marked with a red asterisk (*) must have a value before Save will accept the record. Any field showing a ? beside its label has help of its own; click it for the rules that apply there.', 0, 10, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('b88f6d82-0257-5c26-a55c-38ec8e06fcf6', '00e6026c-30e5-5c26-b766-24b2c0fcbd1b', '456e69cd-981f-57cb-8604-a53a2deea9d8', 'Exchange Rate', 'Shows one Exchange Rate at a time. Fields are grouped: General carries the identifying fields and Details carries the rest. 9 fields marked with a red asterisk (*) must have a value before Save will accept the record. Any field showing a ? beside its label has help of its own; click it for the rules that apply there.', 0, 10, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('9bc494bc-162c-5bba-8662-ed39b002968d', '456e69cd-981f-57cb-8604-a53a2deea9d8', 'id', 'Id', 'Stable identity of the exchange-rate observation or published rate record. Referenced by PaymentAllocation, accounting conversions, reporting, and other multi-currency calculations. Identifies one rate record rather than a currency or monetary amount. Provides auditable linkage from a converted amount back to the rate used.', 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -1371,7 +1673,7 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('0aec4dd4-9d8f-5c1e-8b09-ed3ae820ee9f', '456e69cd-981f-57cb-8604-a53a2deea9d8', 'rate', 'Rate', 'Positive conversion factor that expresses how much target currency corresponds to one unit of source currency under this rate convention. Used to calculate converted monetary amounts while preserving the declared direction. Must always be interpreted with fromCurrency, toCurrency, effectiveAt, and rateType. Supplies the mathematical conversion input used by settlement and accounting calculations.', 12, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 40, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('9d0a378f-76ec-52da-94e9-f677c943ab8b', '456e69cd-981f-57cb-8604-a53a2deea9d8', 'rate_type', 'Rate Type', 'The market rate at a moment in time. A rate fixed by agreement with a counterparty. The rate published for a business day. An average or closing rate for a month. A rate set by the finance team for ledger translation. Any other rate defined by policy. Classifies the business purpose and provenance context of the exchange rate. Used to select an appropriate rate according to transaction and accounting policy. Different workflows may require different rate types; a spot rate must not automatically replace a contractual or accounting rate. Controls which rate is eligible for a conversion event.', 1004, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 50, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('9d0a378f-76ec-52da-94e9-f677c943ab8b', '456e69cd-981f-57cb-8604-a53a2deea9d8', 'rate_type', 'Rate Type', 'The market rate at a moment in time. A rate fixed by agreement with a counterparty. The rate published for a business day. An average or closing rate for a month. A rate set by the finance team for ledger translation. Any other rate defined by policy. Classifies the business purpose and provenance context of the exchange rate. Used to select an appropriate rate according to transaction and accounting policy. Different workflows may require different rate types; a spot rate must not automatically replace a contractual or accounting rate. Controls which rate is eligible for a conversion event.', 1013, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 50, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('aac0dc46-9a4d-5150-bea1-df521274443a', '456e69cd-981f-57cb-8604-a53a2deea9d8', 'effective_at', 'Effective At', 'Date and time from which the exchange rate is applicable under its rate policy. Used to select the correct rate for a transaction, settlement, or accounting event. A rate without an effective time cannot be reliably reproduced when rates change over time. Supports deterministic selection and audit of the rate used by PaymentAllocation and accounting conversion.', 16, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 60, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -1383,10 +1685,18 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('13875b94-cb94-5a0e-b52b-96a050dba85e', '456e69cd-981f-57cb-8604-a53a2deea9d8', 'source', 'Source', 'Identifies the provider or business authority from which the rate was obtained. Used for audit, reconciliation, regulatory reporting, and rate governance. Source identifies provenance; it does not by itself determine which rate is applicable. Allows users and systems to reproduce or validate the conversion decision.', 10, 200, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 80, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('58bc7f3c-c98d-5855-8799-a8903002104f', '456e69cd-981f-57cb-8604-a53a2deea9d8', 'status', 'Status', 'Being prepared; not yet used. In force and usable for conversion. Its validity period has ended; kept for past conversions. Withdrawn; must not be used. Lifecycle state of the exchange-rate record. Used by conversion services to determine whether a rate may be applied. Historical calculations retain the rate record even after it expires. Prevents use of draft, cancelled, or expired rates where policy does not permit them.', 1005, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 90, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('58bc7f3c-c98d-5855-8799-a8903002104f', '456e69cd-981f-57cb-8604-a53a2deea9d8', 'status', 'Status', 'Being prepared; not yet used. In force and usable for conversion. Its validity period has ended; kept for past conversions. Withdrawn; must not be used. Lifecycle state of the exchange-rate record. Used by conversion services to determine whether a rate may be applied. Historical calculations retain the rate record even after it expires. Prevents use of draft, cancelled, or expired rates where policy does not permit them.', 1014, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 90, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('eff4f813-77e6-51f1-b22a-c093854f9542', '456e69cd-981f-57cb-8604-a53a2deea9d8', 'from_currency', 'From Currency', 'Currency from which an amount is converted. Identifies the source denomination of the monetary amount being converted. Must differ from toCurrency for a meaningful exchange-rate conversion. Identifies the currency of the source Money value in an explicit conversion.', 19, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 100, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('6acf172c-b7ef-564f-b55c-61ce0db23abe', '456e69cd-981f-57cb-8604-a53a2deea9d8', 'to_currency', 'To Currency', 'Currency into which an amount is converted. Identifies the target denomination of the converted monetary amount. Conversion direction is from fromCurrency to toCurrency; reversing the direction requires an appropriate inverse rate rather than assuming arithmetic equivalence. Identifies the currency of the resulting Money value.', 19, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 110, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 UPDATE sys_column SET ref_table_name = 'bus_currency' WHERE sys_column_id = '6bce9e86-b536-595d-83a2-66f84ab1815c';
 UPDATE sys_column SET ref_table_name = 'bus_currency' WHERE sys_column_id = '12f84b38-ee46-5185-b347-ec3834ce634c';
+UPDATE sys_column SET ref_table_name = 'bus_currency' WHERE sys_column_id = 'eff4f813-77e6-51f1-b22a-c093854f9542';
+UPDATE sys_column SET ref_table_name = 'bus_currency' WHERE sys_column_id = '6acf172c-b7ef-564f-b55c-61ce0db23abe';
 INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('156b5ed6-9836-591e-9718-ccf33e1c0b6f', 'b88f6d82-0257-5c26-a55c-38ec8e06fcf6', '9bc494bc-162c-5bba-8662-ed39b002968d', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Id', 'Stable identity of the exchange-rate observation or published rate record. Referenced by PaymentAllocation, accounting conversions, reporting, and other multi-currency calculations. Identifies one rate record rather than a currency or monetary amount. Provides auditable linkage from a converted amount back to the rate used. Must be unique: a save is rejected if another Exchange Rate already uses this value.', 10, 10, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
@@ -1413,6 +1723,12 @@ VALUES ('e7a0e6ea-ea9c-56fa-9020-a69db8f100f5', 'b88f6d82-0257-5c26-a55c-38ec8e0
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('9d7ce612-fb70-57f2-8984-9e25c62277a8', 'b88f6d82-0257-5c26-a55c-38ec8e06fcf6', '58bc7f3c-c98d-5855-8799-a8903002104f', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Status', 'Being prepared; not yet used. In force and usable for conversion. Its validity period has ended; kept for past conversions. Withdrawn; must not be used. Lifecycle state of the exchange-rate record. Used by conversion services to determine whether a rate may be applied. Historical calculations retain the rate record even after it expires. Prevents use of draft, cancelled, or expired rates where policy does not permit them. Required — the record cannot be saved while this is empty.', 90, 90, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('a16dd20b-5ee4-5a32-bb97-6c823a438503', 'b88f6d82-0257-5c26-a55c-38ec8e06fcf6', 'eff4f813-77e6-51f1-b22a-c093854f9542', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'From Currency', 'Currency from which an amount is converted. Identifies the source denomination of the monetary amount being converted. Must differ from toCurrency for a meaningful exchange-rate conversion. Identifies the currency of the source Money value in an explicit conversion. Required — the record cannot be saved while this is empty.', 100, 100, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('19902067-3b80-52de-986b-10c328f51542', 'b88f6d82-0257-5c26-a55c-38ec8e06fcf6', '6acf172c-b7ef-564f-b55c-61ce0db23abe', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'To Currency', 'Currency into which an amount is converted. Identifies the target denomination of the converted monetary amount. Conversion direction is from fromCurrency to toCurrency; reversing the direction requires an appropriate inverse rate rather than assuming arithmetic equivalence. Identifies the currency of the resulting Money value. Required — the record cannot be saved while this is empty.', 110, 110, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_access (sys_access_id, sys_role_id, sys_table_id, sys_window_id, access_type_table, is_read_only, is_exclude, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('a3a2dc8c-dc38-5c01-8724-e8ba76c1fecf', (SELECT sys_role_id FROM sys_role WHERE name = 'Administrator'), '456e69cd-981f-57cb-8604-a53a2deea9d8', '00e6026c-30e5-5c26-b766-24b2c0fcbd1b', 'W', FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -1452,7 +1768,7 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('6fa5c760-e32a-5c55-a60c-922b5bc2738a', '2dc05e8c-9195-584d-b894-ad2ca0b50bc9', 'symbol', 'Symbol', 'Standard display symbol for the unit. Used for compact display in documents, labels, reports, and interfaces. Symbol is presentation metadata and does not replace the canonical unit code. Improves human-readable representation of quantities.', 10, 20, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 40, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('56cef8b1-3364-535a-b1e4-adeb2e8da934', '2dc05e8c-9195-584d-b894-ad2ca0b50bc9', 'category', 'Category', 'A general count or quantity of items. A distance, such as metres or inches. A surface, such as square metres. A capacity, such as litres. A weight, such as kilograms or tonnes. A duration, such as hours or days. A number of discrete things, such as each or dozen. A monetary unit used as a measure. A unit that fits no other category. Defines the dimensional family of the unit. Prevents invalid conversions and supports dimensional validation. Conversion is valid only between compatible dimensions under the applicable conversion model. Used when validating Product, SalesOrderLine, PurchaseOrderLine, GoodsReceiptLine, InvoiceLine, and InventoryMovement quantities.', 1035, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 50, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('56cef8b1-3364-535a-b1e4-adeb2e8da934', '2dc05e8c-9195-584d-b894-ad2ca0b50bc9', 'category', 'Category', 'A general count or quantity of items. A distance, such as metres or inches. A surface, such as square metres. A capacity, such as litres. A weight, such as kilograms or tonnes. A duration, such as hours or days. A number of discrete things, such as each or dozen. A monetary unit used as a measure. A unit that fits no other category. Defines the dimensional family of the unit. Prevents invalid conversions and supports dimensional validation. Conversion is valid only between compatible dimensions under the applicable conversion model. Used when validating Product, SalesOrderLine, PurchaseOrderLine, GoodsReceiptLine, InvoiceLine, and InventoryMovement quantities.', 1053, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 50, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('c11ba359-13ac-59c6-9369-ad7ccde9d2d4', '2dc05e8c-9195-584d-b894-ad2ca0b50bc9', 'conversion_factor', 'Conversion Factor', 'Default multiplicative factor relating this unit to its base unit when a simple linear conversion applies. Defines a master conversion used for future quantity interpretation. Used for quantity conversion when no context-specific conversion rule overrides the default. Interpreted with baseUnit and category; it must not be changed casually because dependent open transactions may rely on the prior interpretation. Supplies the conversion used by new and eligible future quantity transactions after dependency validation.', 12, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 60, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -1461,7 +1777,7 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('79ef89f2-1dfd-57b3-aad8-bd6e473f5a8c', '2dc05e8c-9195-584d-b894-ad2ca0b50bc9', 'base_unit_id', 'Base Unit', 'Identifies the canonical base unit against which this derived unit is normally converted. Supports standardized quantity storage and conversion. A derived unit belongs to the same dimensional category as its base unit. Provides the common measurement basis for reconciliation across PO, receipt, inventory, sales, and invoice quantities.', 19, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 70, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('7c90f164-8634-5ecb-b2a4-5f91f9dddcc7', '2dc05e8c-9195-584d-b894-ad2ca0b50bc9', 'status', 'Status', 'Available for use on products and documents. Not offered for now; can be reactivated. No longer used; kept for history. A final state. Controls whether the unit can be used for new transactions. Used by master-data validation and transaction entry. Retiring a unit must not invalidate historical quantities already recorded with that unit. New quantity-bearing transactions should use ACTIVE units unless an authorized legacy exception exists.', 1036, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 80, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('7c90f164-8634-5ecb-b2a4-5f91f9dddcc7', '2dc05e8c-9195-584d-b894-ad2ca0b50bc9', 'status', 'Status', 'Available for use on products and documents. Not offered for now; can be reactivated. No longer used; kept for history. A final state. Controls whether the unit can be used for new transactions. Used by master-data validation and transaction entry. Retiring a unit must not invalidate historical quantities already recorded with that unit. New quantity-bearing transactions should use ACTIVE units unless an authorized legacy exception exists.', 1054, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 80, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 UPDATE sys_column SET ref_table_name = 'bus_unit_of_measure' WHERE sys_column_id = '79ef89f2-1dfd-57b3-aad8-bd6e473f5a8c';
 INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
@@ -1499,9 +1815,11 @@ ON CONFLICT DO NOTHING;
 -- Calendar (bus_calendar)
 -- --------------------------------------------------------------------------
 INSERT INTO sys_window (sys_window_id, name, description, help, icon, window_type, is_sales_transaction, is_default, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('daa696d8-8ba1-54e1-b738-892ca01287fe', 'Calendar', 'Maintain Calendar records', 'Create, find and maintain Calendar records. The list shows every Calendar you have access to — select a row to open it, or use New to add one. Each row is a single Calendar, described by 3 fields.
+VALUES ('daa696d8-8ba1-54e1-b738-892ca01287fe', 'Calendar', 'Maintain Calendar records', 'Create, find and maintain Calendar records. The list shows every Calendar you have access to — select a row to open it, or use New to add one. Each row is a single Calendar, described by 10 fields.
 
-Id is unique: no two Calendar records may share the same value, and a save that would duplicate one is rejected. Code and Name must be filled in before the record can be saved.
+Id is unique: no two Calendar records may share the same value, and a save that would duplicate one is rejected. Code, Name, Working Days and Status must be filled in before the record can be saved.
+
+Every Calendar points at Country. Choose the linked record from the lookup on those fields rather than typing an identifier. Calendar Exception refers back to Calendar, so what you change here can affect that record.
 
 Every save starts as a Draft. The business rules and workflows attached to Calendar then run together in a single transaction: if all of them succeed the record becomes Final; if any of them fails, nothing they changed is kept — the record stays Draft and the reason is written onto it so you can fix the cause and retry. A Calendar with no rules or workflows attached is marked Final immediately.', 'calendar', 'M', FALSE, TRUE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
@@ -1509,7 +1827,7 @@ INSERT INTO sys_table (sys_table_id, table_name, name, description, icon, access
 VALUES ('bc06c90d-09c8-5da8-b96b-139b9ca09d4d', 'bus_calendar', 'Calendar', 'A calendar that defines business dates, working days, holidays and time-control rules used for planning and operations. Whether a date counts as a working day is not obvious: it depends on region, industry and company. A calendar states that explicitly, so due dates, delivery promises and schedules all agree. Maintained by administrators; referenced by schedulers, service-level calculations and planning when they need to know which days count. Locations, teams, contracts and schedules point to the calendar that governs their working days. A calendar''s code and identity stay stable. Changes to holidays apply from their effective date and do not rewrite history. The German national business calendar, with weekends and public holidays marked non-working.', 'calendar', 'A', FALSE, FALSE, FALSE, TRUE, 'daa696d8-8ba1-54e1-b738-892ca01287fe', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_tab (sys_tab_id, sys_window_id, sys_table_id, name, help, tab_level, seq_no, is_single_row, has_tree, is_info_tab, is_translation_tab, is_read_only, is_insert_record, is_advanced_tab, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('7962ec38-55e1-505a-9555-5b4c8eefdf3e', 'daa696d8-8ba1-54e1-b738-892ca01287fe', 'bc06c90d-09c8-5da8-b96b-139b9ca09d4d', 'Calendar', 'Shows one Calendar at a time. Fields are grouped: General carries the identifying fields and Details carries the rest. 2 fields marked with a red asterisk (*) must have a value before Save will accept the record. Any field showing a ? beside its label has help of its own; click it for the rules that apply there.', 0, 10, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('7962ec38-55e1-505a-9555-5b4c8eefdf3e', 'daa696d8-8ba1-54e1-b738-892ca01287fe', 'bc06c90d-09c8-5da8-b96b-139b9ca09d4d', 'Calendar', 'Shows one Calendar at a time. Fields are grouped: General carries the identifying fields and Details carries the rest. 4 fields marked with a red asterisk (*) must have a value before Save will accept the record. Country is a lookup — search the linked records instead of entering an identifier by hand. Any field showing a ? beside its label has help of its own; click it for the rules that apply there.', 0, 10, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('af7ffcbe-c124-5d4b-b220-5a3696c7d2cb', 'bc06c90d-09c8-5da8-b96b-139b9ca09d4d', 'id', 'Id', 'The identity of the calendar. Generated on creation; schedules and rules refer to the calendar through it.', 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -1520,6 +1838,28 @@ ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('616f7819-fee9-5c3b-8aba-a4711f77a74c', 'bc06c90d-09c8-5da8-b96b-139b9ca09d4d', 'name', 'Name', 'The descriptive name of the calendar, such as UK Working Days or Group Fiscal Calendar. Entered by the administrator who maintains it; shown wherever a schedule, service level or plan asks which calendar applies.', 10, 300, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('53f642ef-71d4-59af-a1e0-fe853f5170c8', 'bc06c90d-09c8-5da8-b96b-139b9ca09d4d', 'working_days', 'Working Days', 'The days of the normal working week, such as MON-FRI or MON-SAT. Days outside it are non-working unless an exception says otherwise. Exceptions override it for particular dates.', 10, 50, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 40, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('a3d0399c-0465-5a0f-b336-e701f57c3a0c', 'bc06c90d-09c8-5da8-b96b-139b9ca09d4d', 'time_zone', 'Time Zone', 'The time zone of the calendar, such as Europe/Paris. Decides when a day starts and ends for deadlines. An IANA time-zone name.', 10, 64, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 50, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('2cde3b49-bbfb-5558-803c-ccc0c2a54c40', 'bc06c90d-09c8-5da8-b96b-139b9ca09d4d', 'valid_from', 'Valid From', 'The first day on which the calendar''s working days and holidays apply. Set when the calendar is created. Not later than the valid-to date.', 15, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 60, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('76352fde-a14a-521b-824b-cdd0407cd5a7', 'bc06c90d-09c8-5da8-b96b-139b9ca09d4d', 'valid_to', 'Valid To', 'The last day on which the calendar''s working days and holidays apply. Filled in when a newer calendar replaces this one. Left empty while the calendar is still in use.', 15, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 70, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('ed8a2f39-b28a-58b5-9b2f-09547ea7aa69', 'bc06c90d-09c8-5da8-b96b-139b9ca09d4d', 'status', 'Status', 'Whether planners may use this calendar. Made inactive by an administrator once a newer calendar replaces it. Inactive calendars are not offered when choosing one. In use and available to planners. Retired and no longer offered.', 1005, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 80, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('d0def670-dde0-546e-a10f-1c47a5720199', 'bc06c90d-09c8-5da8-b96b-139b9ca09d4d', 'country_id', 'Country', 'The country whose public holidays the calendar holds. Set for country calendars. At most one. Site calendars usually take their country''s calendar as base.', 19, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 90, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('4c10dfc3-18a4-522d-939c-d49fd98981dc', 'bc06c90d-09c8-5da8-b96b-139b9ca09d4d', 'base_calendar_id', 'Base Calendar', 'The calendar whose exceptions this one also follows. Set so a site calendar inherits the country''s holidays. At most one base. Cannot be itself.', 19, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 100, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+UPDATE sys_column SET ref_table_name = 'bus_calendar' WHERE sys_column_id = '4c10dfc3-18a4-522d-939c-d49fd98981dc';
 INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('20bcbd80-8852-5ff4-8df2-7fe2fc96b760', '7962ec38-55e1-505a-9555-5b4c8eefdf3e', 'af7ffcbe-c124-5d4b-b220-5a3696c7d2cb', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Id', 'The identity of the calendar. Generated on creation; schedules and rules refer to the calendar through it. Must be unique: a save is rejected if another Calendar already uses this value.', 10, 10, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
@@ -1528,6 +1868,27 @@ VALUES ('75a972ad-47ff-518d-b847-833a0cdfef90', '7962ec38-55e1-505a-9555-5b4c8ee
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('90b77c2a-f03b-59b7-81e7-348b3a1f8ad1', '7962ec38-55e1-505a-9555-5b4c8eefdf3e', '616f7819-fee9-5c3b-8aba-a4711f77a74c', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Name', 'The descriptive name of the calendar, such as UK Working Days or Group Fiscal Calendar. Entered by the administrator who maintains it; shown wherever a schedule, service level or plan asks which calendar applies. Required — the record cannot be saved while this is empty. Up to 300 characters.', 30, 30, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('1e70449d-b5bb-5587-94cd-97418dac0926', '7962ec38-55e1-505a-9555-5b4c8eefdf3e', '53f642ef-71d4-59af-a1e0-fe853f5170c8', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Working Days', 'The days of the normal working week, such as MON-FRI or MON-SAT. Days outside it are non-working unless an exception says otherwise. Exceptions override it for particular dates. Required — the record cannot be saved while this is empty. Up to 50 characters.', 40, 40, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('04e6fc1f-e3ca-5e93-880b-f59dc6f27514', '7962ec38-55e1-505a-9555-5b4c8eefdf3e', 'a3d0399c-0465-5a0f-b336-e701f57c3a0c', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Time Zone', 'The time zone of the calendar, such as Europe/Paris. Decides when a day starts and ends for deadlines. An IANA time-zone name. Up to 64 characters.', 50, 50, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('c5a4d4cd-919c-59b6-8076-e530cf109b74', '7962ec38-55e1-505a-9555-5b4c8eefdf3e', '2cde3b49-bbfb-5558-803c-ccc0c2a54c40', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Valid From', 'The first day on which the calendar''s working days and holidays apply. Set when the calendar is created. Not later than the valid-to date.', 60, 60, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('7754a5e9-a304-5b39-ad8b-fef52763b427', '7962ec38-55e1-505a-9555-5b4c8eefdf3e', '76352fde-a14a-521b-824b-cdd0407cd5a7', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Valid To', 'The last day on which the calendar''s working days and holidays apply. Filled in when a newer calendar replaces this one. Left empty while the calendar is still in use.', 70, 70, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('fc180e31-ce0f-575c-b525-7b4e476ecc6c', '7962ec38-55e1-505a-9555-5b4c8eefdf3e', 'ed8a2f39-b28a-58b5-9b2f-09547ea7aa69', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Status', 'Whether planners may use this calendar. Made inactive by an administrator once a newer calendar replaces it. Inactive calendars are not offered when choosing one. In use and available to planners. Retired and no longer offered. Required — the record cannot be saved while this is empty.', 80, 80, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('80cc75f5-a954-563a-a4a2-50db6889351e', '7962ec38-55e1-505a-9555-5b4c8eefdf3e', 'd0def670-dde0-546e-a10f-1c47a5720199', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Country', 'The country whose public holidays the calendar holds. Set for country calendars. At most one. Site calendars usually take their country''s calendar as base.', 90, 90, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('4a3ad72c-0a24-548f-88b4-fd9804b4dceb', '7962ec38-55e1-505a-9555-5b4c8eefdf3e', '4c10dfc3-18a4-522d-939c-d49fd98981dc', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Base Calendar', 'The calendar whose exceptions this one also follows. Set so a site calendar inherits the country''s holidays. At most one base. Cannot be itself.', 100, 100, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_access (sys_access_id, sys_role_id, sys_table_id, sys_window_id, access_type_table, is_read_only, is_exclude, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('67abc3b2-dffc-557a-8318-1a1b21ec21ab', (SELECT sys_role_id FROM sys_role WHERE name = 'Administrator'), 'bc06c90d-09c8-5da8-b96b-139b9ca09d4d', 'daa696d8-8ba1-54e1-b738-892ca01287fe', 'W', FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -1540,9 +1901,9 @@ ON CONFLICT DO NOTHING;
 -- Attachment (bus_attachment)
 -- --------------------------------------------------------------------------
 INSERT INTO sys_window (sys_window_id, name, description, help, icon, window_type, is_sales_transaction, is_default, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('0888c161-f249-59bf-bedc-b2c70f85b8a3', 'Attachment', 'Maintain Attachment records', 'Create, find and maintain Attachment records. The list shows every Attachment you have access to — select a row to open it, or use New to add one. Each row is a single Attachment, described by 2 fields.
+VALUES ('0888c161-f249-59bf-bedc-b2c70f85b8a3', 'Attachment', 'Maintain Attachment records', 'Create, find and maintain Attachment records. The list shows every Attachment you have access to — select a row to open it, or use New to add one. Each row is a single Attachment, described by 14 fields.
 
-Id is unique: no two Attachment records may share the same value, and a save that would duplicate one is rejected.
+Id is unique: no two Attachment records may share the same value, and a save that would duplicate one is rejected. File Name, Storage Location, Record Type, Record Id, Uploaded At and Status must be filled in before the record can be saved.
 
 Every save starts as a Draft. The business rules and workflows attached to Attachment then run together in a single transaction: if all of them succeed the record becomes Final; if any of them fails, nothing they changed is kept — the record stays Draft and the reason is written onto it so you can fix the cause and retry. An Attachment with no rules or workflows attached is marked Final immediately.', 'paperclip', 'M', FALSE, TRUE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
@@ -1550,7 +1911,7 @@ INSERT INTO sys_table (sys_table_id, table_name, name, description, icon, access
 VALUES ('d25ab6e6-ac37-5779-8515-8fe1119c5f7c', 'bus_attachment', 'Attachment', 'A file or other content attached to an enterprise record, with its content identity and provenance kept for audit. Supporting documents, photos and scans back up decisions. Keeping them as governed records, rather than loose files, proves what was attached to what and when, and lets the same content be recognised if it is attached twice. Added when a user or system attaches evidence to a record; read when someone needs to see or verify the supporting document. An attachment is linked to the record it supports; the same file may be attached to more than one. Once attached, the content is evidence and is not silently replaced; a corrected file is attached as a new record. A signed delivery note PDF is attached to a shipment record by the driver''s handheld at delivery.', 'paperclip', 'A', FALSE, FALSE, FALSE, TRUE, '0888c161-f249-59bf-bedc-b2c70f85b8a3', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_tab (sys_tab_id, sys_window_id, sys_table_id, name, help, tab_level, seq_no, is_single_row, has_tree, is_info_tab, is_translation_tab, is_read_only, is_insert_record, is_advanced_tab, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('66deaeba-9504-512e-81ac-431e2a6281b0', '0888c161-f249-59bf-bedc-b2c70f85b8a3', 'd25ab6e6-ac37-5779-8515-8fe1119c5f7c', 'Attachment', 'Shows one Attachment at a time. Fields are grouped: General carries the identifying fields and Details carries the rest. Any field showing a ? beside its label has help of its own; click it for the rules that apply there.', 0, 10, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('66deaeba-9504-512e-81ac-431e2a6281b0', '0888c161-f249-59bf-bedc-b2c70f85b8a3', 'd25ab6e6-ac37-5779-8515-8fe1119c5f7c', 'Attachment', 'Shows one Attachment at a time. Fields are grouped: General carries the identifying fields and Details carries the rest. 6 fields marked with a red asterisk (*) must have a value before Save will accept the record. Any field showing a ? beside its label has help of its own; click it for the rules that apply there.', 0, 10, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('aebd5e99-59fa-5e31-9731-e457ffaa7190', 'd25ab6e6-ac37-5779-8515-8fe1119c5f7c', 'id', 'Id', 'The identity of the attachment record. Generated on creation; links to the supported record and audit entries use it.', 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -1558,11 +1919,84 @@ ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('626c721b-59e3-516a-a64d-b8bf1d3094da', 'd25ab6e6-ac37-5779-8515-8fe1119c5f7c', 'effective_at', 'Effective At', 'When the attachment became part of the record. Set when the file is attached; used to show what evidence existed at a given moment.', 16, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('39d3eb97-53e3-5a2a-b8fa-753eac9e73ad', 'd25ab6e6-ac37-5779-8515-8fe1119c5f7c', 'file_name', 'File Name', 'The name of the file as uploaded. Shown in the record''s list of attachments and used as the name when the file is downloaded. Not unique; the same name may be attached to many records.', 10, 255, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, FALSE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('f99b6edd-8d94-5951-b850-13788f3b6c06', 'd25ab6e6-ac37-5779-8515-8fe1119c5f7c', 'media_type', 'Media Type', 'The type of the file''s content, such as application/pdf or image/jpeg. Detected on upload; it decides whether the file can be previewed. Taken from the file, not typed by the user.', 10, 100, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 40, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('9b0c14c3-d9a3-5cea-879b-22519b6b7dea', 'd25ab6e6-ac37-5779-8515-8fe1119c5f7c', 'size_bytes', 'Size Bytes', 'The size of the file in bytes. Recorded on upload; used to enforce upload limits and to report storage use. Zero-size files are refused.', 11, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 50, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('421cd2bc-b9ba-5bfd-b239-bc2248288428', 'd25ab6e6-ac37-5779-8515-8fe1119c5f7c', 'storage_location', 'Storage Location', 'Where the file''s content is stored. Set by the system on upload; users never type it. Moving files between stores updates it without changing the attachment.', 10, 500, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 60, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('8f6ce37a-5b6c-5ca3-bc9d-e7f51f8ae61e', 'd25ab6e6-ac37-5779-8515-8fe1119c5f7c', 'checksum', 'Checksum', 'A fingerprint of the file''s content (SHA-256). Computed on upload; recomputing it later shows whether the file has been changed. Two attachments with the same checksum hold the same content.', 10, 128, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 70, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('4181ec45-118e-579e-b8d9-9ff7d5c3ec4c', 'd25ab6e6-ac37-5779-8515-8fe1119c5f7c', 'record_type', 'Record Type', 'The kind of record the file is attached to, such as "Goods receipt". Set by the screen the file was attached from. Read with the record identifier to find the record.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 80, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('87cbb1ea-7c8a-52d4-9759-3d52cfcbbed1', 'd25ab6e6-ac37-5779-8515-8fe1119c5f7c', 'record_id', 'Record Id', 'The identifier of the record the file is attached to. Set by the screen the file was attached from; the record''s attachments are found by it. Together with the record type it identifies exactly one record.', 10, 64, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 90, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('9e03dab0-74e7-5043-bb9e-be0926e4076d', 'd25ab6e6-ac37-5779-8515-8fe1119c5f7c', 'category', 'Category', 'What the file is, such as "Delivery note", "Certificate" or "Photograph". Chosen on upload so that the record''s attachments can be told apart without opening them. Free choice of words, though each business usually agrees a short list.', 10, 100, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 100, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('d6481c8f-6f0a-54c9-aa85-f481eda354c6', 'd25ab6e6-ac37-5779-8515-8fe1119c5f7c', 'description', 'Description', 'A note about the file''s content. Optional; useful when the file name does not say what the file shows. Free text.', 10, 500, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 110, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('89f616ee-c461-59e4-808e-0b5b38d2a1ad', 'd25ab6e6-ac37-5779-8515-8fe1119c5f7c', 'uploaded_at', 'Uploaded At', 'When the file was attached. Recorded by the system; the record''s evidence is listed in this order. Not editable.', 16, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 120, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('a829e436-9a4d-5e07-9d3b-a8042e3e3988', 'd25ab6e6-ac37-5779-8515-8fe1119c5f7c', 'status', 'Status', 'Whether the file still counts as evidence for the record. An attachment added by mistake is withdrawn; it stays visible in the history. Withdrawn attachments are not shown in the normal list. Attached and part of the record''s evidence. Removed from the record''s evidence, but kept for the history.', 1002, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 130, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('f8ed38fc-f813-5754-9105-69a86ba61a6e', 'd25ab6e6-ac37-5779-8515-8fe1119c5f7c', 'uploaded_by_id', 'Uploaded By Id', 'The person who attached the file. Recorded on upload. One per attachment. Shown with the file so that reviewers know where it came from.', 19, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 140, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+UPDATE sys_column SET ref_table_name = 'bus_person' WHERE sys_column_id = 'f8ed38fc-f813-5754-9105-69a86ba61a6e';
 INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('3e673d68-797a-5d0a-864f-3e71957c596a', '66deaeba-9504-512e-81ac-431e2a6281b0', 'aebd5e99-59fa-5e31-9731-e457ffaa7190', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Id', 'The identity of the attachment record. Generated on creation; links to the supported record and audit entries use it. Must be unique: a save is rejected if another Attachment already uses this value.', 10, 10, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('449fe808-6d00-505b-b80d-93d9e337f4bc', '66deaeba-9504-512e-81ac-431e2a6281b0', '626c721b-59e3-516a-a64d-b8bf1d3094da', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Effective At', 'When the attachment became part of the record. Set when the file is attached; used to show what evidence existed at a given moment.', 20, 20, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('93e5126f-c99a-5c3e-8071-74c92c0df195', '66deaeba-9504-512e-81ac-431e2a6281b0', '39d3eb97-53e3-5a2a-b8fa-753eac9e73ad', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'File Name', 'The name of the file as uploaded. Shown in the record''s list of attachments and used as the name when the file is downloaded. Not unique; the same name may be attached to many records. Required — the record cannot be saved while this is empty. Up to 255 characters.', 30, 30, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('4baa739f-ae85-5a4e-8de7-ba99bce6b4bc', '66deaeba-9504-512e-81ac-431e2a6281b0', 'f99b6edd-8d94-5951-b850-13788f3b6c06', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Media Type', 'The type of the file''s content, such as application/pdf or image/jpeg. Detected on upload; it decides whether the file can be previewed. Taken from the file, not typed by the user. Up to 100 characters.', 40, 40, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('df3cd61f-d24e-5ec6-8945-170b4cfc1975', '66deaeba-9504-512e-81ac-431e2a6281b0', '9b0c14c3-d9a3-5cea-879b-22519b6b7dea', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Size Bytes', 'The size of the file in bytes. Recorded on upload; used to enforce upload limits and to report storage use. Zero-size files are refused.', 50, 50, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('99049a66-ad8b-5ff0-b1e8-abcd374e0ae2', '66deaeba-9504-512e-81ac-431e2a6281b0', '421cd2bc-b9ba-5bfd-b239-bc2248288428', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Storage Location', 'Where the file''s content is stored. Set by the system on upload; users never type it. Moving files between stores updates it without changing the attachment. Required — the record cannot be saved while this is empty. Up to 500 characters.', 60, 60, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('67557bff-5e53-53a8-9f02-aa8cda30f9b1', '66deaeba-9504-512e-81ac-431e2a6281b0', '8f6ce37a-5b6c-5ca3-bc9d-e7f51f8ae61e', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Checksum', 'A fingerprint of the file''s content (SHA-256). Computed on upload; recomputing it later shows whether the file has been changed. Two attachments with the same checksum hold the same content. Up to 128 characters.', 70, 70, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('fd9d3adc-81ee-5f96-bd66-1557cd284720', '66deaeba-9504-512e-81ac-431e2a6281b0', '4181ec45-118e-579e-b8d9-9ff7d5c3ec4c', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Record Type', 'The kind of record the file is attached to, such as "Goods receipt". Set by the screen the file was attached from. Read with the record identifier to find the record. Required — the record cannot be saved while this is empty. Up to 100 characters.', 80, 80, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('3bd259a6-5b64-5f22-88da-163754bc2ce3', '66deaeba-9504-512e-81ac-431e2a6281b0', '87cbb1ea-7c8a-52d4-9759-3d52cfcbbed1', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Record Id', 'The identifier of the record the file is attached to. Set by the screen the file was attached from; the record''s attachments are found by it. Together with the record type it identifies exactly one record. Required — the record cannot be saved while this is empty. Up to 64 characters.', 90, 90, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('3de92bff-0cea-5010-ba25-f7b93b8576ea', '66deaeba-9504-512e-81ac-431e2a6281b0', '9e03dab0-74e7-5043-bb9e-be0926e4076d', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Category', 'What the file is, such as "Delivery note", "Certificate" or "Photograph". Chosen on upload so that the record''s attachments can be told apart without opening them. Free choice of words, though each business usually agrees a short list. Up to 100 characters.', 100, 100, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('e6d2406d-3cfe-5c88-9022-fd03c532c08a', '66deaeba-9504-512e-81ac-431e2a6281b0', 'd6481c8f-6f0a-54c9-aa85-f481eda354c6', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Description', 'A note about the file''s content. Optional; useful when the file name does not say what the file shows. Free text. Up to 500 characters.', 110, 110, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('6dffa40f-56af-5323-ad34-5d71d4ade4e9', '66deaeba-9504-512e-81ac-431e2a6281b0', '89f616ee-c461-59e4-808e-0b5b38d2a1ad', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Uploaded At', 'When the file was attached. Recorded by the system; the record''s evidence is listed in this order. Not editable. Required — the record cannot be saved while this is empty.', 120, 120, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('8c44d670-d2a7-51d5-a84e-53f6166d0c33', '66deaeba-9504-512e-81ac-431e2a6281b0', 'a829e436-9a4d-5e07-9d3b-a8042e3e3988', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Status', 'Whether the file still counts as evidence for the record. An attachment added by mistake is withdrawn; it stays visible in the history. Withdrawn attachments are not shown in the normal list. Attached and part of the record''s evidence. Removed from the record''s evidence, but kept for the history. Required — the record cannot be saved while this is empty.', 130, 130, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('6a1eece5-bc9f-55c7-9791-040476d51b0f', '66deaeba-9504-512e-81ac-431e2a6281b0', 'f8ed38fc-f813-5754-9105-69a86ba61a6e', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Uploaded By Id', 'The person who attached the file. Recorded on upload. One per attachment. Shown with the file so that reviewers know where it came from.', 140, 140, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_access (sys_access_id, sys_role_id, sys_table_id, sys_window_id, access_type_table, is_read_only, is_exclude, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('01640fee-4214-5587-8672-da758d6d05c6', (SELECT sys_role_id FROM sys_role WHERE name = 'Administrator'), 'd25ab6e6-ac37-5779-8515-8fe1119c5f7c', '0888c161-f249-59bf-bedc-b2c70f85b8a3', 'W', FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -1602,13 +2036,13 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('cfa8d7da-856c-56e6-a2cb-6468a1b99d9f', 'daa94398-6748-560b-b2c4-ab45e0b5a554', 'description', 'Description', 'Fuller instructions explaining what is to be done, why, and any details the performer needs. Written by the creator; read by the assignee before starting, and updated if scope changes while the task is open.', 10, 2000, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 40, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('99c76f97-bb5b-57c0-8726-35320f924b45', 'daa94398-6748-560b-b2c4-ab45e0b5a554', 'task_type', 'Task Type', 'The kind of work the task is. Chosen when created; decides who or what performs it. Work done by a person. A step run automatically. A person must approve or refuse something. A choice that decides the path. A message to be sent. A script run by the system. Work that fits no other type.', 1034, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 50, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('99c76f97-bb5b-57c0-8726-35320f924b45', 'daa94398-6748-560b-b2c4-ab45e0b5a554', 'task_type', 'Task Type', 'The kind of work the task is. Chosen when created; decides who or what performs it. Work done by a person. A step run automatically. A person must approve or refuse something. A choice that decides the path. A message to be sent. A script run by the system. Work that fits no other type.', 1052, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 50, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('8b952f8e-7644-5dac-a982-21557e714a71', 'daa94398-6748-560b-b2c4-ab45e0b5a554', 'status', 'Status', 'Where the task stands, from creation through assignment and execution to completion, cancellation or failure. Moved by the assignee, workflow or system as work proceeds; completed, cancelled and failed tasks are closed to further work. The task exists but is not yet ready to be picked up. The task is released and waiting for someone to be assigned. A person or party has been given the task but has not started it. The assignee is actively working on the task. Work is held up by a dependency, missing input or decision. The work was done as required. A final state. The task was withdrawn before completion. A final state. The task ended without achieving its result and needs follow-up elsewhere. A final state.', 1033, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 60, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('8b952f8e-7644-5dac-a982-21557e714a71', 'daa94398-6748-560b-b2c4-ab45e0b5a554', 'status', 'Status', 'Where the task stands, from creation through assignment and execution to completion, cancellation or failure. Moved by the assignee, workflow or system as work proceeds; completed, cancelled and failed tasks are closed to further work. The task exists but is not yet ready to be picked up. The task is released and waiting for someone to be assigned. A person or party has been given the task but has not started it. The assignee is actively working on the task. Work is held up by a dependency, missing input or decision. The work was done as required. A final state. The task was withdrawn before completion. A final state. The task ended without achieving its result and needs follow-up elsewhere. A final state.', 1051, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 60, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('393faff5-b89a-509d-83ea-55c4f63558a5', 'daa94398-6748-560b-b2c4-ab45e0b5a554', 'priority', 'Priority', 'How urgently the task should be worked relative to others in the same queue. Set by the creator or workflow rules; assignees and queue views sort by it, and it may raise escalations when overdue. Can wait behind other work without business impact. Standard urgency, handled in the ordinary course of work. Needs prompt attention ahead of normal work. Needs immediate action because delay causes serious business impact.', 1032, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 70, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('393faff5-b89a-509d-83ea-55c4f63558a5', 'daa94398-6748-560b-b2c4-ab45e0b5a554', 'priority', 'Priority', 'How urgently the task should be worked relative to others in the same queue. Set by the creator or workflow rules; assignees and queue views sort by it, and it may raise escalations when overdue. Can wait behind other work without business impact. Standard urgency, handled in the ordinary course of work. Needs prompt attention ahead of normal work. Needs immediate action because delay causes serious business impact.', 1050, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 70, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('5b749510-ab7e-55b0-a699-951b0463b726', 'daa94398-6748-560b-b2c4-ab45e0b5a554', 'due_at', 'Due At', 'Set when created; overdue tasks are flagged. Compared with the completion time. Records when the due event occurred. It establishes chronology, supports auditability, and helps coordinate related lifecycle and process activities.', 16, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 80, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -1694,7 +2128,7 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('0b61c367-5d80-5510-b809-b3fccd5d92fa', '2aa0f208-0d5d-5786-b4b5-2108d0a45029', 'item_code', 'Item Code', 'The stock-keeping code under which the product is managed in inventory. Assigned when the item is set up and unique; used by the warehouse and in replenishment and count documents. Operational code used to identify the stock-control profile. Distinct from Product SKU where a separate inventory identifier is required.', 10, 120, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('9589cb4d-db3d-5e8c-9aaf-cd8709adccfd', '2aa0f208-0d5d-5786-b4b5-2108d0a45029', 'status', 'Status', 'Whether the product may currently be stocked and moved. Set by inventory control; movements are allowed only for ACTIVE items. Being set up; not yet stocked. Available for stocking and movements. Temporarily barred from movements, for example pending a quality issue; it can be unblocked. No longer stocked; the item is kept for history. A final state. Separates setup, active use, temporary block and permanent discontinuation. Historical balances and movements remain valid after blocking or discontinuation.', 1007, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('9589cb4d-db3d-5e8c-9aaf-cd8709adccfd', '2aa0f208-0d5d-5786-b4b5-2108d0a45029', 'status', 'Status', 'Whether the product may currently be stocked and moved. Set by inventory control; movements are allowed only for ACTIVE items. Being set up; not yet stocked. Available for stocking and movements. Temporarily barred from movements, for example pending a quality issue; it can be unblocked. No longer stocked; the item is kept for history. A final state. Separates setup, active use, temporary block and permanent discontinuation. Historical balances and movements remain valid after blocking or discontinuation.', 1020, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('04548954-5f99-5dba-9f74-06faffc02acb', '2aa0f208-0d5d-5786-b4b5-2108d0a45029', 'safety_stock_quantity', 'Safety Stock Quantity', 'The minimum buffer of stock the business wants to keep on hand to absorb demand or supply variation. Set by planners per item; replenishment and shortage planning treat falling below it as an exception, and it must not be negative. Target stock retained to absorb uncertainty rather than current on-hand quantity. Interpreted in the stocking UOM.', 12, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 40, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -1774,7 +2208,7 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('e01100da-c8d2-5684-998d-39340ba9ea62', '7e7d0348-9cd7-5ed5-9226-e924958444f4', 'movement_number', 'Movement Number', 'The document number of the stock movement. Allocated from a number series; unique; printed on goods documents and used in audits. Distinct from Product and source transaction numbers. Traces stock change from execution through reconciliation.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('1dc2004b-98ad-51c9-b9b1-e71ff2b3a42d', '7e7d0348-9cd7-5ed5-9226-e924958444f4', 'movement_type', 'Movement Type', 'Stock arrives, for example from a supplier or production. Stock leaves, for example to a customer or to production. Stock moves from one location to another. Quantity is corrected after a count or an investigation. Stock comes back from a customer or is returned to a supplier. Stock is set aside for a demand without moving. A reservation is withdrawn and the stock becomes available again. Identifies inventory operation and state transition. Determines how on-hand, reserved, available and location balances change. Movement type describes inventory effect; relatedTransaction and supplierReturnLine explain business reason where applicable. Maps business workflow outcomes to inventory ledger.', 1010, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('1dc2004b-98ad-51c9-b9b1-e71ff2b3a42d', '7e7d0348-9cd7-5ed5-9226-e924958444f4', 'movement_type', 'Movement Type', 'Stock arrives, for example from a supplier or production. Stock leaves, for example to a customer or to production. Stock moves from one location to another. Quantity is corrected after a count or an investigation. Stock comes back from a customer or is returned to a supplier. Stock is set aside for a demand without moving. A reservation is withdrawn and the stock becomes available again. Identifies inventory operation and state transition. Determines how on-hand, reserved, available and location balances change. Movement type describes inventory effect; relatedTransaction and supplierReturnLine explain business reason where applicable. Maps business workflow outcomes to inventory ledger.', 1023, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('612f6ff1-9e3e-50e0-a0ce-df01fed41747', '7e7d0348-9cd7-5ed5-9226-e924958444f4', 'quantity', 'Quantity', 'The amount of stock this movement adds to or removes from the inventory position, in the item''s stock unit. Entered or computed when the movement is prepared; once posted it is immutable and drives balance changes, and a mistake is corrected by a compensating movement. Interpreted with Product, UOM, movementType and source/target locations. Changes physical quantity for receipt/issue/transfer/return and commitment state for reservation/release.', 12, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 40, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -1890,7 +2324,7 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('96d282c9-d181-508f-be06-d3cd6549973d', '38b595a2-91c9-51c2-9e36-2c94d66ed6d8', 'quantity_released', 'Quantity Released', 'The quantity of the reservation that has been given back to availability. Increases when part of the demand is cancelled or the reservation expires.', 12, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 40, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('9d8d84b4-0569-5cf2-94d3-d9869950d250', '38b595a2-91c9-51c2-9e36-2c94d66ed6d8', 'status', 'Status', 'How much of the reservation is still holding stock. Moved by order management and picking. Requested but not yet holding stock. Holding stock for its demand. Part of the stock has been issued; the rest is still held. The remaining stock has been given back to availability. A final state. All the reserved stock has been issued. A final state. Withdrawn before it held stock. A final state. Lapsed because the demand was not fulfilled in time. A final state.', 1011, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 50, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('9d8d84b4-0569-5cf2-94d3-d9869950d250', '38b595a2-91c9-51c2-9e36-2c94d66ed6d8', 'status', 'Status', 'How much of the reservation is still holding stock. Moved by order management and picking. Requested but not yet holding stock. Holding stock for its demand. Part of the stock has been issued; the rest is still held. The remaining stock has been given back to availability. A final state. All the reserved stock has been issued. A final state. Withdrawn before it held stock. A final state. Lapsed because the demand was not fulfilled in time. A final state.', 1024, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 50, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('986fafe8-efd2-5f07-a3b8-4f817cd4de93', '38b595a2-91c9-51c2-9e36-2c94d66ed6d8', 'priority', 'Priority', 'The reservation''s priority when stock is short. Lower numbers are served first; defaults to 100.', 11, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 60, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -1948,7 +2382,7 @@ ON CONFLICT DO NOTHING;
 -- Inventory Transfer (bus_inventory_transfer)
 -- --------------------------------------------------------------------------
 INSERT INTO sys_window (sys_window_id, name, description, help, icon, window_type, is_sales_transaction, is_default, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('fba930f5-3556-5766-afe2-ec15fcb5d2f0', 'Inventory Transfer', 'Maintain Inventory Transfer records', 'Create, find and maintain Inventory Transfer records. The list shows every Inventory Transfer you have access to — select a row to open it, or use New to add one. Each row is a single Inventory Transfer, described by 7 fields.
+VALUES ('fba930f5-3556-5766-afe2-ec15fcb5d2f0', 'Inventory Transfer', 'Maintain Inventory Transfer records', 'Create, find and maintain Inventory Transfer records. The list shows every Inventory Transfer you have access to — select a row to open it, or use New to add one. Each row is a single Inventory Transfer, described by 10 fields.
 
 Id and Transfer Number are unique: no two Inventory Transfer records may share the same value, and a save that would duplicate one is rejected. Transfer Number, Requested Quantity, Status, Product and Source Location must be filled in before the record can be saved.
 
@@ -1972,16 +2406,25 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('56332b0a-5780-5945-9a32-e340e2231fe9', 'b5387191-bd6e-5852-b131-7e7255bafbd5', 'requested_quantity', 'Requested Quantity', 'The quantity that is to be moved. Set when planned; the movements carry out the quantity actually moved. Defines transfer demand. Interpreted with Product and traceability identities.', 12, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('0534007a-19c5-5d00-8748-3d9d3191b2c5', 'b5387191-bd6e-5852-b131-7e7255bafbd5', 'status', 'Status', 'How far the transfer of stock between locations has progressed, from request to receipt. Moved by the warehouse as work is released, goods are picked and moved, and the target location receives them; completed or cancelled transfers cannot be changed. Requested but not yet released, so no warehouse work has been assigned. Released to the warehouse, which may now begin execution. The goods have been picked and are moving between the two locations. The goods have been received at the target location. A final state. Withdrawn before completion, with no further stock change. A final state. Controls warehouse execution eligibility. Posted movements remain immutable regardless of header state.', 1012, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 40, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('0534007a-19c5-5d00-8748-3d9d3191b2c5', 'b5387191-bd6e-5852-b131-7e7255bafbd5', 'status', 'Status', 'How far the transfer of stock between locations has progressed, from request to receipt. Moved by the warehouse as work is released, goods are picked and moved, and the target location receives them; completed or cancelled transfers cannot be changed. Requested but not yet released, so no warehouse work has been assigned. Released to the warehouse, which may now begin execution. The goods have been picked and are moving between the two locations. The goods have been received at the target location. A final state. Withdrawn before completion, with no further stock change. A final state. Controls warehouse execution eligibility. Posted movements remain immutable regardless of header state.', 1025, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 40, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('9522fb36-5983-5941-b1bd-664ab2744828', 'b5387191-bd6e-5852-b131-7e7255bafbd5', 'product_id', 'Product', 'The product that is moved. Set when planned. Exactly one product per transfer. Identifies the stock to move. Defines inventory item affected.', 19, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 50, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('bfc940fd-3543-5f26-9ea7-37fe2261f18e', 'b5387191-bd6e-5852-b131-7e7255bafbd5', 'moved_quantity', 'Moved Quantity', 'The quantity that was actually moved between the two locations. Confirmed by the warehouse when the transfer is completed; a figure below the requested quantity means a partial transfer. Less than requested means a partial transfer.', 12, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 50, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('f9d6f8c4-cd98-5de0-86ff-9e180fcc073c', 'b5387191-bd6e-5852-b131-7e7255bafbd5', 'source_location_id', 'Source Location', 'Exactly one source: a transfer takes stock from a single location, and a multi-source move is several transfers. The location the stock leaves. Set when planned. Determines where stock is picked. Defines transfer origin.', 19, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 60, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('d98754a5-9e5e-5720-8ade-0e7631a77fbf', 'b5387191-bd6e-5852-b131-7e7255bafbd5', 'reason', 'Reason', 'Why the stock is moved, such as replenishment or consolidation. Recorded when requesting the transfer. Free text.', 10, 300, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 60, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('ec95a1aa-aac5-5b1b-a48d-cf2c1e850f8d', 'b5387191-bd6e-5852-b131-7e7255bafbd5', 'lot_id', 'Lot', 'The lot being moved, if the product is lot-controlled. Chosen when the lot matters. At most one lot. Keeps traceability across the move. Preserves batch identity across relocation.', 19, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 70, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('9120df90-38ec-5538-8cd6-1c97d5e9ea92', 'b5387191-bd6e-5852-b131-7e7255bafbd5', 'completed_at', 'Completed At', 'The date and time the stock arrived at its destination location. Recorded by the warehouse when the transfer is completed; empty while it is still in progress. Present once completed.', 16, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 70, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('9522fb36-5983-5941-b1bd-664ab2744828', 'b5387191-bd6e-5852-b131-7e7255bafbd5', 'product_id', 'Product', 'The product that is moved. Set when planned. Exactly one product per transfer. Identifies the stock to move. Defines inventory item affected.', 19, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 80, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('f9d6f8c4-cd98-5de0-86ff-9e180fcc073c', 'b5387191-bd6e-5852-b131-7e7255bafbd5', 'source_location_id', 'Source Location', 'Exactly one source: a transfer takes stock from a single location, and a multi-source move is several transfers. The location the stock leaves. Set when planned. Determines where stock is picked. Defines transfer origin.', 19, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 90, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('ec95a1aa-aac5-5b1b-a48d-cf2c1e850f8d', 'b5387191-bd6e-5852-b131-7e7255bafbd5', 'lot_id', 'Lot', 'The lot being moved, if the product is lot-controlled. Chosen when the lot matters. At most one lot. Keeps traceability across the move. Preserves batch identity across relocation.', 19, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 100, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 UPDATE sys_column SET ref_table_name = 'bus_inventory_location' WHERE sys_column_id = 'f9d6f8c4-cd98-5de0-86ff-9e180fcc073c';
 INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
@@ -1997,13 +2440,22 @@ INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_
 VALUES ('9327aa62-54c5-5476-bdcc-07bc78c09cde', 'd9f77327-03b8-5b62-bcb2-0ee31c90bfaf', '0534007a-19c5-5d00-8748-3d9d3191b2c5', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Status', 'How far the transfer of stock between locations has progressed, from request to receipt. Moved by the warehouse as work is released, goods are picked and moved, and the target location receives them; completed or cancelled transfers cannot be changed. Requested but not yet released, so no warehouse work has been assigned. Released to the warehouse, which may now begin execution. The goods have been picked and are moving between the two locations. The goods have been received at the target location. A final state. Withdrawn before completion, with no further stock change. A final state. Controls warehouse execution eligibility. Posted movements remain immutable regardless of header state. Required — the record cannot be saved while this is empty.', 40, 40, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('e0d1dd1b-480a-5b83-912f-e5fc3cf1e22a', 'd9f77327-03b8-5b62-bcb2-0ee31c90bfaf', '9522fb36-5983-5941-b1bd-664ab2744828', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Product', 'The product that is moved. Set when planned. Exactly one product per transfer. Identifies the stock to move. Defines inventory item affected. Required — the record cannot be saved while this is empty.', 50, 50, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('4f5ceae7-77d8-5914-8837-da91b89744e6', 'd9f77327-03b8-5b62-bcb2-0ee31c90bfaf', 'bfc940fd-3543-5f26-9ea7-37fe2261f18e', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Moved Quantity', 'The quantity that was actually moved between the two locations. Confirmed by the warehouse when the transfer is completed; a figure below the requested quantity means a partial transfer. Less than requested means a partial transfer.', 50, 50, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('a513682e-2b48-5c8b-a5d2-59592481e4c9', 'd9f77327-03b8-5b62-bcb2-0ee31c90bfaf', 'f9d6f8c4-cd98-5de0-86ff-9e180fcc073c', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Source Location', 'Exactly one source: a transfer takes stock from a single location, and a multi-source move is several transfers. The location the stock leaves. Set when planned. Determines where stock is picked. Defines transfer origin. Required — the record cannot be saved while this is empty.', 60, 60, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('7d6aa513-3bd1-5ba2-975e-24b96d0f0d4f', 'd9f77327-03b8-5b62-bcb2-0ee31c90bfaf', 'd98754a5-9e5e-5720-8ade-0e7631a77fbf', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Reason', 'Why the stock is moved, such as replenishment or consolidation. Recorded when requesting the transfer. Free text. Up to 300 characters.', 60, 60, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('6dd44697-7634-51d8-91e2-315028548952', 'd9f77327-03b8-5b62-bcb2-0ee31c90bfaf', 'ec95a1aa-aac5-5b1b-a48d-cf2c1e850f8d', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Lot', 'The lot being moved, if the product is lot-controlled. Chosen when the lot matters. At most one lot. Keeps traceability across the move. Preserves batch identity across relocation.', 70, 70, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('b2e31a69-c4df-51cb-9586-d80d5984e31a', 'd9f77327-03b8-5b62-bcb2-0ee31c90bfaf', '9120df90-38ec-5538-8cd6-1c97d5e9ea92', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Completed At', 'The date and time the stock arrived at its destination location. Recorded by the warehouse when the transfer is completed; empty while it is still in progress. Present once completed.', 70, 70, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('e0d1dd1b-480a-5b83-912f-e5fc3cf1e22a', 'd9f77327-03b8-5b62-bcb2-0ee31c90bfaf', '9522fb36-5983-5941-b1bd-664ab2744828', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Product', 'The product that is moved. Set when planned. Exactly one product per transfer. Identifies the stock to move. Defines inventory item affected. Required — the record cannot be saved while this is empty.', 80, 80, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('a513682e-2b48-5c8b-a5d2-59592481e4c9', 'd9f77327-03b8-5b62-bcb2-0ee31c90bfaf', 'f9d6f8c4-cd98-5de0-86ff-9e180fcc073c', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Source Location', 'Exactly one source: a transfer takes stock from a single location, and a multi-source move is several transfers. The location the stock leaves. Set when planned. Determines where stock is picked. Defines transfer origin. Required — the record cannot be saved while this is empty.', 90, 90, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('6dd44697-7634-51d8-91e2-315028548952', 'd9f77327-03b8-5b62-bcb2-0ee31c90bfaf', 'ec95a1aa-aac5-5b1b-a48d-cf2c1e850f8d', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Lot', 'The lot being moved, if the product is lot-controlled. Chosen when the lot matters. At most one lot. Keeps traceability across the move. Preserves batch identity across relocation.', 100, 100, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_access (sys_access_id, sys_role_id, sys_table_id, sys_window_id, access_type_table, is_read_only, is_exclude, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('2ea8599f-8809-59dd-8a30-31cb68d5c8dc', (SELECT sys_role_id FROM sys_role WHERE name = 'Administrator'), 'b5387191-bd6e-5852-b131-7e7255bafbd5', 'fba930f5-3556-5766-afe2-ec15fcb5d2f0', 'W', FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -2016,9 +2468,9 @@ ON CONFLICT DO NOTHING;
 -- Inventory Count (bus_inventory_count)
 -- --------------------------------------------------------------------------
 INSERT INTO sys_window (sys_window_id, name, description, help, icon, window_type, is_sales_transaction, is_default, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('2bc21305-0654-5729-bc2c-d4ff82bda14d', 'Inventory Count', 'Maintain Inventory Count records', 'Create, find and maintain Inventory Count records. The list shows every Inventory Count you have access to — select a row to open it, or use New to add one. Each row is a single Inventory Count, described by 7 fields.
+VALUES ('2bc21305-0654-5729-bc2c-d4ff82bda14d', 'Inventory Count', 'Maintain Inventory Count records', 'Create, find and maintain Inventory Count records. The list shows every Inventory Count you have access to — select a row to open it, or use New to add one. Each row is a single Inventory Count, described by 11 fields.
 
-Id and Count Number are unique: no two Inventory Count records may share the same value, and a save that would duplicate one is rejected. Count Number, Counted Quantity, Counted At, Product and Inventory Location must be filled in before the record can be saved.
+Id and Count Number are unique: no two Inventory Count records may share the same value, and a save that would duplicate one is rejected. Count Number, Counted Quantity, Counted At, Count Type, Status, Product and Inventory Location must be filled in before the record can be saved.
 
 Every Inventory Count points at Product, Inventory Location and Lot. Choose the linked record from the lookup on those fields rather than typing an identifier. Inventory Adjustment and Serial Number refer back to Inventory Count, so what you change here can affect those records.
 
@@ -2028,7 +2480,7 @@ INSERT INTO sys_table (sys_table_id, table_name, name, description, icon, access
 VALUES ('ddc5fe42-7366-511e-9e2f-d5b859ef8732', 'bus_inventory_count', 'Inventory Count', 'Physical inventory observation used for controlled reconciliation. A count states what was observed; it does not rewrite what the ledger says happened. Cycle count, annual stocktake, serial verification and inventory-control audit. Product/location/lot/serial define count scope; InventoryAdjustment resolves approved variance. Planned/performed → reviewed → reconciled → closed; evidence retained. Approved variance may create adjustments; observations themselves never post inventory.', 'boxes', 'A', FALSE, FALSE, FALSE, TRUE, '2bc21305-0654-5729-bc2c-d4ff82bda14d', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_tab (sys_tab_id, sys_window_id, sys_table_id, name, help, tab_level, seq_no, is_single_row, has_tree, is_info_tab, is_translation_tab, is_read_only, is_insert_record, is_advanced_tab, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('2254fb3e-e1e9-581c-929c-926844770207', '2bc21305-0654-5729-bc2c-d4ff82bda14d', 'ddc5fe42-7366-511e-9e2f-d5b859ef8732', 'Inventory Count', 'Shows one Inventory Count at a time. Fields are grouped: General carries the identifying fields and Details carries the rest. 5 fields marked with a red asterisk (*) must have a value before Save will accept the record. Product, Inventory Location and Lot are lookups — search the linked records instead of entering an identifier by hand. Any field showing a ? beside its label has help of its own; click it for the rules that apply there.', 0, 10, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('2254fb3e-e1e9-581c-929c-926844770207', '2bc21305-0654-5729-bc2c-d4ff82bda14d', 'ddc5fe42-7366-511e-9e2f-d5b859ef8732', 'Inventory Count', 'Shows one Inventory Count at a time. Fields are grouped: General carries the identifying fields and Details carries the rest. 7 fields marked with a red asterisk (*) must have a value before Save will accept the record. Product, Inventory Location and Lot are lookups — search the linked records instead of entering an identifier by hand. Any field showing a ? beside its label has help of its own; click it for the rules that apply there.', 0, 10, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('e3141a05-e9e9-5a36-9f45-77370bc95f9e', 'ddc5fe42-7366-511e-9e2f-d5b859ef8732', 'id', 'Id', 'The identity of the count record. Generated when the count is entered; adjustments refer to it. Identifies one count evidence record. May cause InventoryAdjustment after approval.', 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -2043,13 +2495,25 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('597ed2cd-afeb-527f-a692-a565d5ac4275', 'ddc5fe42-7366-511e-9e2f-d5b859ef8732', 'counted_at', 'Counted At', 'When the count was made. Entered with the count; the system quantity at that time is the comparison. Anchors the count against ledger chronology. Movements around count time require controlled cutoff treatment.', 16, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 40, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('b8f31411-52c4-5ac4-a5b8-ef239235605c', 'ddc5fe42-7366-511e-9e2f-d5b859ef8732', 'product_id', 'Product', 'The product that was counted. Set when the count is entered. Exactly one product: each count line observes one item. Identifies which balance the count tests. Identifies observed item.', 19, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 50, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('935a92a5-8422-5554-9d44-151db0e59161', 'ddc5fe42-7366-511e-9e2f-d5b859ef8732', 'system_quantity', 'System Quantity', 'How many units the system expected at the time of the count. Snapshot taken when counting starts. The difference becomes an adjustment.', 12, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 50, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('133f107d-f895-5eab-870b-5d1cca21eeee', 'ddc5fe42-7366-511e-9e2f-d5b859ef8732', 'inventory_location_id', 'Inventory Location', 'The location where the count was made. Set when the count is entered. Exactly one location. Identifies which balance the count tests. Defines physical/accountable stock scope.', 19, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 60, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('e039ccdc-5036-5f6f-9343-8b4853794667', 'ddc5fe42-7366-511e-9e2f-d5b859ef8732', 'difference', 'Difference', 'The counted quantity minus the quantity the system holds for the location. Calculated for review by the supervisor; large differences are recounted before being adjusted. It may be negative. May be negative.', 12, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 60, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('54bbdc88-a125-59a3-bd8a-e370358d98ab', 'ddc5fe42-7366-511e-9e2f-d5b859ef8732', 'lot_id', 'Lot', 'Lot counted where applicable. Preserves batch-specific observation. Traceability and reconciliation. Required under lot-controlled count scope. Variance is lot-specific.', 19, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 70, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('6743cda9-370a-545f-9e32-c7b0e6a056d0', 'ddc5fe42-7366-511e-9e2f-d5b859ef8732', 'count_type', 'Count Type', 'Says why the count was made, whether routine, year-end or after a problem. Chosen when the count is planned; it decides who counts and when. Annual counts freeze stock movements while they run. A routine count of some locations on a rolling schedule. The full year-end count of all stock. An unplanned count made after a problem was suspected.', 1018, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 70, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('5aa0aea3-50a4-5c6d-9bdc-779c723e4408', 'ddc5fe42-7366-511e-9e2f-d5b859ef8732', 'status', 'Status', 'Shows how far the count has progressed from planning to approval. Moved on by the counter and the supervisor. Differences are adjusted only from approved counts. Scheduled, but not yet counted. Counted, with a difference to review. A recount was ordered because the difference looked wrong. Accepted by the supervisor, so any difference is adjusted.', 1019, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 80, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('b8f31411-52c4-5ac4-a5b8-ef239235605c', 'ddc5fe42-7366-511e-9e2f-d5b859ef8732', 'product_id', 'Product', 'The product that was counted. Set when the count is entered. Exactly one product: each count line observes one item. Identifies which balance the count tests. Identifies observed item.', 19, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 90, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('133f107d-f895-5eab-870b-5d1cca21eeee', 'ddc5fe42-7366-511e-9e2f-d5b859ef8732', 'inventory_location_id', 'Inventory Location', 'The location where the count was made. Set when the count is entered. Exactly one location. Identifies which balance the count tests. Defines physical/accountable stock scope.', 19, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 100, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('54bbdc88-a125-59a3-bd8a-e370358d98ab', 'ddc5fe42-7366-511e-9e2f-d5b859ef8732', 'lot_id', 'Lot', 'Lot counted where applicable. Preserves batch-specific observation. Traceability and reconciliation. Required under lot-controlled count scope. Variance is lot-specific.', 19, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 110, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('95207a6e-35cd-53b2-9aa2-854ad85e14f9', '2254fb3e-e1e9-581c-929c-926844770207', 'e3141a05-e9e9-5a36-9f45-77370bc95f9e', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Id', 'The identity of the count record. Generated when the count is entered; adjustments refer to it. Identifies one count evidence record. May cause InventoryAdjustment after approval. Must be unique: a save is rejected if another Inventory Count already uses this value.', 10, 10, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -2064,13 +2528,25 @@ INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_
 VALUES ('5b5c5d91-611a-5beb-8757-151d796a983b', '2254fb3e-e1e9-581c-929c-926844770207', '597ed2cd-afeb-527f-a692-a565d5ac4275', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Counted At', 'When the count was made. Entered with the count; the system quantity at that time is the comparison. Anchors the count against ledger chronology. Movements around count time require controlled cutoff treatment. Required — the record cannot be saved while this is empty.', 40, 40, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('7ab568cf-35b4-576a-ab6d-d2ef49f750ca', '2254fb3e-e1e9-581c-929c-926844770207', 'b8f31411-52c4-5ac4-a5b8-ef239235605c', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Product', 'The product that was counted. Set when the count is entered. Exactly one product: each count line observes one item. Identifies which balance the count tests. Identifies observed item. Required — the record cannot be saved while this is empty.', 50, 50, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('82e7a0dd-b0f3-5a51-a336-4986a330398b', '2254fb3e-e1e9-581c-929c-926844770207', '935a92a5-8422-5554-9d44-151db0e59161', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'System Quantity', 'How many units the system expected at the time of the count. Snapshot taken when counting starts. The difference becomes an adjustment.', 50, 50, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('431493cc-d749-5fbe-ad55-4746551b6e28', '2254fb3e-e1e9-581c-929c-926844770207', '133f107d-f895-5eab-870b-5d1cca21eeee', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Inventory Location', 'The location where the count was made. Set when the count is entered. Exactly one location. Identifies which balance the count tests. Defines physical/accountable stock scope. Required — the record cannot be saved while this is empty.', 60, 60, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('f55e54ec-7451-5ce4-9501-78e1f3d43710', '2254fb3e-e1e9-581c-929c-926844770207', 'e039ccdc-5036-5f6f-9343-8b4853794667', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Difference', 'The counted quantity minus the quantity the system holds for the location. Calculated for review by the supervisor; large differences are recounted before being adjusted. It may be negative. May be negative.', 60, 60, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('d9801ec6-7ecf-59bf-86e4-bb2a4bb5cbef', '2254fb3e-e1e9-581c-929c-926844770207', '54bbdc88-a125-59a3-bd8a-e370358d98ab', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Lot', 'Lot counted where applicable. Preserves batch-specific observation. Traceability and reconciliation. Required under lot-controlled count scope. Variance is lot-specific.', 70, 70, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('b6813a3d-f4c2-506a-be59-21f495951d87', '2254fb3e-e1e9-581c-929c-926844770207', '6743cda9-370a-545f-9e32-c7b0e6a056d0', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Count Type', 'Says why the count was made, whether routine, year-end or after a problem. Chosen when the count is planned; it decides who counts and when. Annual counts freeze stock movements while they run. A routine count of some locations on a rolling schedule. The full year-end count of all stock. An unplanned count made after a problem was suspected. Required — the record cannot be saved while this is empty.', 70, 70, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('f9ae8875-1354-5dab-b983-7bdb06de6106', '2254fb3e-e1e9-581c-929c-926844770207', '5aa0aea3-50a4-5c6d-9bdc-779c723e4408', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Status', 'Shows how far the count has progressed from planning to approval. Moved on by the counter and the supervisor. Differences are adjusted only from approved counts. Scheduled, but not yet counted. Counted, with a difference to review. A recount was ordered because the difference looked wrong. Accepted by the supervisor, so any difference is adjusted. Required — the record cannot be saved while this is empty.', 80, 80, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('7ab568cf-35b4-576a-ab6d-d2ef49f750ca', '2254fb3e-e1e9-581c-929c-926844770207', 'b8f31411-52c4-5ac4-a5b8-ef239235605c', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Product', 'The product that was counted. Set when the count is entered. Exactly one product: each count line observes one item. Identifies which balance the count tests. Identifies observed item. Required — the record cannot be saved while this is empty.', 90, 90, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('431493cc-d749-5fbe-ad55-4746551b6e28', '2254fb3e-e1e9-581c-929c-926844770207', '133f107d-f895-5eab-870b-5d1cca21eeee', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Inventory Location', 'The location where the count was made. Set when the count is entered. Exactly one location. Identifies which balance the count tests. Defines physical/accountable stock scope. Required — the record cannot be saved while this is empty.', 100, 100, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('d9801ec6-7ecf-59bf-86e4-bb2a4bb5cbef', '2254fb3e-e1e9-581c-929c-926844770207', '54bbdc88-a125-59a3-bd8a-e370358d98ab', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Lot', 'Lot counted where applicable. Preserves batch-specific observation. Traceability and reconciliation. Required under lot-controlled count scope. Variance is lot-specific.', 110, 110, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_access (sys_access_id, sys_role_id, sys_table_id, sys_window_id, access_type_table, is_read_only, is_exclude, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('498732ea-ce38-5c48-804a-255090dafd14', (SELECT sys_role_id FROM sys_role WHERE name = 'Administrator'), 'ddc5fe42-7366-511e-9e2f-d5b859ef8732', '2bc21305-0654-5729-bc2c-d4ff82bda14d', 'W', FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -2083,9 +2559,9 @@ ON CONFLICT DO NOTHING;
 -- Inventory Adjustment (bus_inventory_adjustment)
 -- --------------------------------------------------------------------------
 INSERT INTO sys_window (sys_window_id, name, description, help, icon, window_type, is_sales_transaction, is_default, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('d6ecfe62-3e00-5e55-804e-3a2d8a2cd936', 'Inventory Adjustment', 'Maintain Inventory Adjustment records', 'Create, find and maintain Inventory Adjustment records. The list shows every Inventory Adjustment you have access to — select a row to open it, or use New to add one. Each row is a single Inventory Adjustment, described by 8 fields.
+VALUES ('d6ecfe62-3e00-5e55-804e-3a2d8a2cd936', 'Inventory Adjustment', 'Maintain Inventory Adjustment records', 'Create, find and maintain Inventory Adjustment records. The list shows every Inventory Adjustment you have access to — select a row to open it, or use New to add one. Each row is a single Inventory Adjustment, described by 11 fields.
 
-Id and Adjustment Number are unique: no two Inventory Adjustment records may share the same value, and a save that would duplicate one is rejected. Adjustment Number, Quantity Delta, Reason Code, Inventory Movement, Product and Inventory Location must be filled in before the record can be saved.
+Id and Adjustment Number are unique: no two Inventory Adjustment records may share the same value, and a save that would duplicate one is rejected. Adjustment Number, Quantity Delta, Reason Code, Status, Inventory Movement, Product and Inventory Location must be filled in before the record can be saved.
 
 Every Inventory Adjustment points at Inventory Movement, Inventory Count, Product and Inventory Location. Choose the linked record from the lookup on those fields rather than typing an identifier.
 
@@ -2095,7 +2571,7 @@ INSERT INTO sys_table (sys_table_id, table_name, name, description, icon, access
 VALUES ('2548b11f-8bfa-555d-82af-b0f19af9cc26', 'bus_inventory_adjustment', 'Inventory Adjustment', 'An authorised correction of an evidenced stock discrepancy, whose quantity change is carried out by a stock movement. Stock records and shelves drift apart. An adjustment is the controlled way of putting them back in line: it states why, by how much and who approved it, and the actual change is posted as a movement so the stock ledger stays a complete history. Created after a count or investigation shows a discrepancy; approved; posted; read by warehouse management, finance and auditors. An adjustment concerns one Product at one InventoryLocation, may arise from an InventoryCount, and results in an InventoryMovement. A count finds 38 units where the system shows 40; an adjustment of minus 2 with reason "counting variance" is approved and posted. Proposed → approved → posted → immutable historical evidence. Posting updates balances and variance analytics; corrections compensate rather than rewrite.', 'boxes', 'A', FALSE, FALSE, FALSE, TRUE, 'd6ecfe62-3e00-5e55-804e-3a2d8a2cd936', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_tab (sys_tab_id, sys_window_id, sys_table_id, name, help, tab_level, seq_no, is_single_row, has_tree, is_info_tab, is_translation_tab, is_read_only, is_insert_record, is_advanced_tab, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('a8c2eac8-23da-521d-a699-b3dd4c87460d', 'd6ecfe62-3e00-5e55-804e-3a2d8a2cd936', '2548b11f-8bfa-555d-82af-b0f19af9cc26', 'Inventory Adjustment', 'Shows one Inventory Adjustment at a time. Fields are grouped: General carries the identifying fields and Details carries the rest. 6 fields marked with a red asterisk (*) must have a value before Save will accept the record. Inventory Movement, Inventory Count, Product and Inventory Location are lookups — search the linked records instead of entering an identifier by hand. Any field showing a ? beside its label has help of its own; click it for the rules that apply there.', 0, 10, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('a8c2eac8-23da-521d-a699-b3dd4c87460d', 'd6ecfe62-3e00-5e55-804e-3a2d8a2cd936', '2548b11f-8bfa-555d-82af-b0f19af9cc26', 'Inventory Adjustment', 'Shows one Inventory Adjustment at a time. Fields are grouped: General carries the identifying fields and Details carries the rest. 7 fields marked with a red asterisk (*) must have a value before Save will accept the record. Inventory Movement, Inventory Count, Product and Inventory Location are lookups — search the linked records instead of entering an identifier by hand. Any field showing a ? beside its label has help of its own; click it for the rules that apply there.', 0, 10, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('b1a39ba1-bb72-5847-b863-93be0cf19d96', '2548b11f-8bfa-555d-82af-b0f19af9cc26', 'id', 'Id', 'The identity of the adjustment. Generated on creation; the resulting movement refers to it. Identifies one approved stock correction independently of ledger posting. Groups adjustment evidence and movement.', 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -2110,16 +2586,25 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('cab73122-46a9-5cab-8924-c7bf72448dbd', '2548b11f-8bfa-555d-82af-b0f19af9cc26', 'reason_code', 'Reason Code', 'The reason for the correction, such as counting variance, damage or theft. Chosen from the organisation''s list; reports analyse shrinkage by reason. Explains why ledger stock differs from evidenced reality. Must not be used to conceal ordinary receipts/issues.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 40, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('dbca2434-03d8-5bea-9525-338714af6459', '2548b11f-8bfa-555d-82af-b0f19af9cc26', 'inventory_movement_id', 'Inventory Movement', 'The stock movement that carries out the correction. Created when the adjustment is posted; read to trace the stock change to its authorisation. Exactly one movement: each approved adjustment is posted as a single movement. Keeps the stock ledger complete and the adjustment accountable. Implements approved quantity delta.', 19, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 50, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('26ff99d6-b83c-5bf1-bd18-9471a72fca3b', '2548b11f-8bfa-555d-82af-b0f19af9cc26', 'value_delta', 'Value Delta', 'The value of the adjustment at the product''s cost. Posted to the stock-adjustment account. Same sign as the quantity.', 12, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 50, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('6f37d230-48dc-555f-a196-3d341ee871d6', '2548b11f-8bfa-555d-82af-b0f19af9cc26', 'inventory_count_id', 'Inventory Count', 'The count that revealed the discrepancy. Linked where the adjustment follows from a physical count. At most one count; some adjustments arise from damage reports or investigations. Provides the evidence for the correction. Connects observed discrepancy to adjustment.', 19, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 60, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('934107ab-b065-51e5-bffd-34d8ee0c54bc', '2548b11f-8bfa-555d-82af-b0f19af9cc26', 'approved_at', 'Approved At', 'The date and time a manager approved the stock correction. Recorded on approval; adjustments above a value limit need approval before they can be posted, and it is empty until then. Present once approved.', 16, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 60, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('a8499244-ff17-5dfe-93fe-8e66d99130e8', '2548b11f-8bfa-555d-82af-b0f19af9cc26', 'product_id', 'Product', 'The product whose recorded quantity is corrected. Set when the adjustment is created. Exactly one product: stock is corrected product by product. Determines which stock balance is changed. Identifies affected inventory item.', 19, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 70, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('7b9db2bf-0b0a-5797-bde6-eeb905cc766a', '2548b11f-8bfa-555d-82af-b0f19af9cc26', 'status', 'Status', 'Shows how far the stock correction has progressed from request to posting. Moved on by the requester, the approver and the posting step. Only posted adjustments change the stock. Asked for and waiting for approval. Approved and waiting to be posted. Applied, so stock and accounts are updated. Refused by the approver, so stock stays as it was.', 1017, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 70, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('911a7aab-748e-5280-8a64-3b3df39f375e', '2548b11f-8bfa-555d-82af-b0f19af9cc26', 'inventory_location_id', 'Inventory Location', 'The stock location where the quantity is corrected. Set when the adjustment is created. Exactly one location: the quantity belongs to a specific place. Determines which location''s balance is changed. Defines physical/accountable stock context.', 19, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 80, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('dbca2434-03d8-5bea-9525-338714af6459', '2548b11f-8bfa-555d-82af-b0f19af9cc26', 'inventory_movement_id', 'Inventory Movement', 'The stock movement that carries out the correction. Created when the adjustment is posted; read to trace the stock change to its authorisation. Exactly one movement: each approved adjustment is posted as a single movement. Keeps the stock ledger complete and the adjustment accountable. Implements approved quantity delta.', 19, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 80, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('6f37d230-48dc-555f-a196-3d341ee871d6', '2548b11f-8bfa-555d-82af-b0f19af9cc26', 'inventory_count_id', 'Inventory Count', 'The count that revealed the discrepancy. Linked where the adjustment follows from a physical count. At most one count; some adjustments arise from damage reports or investigations. Provides the evidence for the correction. Connects observed discrepancy to adjustment.', 19, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 90, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('a8499244-ff17-5dfe-93fe-8e66d99130e8', '2548b11f-8bfa-555d-82af-b0f19af9cc26', 'product_id', 'Product', 'The product whose recorded quantity is corrected. Set when the adjustment is created. Exactly one product: stock is corrected product by product. Determines which stock balance is changed. Identifies affected inventory item.', 19, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 100, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('911a7aab-748e-5280-8a64-3b3df39f375e', '2548b11f-8bfa-555d-82af-b0f19af9cc26', 'inventory_location_id', 'Inventory Location', 'The stock location where the quantity is corrected. Set when the adjustment is created. Exactly one location: the quantity belongs to a specific place. Determines which location''s balance is changed. Defines physical/accountable stock context.', 19, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 110, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('80583024-e236-5655-a36d-08da8324d0dc', 'a8c2eac8-23da-521d-a699-b3dd4c87460d', 'b1a39ba1-bb72-5847-b863-93be0cf19d96', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Id', 'The identity of the adjustment. Generated on creation; the resulting movement refers to it. Identifies one approved stock correction independently of ledger posting. Groups adjustment evidence and movement. Must be unique: a save is rejected if another Inventory Adjustment already uses this value.', 10, 10, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -2134,16 +2619,25 @@ INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_
 VALUES ('8103f2ad-acf3-5617-afef-c72e24ef681f', 'a8c2eac8-23da-521d-a699-b3dd4c87460d', 'cab73122-46a9-5cab-8924-c7bf72448dbd', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Reason Code', 'The reason for the correction, such as counting variance, damage or theft. Chosen from the organisation''s list; reports analyse shrinkage by reason. Explains why ledger stock differs from evidenced reality. Must not be used to conceal ordinary receipts/issues. Required — the record cannot be saved while this is empty. Up to 100 characters.', 40, 40, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('0b6f9ede-563f-55ca-9218-298e9e8ab11d', 'a8c2eac8-23da-521d-a699-b3dd4c87460d', 'dbca2434-03d8-5bea-9525-338714af6459', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Inventory Movement', 'The stock movement that carries out the correction. Created when the adjustment is posted; read to trace the stock change to its authorisation. Exactly one movement: each approved adjustment is posted as a single movement. Keeps the stock ledger complete and the adjustment accountable. Implements approved quantity delta. Required — the record cannot be saved while this is empty.', 50, 50, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('f3ac9a7b-56e6-559f-9af3-cde5db6ba937', 'a8c2eac8-23da-521d-a699-b3dd4c87460d', '26ff99d6-b83c-5bf1-bd18-9471a72fca3b', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Value Delta', 'The value of the adjustment at the product''s cost. Posted to the stock-adjustment account. Same sign as the quantity.', 50, 50, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('4683098c-b94f-55be-b4c0-d1a1022f863c', 'a8c2eac8-23da-521d-a699-b3dd4c87460d', '6f37d230-48dc-555f-a196-3d341ee871d6', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Inventory Count', 'The count that revealed the discrepancy. Linked where the adjustment follows from a physical count. At most one count; some adjustments arise from damage reports or investigations. Provides the evidence for the correction. Connects observed discrepancy to adjustment.', 60, 60, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('0a4942e7-5aa5-58c4-bbd3-6b066769edbd', 'a8c2eac8-23da-521d-a699-b3dd4c87460d', '934107ab-b065-51e5-bffd-34d8ee0c54bc', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Approved At', 'The date and time a manager approved the stock correction. Recorded on approval; adjustments above a value limit need approval before they can be posted, and it is empty until then. Present once approved.', 60, 60, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('db0a30ff-6a58-58ca-9f62-bb44d49b912e', 'a8c2eac8-23da-521d-a699-b3dd4c87460d', 'a8499244-ff17-5dfe-93fe-8e66d99130e8', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Product', 'The product whose recorded quantity is corrected. Set when the adjustment is created. Exactly one product: stock is corrected product by product. Determines which stock balance is changed. Identifies affected inventory item. Required — the record cannot be saved while this is empty.', 70, 70, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('5664282d-d3f2-5093-ab86-45944b966c86', 'a8c2eac8-23da-521d-a699-b3dd4c87460d', '7b9db2bf-0b0a-5797-bde6-eeb905cc766a', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Status', 'Shows how far the stock correction has progressed from request to posting. Moved on by the requester, the approver and the posting step. Only posted adjustments change the stock. Asked for and waiting for approval. Approved and waiting to be posted. Applied, so stock and accounts are updated. Refused by the approver, so stock stays as it was. Required — the record cannot be saved while this is empty.', 70, 70, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('82812735-2c22-536d-b33d-fa15040bbfc6', 'a8c2eac8-23da-521d-a699-b3dd4c87460d', '911a7aab-748e-5280-8a64-3b3df39f375e', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Inventory Location', 'The stock location where the quantity is corrected. Set when the adjustment is created. Exactly one location: the quantity belongs to a specific place. Determines which location''s balance is changed. Defines physical/accountable stock context. Required — the record cannot be saved while this is empty.', 80, 80, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('0b6f9ede-563f-55ca-9218-298e9e8ab11d', 'a8c2eac8-23da-521d-a699-b3dd4c87460d', 'dbca2434-03d8-5bea-9525-338714af6459', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Inventory Movement', 'The stock movement that carries out the correction. Created when the adjustment is posted; read to trace the stock change to its authorisation. Exactly one movement: each approved adjustment is posted as a single movement. Keeps the stock ledger complete and the adjustment accountable. Implements approved quantity delta. Required — the record cannot be saved while this is empty.', 80, 80, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('4683098c-b94f-55be-b4c0-d1a1022f863c', 'a8c2eac8-23da-521d-a699-b3dd4c87460d', '6f37d230-48dc-555f-a196-3d341ee871d6', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Inventory Count', 'The count that revealed the discrepancy. Linked where the adjustment follows from a physical count. At most one count; some adjustments arise from damage reports or investigations. Provides the evidence for the correction. Connects observed discrepancy to adjustment.', 90, 90, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('db0a30ff-6a58-58ca-9f62-bb44d49b912e', 'a8c2eac8-23da-521d-a699-b3dd4c87460d', 'a8499244-ff17-5dfe-93fe-8e66d99130e8', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Product', 'The product whose recorded quantity is corrected. Set when the adjustment is created. Exactly one product: stock is corrected product by product. Determines which stock balance is changed. Identifies affected inventory item. Required — the record cannot be saved while this is empty.', 100, 100, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('82812735-2c22-536d-b33d-fa15040bbfc6', 'a8c2eac8-23da-521d-a699-b3dd4c87460d', '911a7aab-748e-5280-8a64-3b3df39f375e', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Inventory Location', 'The stock location where the quantity is corrected. Set when the adjustment is created. Exactly one location: the quantity belongs to a specific place. Determines which location''s balance is changed. Defines physical/accountable stock context. Required — the record cannot be saved while this is empty.', 110, 110, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_access (sys_access_id, sys_role_id, sys_table_id, sys_window_id, access_type_table, is_read_only, is_exclude, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('65f3550d-9c6f-5d7f-a2ef-cbd8f722ce8a', (SELECT sys_role_id FROM sys_role WHERE name = 'Administrator'), '2548b11f-8bfa-555d-82af-b0f19af9cc26', 'd6ecfe62-3e00-5e55-804e-3a2d8a2cd936', 'W', FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -2183,7 +2677,7 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('4e9f2fd8-5357-537b-9cad-a73c62bcbe71', '023da2bd-48a7-590a-bd28-7132e5bd6696', 'expires_at', 'Expires At', 'When the lot must no longer be used or sold. Calculated from manufacture date and shelf life, or taken from the supplier; stock past it is blocked. Controls eligibility where shelf life applies. Does not itself post inventory movement.', 16, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 40, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('ef962b23-de62-5ad3-a069-66be15223cc9', '023da2bd-48a7-590a-bd28-7132e5bd6696', 'status', 'Status', 'Whether the lot may be used. Set by quality and inventory control; only usable statuses allow picking and shipping. In stock and usable under normal rules. Temporarily blocked, for example during an enquiry; it can be released again. Held apart pending a quality decision. Approved by quality for use. Past its expiry date. A final state. Failed quality checks and not to be used. A final state. Fully used up. A final state. Closed administratively with nothing left to track. A final state. Controls allocation and operational eligibility while preserving stock history. Status restrictions affect availability but do not rewrite movement history.', 1015, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 50, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('ef962b23-de62-5ad3-a069-66be15223cc9', '023da2bd-48a7-590a-bd28-7132e5bd6696', 'status', 'Status', 'Whether the lot may be used. Set by quality and inventory control; only usable statuses allow picking and shipping. In stock and usable under normal rules. Temporarily blocked, for example during an enquiry; it can be released again. Held apart pending a quality decision. Approved by quality for use. Past its expiry date. A final state. Failed quality checks and not to be used. A final state. Fully used up. A final state. Closed administratively with nothing left to track. A final state. Controls allocation and operational eligibility while preserving stock history. Status restrictions affect availability but do not rewrite movement history.', 1030, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 50, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('0a582722-13ce-5ed3-9f1d-8467f84f6f7b', '023da2bd-48a7-590a-bd28-7132e5bd6696', 'product_id', 'Product', 'The product that the lot is a batch of. Set when the lot is created. Exactly one product: a lot groups units of a single item. Gives the lot its specification and shelf life. Defines item identity for all lot quantities.', 19, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 60, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -2217,7 +2711,7 @@ ON CONFLICT DO NOTHING;
 -- Serial Number (bus_serial_number)
 -- --------------------------------------------------------------------------
 INSERT INTO sys_window (sys_window_id, name, description, help, icon, window_type, is_sales_transaction, is_default, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('aa51a279-3cb1-5b0c-991f-b15993fb9fc6', 'Serial Number', 'Maintain Serial Number records', 'Create, find and maintain Serial Number records. The list shows every Serial Number you have access to — select a row to open it, or use New to add one. Each row is a single Serial Number, described by 7 fields.
+VALUES ('aa51a279-3cb1-5b0c-991f-b15993fb9fc6', 'Serial Number', 'Maintain Serial Number records', 'Create, find and maintain Serial Number records. The list shows every Serial Number you have access to — select a row to open it, or use New to add one. Each row is a single Serial Number, described by 9 fields.
 
 Id is unique: no two Serial Number records may share the same value, and a save that would duplicate one is rejected. Serial Code, Status and Product must be filled in before the record can be saved.
 
@@ -2238,19 +2732,25 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('058d671e-23e7-5540-a62e-33eaab79f698', 'e2e89366-ff95-544c-b42d-301fbcc5c24d', 'serial_code', 'Serial Code', 'The code stamped on or issued for one physical unit, so it can be told apart from others of the same product. Scanned at receiving, picking, shipment, service and return; unique per product and used for warranty and traceability. Operational code used to recognize the individual unit. Uniqueness is governed for the Product or global namespace.', 10, 200, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, FALSE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('ae69a901-e628-55b2-82ab-0cf5fb422cd3', 'e2e89366-ff95-544c-b42d-301fbcc5c24d', 'status', 'Status', 'Where the individual unit stands in its life, from expected through stock and use to end of life. Starts as EXPECTED or AVAILABLE and changes as the unit moves; it decides whether the unit can be picked, shipped or serviced. Announced on an inbound order but not yet received. In stock and free to be reserved or shipped. Set aside for a particular order or job. On its way between locations or to a customer. Fitted at a customer site or on equipment. Used up in production or service. A final state. Sent back by a customer and awaiting a decision. Held apart pending a quality or safety decision. Destroyed or written off. A final state. Taken out of service for good. A final state. Controls eligibility and custody transitions for the individual unit. Status is reconciled from authoritative business and inventory events rather than freely edited.', 1031, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('ae69a901-e628-55b2-82ab-0cf5fb422cd3', 'e2e89366-ff95-544c-b42d-301fbcc5c24d', 'status', 'Status', 'Where the individual unit stands in its life, from expected through stock and use to end of life. Starts as EXPECTED or AVAILABLE and changes as the unit moves; it decides whether the unit can be picked, shipped or serviced. Announced on an inbound order but not yet received. In stock and free to be reserved or shipped. Set aside for a particular order or job. On its way between locations or to a customer. Fitted at a customer site or on equipment. Used up in production or service. A final state. Sent back by a customer and awaiting a decision. Held apart pending a quality or safety decision. Destroyed or written off. A final state. Taken out of service for good. A final state. Controls eligibility and custody transitions for the individual unit. Status is reconciled from authoritative business and inventory events rather than freely edited.', 1049, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('7550295e-252d-53b4-8470-e2ad5c732ba2', 'e2e89366-ff95-544c-b42d-301fbcc5c24d', 'inventory_transfer_id', 'Inventory Transfer', 'The InventoryTransfer this SerialNumber belongs to.', 19, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 40, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('3f6ad059-5cb5-5ccc-92fa-679221b2e5b4', 'e2e89366-ff95-544c-b42d-301fbcc5c24d', 'manufactured_date', 'Manufactured Date', 'The day on which this individual unit was produced. Taken from the manufacturer''s or production record, and used to scope warranties and recalls. Not later than the warranty end date.', 15, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 40, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('8c5d569a-efc2-50c3-8b4c-76adf3bd6d1c', 'e2e89366-ff95-544c-b42d-301fbcc5c24d', 'inventory_count_id', 'Inventory Count', 'The InventoryCount this SerialNumber belongs to.', 19, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 50, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('d3f4ef22-a291-535b-9b74-95d66ea1b287', 'e2e89366-ff95-544c-b42d-301fbcc5c24d', 'warranty_end_date', 'Warranty End Date', 'The last day of the unit''s warranty. Checked when the unit is returned or serviced. From the warranty terms.', 15, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 50, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('6ff8a525-3b1e-5987-906f-6e5ebe421a9e', 'e2e89366-ff95-544c-b42d-301fbcc5c24d', 'product_id', 'Product', 'Each serial number belongs to one product; the same number on another product is a different unit. Product model represented by the serial. Defines the standardized item type. Validation and master-data context. Every serial movement must use the same Product.', 19, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 60, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('7550295e-252d-53b4-8470-e2ad5c732ba2', 'e2e89366-ff95-544c-b42d-301fbcc5c24d', 'inventory_transfer_id', 'Inventory Transfer', 'The InventoryTransfer this SerialNumber belongs to.', 19, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 60, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('c1aeb078-2a8b-51c1-8382-950f34487287', 'e2e89366-ff95-544c-b42d-301fbcc5c24d', 'lot_id', 'Lot', 'Lot or batch from which this serialized unit originates when applicable. Connects unit identity to batch genealogy. Recall, quality, manufacturing, and provenance. Optional for products not lot-controlled. Serial and lot provenance must remain consistent.', 19, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 70, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('8c5d569a-efc2-50c3-8b4c-76adf3bd6d1c', 'e2e89366-ff95-544c-b42d-301fbcc5c24d', 'inventory_count_id', 'Inventory Count', 'The InventoryCount this SerialNumber belongs to.', 19, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 70, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('6ff8a525-3b1e-5987-906f-6e5ebe421a9e', 'e2e89366-ff95-544c-b42d-301fbcc5c24d', 'product_id', 'Product', 'Each serial number belongs to one product; the same number on another product is a different unit. Product model represented by the serial. Defines the standardized item type. Validation and master-data context. Every serial movement must use the same Product.', 19, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 80, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('c1aeb078-2a8b-51c1-8382-950f34487287', 'e2e89366-ff95-544c-b42d-301fbcc5c24d', 'lot_id', 'Lot', 'Lot or batch from which this serialized unit originates when applicable. Connects unit identity to batch genealogy. Recall, quality, manufacturing, and provenance. Optional for products not lot-controlled. Serial and lot provenance must remain consistent.', 19, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 90, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('4eeba8c3-f7bc-5961-a062-31a4c7370249', '0c36d507-c69e-5e55-a76b-f11e6c03545c', '21d775ad-e755-52a7-8062-84fc96f14238', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Id', 'Stable system identity of the serialized unit. Identifies the unit independently of its printed serial code. Inventory, service, warranty, asset, recall, and audit. One serialized identity represents one governed physical unit. Must be unique: a save is rejected if another Serial Number already uses this value.', 10, 10, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -2262,16 +2762,22 @@ INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_
 VALUES ('d1034814-6d87-59c1-affa-aa6e6f14740c', '0c36d507-c69e-5e55-a76b-f11e6c03545c', 'ae69a901-e628-55b2-82ab-0cf5fb422cd3', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Status', 'Where the individual unit stands in its life, from expected through stock and use to end of life. Starts as EXPECTED or AVAILABLE and changes as the unit moves; it decides whether the unit can be picked, shipped or serviced. Announced on an inbound order but not yet received. In stock and free to be reserved or shipped. Set aside for a particular order or job. On its way between locations or to a customer. Fitted at a customer site or on equipment. Used up in production or service. A final state. Sent back by a customer and awaiting a decision. Held apart pending a quality or safety decision. Destroyed or written off. A final state. Taken out of service for good. A final state. Controls eligibility and custody transitions for the individual unit. Status is reconciled from authoritative business and inventory events rather than freely edited. Required — the record cannot be saved while this is empty.', 30, 30, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('ca465289-8460-54d4-9f79-c6dc0eafa737', '0c36d507-c69e-5e55-a76b-f11e6c03545c', '7550295e-252d-53b4-8470-e2ad5c732ba2', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Inventory Transfer', 'The InventoryTransfer this SerialNumber belongs to.', 40, 40, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('6237186b-38e0-5a90-a637-1fd796b4fd54', '0c36d507-c69e-5e55-a76b-f11e6c03545c', '3f6ad059-5cb5-5ccc-92fa-679221b2e5b4', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Manufactured Date', 'The day on which this individual unit was produced. Taken from the manufacturer''s or production record, and used to scope warranties and recalls. Not later than the warranty end date.', 40, 40, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('ae1bc832-e18a-53dc-90ec-a5669ba8eef1', '0c36d507-c69e-5e55-a76b-f11e6c03545c', '8c5d569a-efc2-50c3-8b4c-76adf3bd6d1c', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Inventory Count', 'The InventoryCount this SerialNumber belongs to.', 50, 50, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('b6eba384-beaf-5a1c-a1d0-c75293cf05bf', '0c36d507-c69e-5e55-a76b-f11e6c03545c', 'd3f4ef22-a291-535b-9b74-95d66ea1b287', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Warranty End Date', 'The last day of the unit''s warranty. Checked when the unit is returned or serviced. From the warranty terms.', 50, 50, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('cea5889e-ce2c-5c89-89e6-ca65b52c8a0f', '0c36d507-c69e-5e55-a76b-f11e6c03545c', '6ff8a525-3b1e-5987-906f-6e5ebe421a9e', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Product', 'Each serial number belongs to one product; the same number on another product is a different unit. Product model represented by the serial. Defines the standardized item type. Validation and master-data context. Every serial movement must use the same Product. Required — the record cannot be saved while this is empty.', 60, 60, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('ca465289-8460-54d4-9f79-c6dc0eafa737', '0c36d507-c69e-5e55-a76b-f11e6c03545c', '7550295e-252d-53b4-8470-e2ad5c732ba2', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Inventory Transfer', 'The InventoryTransfer this SerialNumber belongs to.', 60, 60, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('b4f0970b-324a-55ee-804d-2fc36ebe1a80', '0c36d507-c69e-5e55-a76b-f11e6c03545c', 'c1aeb078-2a8b-51c1-8382-950f34487287', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Lot', 'Lot or batch from which this serialized unit originates when applicable. Connects unit identity to batch genealogy. Recall, quality, manufacturing, and provenance. Optional for products not lot-controlled. Serial and lot provenance must remain consistent.', 70, 70, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('ae1bc832-e18a-53dc-90ec-a5669ba8eef1', '0c36d507-c69e-5e55-a76b-f11e6c03545c', '8c5d569a-efc2-50c3-8b4c-76adf3bd6d1c', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Inventory Count', 'The InventoryCount this SerialNumber belongs to.', 70, 70, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('cea5889e-ce2c-5c89-89e6-ca65b52c8a0f', '0c36d507-c69e-5e55-a76b-f11e6c03545c', '6ff8a525-3b1e-5987-906f-6e5ebe421a9e', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Product', 'Each serial number belongs to one product; the same number on another product is a different unit. Product model represented by the serial. Defines the standardized item type. Validation and master-data context. Every serial movement must use the same Product. Required — the record cannot be saved while this is empty.', 80, 80, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('b4f0970b-324a-55ee-804d-2fc36ebe1a80', '0c36d507-c69e-5e55-a76b-f11e6c03545c', 'c1aeb078-2a8b-51c1-8382-950f34487287', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Lot', 'Lot or batch from which this serialized unit originates when applicable. Connects unit identity to batch genealogy. Recall, quality, manufacturing, and provenance. Optional for products not lot-controlled. Serial and lot provenance must remain consistent.', 90, 90, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_access (sys_access_id, sys_role_id, sys_table_id, sys_window_id, access_type_table, is_read_only, is_exclude, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('f7cfeb9a-e65a-5237-9872-27bafffee8d7', (SELECT sys_role_id FROM sys_role WHERE name = 'Administrator'), 'e2e89366-ff95-544c-b42d-301fbcc5c24d', 'aa51a279-3cb1-5b0c-991f-b15993fb9fc6', 'W', FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -2311,10 +2817,10 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('1228d2bf-5542-54b0-94c8-f52fc2b0ba93', 'bf4fdba3-8839-5525-91a3-b6c792570879', 'description', 'Description', 'A longer description of what the product is. Written by product management; used on websites, quotes and datasheets.', 10, 4000, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 40, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('1548cac7-a7f5-519e-b3e4-e79d576be2a3', 'bf4fdba3-8839-5525-91a3-b6c792570879', 'product_type', 'Product Type', 'What kind of offering the product is, which decides how it is bought, stocked and delivered. Chosen on creation; stock rules apply only to physical types. A finished physical item that is bought or sold and held in stock. A raw material or component consumed in production. Work performed for a customer, not held in stock. A recurring entitlement billed on a schedule. A durable item the business keeps and depreciates. A package of other products sold together. Anything else that is traded.', 1028, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 50, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('1548cac7-a7f5-519e-b3e4-e79d576be2a3', 'bf4fdba3-8839-5525-91a3-b6c792570879', 'product_type', 'Product Type', 'What kind of offering the product is, which decides how it is bought, stocked and delivered. Chosen on creation; stock rules apply only to physical types. A finished physical item that is bought or sold and held in stock. A raw material or component consumed in production. Work performed for a customer, not held in stock. A recurring entitlement billed on a schedule. A durable item the business keeps and depreciates. A package of other products sold together. Anything else that is traded.', 1046, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 50, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('e8352837-6bcb-5c9e-a40f-3f7222c861b6', 'bf4fdba3-8839-5525-91a3-b6c792570879', 'status', 'Status', 'Whether the product can currently be traded. Set by product management; new orders are accepted only for ACTIVE products. Being set up; not yet tradable. Available for ordinary trading. Being phased out; existing stock may be sold but it is not reordered. A final state. Temporarily barred from trading, for example during a quality or compliance issue. Removed from the catalogue; kept for history. A final state.', 1029, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 60, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('e8352837-6bcb-5c9e-a40f-3f7222c861b6', 'bf4fdba3-8839-5525-91a3-b6c792570879', 'status', 'Status', 'Whether the product can currently be traded. Set by product management; new orders are accepted only for ACTIVE products. Being set up; not yet tradable. Available for ordinary trading. Being phased out; existing stock may be sold but it is not reordered. A final state. Temporarily barred from trading, for example during a quality or compliance issue. Removed from the catalogue; kept for history. A final state.', 1047, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 60, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('123cf9ca-6f5c-5cd4-a5bd-1a3eafe80395', 'bf4fdba3-8839-5525-91a3-b6c792570879', 'sku', 'Sku', 'The stock-keeping unit code used in warehouses and on retail systems. Assigned at creation; printed on labels and scanned during handling.', 10, 100, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 70, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -2400,13 +2906,13 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('48adc5c8-2a59-5a6e-8029-2d4472575476', '18172ff1-5ea9-5221-8090-9c32a8a1f172', 'warehouse_code', 'Warehouse Code', 'The organization-assigned business code used by warehouse personnel and systems to identify the facility. Used in inventory documents, receiving, picking, shipping, integrations, labels, reports, and warehouse routing. It is a human/system operational identifier and should not be confused with warehouseId or the Location identity.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('c5d50924-7c9c-5a26-b677-73653822d530', '18172ff1-5ea9-5221-8090-9c32a8a1f172', 'warehouse_type', 'Warehouse Type', 'Classifies the operating model and handling characteristics of the warehouse. Drives storage rules, temperature controls, customs controls, fulfillment workflows, capacity planning, and reporting. Type describes operational capability and regulatory context; it does not by itself define individual storage locations or inventory status. A warehouse supporting ordinary storage and handling requirements without a specialized operating classification. A facility or controlled area designed to maintain inventory within specified low-temperature conditions. A facility operating under customs or bonded-storage controls where goods may remain subject to customs restrictions. A facility optimized for inbound receipt, order fulfillment, consolidation, cross-docking, and outbound distribution. A warehouse or backroom operation primarily supporting retail-store or direct retail fulfillment. A warehouse whose operating model is not adequately represented by the standard classifications.', 1039, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 40, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('c5d50924-7c9c-5a26-b677-73653822d530', '18172ff1-5ea9-5221-8090-9c32a8a1f172', 'warehouse_type', 'Warehouse Type', 'Classifies the operating model and handling characteristics of the warehouse. Drives storage rules, temperature controls, customs controls, fulfillment workflows, capacity planning, and reporting. Type describes operational capability and regulatory context; it does not by itself define individual storage locations or inventory status. A warehouse supporting ordinary storage and handling requirements without a specialized operating classification. A facility or controlled area designed to maintain inventory within specified low-temperature conditions. A facility operating under customs or bonded-storage controls where goods may remain subject to customs restrictions. A facility optimized for inbound receipt, order fulfillment, consolidation, cross-docking, and outbound distribution. A warehouse or backroom operation primarily supporting retail-store or direct retail fulfillment. A warehouse whose operating model is not adequately represented by the standard classifications.', 1057, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 40, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('23fb5f31-bbd2-5d85-a273-747ca65acd91', '18172ff1-5ea9-5221-8090-9c32a8a1f172', 'capacity', 'Capacity', 'The nominal storage or handling capacity of the warehouse under a defined capacity measurement convention. Used for capacity planning, utilization reporting, allocation, expansion analysis, and operational constraints. Capacity must be interpreted with the warehouse''s UnitOfMeasure and storage model; a bare number does not establish whether capacity means pallets, cubic volume, container slots, weight, or another measure.', 12, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 50, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('85d98fbf-7b41-5e01-a163-5932ef9a10a1', '18172ff1-5ea9-5221-8090-9c32a8a1f172', 'status', 'Status', 'The operating lifecycle state of the warehouse and whether it can participate in normal inventory processes. Controls receiving, storage, picking, shipping, allocation, and operational reporting. Warehouse status describes facility availability; InventoryLocation status and InventoryMovement events govern detailed stock behavior within the facility. The facility is being prepared and is not yet available for normal warehouse operations. The facility is operational and may accept the business processes allowed by its capabilities. Operations are temporarily restricted, for example because of maintenance, safety, regulatory, staffing, or operational conditions. The warehouse has ceased normal operations and should not receive new inventory transactions except controlled closure activities.', 1038, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 60, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('85d98fbf-7b41-5e01-a163-5932ef9a10a1', '18172ff1-5ea9-5221-8090-9c32a8a1f172', 'status', 'Status', 'The operating lifecycle state of the warehouse and whether it can participate in normal inventory processes. Controls receiving, storage, picking, shipping, allocation, and operational reporting. Warehouse status describes facility availability; InventoryLocation status and InventoryMovement events govern detailed stock behavior within the facility. The facility is being prepared and is not yet available for normal warehouse operations. The facility is operational and may accept the business processes allowed by its capabilities. Operations are temporarily restricted, for example because of maintenance, safety, regulatory, staffing, or operational conditions. The warehouse has ceased normal operations and should not receive new inventory transactions except controlled closure activities.', 1056, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 60, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('3cdcfdc4-4a96-5a2e-a10f-94ef0543415d', '18172ff1-5ea9-5221-8090-9c32a8a1f172', 'code', 'Code', 'The code of the place in the organisation''s site list, such as NL-RTM-DC1. Unique; assigned by the administrator and used in integrations and labels.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 70, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -2415,7 +2921,7 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('d7b8eb4e-bf7b-54fd-9774-a526ea8e2809', '18172ff1-5ea9-5221-8090-9c32a8a1f172', 'name', 'Name', 'The name by which people refer to the place, such as Rotterdam Depot. Entered by the administrator when the location is created; shown in lists, maps and documents, and may be changed without breaking references.', 10, 200, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 80, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('3a71bc50-57e7-527a-a6b6-99a893eaf5e7', '18172ff1-5ea9-5221-8090-9c32a8a1f172', 'location_type', 'Location Type', 'A geographic site that may contain several buildings. A building or area for storing goods. A retail outlet where goods are sold to customers. A place where office work is done. A place where goods are made. An open area for storing or staging equipment or containers. A harbour or terminal. A base for vehicles and equipment. A logical place with no physical presence, such as an online store. Any other kind of place. What kind of place it is. Chosen at creation; decides which processes can use the location.', 1037, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 90, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('3a71bc50-57e7-527a-a6b6-99a893eaf5e7', '18172ff1-5ea9-5221-8090-9c32a8a1f172', 'location_type', 'Location Type', 'A geographic site that may contain several buildings. A building or area for storing goods. A retail outlet where goods are sold to customers. A place where office work is done. A place where goods are made. An open area for storing or staging equipment or containers. A harbour or terminal. A base for vehicles and equipment. A logical place with no physical presence, such as an online store. Any other kind of place. What kind of place it is. Chosen at creation; decides which processes can use the location.', 1055, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 90, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('6c8acdb2-50fd-5a5d-b635-aab34a538d9d', '18172ff1-5ea9-5221-8090-9c32a8a1f172', 'address_id', 'Address', 'The postal address of the location. Chosen from the address list; used for deliveries, mapping and tax.', 19, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 100, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -2473,9 +2979,9 @@ ON CONFLICT DO NOTHING;
 -- Handling Unit (bus_handling_unit)
 -- --------------------------------------------------------------------------
 INSERT INTO sys_window (sys_window_id, name, description, help, icon, window_type, is_sales_transaction, is_default, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('1f9165db-0f4f-573e-a0f3-d02f9351eabd', 'Handling Unit', 'Maintain Handling Unit records', 'Create, find and maintain Handling Unit records. The list shows every Handling Unit you have access to — select a row to open it, or use New to add one. Each row is a single Handling Unit, described by 5 fields.
+VALUES ('1f9165db-0f4f-573e-a0f3-d02f9351eabd', 'Handling Unit', 'Maintain Handling Unit records', 'Create, find and maintain Handling Unit records. The list shows every Handling Unit you have access to — select a row to open it, or use New to add one. Each row is a single Handling Unit, described by 10 fields.
 
-Id and Handling Unit Number are unique: no two Handling Unit records may share the same value, and a save that would duplicate one is rejected. Handling Unit Number and Type must be filled in before the record can be saved.
+Id and Handling Unit Number are unique: no two Handling Unit records may share the same value, and a save that would duplicate one is rejected. Handling Unit Number, Type and Status must be filled in before the record can be saved.
 
 Every Handling Unit points at Inventory Location. Choose the linked record from the lookup on those fields rather than typing an identifier. Putaway, Picking and Packing refer back to Handling Unit, so what you change here can affect those records.
 
@@ -2485,7 +2991,7 @@ INSERT INTO sys_table (sys_table_id, table_name, name, description, icon, access
 VALUES ('20dbcdfa-b950-5f9b-8eb2-89511e6d960c', 'bus_handling_unit', 'Handling Unit', 'Physical logistics identity for grouping and moving inventory. HandlingUnit represents the package/pallet/tote being handled; InventoryMovement remains authoritative for stock quantity/location. Receiving, putaway, replenishment, picking, packing, staging, loading, shipment and tracking. Can occupy InventoryLocation, nest inside another HandlingUnit and join Shipment. Created/received → stored/moved → picked/packed → staged/shipped → unpacked/closed or reused. Location/shipment/nesting changes must reconcile with warehouse execution and cannot silently move underlying stock.', 'database', 'A', FALSE, FALSE, FALSE, TRUE, '1f9165db-0f4f-573e-a0f3-d02f9351eabd', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_tab (sys_tab_id, sys_window_id, sys_table_id, name, help, tab_level, seq_no, is_single_row, has_tree, is_info_tab, is_translation_tab, is_read_only, is_insert_record, is_advanced_tab, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('0e077f9e-802c-58cb-8295-86615d49cc82', '1f9165db-0f4f-573e-a0f3-d02f9351eabd', '20dbcdfa-b950-5f9b-8eb2-89511e6d960c', 'Handling Unit', 'Shows one Handling Unit at a time. Fields are grouped: General carries the identifying fields and Details carries the rest. 2 fields marked with a red asterisk (*) must have a value before Save will accept the record. Inventory Location is a lookup — search the linked records instead of entering an identifier by hand. Any field showing a ? beside its label has help of its own; click it for the rules that apply there.', 0, 10, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('0e077f9e-802c-58cb-8295-86615d49cc82', '1f9165db-0f4f-573e-a0f3-d02f9351eabd', '20dbcdfa-b950-5f9b-8eb2-89511e6d960c', 'Handling Unit', 'Shows one Handling Unit at a time. Fields are grouped: General carries the identifying fields and Details carries the rest. 3 fields marked with a red asterisk (*) must have a value before Save will accept the record. Inventory Location is a lookup — search the linked records instead of entering an identifier by hand. Any field showing a ? beside its label has help of its own; click it for the rules that apply there.', 0, 10, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('12a5ba7b-ac23-5003-b587-68e0210e6977', '20dbcdfa-b950-5f9b-8eb2-89511e6d960c', 'id', 'Id', 'The permanent identity of the handling unit, kept as it moves between locations and shipments. Generated on creation; inventory, picking, packing and shipment records refer to the unit by this value. Identifies one physical logistics unit independently of label changes. May contain product/lot/serial inventory and nested handling units.', 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -2494,13 +3000,28 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('5d144dd8-9975-586c-b06a-a995136b56e8', '20dbcdfa-b950-5f9b-8eb2-89511e6d960c', 'handling_unit_number', 'Handling Unit Number', 'The scannable number on the unit''s label, such as a pallet licence plate, by which warehouse staff identify it. Unique; printed on the label at creation and scanned during putaway, picking, staging and loading. Label/barcode identifier used in physical execution. Distinct from Shipment or inventory movement number.', 10, 150, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('33814b6d-e72b-5d0d-9697-793b563dd998', '20dbcdfa-b950-5f9b-8eb2-89511e6d960c', 'type', 'Type', 'The physical form of the unit, such as a pallet or carton, which fixes its size and handling equipment. Chosen when the unit is created; capacity, equipment, packing and carrier planning read it. A palletised load moved by forklift or pallet truck. A cardboard box or case holding items for storage or shipment. A reusable bin or tote used for picking and internal movement. A roll cage or similar wheeled frame used to move mixed goods. A cylindrical drum or barrel holding liquids or bulk material. A general parcel that is none of the other forms. A governed unit type not covered by the listed forms. Describes packaging/handling form. Does not determine contents by itself.', 1006, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('33814b6d-e72b-5d0d-9697-793b563dd998', '20dbcdfa-b950-5f9b-8eb2-89511e6d960c', 'type', 'Type', 'The physical form of the unit, such as a pallet or carton, which fixes its size and handling equipment. Chosen when the unit is created; capacity, equipment, packing and carrier planning read it. A palletised load moved by forklift or pallet truck. A cardboard box or case holding items for storage or shipment. A reusable bin or tote used for picking and internal movement. A roll cage or similar wheeled frame used to move mixed goods. A cylindrical drum or barrel holding liquids or bulk material. A general parcel that is none of the other forms. A governed unit type not covered by the listed forms. Describes packaging/handling form. Does not determine contents by itself.', 1016, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('1b629368-2b9b-5f58-81f6-6a8cd47153cc', '20dbcdfa-b950-5f9b-8eb2-89511e6d960c', 'inventory_location_id', 'Inventory Location', 'Current warehouse location when stored. Provides operational custody position. Putaway, picking and count. Optional while in transit/shipped. Changes must reconcile to execution evidence.', 19, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 40, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('d03b678f-1c03-5822-8863-55c8ddf54a53', '20dbcdfa-b950-5f9b-8eb2-89511e6d960c', 'gross_weight_kg', 'Gross Weight Kg', 'The weight of the unit with its contents, in kilograms. Weighed or computed at packing; used for loading and freight. Includes packaging.', 12, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 40, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('75a84dec-61a7-5f4b-82fa-9fc37a6541d3', '20dbcdfa-b950-5f9b-8eb2-89511e6d960c', 'parent_handling_unit_id', 'Parent Handling Unit', 'Outer handling unit containing this unit. Supports pallet/carton/tote nesting. Packing and logistics hierarchy. At most one parent. Nesting must remain acyclic.', 19, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 50, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('24365233-8377-5887-9f56-e8b7924ac241', '20dbcdfa-b950-5f9b-8eb2-89511e6d960c', 'length_cm', 'Length Cm', 'The length of the unit, in centimetres. Used for loading plans and volumetric freight. Measured or taken from the packaging type.', 12, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 50, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('b7186b55-61f7-5d1d-9d00-f998f0a2a609', '20dbcdfa-b950-5f9b-8eb2-89511e6d960c', 'width_cm', 'Width Cm', 'The width of the unit, in centimetres. Used for loading plans and volumetric freight. Measured or taken from the packaging type.', 12, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 60, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('991404e5-d513-57c7-a3fe-2441dc6720d1', '20dbcdfa-b950-5f9b-8eb2-89511e6d960c', 'height_cm', 'Height Cm', 'The height of the packed unit, in centimetres, including any pallet base. Measured at packing or taken from the packaging type; used for loading plans, stacking limits and carrier quotes. Measured or taken from the packaging type.', 12, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 70, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('d314b57e-1368-5202-a601-f849dc8b2fb0', '20dbcdfa-b950-5f9b-8eb2-89511e6d960c', 'status', 'Status', 'Still being filled; goods can be added. Packed and labelled, and not to be reopened without unpacking. Has left the warehouse on its way to the destination. Arrived at its destination and was booked in. Unpacked, so its contents are loose again. Where the unit is in its use. Moved on by packing, shipping and receiving. A closed unit is not repacked without unpacking it.', 1015, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 80, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('1b629368-2b9b-5f58-81f6-6a8cd47153cc', '20dbcdfa-b950-5f9b-8eb2-89511e6d960c', 'inventory_location_id', 'Inventory Location', 'Current warehouse location when stored. Provides operational custody position. Putaway, picking and count. Optional while in transit/shipped. Changes must reconcile to execution evidence.', 19, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 90, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('75a84dec-61a7-5f4b-82fa-9fc37a6541d3', '20dbcdfa-b950-5f9b-8eb2-89511e6d960c', 'parent_handling_unit_id', 'Parent Handling Unit', 'Outer handling unit containing this unit. Supports pallet/carton/tote nesting. Packing and logistics hierarchy. At most one parent. Nesting must remain acyclic.', 19, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 100, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('3b9000b2-5e4b-5359-ac67-dfe3446349f1', '0e077f9e-802c-58cb-8295-86615d49cc82', '12a5ba7b-ac23-5003-b587-68e0210e6977', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Id', 'The permanent identity of the handling unit, kept as it moves between locations and shipments. Generated on creation; inventory, picking, packing and shipment records refer to the unit by this value. Identifies one physical logistics unit independently of label changes. May contain product/lot/serial inventory and nested handling units. Must be unique: a save is rejected if another Handling Unit already uses this value.', 10, 10, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -2512,10 +3033,25 @@ INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_
 VALUES ('31595934-97e9-5d82-bbff-29ddeb5440ee', '0e077f9e-802c-58cb-8295-86615d49cc82', '33814b6d-e72b-5d0d-9697-793b563dd998', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Type', 'The physical form of the unit, such as a pallet or carton, which fixes its size and handling equipment. Chosen when the unit is created; capacity, equipment, packing and carrier planning read it. A palletised load moved by forklift or pallet truck. A cardboard box or case holding items for storage or shipment. A reusable bin or tote used for picking and internal movement. A roll cage or similar wheeled frame used to move mixed goods. A cylindrical drum or barrel holding liquids or bulk material. A general parcel that is none of the other forms. A governed unit type not covered by the listed forms. Describes packaging/handling form. Does not determine contents by itself. Required — the record cannot be saved while this is empty.', 30, 30, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('af9d0f0f-9a43-5d72-8802-51b467024c02', '0e077f9e-802c-58cb-8295-86615d49cc82', '1b629368-2b9b-5f58-81f6-6a8cd47153cc', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Inventory Location', 'Current warehouse location when stored. Provides operational custody position. Putaway, picking and count. Optional while in transit/shipped. Changes must reconcile to execution evidence.', 40, 40, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('912a0d65-07c8-5cbe-9ceb-05f89aad2ef5', '0e077f9e-802c-58cb-8295-86615d49cc82', 'd03b678f-1c03-5822-8863-55c8ddf54a53', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Gross Weight Kg', 'The weight of the unit with its contents, in kilograms. Weighed or computed at packing; used for loading and freight. Includes packaging.', 40, 40, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('03aec627-f0db-56bb-aae9-7c734c3d1756', '0e077f9e-802c-58cb-8295-86615d49cc82', '75a84dec-61a7-5f4b-82fa-9fc37a6541d3', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Parent Handling Unit', 'Outer handling unit containing this unit. Supports pallet/carton/tote nesting. Packing and logistics hierarchy. At most one parent. Nesting must remain acyclic.', 50, 50, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('b5ec8646-7c08-5eea-a44b-a4796568c494', '0e077f9e-802c-58cb-8295-86615d49cc82', '24365233-8377-5887-9f56-e8b7924ac241', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Length Cm', 'The length of the unit, in centimetres. Used for loading plans and volumetric freight. Measured or taken from the packaging type.', 50, 50, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('5d011d6d-5866-5f4a-a962-54642e77bda0', '0e077f9e-802c-58cb-8295-86615d49cc82', 'b7186b55-61f7-5d1d-9d00-f998f0a2a609', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Width Cm', 'The width of the unit, in centimetres. Used for loading plans and volumetric freight. Measured or taken from the packaging type.', 60, 60, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('ddc6a558-ed12-5bc0-8728-214faeeeb1a0', '0e077f9e-802c-58cb-8295-86615d49cc82', '991404e5-d513-57c7-a3fe-2441dc6720d1', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Height Cm', 'The height of the packed unit, in centimetres, including any pallet base. Measured at packing or taken from the packaging type; used for loading plans, stacking limits and carrier quotes. Measured or taken from the packaging type.', 70, 70, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('3c267fb8-53bd-56b7-8caf-d871624357ef', '0e077f9e-802c-58cb-8295-86615d49cc82', 'd314b57e-1368-5202-a601-f849dc8b2fb0', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Status', 'Still being filled; goods can be added. Packed and labelled, and not to be reopened without unpacking. Has left the warehouse on its way to the destination. Arrived at its destination and was booked in. Unpacked, so its contents are loose again. Where the unit is in its use. Moved on by packing, shipping and receiving. A closed unit is not repacked without unpacking it. Required — the record cannot be saved while this is empty.', 80, 80, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('af9d0f0f-9a43-5d72-8802-51b467024c02', '0e077f9e-802c-58cb-8295-86615d49cc82', '1b629368-2b9b-5f58-81f6-6a8cd47153cc', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Inventory Location', 'Current warehouse location when stored. Provides operational custody position. Putaway, picking and count. Optional while in transit/shipped. Changes must reconcile to execution evidence.', 90, 90, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('03aec627-f0db-56bb-aae9-7c734c3d1756', '0e077f9e-802c-58cb-8295-86615d49cc82', '75a84dec-61a7-5f4b-82fa-9fc37a6541d3', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Parent Handling Unit', 'Outer handling unit containing this unit. Supports pallet/carton/tote nesting. Packing and logistics hierarchy. At most one parent. Nesting must remain acyclic.', 100, 100, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_access (sys_access_id, sys_role_id, sys_table_id, sys_window_id, access_type_table, is_read_only, is_exclude, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('ced84e29-5938-5a55-97d9-2e9b16e21bbb', (SELECT sys_role_id FROM sys_role WHERE name = 'Administrator'), '20dbcdfa-b950-5f9b-8eb2-89511e6d960c', '1f9165db-0f4f-573e-a0f3-d02f9351eabd', 'W', FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -2528,9 +3064,9 @@ ON CONFLICT DO NOTHING;
 -- Putaway (bus_putaway)
 -- --------------------------------------------------------------------------
 INSERT INTO sys_window (sys_window_id, name, description, help, icon, window_type, is_sales_transaction, is_default, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('3dec659c-575b-5e0d-b27a-ff28ce255413', 'Putaway', 'Maintain Putaway records', 'Create, find and maintain Putaway records. The list shows every Putaway you have access to — select a row to open it, or use New to add one. Each row is a single Putaway, described by 8 fields.
+VALUES ('3dec659c-575b-5e0d-b27a-ff28ce255413', 'Putaway', 'Maintain Putaway records', 'Create, find and maintain Putaway records. The list shows every Putaway you have access to — select a row to open it, or use New to add one. Each row is a single Putaway, described by 10 fields.
 
-Id is unique: no two Putaway records may share the same value, and a save that would duplicate one is rejected. Quantity, Status, Product, Source Location and Inventory Transfer must be filled in before the record can be saved.
+Id and Putaway Number are unique: no two Putaway records may share the same value, and a save that would duplicate one is rejected. Quantity, Status, Putaway Number, Product, Source Location and Inventory Transfer must be filled in before the record can be saved.
 
 Every Putaway points at Product, Handling Unit, Inventory Transfer and Wave. Choose the linked record from the lookup on those fields rather than typing an identifier.
 
@@ -2540,7 +3076,7 @@ INSERT INTO sys_table (sys_table_id, table_name, name, description, icon, access
 VALUES ('50345a1d-43f2-5c81-9231-481182067913', 'bus_putaway', 'Putaway', 'Directed inbound/staging-to-storage warehouse task. Putaway says where stock should be stored; InventoryTransfer/InventoryMovement prove physical relocation. Receiving, cross-dock exceptions, replenishment and storage optimization. InventoryLocation/Zone define eligibility; HandlingUnit supports physical execution. Planned → released → in progress → completed, cancelled or exception.', 'file-text', 'A', FALSE, FALSE, FALSE, TRUE, '3dec659c-575b-5e0d-b27a-ff28ce255413', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_tab (sys_tab_id, sys_window_id, sys_table_id, name, help, tab_level, seq_no, is_single_row, has_tree, is_info_tab, is_translation_tab, is_read_only, is_insert_record, is_advanced_tab, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('3b2ae565-9215-537b-a22f-b470dab07615', '3dec659c-575b-5e0d-b27a-ff28ce255413', '50345a1d-43f2-5c81-9231-481182067913', 'Putaway', 'Shows one Putaway at a time. Fields are grouped: General carries the identifying fields and Details carries the rest. 5 fields marked with a red asterisk (*) must have a value before Save will accept the record. Product, Handling Unit, Inventory Transfer and Wave are lookups — search the linked records instead of entering an identifier by hand. Any field showing a ? beside its label has help of its own; click it for the rules that apply there.', 0, 10, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('3b2ae565-9215-537b-a22f-b470dab07615', '3dec659c-575b-5e0d-b27a-ff28ce255413', '50345a1d-43f2-5c81-9231-481182067913', 'Putaway', 'Shows one Putaway at a time. Fields are grouped: General carries the identifying fields and Details carries the rest. 6 fields marked with a red asterisk (*) must have a value before Save will accept the record. Product, Handling Unit, Inventory Transfer and Wave are lookups — search the linked records instead of entering an identifier by hand. Any field showing a ? beside its label has help of its own; click it for the rules that apply there.', 0, 10, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('d99e786c-69f9-5e02-88a8-d45c96415e1e', '50345a1d-43f2-5c81-9231-481182067913', 'id', 'Id', 'The permanent, system-generated identity of this warehouse task to store received or staged inventory. Generated on creation and never changed; receiving, warehouse execution and the inventory movements it produces refer to it. Identifies one directed storage action. Connects source staging to target storage.', 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -2549,22 +3085,28 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('89b7e34f-4ef7-51c0-aabe-b2b6a5ab3da7', '50345a1d-43f2-5c81-9231-481182067913', 'quantity', 'Quantity', 'The amount of stock the worker is directed to move into the target storage location. Set when the task is planned and must be above zero; confirmation compares the quantity actually stored to this to show variances. Defines task execution quantity. Must reconcile with transfer/movement.', 12, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('a5bd3ab8-286d-56c5-b513-6135bc2074aa', '50345a1d-43f2-5c81-9231-481182067913', 'status', 'Status', 'Where this storage task stands on the warehouse floor, from proposed to confirmed. Driven by warehouse orchestration and workers; completion needs movement evidence and completed and cancelled are final. Proposed by the system but not yet released to the floor. Released to the warehouse floor for a worker to carry out. Being carried out by a worker right now. Confirmed by the worker and reconciled to inventory movements. A final state. Withdrawn before the stock was moved. A final state. Could not be completed as planned, for example the target was full; needs a decision. Controls executable storage work. Completion alone does not alter stock without inventory posting.', 1030, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('a5bd3ab8-286d-56c5-b513-6135bc2074aa', '50345a1d-43f2-5c81-9231-481182067913', 'status', 'Status', 'Where this storage task stands on the warehouse floor, from proposed to confirmed. Driven by warehouse orchestration and workers; completion needs movement evidence and completed and cancelled are final. Proposed by the system but not yet released to the floor. Released to the warehouse floor for a worker to carry out. Being carried out by a worker right now. Confirmed by the worker and reconciled to inventory movements. A final state. Withdrawn before the stock was moved. A final state. Could not be completed as planned, for example the target was full; needs a decision. Controls executable storage work. Completion alone does not alter stock without inventory posting.', 1048, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('c0acf270-4626-5dbe-911e-3d34c4f067a5', '50345a1d-43f2-5c81-9231-481182067913', 'product_id', 'Product', 'Each putaway moves one product; a mixed pallet is split into one putaway per product. Product being stored. Identifies handled inventory. Location eligibility. Must match transfer.', 19, NULL, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, FALSE, FALSE, FALSE, TRUE, TRUE, 40, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('677a5033-773f-5675-b576-07f834e378b9', '50345a1d-43f2-5c81-9231-481182067913', 'putaway_number', 'Putaway Number', 'The reference printed on the task that tells a warehouse operator where to store received goods. Assigned when the task is created and shown on the operator''s handheld device; no two tasks share one. Quoted when reporting a problem with a particular storing task.', 10, 40, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 40, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('dbde9882-f70b-5e50-9bc9-74de26b59adc', '50345a1d-43f2-5c81-9231-481182067913', 'source_location_id', 'Source Location', 'The stock comes from a single source location, such as the receiving dock. Receiving/staging origin. Current controlled position. Execution. Must contain eligible stock.', 19, NULL, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, FALSE, FALSE, FALSE, TRUE, TRUE, 50, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('ea47b463-01c1-5e8f-bde7-e48b44dfd049', '50345a1d-43f2-5c81-9231-481182067913', 'completed_at', 'Completed At', 'When the goods were confirmed in their storage location. Recorded by the operator''s device. Present once completed.', 16, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 50, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('a87d3867-f48f-5a13-942a-7df5864653db', '50345a1d-43f2-5c81-9231-481182067913', 'handling_unit_id', 'Handling Unit', 'Physical pallet/carton/tote moved as unit. Supports scan-based execution. WMS mobility. Optional for loose stock. Handling-unit location must reconcile.', 19, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 60, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('c0acf270-4626-5dbe-911e-3d34c4f067a5', '50345a1d-43f2-5c81-9231-481182067913', 'product_id', 'Product', 'Each putaway moves one product; a mixed pallet is split into one putaway per product. Product being stored. Identifies handled inventory. Location eligibility. Must match transfer.', 19, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 60, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('a1666ed4-4ffc-53e5-a906-64361fa034f8', '50345a1d-43f2-5c81-9231-481182067913', 'inventory_transfer_id', 'Inventory Transfer', 'Read to reconcile the putaway with the stock movement that physically relocated the goods. Inventory relocation authorization/execution associated with putaway. Separates warehouse task from stock ledger. Exactly one governed transfer. Completed task must reconcile to posted movement.', 19, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 70, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('dbde9882-f70b-5e50-9bc9-74de26b59adc', '50345a1d-43f2-5c81-9231-481182067913', 'source_location_id', 'Source Location', 'The stock comes from a single source location, such as the receiving dock. Receiving/staging origin. Current controlled position. Execution. Must contain eligible stock.', 19, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 70, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('9cd38a4c-ba5a-5852-9a46-e8a8b0925ad7', '50345a1d-43f2-5c81-9231-481182067913', 'wave_id', 'Wave', 'The Wave this Putaway belongs to.', 19, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 80, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('a87d3867-f48f-5a13-942a-7df5864653db', '50345a1d-43f2-5c81-9231-481182067913', 'handling_unit_id', 'Handling Unit', 'Physical pallet/carton/tote moved as unit. Supports scan-based execution. WMS mobility. Optional for loose stock. Handling-unit location must reconcile.', 19, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 80, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('a1666ed4-4ffc-53e5-a906-64361fa034f8', '50345a1d-43f2-5c81-9231-481182067913', 'inventory_transfer_id', 'Inventory Transfer', 'Read to reconcile the putaway with the stock movement that physically relocated the goods. Inventory relocation authorization/execution associated with putaway. Separates warehouse task from stock ledger. Exactly one governed transfer. Completed task must reconcile to posted movement.', 19, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 90, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('9cd38a4c-ba5a-5852-9a46-e8a8b0925ad7', '50345a1d-43f2-5c81-9231-481182067913', 'wave_id', 'Wave', 'The Wave this Putaway belongs to.', 19, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 100, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 UPDATE sys_column SET ref_table_name = 'bus_inventory_location' WHERE sys_column_id = 'dbde9882-f70b-5e50-9bc9-74de26b59adc';
 INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
@@ -2577,19 +3119,25 @@ INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_
 VALUES ('280ef232-c65e-5bb0-b2d1-cd40bbf42e71', '3b2ae565-9215-537b-a22f-b470dab07615', 'a5bd3ab8-286d-56c5-b513-6135bc2074aa', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Status', 'Where this storage task stands on the warehouse floor, from proposed to confirmed. Driven by warehouse orchestration and workers; completion needs movement evidence and completed and cancelled are final. Proposed by the system but not yet released to the floor. Released to the warehouse floor for a worker to carry out. Being carried out by a worker right now. Confirmed by the worker and reconciled to inventory movements. A final state. Withdrawn before the stock was moved. A final state. Could not be completed as planned, for example the target was full; needs a decision. Controls executable storage work. Completion alone does not alter stock without inventory posting. Required — the record cannot be saved while this is empty.', 30, 30, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('1ed3171b-272a-50c1-b91e-7a91364a8d94', '3b2ae565-9215-537b-a22f-b470dab07615', 'c0acf270-4626-5dbe-911e-3d34c4f067a5', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Product', 'Each putaway moves one product; a mixed pallet is split into one putaway per product. Product being stored. Identifies handled inventory. Location eligibility. Must match transfer. Required — the record cannot be saved while this is empty.', 40, 40, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('33121f07-6981-5458-9873-81001813c859', '3b2ae565-9215-537b-a22f-b470dab07615', '677a5033-773f-5675-b576-07f834e378b9', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Putaway Number', 'The reference printed on the task that tells a warehouse operator where to store received goods. Assigned when the task is created and shown on the operator''s handheld device; no two tasks share one. Quoted when reporting a problem with a particular storing task. Required — the record cannot be saved while this is empty. Must be unique: a save is rejected if another Putaway already uses this value. Up to 40 characters.', 40, 40, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('0ac7cc51-acb9-5208-8cd0-ecc910ef20db', '3b2ae565-9215-537b-a22f-b470dab07615', 'dbde9882-f70b-5e50-9bc9-74de26b59adc', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Source Location', 'The stock comes from a single source location, such as the receiving dock. Receiving/staging origin. Current controlled position. Execution. Must contain eligible stock. Required — the record cannot be saved while this is empty.', 50, 50, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('f900fecf-d62e-5196-be73-43ec6ae18f0f', '3b2ae565-9215-537b-a22f-b470dab07615', 'ea47b463-01c1-5e8f-bde7-e48b44dfd049', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Completed At', 'When the goods were confirmed in their storage location. Recorded by the operator''s device. Present once completed.', 50, 50, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('001ce48a-9ba0-502d-b0cd-d0cd661f801e', '3b2ae565-9215-537b-a22f-b470dab07615', 'a87d3867-f48f-5a13-942a-7df5864653db', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Handling Unit', 'Physical pallet/carton/tote moved as unit. Supports scan-based execution. WMS mobility. Optional for loose stock. Handling-unit location must reconcile.', 60, 60, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('1ed3171b-272a-50c1-b91e-7a91364a8d94', '3b2ae565-9215-537b-a22f-b470dab07615', 'c0acf270-4626-5dbe-911e-3d34c4f067a5', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Product', 'Each putaway moves one product; a mixed pallet is split into one putaway per product. Product being stored. Identifies handled inventory. Location eligibility. Must match transfer. Required — the record cannot be saved while this is empty.', 60, 60, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('477e91fa-3094-5728-82cb-4d8fe1cf27a2', '3b2ae565-9215-537b-a22f-b470dab07615', 'a1666ed4-4ffc-53e5-a906-64361fa034f8', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Inventory Transfer', 'Read to reconcile the putaway with the stock movement that physically relocated the goods. Inventory relocation authorization/execution associated with putaway. Separates warehouse task from stock ledger. Exactly one governed transfer. Completed task must reconcile to posted movement. Required — the record cannot be saved while this is empty.', 70, 70, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('0ac7cc51-acb9-5208-8cd0-ecc910ef20db', '3b2ae565-9215-537b-a22f-b470dab07615', 'dbde9882-f70b-5e50-9bc9-74de26b59adc', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Source Location', 'The stock comes from a single source location, such as the receiving dock. Receiving/staging origin. Current controlled position. Execution. Must contain eligible stock. Required — the record cannot be saved while this is empty.', 70, 70, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('e8a16f62-4240-54e9-970e-95d8b1846698', '3b2ae565-9215-537b-a22f-b470dab07615', '9cd38a4c-ba5a-5852-9a46-e8a8b0925ad7', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Wave', 'The Wave this Putaway belongs to.', 80, 80, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('001ce48a-9ba0-502d-b0cd-d0cd661f801e', '3b2ae565-9215-537b-a22f-b470dab07615', 'a87d3867-f48f-5a13-942a-7df5864653db', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Handling Unit', 'Physical pallet/carton/tote moved as unit. Supports scan-based execution. WMS mobility. Optional for loose stock. Handling-unit location must reconcile.', 80, 80, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('477e91fa-3094-5728-82cb-4d8fe1cf27a2', '3b2ae565-9215-537b-a22f-b470dab07615', 'a1666ed4-4ffc-53e5-a906-64361fa034f8', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Inventory Transfer', 'Read to reconcile the putaway with the stock movement that physically relocated the goods. Inventory relocation authorization/execution associated with putaway. Separates warehouse task from stock ledger. Exactly one governed transfer. Completed task must reconcile to posted movement. Required — the record cannot be saved while this is empty.', 90, 90, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('e8a16f62-4240-54e9-970e-95d8b1846698', '3b2ae565-9215-537b-a22f-b470dab07615', '9cd38a4c-ba5a-5852-9a46-e8a8b0925ad7', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Wave', 'The Wave this Putaway belongs to.', 100, 100, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_access (sys_access_id, sys_role_id, sys_table_id, sys_window_id, access_type_table, is_read_only, is_exclude, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('3e169dbb-9d66-5a9d-88ac-f2a17b7d483d', (SELECT sys_role_id FROM sys_role WHERE name = 'Administrator'), '50345a1d-43f2-5c81-9231-481182067913', '3dec659c-575b-5e0d-b27a-ff28ce255413', 'W', FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -2602,9 +3150,9 @@ ON CONFLICT DO NOTHING;
 -- Picking (bus_picking)
 -- --------------------------------------------------------------------------
 INSERT INTO sys_window (sys_window_id, name, description, help, icon, window_type, is_sales_transaction, is_default, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('6f71eb57-e98d-54aa-b5cd-1f0cedd9ec29', 'Picking', 'Maintain Picking records', 'Create, find and maintain Picking records. The list shows every Picking you have access to — select a row to open it, or use New to add one. Each row is a single Picking, described by 7 fields.
+VALUES ('6f71eb57-e98d-54aa-b5cd-1f0cedd9ec29', 'Picking', 'Maintain Picking records', 'Create, find and maintain Picking records. The list shows every Picking you have access to — select a row to open it, or use New to add one. Each row is a single Picking, described by 11 fields.
 
-Id is unique: no two Picking records may share the same value, and a save that would duplicate one is rejected. Quantity, Status and Source Location must be filled in before the record can be saved.
+Id and Pick Number are unique: no two Picking records may share the same value, and a save that would duplicate one is rejected. Quantity, Status, Pick Number and Source Location must be filled in before the record can be saved.
 
 Every Picking points at Handling Unit and Wave. Choose the linked record from the lookup on those fields rather than typing an identifier. Packing refers back to Picking, so what you change here can affect that record.
 
@@ -2614,7 +3162,7 @@ INSERT INTO sys_table (sys_table_id, table_name, name, description, icon, access
 VALUES ('6660abca-3d54-508e-aa48-4b467e5d688f', 'bus_picking', 'Picking', 'Warehouse inventory-selection task for authorized demand. Picking selects/handles committed stock; inventory and fulfillment ledgers remain authoritative separately. Sales fulfillment, production staging, transfer and service demand. Reservation supplies commitment; InventoryLocation supplies source; ShipmentLine may supply outbound demand. Planned → released → in progress → picked/short, cancelled or exception.', 'file-text', 'A', FALSE, FALSE, FALSE, TRUE, '6f71eb57-e98d-54aa-b5cd-1f0cedd9ec29', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_tab (sys_tab_id, sys_window_id, sys_table_id, name, help, tab_level, seq_no, is_single_row, has_tree, is_info_tab, is_translation_tab, is_read_only, is_insert_record, is_advanced_tab, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('c34a357c-5d77-566d-9a3a-58971c8fbcb9', '6f71eb57-e98d-54aa-b5cd-1f0cedd9ec29', '6660abca-3d54-508e-aa48-4b467e5d688f', 'Picking', 'Shows one Picking at a time. Fields are grouped: General carries the identifying fields and Details carries the rest. 3 fields marked with a red asterisk (*) must have a value before Save will accept the record. Handling Unit and Wave are lookups — search the linked records instead of entering an identifier by hand. Any field showing a ? beside its label has help of its own; click it for the rules that apply there.', 0, 10, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('c34a357c-5d77-566d-9a3a-58971c8fbcb9', '6f71eb57-e98d-54aa-b5cd-1f0cedd9ec29', '6660abca-3d54-508e-aa48-4b467e5d688f', 'Picking', 'Shows one Picking at a time. Fields are grouped: General carries the identifying fields and Details carries the rest. 4 fields marked with a red asterisk (*) must have a value before Save will accept the record. Handling Unit and Wave are lookups — search the linked records instead of entering an identifier by hand. Any field showing a ? beside its label has help of its own; click it for the rules that apply there.', 0, 10, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('5e56466c-97f2-5daf-9233-841f8a7ee88e', '6660abca-3d54-508e-aa48-4b467e5d688f', 'id', 'Id', 'The identity of the pick task. Generated on creation; packing and stock movements refer to it. Identifies one directed inventory-selection action. Links reservation/source stock to staging/fulfillment.', 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -2623,19 +3171,31 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('dc1063fd-0daa-55b7-be80-04b255bd603c', '6660abca-3d54-508e-aa48-4b467e5d688f', 'quantity', 'Quantity', 'The quantity to be picked. Set from the reservation or order line; the pick is confirmed against it. Defines execution demand. Must reconcile with reservation and inventory events.', 12, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('da75f977-c8bc-5a58-899a-af89ac237276', '6660abca-3d54-508e-aa48-4b467e5d688f', 'status', 'Status', 'Shows how far the pick task has advanced, from planned and released through picking to completion or a problem. Updated by warehouse staff and handheld scanners; a pick can be finished only from the in-progress state. The pick is created but not yet released to the floor, so nobody is working on it. The pick has been released to warehouse staff and is ready to be started. A picker has started collecting the goods from the source location. All the quantity was collected and moved to staging, ready for packing. A final state. Less than the required quantity was found, so the pick stops short and the shortfall needs a decision. The pick was called off before completion and no goods are moved. A final state. Something prevented picking, such as damaged stock or a blocked location, and the task needs investigation. Controls warehouse task progression. PICKED is warehouse evidence, not shipment delivery.', 1027, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('da75f977-c8bc-5a58-899a-af89ac237276', '6660abca-3d54-508e-aa48-4b467e5d688f', 'status', 'Status', 'Shows how far the pick task has advanced, from planned and released through picking to completion or a problem. Updated by warehouse staff and handheld scanners; a pick can be finished only from the in-progress state. The pick is created but not yet released to the floor, so nobody is working on it. The pick has been released to warehouse staff and is ready to be started. A picker has started collecting the goods from the source location. All the quantity was collected and moved to staging, ready for packing. A final state. Less than the required quantity was found, so the pick stops short and the shortfall needs a decision. The pick was called off before completion and no goods are moved. A final state. Something prevented picking, such as damaged stock or a blocked location, and the task needs investigation. Controls warehouse task progression. PICKED is warehouse evidence, not shipment delivery.', 1045, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('d164fbda-7eaf-538e-93e9-acc34f0edf08', '6660abca-3d54-508e-aa48-4b467e5d688f', 'reservation_id', 'Reservation', 'Inventory commitment supplying pick demand. Prevents picking unallocated demand where reservation is required. Fulfillment. Optional under non-reservation workflows. Consumption must reconcile.', 19, NULL, NULL, FALSE, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, TRUE, TRUE, 40, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('42e961b1-57f1-559d-815c-7580453f6863', '6660abca-3d54-508e-aa48-4b467e5d688f', 'pick_number', 'Pick Number', 'The reference of the pick task. Shown on the picker''s device and pick list. Unique.', 10, 40, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 40, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('bc1a638f-7479-5cf0-8f8b-837cccfbf426', '6660abca-3d54-508e-aa48-4b467e5d688f', 'source_location_id', 'Source Location', 'Exactly one source location: each pick collects from a single storage position. Storage position picked from. Defines source custody. WMS execution. Must hold eligible stock.', 19, NULL, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, FALSE, FALSE, FALSE, TRUE, TRUE, 50, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('d4105a79-26c4-589a-b5c0-75d5a0cabd0d', '6660abca-3d54-508e-aa48-4b467e5d688f', 'picked_quantity', 'Picked Quantity', 'The number of units the picker actually took from the storage location. Confirmed by the picker on the handheld device; it is compared with the requested quantity. A figure below the requested quantity means a short pick.', 12, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 50, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('a1b64ffa-269b-5f28-8205-e143a7059407', '6660abca-3d54-508e-aa48-4b467e5d688f', 'handling_unit_id', 'Handling Unit', 'At most one handling unit, the pallet or tote the goods are picked into. Handling unit used for picked stock. Supports tote/carton/pallet execution. Scanning and packing. Custody must reconcile.', 19, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 60, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('55803641-d9db-5109-a6b4-5874c45e40b7', '6660abca-3d54-508e-aa48-4b467e5d688f', 'picked_at', 'Picked At', 'The date and time the picker confirmed this pick on the handheld device. Recorded automatically on confirmation; supervisors use it to measure pick rates and delays. Filled only once picked.', 16, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 60, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('08eed609-0a65-5c87-ab7d-5f174db56f94', '6660abca-3d54-508e-aa48-4b467e5d688f', 'wave_id', 'Wave', 'The Wave this Picking belongs to.', 19, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 70, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('eaae6378-b937-512e-964f-cbe6c52ce3c9', '6660abca-3d54-508e-aa48-4b467e5d688f', 'short_reason', 'Short Reason', 'Why fewer units were picked than asked for. Entered by the picker on a short pick. Triggers a stock check of the location.', 10, 300, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 70, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('d164fbda-7eaf-538e-93e9-acc34f0edf08', '6660abca-3d54-508e-aa48-4b467e5d688f', 'reservation_id', 'Reservation', 'Inventory commitment supplying pick demand. Prevents picking unallocated demand where reservation is required. Fulfillment. Optional under non-reservation workflows. Consumption must reconcile.', 19, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 80, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('bc1a638f-7479-5cf0-8f8b-837cccfbf426', '6660abca-3d54-508e-aa48-4b467e5d688f', 'source_location_id', 'Source Location', 'Exactly one source location: each pick collects from a single storage position. Storage position picked from. Defines source custody. WMS execution. Must hold eligible stock.', 19, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 90, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('a1b64ffa-269b-5f28-8205-e143a7059407', '6660abca-3d54-508e-aa48-4b467e5d688f', 'handling_unit_id', 'Handling Unit', 'At most one handling unit, the pallet or tote the goods are picked into. Handling unit used for picked stock. Supports tote/carton/pallet execution. Scanning and packing. Custody must reconcile.', 19, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 100, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('08eed609-0a65-5c87-ab7d-5f174db56f94', '6660abca-3d54-508e-aa48-4b467e5d688f', 'wave_id', 'Wave', 'The Wave this Picking belongs to.', 19, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 110, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 UPDATE sys_column SET ref_table_name = 'bus_inventory_reservation' WHERE sys_column_id = 'd164fbda-7eaf-538e-93e9-acc34f0edf08';
 UPDATE sys_column SET ref_table_name = 'bus_inventory_location' WHERE sys_column_id = 'bc1a638f-7479-5cf0-8f8b-837cccfbf426';
@@ -2649,16 +3209,28 @@ INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_
 VALUES ('ab661ec8-bb93-5dda-a358-daca7fc75626', 'c34a357c-5d77-566d-9a3a-58971c8fbcb9', 'da75f977-c8bc-5a58-899a-af89ac237276', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Status', 'Shows how far the pick task has advanced, from planned and released through picking to completion or a problem. Updated by warehouse staff and handheld scanners; a pick can be finished only from the in-progress state. The pick is created but not yet released to the floor, so nobody is working on it. The pick has been released to warehouse staff and is ready to be started. A picker has started collecting the goods from the source location. All the quantity was collected and moved to staging, ready for packing. A final state. Less than the required quantity was found, so the pick stops short and the shortfall needs a decision. The pick was called off before completion and no goods are moved. A final state. Something prevented picking, such as damaged stock or a blocked location, and the task needs investigation. Controls warehouse task progression. PICKED is warehouse evidence, not shipment delivery. Required — the record cannot be saved while this is empty.', 30, 30, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('a7beddd1-b378-5547-971c-e9436641d05f', 'c34a357c-5d77-566d-9a3a-58971c8fbcb9', 'd164fbda-7eaf-538e-93e9-acc34f0edf08', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Reservation', 'Inventory commitment supplying pick demand. Prevents picking unallocated demand where reservation is required. Fulfillment. Optional under non-reservation workflows. Consumption must reconcile.', 40, 40, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('079391d1-9bd8-5714-a86a-48a42bad5089', 'c34a357c-5d77-566d-9a3a-58971c8fbcb9', '42e961b1-57f1-559d-815c-7580453f6863', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Pick Number', 'The reference of the pick task. Shown on the picker''s device and pick list. Unique. Required — the record cannot be saved while this is empty. Must be unique: a save is rejected if another Picking already uses this value. Up to 40 characters.', 40, 40, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('737bf7ae-b43a-5bc9-981b-a2fac668d943', 'c34a357c-5d77-566d-9a3a-58971c8fbcb9', 'bc1a638f-7479-5cf0-8f8b-837cccfbf426', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Source Location', 'Exactly one source location: each pick collects from a single storage position. Storage position picked from. Defines source custody. WMS execution. Must hold eligible stock. Required — the record cannot be saved while this is empty.', 50, 50, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('10bfa8a5-5e32-501f-9610-fcef01afd6cc', 'c34a357c-5d77-566d-9a3a-58971c8fbcb9', 'd4105a79-26c4-589a-b5c0-75d5a0cabd0d', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Picked Quantity', 'The number of units the picker actually took from the storage location. Confirmed by the picker on the handheld device; it is compared with the requested quantity. A figure below the requested quantity means a short pick.', 50, 50, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('bf6e5814-0289-58b7-927e-782fff8512ff', 'c34a357c-5d77-566d-9a3a-58971c8fbcb9', 'a1b64ffa-269b-5f28-8205-e143a7059407', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Handling Unit', 'At most one handling unit, the pallet or tote the goods are picked into. Handling unit used for picked stock. Supports tote/carton/pallet execution. Scanning and packing. Custody must reconcile.', 60, 60, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('2f8008c4-92d4-5e61-b1c2-477b18c78301', 'c34a357c-5d77-566d-9a3a-58971c8fbcb9', '55803641-d9db-5109-a6b4-5874c45e40b7', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Picked At', 'The date and time the picker confirmed this pick on the handheld device. Recorded automatically on confirmation; supervisors use it to measure pick rates and delays. Filled only once picked.', 60, 60, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('6fbd03bb-999d-5e85-b4e3-9edb46834ead', 'c34a357c-5d77-566d-9a3a-58971c8fbcb9', '08eed609-0a65-5c87-ab7d-5f174db56f94', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Wave', 'The Wave this Picking belongs to.', 70, 70, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('b71404fd-5f6b-5b57-8833-f010846a446c', 'c34a357c-5d77-566d-9a3a-58971c8fbcb9', 'eaae6378-b937-512e-964f-cbe6c52ce3c9', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Short Reason', 'Why fewer units were picked than asked for. Entered by the picker on a short pick. Triggers a stock check of the location. Up to 300 characters.', 70, 70, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('a7beddd1-b378-5547-971c-e9436641d05f', 'c34a357c-5d77-566d-9a3a-58971c8fbcb9', 'd164fbda-7eaf-538e-93e9-acc34f0edf08', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Reservation', 'Inventory commitment supplying pick demand. Prevents picking unallocated demand where reservation is required. Fulfillment. Optional under non-reservation workflows. Consumption must reconcile.', 80, 80, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('737bf7ae-b43a-5bc9-981b-a2fac668d943', 'c34a357c-5d77-566d-9a3a-58971c8fbcb9', 'bc1a638f-7479-5cf0-8f8b-837cccfbf426', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Source Location', 'Exactly one source location: each pick collects from a single storage position. Storage position picked from. Defines source custody. WMS execution. Must hold eligible stock. Required — the record cannot be saved while this is empty.', 90, 90, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('bf6e5814-0289-58b7-927e-782fff8512ff', 'c34a357c-5d77-566d-9a3a-58971c8fbcb9', 'a1b64ffa-269b-5f28-8205-e143a7059407', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Handling Unit', 'At most one handling unit, the pallet or tote the goods are picked into. Handling unit used for picked stock. Supports tote/carton/pallet execution. Scanning and packing. Custody must reconcile.', 100, 100, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('6fbd03bb-999d-5e85-b4e3-9edb46834ead', 'c34a357c-5d77-566d-9a3a-58971c8fbcb9', '08eed609-0a65-5c87-ab7d-5f174db56f94', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Wave', 'The Wave this Picking belongs to.', 110, 110, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_access (sys_access_id, sys_role_id, sys_table_id, sys_window_id, access_type_table, is_read_only, is_exclude, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('2c3fba3c-6b9b-55a6-8102-43ba1397326e', (SELECT sys_role_id FROM sys_role WHERE name = 'Administrator'), '6660abca-3d54-508e-aa48-4b467e5d688f', '6f71eb57-e98d-54aa-b5cd-1f0cedd9ec29', 'W', FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -2671,9 +3243,9 @@ ON CONFLICT DO NOTHING;
 -- Packing (bus_packing)
 -- --------------------------------------------------------------------------
 INSERT INTO sys_window (sys_window_id, name, description, help, icon, window_type, is_sales_transaction, is_default, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('33d17932-a76c-5c3f-b3d0-9a88c9036355', 'Packing', 'Maintain Packing records', 'Create, find and maintain Packing records. The list shows every Packing you have access to — select a row to open it, or use New to add one. Each row is a single Packing, described by 5 fields.
+VALUES ('33d17932-a76c-5c3f-b3d0-9a88c9036355', 'Packing', 'Maintain Packing records', 'Create, find and maintain Packing records. The list shows every Packing you have access to — select a row to open it, or use New to add one. Each row is a single Packing, described by 8 fields.
 
-Id is unique: no two Packing records may share the same value, and a save that would duplicate one is rejected. Packed Quantity, Status and Handling Unit must be filled in before the record can be saved.
+Id and Packing Number are unique: no two Packing records may share the same value, and a save that would duplicate one is rejected. Packed Quantity, Status, Packing Number and Handling Unit must be filled in before the record can be saved.
 
 Every Packing points at Picking and Handling Unit. Choose the linked record from the lookup on those fields rather than typing an identifier.
 
@@ -2683,7 +3255,7 @@ INSERT INTO sys_table (sys_table_id, table_name, name, description, icon, access
 VALUES ('d8c81be1-91fe-5997-a5e7-b2ffb10067ad', 'bus_packing', 'Packing', 'A warehouse task that groups picked goods into handling units and prepares them for shipment, keeping line, lot, serial, quantity and package traceability. Between picking and shipping, goods are put into boxes, cartons or pallets. Packing records which goods went into which package, so the customer''s shipment is complete and any item can be traced to its package. Created when picked goods are ready to be packed; completed when packages are closed; read by shipping and customer service. Packing follows a Picking, fills a HandlingUnit and prepares a Shipment (and its lines). Packing is planned, in progress while packages are filled, and packed when finished. It can be cancelled, or flagged as an exception when something does not match. Eight cartons packed for order SO-20413 on the evening shift.', 'file-text', 'A', FALSE, FALSE, FALSE, TRUE, '33d17932-a76c-5c3f-b3d0-9a88c9036355', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_tab (sys_tab_id, sys_window_id, sys_table_id, name, help, tab_level, seq_no, is_single_row, has_tree, is_info_tab, is_translation_tab, is_read_only, is_insert_record, is_advanced_tab, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('0dd1473c-18a1-5545-87d9-332d8197c8bd', '33d17932-a76c-5c3f-b3d0-9a88c9036355', 'd8c81be1-91fe-5997-a5e7-b2ffb10067ad', 'Packing', 'Shows one Packing at a time. Fields are grouped: General carries the identifying fields and Details carries the rest. 3 fields marked with a red asterisk (*) must have a value before Save will accept the record. Picking and Handling Unit are lookups — search the linked records instead of entering an identifier by hand. Any field showing a ? beside its label has help of its own; click it for the rules that apply there.', 0, 10, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('0dd1473c-18a1-5545-87d9-332d8197c8bd', '33d17932-a76c-5c3f-b3d0-9a88c9036355', 'd8c81be1-91fe-5997-a5e7-b2ffb10067ad', 'Packing', 'Shows one Packing at a time. Fields are grouped: General carries the identifying fields and Details carries the rest. 4 fields marked with a red asterisk (*) must have a value before Save will accept the record. Picking and Handling Unit are lookups — search the linked records instead of entering an identifier by hand. Any field showing a ? beside its label has help of its own; click it for the rules that apply there.', 0, 10, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('b856be4d-d712-5f53-9c3b-27168a51586c', 'd8c81be1-91fe-5997-a5e7-b2ffb10067ad', 'id', 'Id', 'The identity of the packing task. Generated on creation; shipments and handling units refer to it. Identifies one governed packaging execution. Links picked goods to handling unit and shipment.', 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -2692,13 +3264,22 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('53ff79cb-4e83-573c-a83f-8aa2e92f9227', 'd8c81be1-91fe-5997-a5e7-b2ffb10067ad', 'packed_quantity', 'Packed Quantity', 'The quantity of goods put into the package. Entered or scanned as goods are packed; compared with the picked quantity. Measures goods prepared for transport. Must not exceed eligible picked quantity.', 12, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('acd4f153-9466-5455-a9ef-8c85c0cb9d83', 'd8c81be1-91fe-5997-a5e7-b2ffb10067ad', 'status', 'Status', 'Shows how far the packing task has progressed, from planned through packed, or into cancellation or exception. Updated by packers as work starts and finishes; shipping may proceed only once the task is packed. Created, not yet started. Packers are filling packages. Finished and ready to ship. Called off. A final state. Held because something is wrong, such as a shortage or damage. Controls packaging workflow. PACKED is not dispatch/delivery evidence.', 1019, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('acd4f153-9466-5455-a9ef-8c85c0cb9d83', 'd8c81be1-91fe-5997-a5e7-b2ffb10067ad', 'status', 'Status', 'Shows how far the packing task has progressed, from planned through packed, or into cancellation or exception. Updated by packers as work starts and finishes; shipping may proceed only once the task is packed. Created, not yet started. Packers are filling packages. Finished and ready to ship. Called off. A final state. Held because something is wrong, such as a shortage or damage. Controls packaging workflow. PACKED is not dispatch/delivery evidence.', 1035, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('f47da06e-64ee-5819-9c9b-d043bd1c7927', 'd8c81be1-91fe-5997-a5e7-b2ffb10067ad', 'picking_id', 'Picking', 'The pick that supplied the goods. Linked when packing follows a pick. At most one picking. Confirms that what is packed matches what was picked. Preserves pick-to-pack provenance.', 19, NULL, NULL, FALSE, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, TRUE, TRUE, 40, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('5da329f0-e867-5725-8a96-bf19f7cd3cad', 'd8c81be1-91fe-5997-a5e7-b2ffb10067ad', 'packing_number', 'Packing Number', 'The reference of the packing task. Printed on the packing slip and scanned at the packing station. Unique.', 10, 40, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 40, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('7f7fbb1f-b850-58cf-9343-331199e59e65', 'd8c81be1-91fe-5997-a5e7-b2ffb10067ad', 'handling_unit_id', 'Handling Unit', 'The package, carton or pallet that the goods go into. Chosen when packing starts. Exactly one handling unit: each packing task fills one package. Gives the package contents and its identity. Establishes physical logistics identity.', 19, NULL, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, FALSE, FALSE, FALSE, TRUE, TRUE, 50, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('0875a8c3-e4ce-5f2c-9730-4133939ca633', 'd8c81be1-91fe-5997-a5e7-b2ffb10067ad', 'packed_at', 'Packed At', 'The date and time the packer finished and closed the packed handling unit. Recorded when the unit is closed and labelled, ready for the shipping area. Filled only once packing is done.', 16, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 50, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('343d9d2d-8afb-53c1-a368-b3d2cea87598', 'd8c81be1-91fe-5997-a5e7-b2ffb10067ad', 'exception_reason', 'Exception Reason', 'What went wrong, such as missing items or damage found. Written when the task goes into exception. Read by the supervisor who resolves it.', 10, 300, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 60, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('f47da06e-64ee-5819-9c9b-d043bd1c7927', 'd8c81be1-91fe-5997-a5e7-b2ffb10067ad', 'picking_id', 'Picking', 'The pick that supplied the goods. Linked when packing follows a pick. At most one picking. Confirms that what is packed matches what was picked. Preserves pick-to-pack provenance.', 19, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 70, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('7f7fbb1f-b850-58cf-9343-331199e59e65', 'd8c81be1-91fe-5997-a5e7-b2ffb10067ad', 'handling_unit_id', 'Handling Unit', 'The package, carton or pallet that the goods go into. Chosen when packing starts. Exactly one handling unit: each packing task fills one package. Gives the package contents and its identity. Establishes physical logistics identity.', 19, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 80, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('d59afe12-7592-5022-aba3-c1b216dca002', '0dd1473c-18a1-5545-87d9-332d8197c8bd', 'b856be4d-d712-5f53-9c3b-27168a51586c', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Id', 'The identity of the packing task. Generated on creation; shipments and handling units refer to it. Identifies one governed packaging execution. Links picked goods to handling unit and shipment. Must be unique: a save is rejected if another Packing already uses this value.', 10, 10, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -2710,10 +3291,19 @@ INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_
 VALUES ('0ea3b065-b16b-5fd0-aee2-404023d3e330', '0dd1473c-18a1-5545-87d9-332d8197c8bd', 'acd4f153-9466-5455-a9ef-8c85c0cb9d83', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Status', 'Shows how far the packing task has progressed, from planned through packed, or into cancellation or exception. Updated by packers as work starts and finishes; shipping may proceed only once the task is packed. Created, not yet started. Packers are filling packages. Finished and ready to ship. Called off. A final state. Held because something is wrong, such as a shortage or damage. Controls packaging workflow. PACKED is not dispatch/delivery evidence. Required — the record cannot be saved while this is empty.', 30, 30, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('841e859e-926a-514a-b25e-40d220bbd420', '0dd1473c-18a1-5545-87d9-332d8197c8bd', 'f47da06e-64ee-5819-9c9b-d043bd1c7927', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Picking', 'The pick that supplied the goods. Linked when packing follows a pick. At most one picking. Confirms that what is packed matches what was picked. Preserves pick-to-pack provenance.', 40, 40, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('dd094f95-af31-5a46-8c99-8884ff926754', '0dd1473c-18a1-5545-87d9-332d8197c8bd', '5da329f0-e867-5725-8a96-bf19f7cd3cad', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Packing Number', 'The reference of the packing task. Printed on the packing slip and scanned at the packing station. Unique. Required — the record cannot be saved while this is empty. Must be unique: a save is rejected if another Packing already uses this value. Up to 40 characters.', 40, 40, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('7a484f9c-bfaf-5482-819c-683160c13667', '0dd1473c-18a1-5545-87d9-332d8197c8bd', '7f7fbb1f-b850-58cf-9343-331199e59e65', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Handling Unit', 'The package, carton or pallet that the goods go into. Chosen when packing starts. Exactly one handling unit: each packing task fills one package. Gives the package contents and its identity. Establishes physical logistics identity. Required — the record cannot be saved while this is empty.', 50, 50, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('1127d5e0-54c3-5d36-8ccc-7fbdd01fba1d', '0dd1473c-18a1-5545-87d9-332d8197c8bd', '0875a8c3-e4ce-5f2c-9730-4133939ca633', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Packed At', 'The date and time the packer finished and closed the packed handling unit. Recorded when the unit is closed and labelled, ready for the shipping area. Filled only once packing is done.', 50, 50, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('b2871d8d-6c22-57a3-bd60-a1a934de35a7', '0dd1473c-18a1-5545-87d9-332d8197c8bd', '343d9d2d-8afb-53c1-a368-b3d2cea87598', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Exception Reason', 'What went wrong, such as missing items or damage found. Written when the task goes into exception. Read by the supervisor who resolves it. Up to 300 characters.', 60, 60, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('841e859e-926a-514a-b25e-40d220bbd420', '0dd1473c-18a1-5545-87d9-332d8197c8bd', 'f47da06e-64ee-5819-9c9b-d043bd1c7927', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Picking', 'The pick that supplied the goods. Linked when packing follows a pick. At most one picking. Confirms that what is packed matches what was picked. Preserves pick-to-pack provenance.', 70, 70, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('7a484f9c-bfaf-5482-819c-683160c13667', '0dd1473c-18a1-5545-87d9-332d8197c8bd', '7f7fbb1f-b850-58cf-9343-331199e59e65', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Handling Unit', 'The package, carton or pallet that the goods go into. Chosen when packing starts. Exactly one handling unit: each packing task fills one package. Gives the package contents and its identity. Establishes physical logistics identity. Required — the record cannot be saved while this is empty.', 80, 80, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_access (sys_access_id, sys_role_id, sys_table_id, sys_window_id, access_type_table, is_read_only, is_exclude, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('dcc137a6-0250-59b0-9e8b-7b10c9a75055', (SELECT sys_role_id FROM sys_role WHERE name = 'Administrator'), 'd8c81be1-91fe-5997-a5e7-b2ffb10067ad', '33d17932-a76c-5c3f-b3d0-9a88c9036355', 'W', FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -2726,9 +3316,9 @@ ON CONFLICT DO NOTHING;
 -- Wave (bus_wave)
 -- --------------------------------------------------------------------------
 INSERT INTO sys_window (sys_window_id, name, description, help, icon, window_type, is_sales_transaction, is_default, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('88a7b546-067b-5c28-8ca4-30109eaa0151', 'Wave', 'Maintain Wave records', 'Create, find and maintain Wave records. The list shows every Wave you have access to — select a row to open it, or use New to add one. Each row is a single Wave, described by 4 fields.
+VALUES ('88a7b546-067b-5c28-8ca4-30109eaa0151', 'Wave', 'Maintain Wave records', 'Create, find and maintain Wave records. The list shows every Wave you have access to — select a row to open it, or use New to add one. Each row is a single Wave, described by 9 fields.
 
-Id and Wave Number are unique: no two Wave records may share the same value, and a save that would duplicate one is rejected. Wave Number, Status and Warehouse must be filled in before the record can be saved.
+Id and Wave Number are unique: no two Wave records may share the same value, and a save that would duplicate one is rejected. Wave Number, Status, Wave Type and Warehouse must be filled in before the record can be saved.
 
 Every Wave points at Warehouse. Choose the linked record from the lookup on those fields rather than typing an identifier. Putaway and Picking refer back to Wave, so what you change here can affect those records.
 
@@ -2738,7 +3328,7 @@ INSERT INTO sys_table (sys_table_id, table_name, name, description, icon, access
 VALUES ('02746080-de55-5127-bca4-048fc2f65ac1', 'bus_wave', 'Wave', 'Warehouse work-release grouping for coordinated execution. Wave organizes tasks; it does not itself move inventory or fulfill orders. Labor planning, batch/zone picking, putaway and shipping-cutoff execution. Warehouse supplies facility; Picking and Putaway supply executable tasks. Planned to released to in progress to completed or cancelled.', 'file-text', 'A', FALSE, FALSE, FALSE, TRUE, '88a7b546-067b-5c28-8ca4-30109eaa0151', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_tab (sys_tab_id, sys_window_id, sys_table_id, name, help, tab_level, seq_no, is_single_row, has_tree, is_info_tab, is_translation_tab, is_read_only, is_insert_record, is_advanced_tab, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('a5c42cd0-7a20-5189-89e5-491235d40c8a', '88a7b546-067b-5c28-8ca4-30109eaa0151', '02746080-de55-5127-bca4-048fc2f65ac1', 'Wave', 'Shows one Wave at a time. Fields are grouped: General carries the identifying fields and Details carries the rest. 3 fields marked with a red asterisk (*) must have a value before Save will accept the record. Warehouse is a lookup — search the linked records instead of entering an identifier by hand. Any field showing a ? beside its label has help of its own; click it for the rules that apply there.', 0, 10, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('a5c42cd0-7a20-5189-89e5-491235d40c8a', '88a7b546-067b-5c28-8ca4-30109eaa0151', '02746080-de55-5127-bca4-048fc2f65ac1', 'Wave', 'Shows one Wave at a time. Fields are grouped: General carries the identifying fields and Details carries the rest. 4 fields marked with a red asterisk (*) must have a value before Save will accept the record. Warehouse is a lookup — search the linked records instead of entering an identifier by hand. Any field showing a ? beside its label has help of its own; click it for the rules that apply there.', 0, 10, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('ccf5cb4e-916f-5a3e-8aba-66d2a98b37e4', '02746080-de55-5127-bca4-048fc2f65ac1', 'id', 'Id', 'The permanent identifier of the wave, unchanged while its tasks and status change. Generated on creation; pick and putaway tasks carry it to show which release batch they belong to. Identifies one coordinated work release. Groups tasks without replacing individual evidence.', 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -2747,10 +3337,25 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('1c932a1e-f274-51cb-a6ee-c067f0693002', '02746080-de55-5127-bca4-048fc2f65ac1', 'wave_number', 'Wave Number', 'The number of the wave, such as WV-2026-0412, shown to supervisors and pickers. Unique; assigned when the wave is planned and used on task lists, labour planning and reporting for the shift. Operational identifier for grouped work. Distinct from task and shipment identifiers.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('c58f20d1-b75a-53dc-a05b-d5952a4a42f9', '02746080-de55-5127-bca4-048fc2f65ac1', 'status', 'Status', 'How far the batch of warehouse work has progressed, from planning through release to completion. Starts as PLANNED; moved by the warehouse system or supervisor as the wave is released, worked and finished. Orders and tasks are grouped but not yet released to the floor. Released to the floor and ready for workers to start. Workers are executing the picking, putaway or packing tasks. All the wave''s work is done. A final state. The wave was abandoned and its tasks released for other planning. A final state. Controls grouped task release and closure. Wave completion cannot substitute for task or inventory evidence.', 1041, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('c58f20d1-b75a-53dc-a05b-d5952a4a42f9', '02746080-de55-5127-bca4-048fc2f65ac1', 'status', 'Status', 'How far the batch of warehouse work has progressed, from planning through release to completion. Starts as PLANNED; moved by the warehouse system or supervisor as the wave is released, worked and finished. Orders and tasks are grouped but not yet released to the floor. Released to the floor and ready for workers to start. Workers are executing the picking, putaway or packing tasks. All the wave''s work is done. A final state. The wave was abandoned and its tasks released for other planning. A final state. Controls grouped task release and closure. Wave completion cannot substitute for task or inventory evidence.', 1060, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('b8cab779-e7c9-5aa2-88d3-f0a6eb30f5e3', '02746080-de55-5127-bca4-048fc2f65ac1', 'warehouse_id', 'Warehouse', 'Each wave is run in one warehouse. Warehouse executing wave. Defines operating facility. Labor/task orchestration. Included tasks must be compatible with warehouse.', 19, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 40, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('13073d55-58c6-5cf0-a226-61afd3e223ab', '02746080-de55-5127-bca4-048fc2f65ac1', 'wave_type', 'Wave Type', 'The kind of work the wave releases to the floor. Chosen when the wave is planned and decides which tasks it groups; most waves are picking waves. Most waves are picking waves. Picking for outbound orders. Putting away received goods. Moving stock from reserve to picking locations.', 1061, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 40, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('8fb71fa1-0064-5899-b9d4-58fe57728200', '02746080-de55-5127-bca4-048fc2f65ac1', 'released_at', 'Released At', 'The date and time the wave was released to workers on the floor. Recorded automatically at release and empty while the wave is still planned. Present once released.', 16, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 50, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('a70f05cf-ffa3-52d6-bb7d-109081cd163f', '02746080-de55-5127-bca4-048fc2f65ac1', 'planned_completion_at', 'Planned Completion At', 'When the wave should be finished, usually to meet a carrier cut-off. Set when planning the wave. Late waves are flagged.', 16, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 60, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('e89e34be-4dc8-5f9a-b591-39df4461f4b6', '02746080-de55-5127-bca4-048fc2f65ac1', 'completed_at', 'Completed At', 'The date and time the last task in the wave was finished. Recorded when the wave completes and compared with the planned completion to measure lateness. Present once completed.', 16, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 70, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('4002bcb2-d6f5-5d85-b459-50839775ac7d', '02746080-de55-5127-bca4-048fc2f65ac1', 'task_count', 'Task Count', 'How many tasks, picks and putaways together, the wave contains. Calculated by the system and shown on the wave monitor so supervisors can size labour. Summed from its picks and putaways.', 11, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 80, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('b8cab779-e7c9-5aa2-88d3-f0a6eb30f5e3', '02746080-de55-5127-bca4-048fc2f65ac1', 'warehouse_id', 'Warehouse', 'Each wave is run in one warehouse. Warehouse executing wave. Defines operating facility. Labor/task orchestration. Included tasks must be compatible with warehouse.', 19, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 90, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('3421ded2-c4e1-58ec-9cc3-4db0191a9775', 'a5c42cd0-7a20-5189-89e5-491235d40c8a', 'ccf5cb4e-916f-5a3e-8aba-66d2a98b37e4', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Id', 'The permanent identifier of the wave, unchanged while its tasks and status change. Generated on creation; pick and putaway tasks carry it to show which release batch they belong to. Identifies one coordinated work release. Groups tasks without replacing individual evidence. Must be unique: a save is rejected if another Wave already uses this value.', 10, 10, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -2762,7 +3367,22 @@ INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_
 VALUES ('2dcabd69-525c-5f79-8cdb-951a1ac68a4c', 'a5c42cd0-7a20-5189-89e5-491235d40c8a', 'c58f20d1-b75a-53dc-a05b-d5952a4a42f9', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Status', 'How far the batch of warehouse work has progressed, from planning through release to completion. Starts as PLANNED; moved by the warehouse system or supervisor as the wave is released, worked and finished. Orders and tasks are grouped but not yet released to the floor. Released to the floor and ready for workers to start. Workers are executing the picking, putaway or packing tasks. All the wave''s work is done. A final state. The wave was abandoned and its tasks released for other planning. A final state. Controls grouped task release and closure. Wave completion cannot substitute for task or inventory evidence. Required — the record cannot be saved while this is empty.', 30, 30, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('0771d264-191e-58e3-9058-884bdaa75744', 'a5c42cd0-7a20-5189-89e5-491235d40c8a', 'b8cab779-e7c9-5aa2-88d3-f0a6eb30f5e3', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Warehouse', 'Each wave is run in one warehouse. Warehouse executing wave. Defines operating facility. Labor/task orchestration. Included tasks must be compatible with warehouse. Required — the record cannot be saved while this is empty.', 40, 40, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('2be19610-3e0a-54e0-9197-de00e4851b5b', 'a5c42cd0-7a20-5189-89e5-491235d40c8a', '13073d55-58c6-5cf0-a226-61afd3e223ab', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Wave Type', 'The kind of work the wave releases to the floor. Chosen when the wave is planned and decides which tasks it groups; most waves are picking waves. Most waves are picking waves. Picking for outbound orders. Putting away received goods. Moving stock from reserve to picking locations. Required — the record cannot be saved while this is empty.', 40, 40, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('1c7fb7ac-da19-5d56-8ae3-bb9ae266f08b', 'a5c42cd0-7a20-5189-89e5-491235d40c8a', '8fb71fa1-0064-5899-b9d4-58fe57728200', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Released At', 'The date and time the wave was released to workers on the floor. Recorded automatically at release and empty while the wave is still planned. Present once released.', 50, 50, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('cbb4e670-1c08-5e60-b9d1-468278c57966', 'a5c42cd0-7a20-5189-89e5-491235d40c8a', 'a70f05cf-ffa3-52d6-bb7d-109081cd163f', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Planned Completion At', 'When the wave should be finished, usually to meet a carrier cut-off. Set when planning the wave. Late waves are flagged.', 60, 60, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('fa361301-8c58-56a1-8f01-bd5b9464c4a0', 'a5c42cd0-7a20-5189-89e5-491235d40c8a', 'e89e34be-4dc8-5f9a-b591-39df4461f4b6', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Completed At', 'The date and time the last task in the wave was finished. Recorded when the wave completes and compared with the planned completion to measure lateness. Present once completed.', 70, 70, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('f855bce5-6f67-5cfe-83f5-3366994a0fac', 'a5c42cd0-7a20-5189-89e5-491235d40c8a', '4002bcb2-d6f5-5d85-b459-50839775ac7d', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Task Count', 'How many tasks, picks and putaways together, the wave contains. Calculated by the system and shown on the wave monitor so supervisors can size labour. Summed from its picks and putaways.', 80, 80, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('0771d264-191e-58e3-9058-884bdaa75744', 'a5c42cd0-7a20-5189-89e5-491235d40c8a', 'b8cab779-e7c9-5aa2-88d3-f0a6eb30f5e3', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Warehouse', 'Each wave is run in one warehouse. Warehouse executing wave. Defines operating facility. Labor/task orchestration. Included tasks must be compatible with warehouse. Required — the record cannot be saved while this is empty.', 90, 90, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_access (sys_access_id, sys_role_id, sys_table_id, sys_window_id, access_type_table, is_read_only, is_exclude, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('77ca9ede-cdd6-5e8f-bb93-ad2ad8e8514a', (SELECT sys_role_id FROM sys_role WHERE name = 'Administrator'), '02746080-de55-5127-bca4-048fc2f65ac1', '88a7b546-067b-5c28-8ca4-30109eaa0151', 'W', FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -3362,6 +3982,301 @@ VALUES ('d98f8e20-c9fc-52b4-a450-15de34e185a4', (SELECT sys_role_id FROM sys_rol
 ON CONFLICT DO NOTHING;
 
 -- --------------------------------------------------------------------------
+-- Party Relationship Relationship Type (bus_party_relationship_relationship_type)
+-- --------------------------------------------------------------------------
+INSERT INTO sys_window (sys_window_id, name, description, help, icon, window_type, is_sales_transaction, is_default, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('080d2a52-5a63-5be7-9f55-2988867204cc', 'Party Relationship Relationship Type', 'Maintain Party Relationship Relationship Type records', 'Create, find and maintain Party Relationship Relationship Type records. The list shows every Party Relationship Relationship Type you have access to — select a row to open it, or use New to add one. Each row is a single Party Relationship Relationship Type, described by 6 fields.
+
+Id and Code are unique: no two Party Relationship Relationship Type records may share the same value, and a save that would duplicate one is rejected. Code, Name, Sequence and Is Active must be filled in before the record can be saved.
+
+Every save starts as a Draft. The business rules and workflows attached to Party Relationship Relationship Type then run together in a single transaction: if all of them succeed the record becomes Final; if any of them fails, nothing they changed is kept — the record stays Draft and the reason is written onto it so you can fix the cause and retry. A Party Relationship Relationship Type with no rules or workflows attached is marked Final immediately.', 'list', 'M', FALSE, TRUE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_table (sys_table_id, table_name, name, description, icon, access_level, is_view, is_document, is_high_volume, is_changelog, sys_window_id, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('74e6a607-c9ae-5fc1-8b11-7ce69fac12b2', 'bus_party_relationship_relationship_type', 'Party Relationship Relationship Type', 'The values of party relationship relationship type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.', 'list', 'A', FALSE, FALSE, FALSE, TRUE, '080d2a52-5a63-5be7-9f55-2988867204cc', 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_tab (sys_tab_id, sys_window_id, sys_table_id, name, help, tab_level, seq_no, is_single_row, has_tree, is_info_tab, is_translation_tab, is_read_only, is_insert_record, is_advanced_tab, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('1cc9a6f4-87f8-5af1-9ae7-69175b07160b', '080d2a52-5a63-5be7-9f55-2988867204cc', '74e6a607-c9ae-5fc1-8b11-7ce69fac12b2', 'Party Relationship Relationship Type', 'Shows one Party Relationship Relationship Type at a time. Fields are grouped: General carries the identifying fields and Details carries the rest. 4 fields marked with a red asterisk (*) must have a value before Save will accept the record. Any field showing a ? beside its label has help of its own; click it for the rules that apply there.', 0, 10, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('ffc6eb38-7ab8-5eb8-9d2e-28cae778aa01', '74e6a607-c9ae-5fc1-8b11-7ce69fac12b2', 'id', 'Id', NULL, 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('c77ac27b-15db-55a0-a6dd-0fff07dbd47d', '74e6a607-c9ae-5fc1-8b11-7ce69fac12b2', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('fd6e2118-3604-5f48-95cc-b1c528dd337f', '74e6a607-c9ae-5fc1-8b11-7ce69fac12b2', 'name', 'Name', 'What a person reads in the dropdown and on a record.', 10, 200, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('f9b04d0a-2aa0-5eb0-a22b-6c8f709f250e', '74e6a607-c9ae-5fc1-8b11-7ce69fac12b2', 'description', 'Description', 'What the value means to the business.', 14, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 40, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('09e25ccc-efb4-55f2-82e4-92860165f98a', '74e6a607-c9ae-5fc1-8b11-7ce69fac12b2', 'sequence', 'Sequence', 'The position of the value in a dropdown, lowest first.', 11, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 50, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('518fb62b-5856-5c1c-b163-bdda56e4c31e', '74e6a607-c9ae-5fc1-8b11-7ce69fac12b2', 'is_active', 'Is Active', 'Whether the value is offered on new records.', 20, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 60, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('298ff8e0-9d0a-5fc2-902b-881b24f42f18', '1cc9a6f4-87f8-5af1-9ae7-69175b07160b', 'ffc6eb38-7ab8-5eb8-9d2e-28cae778aa01', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Id', 'The id of this Party Relationship Relationship Type. Must be unique: a save is rejected if another Party Relationship Relationship Type already uses this value.', 10, 10, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('86d0a6e7-df7f-5100-8346-92dfeff56fb1', '1cc9a6f4-87f8-5af1-9ae7-69175b07160b', 'c77ac27b-15db-55a0-a6dd-0fff07dbd47d', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Code', 'The value stored on every record that uses this list. Fixed once created. Required — the record cannot be saved while this is empty. Must be unique: a save is rejected if another Party Relationship Relationship Type already uses this value. Up to 100 characters.', 20, 20, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('2c3b8b78-239b-5efd-a720-3571fcd316e2', '1cc9a6f4-87f8-5af1-9ae7-69175b07160b', 'fd6e2118-3604-5f48-95cc-b1c528dd337f', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Name', 'What a person reads in the dropdown and on a record. Required — the record cannot be saved while this is empty. Up to 200 characters.', 30, 30, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('8bd3f9ee-3bbd-57b9-a793-632905fa23d5', '1cc9a6f4-87f8-5af1-9ae7-69175b07160b', 'f9b04d0a-2aa0-5eb0-a22b-6c8f709f250e', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Description', 'What the value means to the business.', 40, 40, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('2b6e5dc8-ad2a-5a6d-b97d-f81b1eff7a35', '1cc9a6f4-87f8-5af1-9ae7-69175b07160b', '09e25ccc-efb4-55f2-82e4-92860165f98a', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Sequence', 'The position of the value in a dropdown, lowest first. Required — the record cannot be saved while this is empty.', 50, 50, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('ee25a99f-f1e5-560c-a6db-9b06eedacdf9', '1cc9a6f4-87f8-5af1-9ae7-69175b07160b', '518fb62b-5856-5c1c-b163-bdda56e4c31e', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Is Active', 'Whether the value is offered on new records. Required — the record cannot be saved while this is empty.', 60, 60, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_access (sys_access_id, sys_role_id, sys_table_id, sys_window_id, access_type_table, is_read_only, is_exclude, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('ff6f6cb3-8a55-50e6-bc58-f617107a8536', (SELECT sys_role_id FROM sys_role WHERE name = 'Administrator'), '74e6a607-c9ae-5fc1-8b11-7ce69fac12b2', '080d2a52-5a63-5be7-9f55-2988867204cc', 'W', FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_access (sys_access_id, sys_role_id, sys_table_id, sys_window_id, access_type_table, is_read_only, is_exclude, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('86e2f21b-b297-5a52-9772-63d8a988bc8f', (SELECT sys_role_id FROM sys_role WHERE name = 'User'), '74e6a607-c9ae-5fc1-8b11-7ce69fac12b2', '080d2a52-5a63-5be7-9f55-2988867204cc', 'R', TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+
+-- --------------------------------------------------------------------------
+-- Party Relationship Status (bus_party_relationship_status)
+-- --------------------------------------------------------------------------
+INSERT INTO sys_window (sys_window_id, name, description, help, icon, window_type, is_sales_transaction, is_default, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('e5b9006f-3bb3-5568-b181-5ad3f7977ab8', 'Party Relationship Status', 'Maintain Party Relationship Status records', 'Create, find and maintain Party Relationship Status records. The list shows every Party Relationship Status you have access to — select a row to open it, or use New to add one. Each row is a single Party Relationship Status, described by 6 fields.
+
+Id and Code are unique: no two Party Relationship Status records may share the same value, and a save that would duplicate one is rejected. Code, Name, Sequence and Is Active must be filled in before the record can be saved.
+
+Every save starts as a Draft. The business rules and workflows attached to Party Relationship Status then run together in a single transaction: if all of them succeed the record becomes Final; if any of them fails, nothing they changed is kept — the record stays Draft and the reason is written onto it so you can fix the cause and retry. A Party Relationship Status with no rules or workflows attached is marked Final immediately.', 'list', 'M', FALSE, TRUE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_table (sys_table_id, table_name, name, description, icon, access_level, is_view, is_document, is_high_volume, is_changelog, sys_window_id, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('6e5dd8f7-d9c5-5995-a9e0-9afe2d673134', 'bus_party_relationship_status', 'Party Relationship Status', 'The values of party relationship status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.', 'list', 'A', FALSE, FALSE, FALSE, TRUE, 'e5b9006f-3bb3-5568-b181-5ad3f7977ab8', 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_tab (sys_tab_id, sys_window_id, sys_table_id, name, help, tab_level, seq_no, is_single_row, has_tree, is_info_tab, is_translation_tab, is_read_only, is_insert_record, is_advanced_tab, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('8d66fd5b-e11f-53e0-92ac-9325e0a70991', 'e5b9006f-3bb3-5568-b181-5ad3f7977ab8', '6e5dd8f7-d9c5-5995-a9e0-9afe2d673134', 'Party Relationship Status', 'Shows one Party Relationship Status at a time. Fields are grouped: General carries the identifying fields and Details carries the rest. 4 fields marked with a red asterisk (*) must have a value before Save will accept the record. Any field showing a ? beside its label has help of its own; click it for the rules that apply there.', 0, 10, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('772bbc7b-d4ea-53c1-8677-aa843c1a9f88', '6e5dd8f7-d9c5-5995-a9e0-9afe2d673134', 'id', 'Id', NULL, 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('acf13328-7f24-550d-ab59-27b04edf478b', '6e5dd8f7-d9c5-5995-a9e0-9afe2d673134', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('70701355-a1a4-5d70-b87c-139d70669c4e', '6e5dd8f7-d9c5-5995-a9e0-9afe2d673134', 'name', 'Name', 'What a person reads in the dropdown and on a record.', 10, 200, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('87204835-9bf5-5754-98de-31f06fc54bb0', '6e5dd8f7-d9c5-5995-a9e0-9afe2d673134', 'description', 'Description', 'What the value means to the business.', 14, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 40, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('aaba24f0-6381-50cc-93ab-00f1684d219c', '6e5dd8f7-d9c5-5995-a9e0-9afe2d673134', 'sequence', 'Sequence', 'The position of the value in a dropdown, lowest first.', 11, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 50, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('0d46a136-902d-5434-b8c6-672965e09c21', '6e5dd8f7-d9c5-5995-a9e0-9afe2d673134', 'is_active', 'Is Active', 'Whether the value is offered on new records.', 20, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 60, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('b327cbdc-7763-505f-be7e-0360278a4f07', '8d66fd5b-e11f-53e0-92ac-9325e0a70991', '772bbc7b-d4ea-53c1-8677-aa843c1a9f88', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Id', 'The id of this Party Relationship Status. Must be unique: a save is rejected if another Party Relationship Status already uses this value.', 10, 10, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('d58761e7-8ee9-5339-92e6-9ec4a0403b16', '8d66fd5b-e11f-53e0-92ac-9325e0a70991', 'acf13328-7f24-550d-ab59-27b04edf478b', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Code', 'The value stored on every record that uses this list. Fixed once created. Required — the record cannot be saved while this is empty. Must be unique: a save is rejected if another Party Relationship Status already uses this value. Up to 100 characters.', 20, 20, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('a6ab65bc-f7fd-5404-88b4-80bfc4446cd5', '8d66fd5b-e11f-53e0-92ac-9325e0a70991', '70701355-a1a4-5d70-b87c-139d70669c4e', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Name', 'What a person reads in the dropdown and on a record. Required — the record cannot be saved while this is empty. Up to 200 characters.', 30, 30, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('64db82eb-a77e-58f8-9ac7-ef0f9617b8a1', '8d66fd5b-e11f-53e0-92ac-9325e0a70991', '87204835-9bf5-5754-98de-31f06fc54bb0', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Description', 'What the value means to the business.', 40, 40, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('5e3d8913-0655-5d25-821e-303e09ec376b', '8d66fd5b-e11f-53e0-92ac-9325e0a70991', 'aaba24f0-6381-50cc-93ab-00f1684d219c', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Sequence', 'The position of the value in a dropdown, lowest first. Required — the record cannot be saved while this is empty.', 50, 50, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('93cc6d20-586c-5760-bd7f-57e857fc47f7', '8d66fd5b-e11f-53e0-92ac-9325e0a70991', '0d46a136-902d-5434-b8c6-672965e09c21', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Is Active', 'Whether the value is offered on new records. Required — the record cannot be saved while this is empty.', 60, 60, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_access (sys_access_id, sys_role_id, sys_table_id, sys_window_id, access_type_table, is_read_only, is_exclude, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('984f46fb-36b9-5b65-b7b2-bb018af32873', (SELECT sys_role_id FROM sys_role WHERE name = 'Administrator'), '6e5dd8f7-d9c5-5995-a9e0-9afe2d673134', 'e5b9006f-3bb3-5568-b181-5ad3f7977ab8', 'W', FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_access (sys_access_id, sys_role_id, sys_table_id, sys_window_id, access_type_table, is_read_only, is_exclude, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('9dcde3b2-3a63-5f75-b3f2-034efd0d6c7e', (SELECT sys_role_id FROM sys_role WHERE name = 'User'), '6e5dd8f7-d9c5-5995-a9e0-9afe2d673134', 'e5b9006f-3bb3-5568-b181-5ad3f7977ab8', 'R', TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+
+-- --------------------------------------------------------------------------
+-- Legal Entity Status (bus_legal_entity_status)
+-- --------------------------------------------------------------------------
+INSERT INTO sys_window (sys_window_id, name, description, help, icon, window_type, is_sales_transaction, is_default, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('6b123f57-d8f2-5567-ad14-2d871412a9c3', 'Legal Entity Status', 'Maintain Legal Entity Status records', 'Create, find and maintain Legal Entity Status records. The list shows every Legal Entity Status you have access to — select a row to open it, or use New to add one. Each row is a single Legal Entity Status, described by 6 fields.
+
+Id and Code are unique: no two Legal Entity Status records may share the same value, and a save that would duplicate one is rejected. Code, Name, Sequence and Is Active must be filled in before the record can be saved.
+
+Every save starts as a Draft. The business rules and workflows attached to Legal Entity Status then run together in a single transaction: if all of them succeed the record becomes Final; if any of them fails, nothing they changed is kept — the record stays Draft and the reason is written onto it so you can fix the cause and retry. A Legal Entity Status with no rules or workflows attached is marked Final immediately.', 'list', 'M', FALSE, TRUE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_table (sys_table_id, table_name, name, description, icon, access_level, is_view, is_document, is_high_volume, is_changelog, sys_window_id, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('20e4d3f9-c90f-54c9-a9db-63393151374b', 'bus_legal_entity_status', 'Legal Entity Status', 'The values of legal entity status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.', 'list', 'A', FALSE, FALSE, FALSE, TRUE, '6b123f57-d8f2-5567-ad14-2d871412a9c3', 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_tab (sys_tab_id, sys_window_id, sys_table_id, name, help, tab_level, seq_no, is_single_row, has_tree, is_info_tab, is_translation_tab, is_read_only, is_insert_record, is_advanced_tab, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('777020b2-93d9-590c-bc8a-2ee0f799d415', '6b123f57-d8f2-5567-ad14-2d871412a9c3', '20e4d3f9-c90f-54c9-a9db-63393151374b', 'Legal Entity Status', 'Shows one Legal Entity Status at a time. Fields are grouped: General carries the identifying fields and Details carries the rest. 4 fields marked with a red asterisk (*) must have a value before Save will accept the record. Any field showing a ? beside its label has help of its own; click it for the rules that apply there.', 0, 10, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('84838dca-38db-5997-8775-05aaac4e5065', '20e4d3f9-c90f-54c9-a9db-63393151374b', 'id', 'Id', NULL, 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('8432b0ed-1aef-5dc7-a6da-fd5aafb8e262', '20e4d3f9-c90f-54c9-a9db-63393151374b', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('fe2cc346-02b5-5f98-b6e5-a47914f50fcb', '20e4d3f9-c90f-54c9-a9db-63393151374b', 'name', 'Name', 'What a person reads in the dropdown and on a record.', 10, 200, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('d8dcf7ff-2bc6-5b7a-aa6c-a2537e2d8f96', '20e4d3f9-c90f-54c9-a9db-63393151374b', 'description', 'Description', 'What the value means to the business.', 14, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 40, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('c4d193e2-9f11-5e4f-8b3d-c67dde36b5d2', '20e4d3f9-c90f-54c9-a9db-63393151374b', 'sequence', 'Sequence', 'The position of the value in a dropdown, lowest first.', 11, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 50, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('62a20488-2148-5ee8-bf09-7c2d4ed8cc08', '20e4d3f9-c90f-54c9-a9db-63393151374b', 'is_active', 'Is Active', 'Whether the value is offered on new records.', 20, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 60, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('d925dbdb-75f3-5798-aefc-0874dade93dc', '777020b2-93d9-590c-bc8a-2ee0f799d415', '84838dca-38db-5997-8775-05aaac4e5065', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Id', 'The id of this Legal Entity Status. Must be unique: a save is rejected if another Legal Entity Status already uses this value.', 10, 10, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('ba17dfd0-7726-58c6-b7d7-12a7b4296fc6', '777020b2-93d9-590c-bc8a-2ee0f799d415', '8432b0ed-1aef-5dc7-a6da-fd5aafb8e262', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Code', 'The value stored on every record that uses this list. Fixed once created. Required — the record cannot be saved while this is empty. Must be unique: a save is rejected if another Legal Entity Status already uses this value. Up to 100 characters.', 20, 20, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('e0247193-8ede-5a94-a4a3-88bda5a4d333', '777020b2-93d9-590c-bc8a-2ee0f799d415', 'fe2cc346-02b5-5f98-b6e5-a47914f50fcb', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Name', 'What a person reads in the dropdown and on a record. Required — the record cannot be saved while this is empty. Up to 200 characters.', 30, 30, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('0fefc8b0-01b1-5736-b1c9-81cb56a96bb8', '777020b2-93d9-590c-bc8a-2ee0f799d415', 'd8dcf7ff-2bc6-5b7a-aa6c-a2537e2d8f96', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Description', 'What the value means to the business.', 40, 40, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('067056a8-0d19-5263-ae7d-06859ef81e79', '777020b2-93d9-590c-bc8a-2ee0f799d415', 'c4d193e2-9f11-5e4f-8b3d-c67dde36b5d2', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Sequence', 'The position of the value in a dropdown, lowest first. Required — the record cannot be saved while this is empty.', 50, 50, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('435b363c-080f-55a5-bbf1-f2ffbb6bbef9', '777020b2-93d9-590c-bc8a-2ee0f799d415', '62a20488-2148-5ee8-bf09-7c2d4ed8cc08', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Is Active', 'Whether the value is offered on new records. Required — the record cannot be saved while this is empty.', 60, 60, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_access (sys_access_id, sys_role_id, sys_table_id, sys_window_id, access_type_table, is_read_only, is_exclude, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('955a03bf-4a13-5634-ab32-bd45d610ed2f', (SELECT sys_role_id FROM sys_role WHERE name = 'Administrator'), '20e4d3f9-c90f-54c9-a9db-63393151374b', '6b123f57-d8f2-5567-ad14-2d871412a9c3', 'W', FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_access (sys_access_id, sys_role_id, sys_table_id, sys_window_id, access_type_table, is_read_only, is_exclude, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('cd4f8cdc-3834-51d1-b56f-72423b607ca6', (SELECT sys_role_id FROM sys_role WHERE name = 'User'), '20e4d3f9-c90f-54c9-a9db-63393151374b', '6b123f57-d8f2-5567-ad14-2d871412a9c3', 'R', TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+
+-- --------------------------------------------------------------------------
+-- Business Unit Status (bus_business_unit_status)
+-- --------------------------------------------------------------------------
+INSERT INTO sys_window (sys_window_id, name, description, help, icon, window_type, is_sales_transaction, is_default, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('c6271d0e-1fa4-5ca4-94a5-76596c937cb5', 'Business Unit Status', 'Maintain Business Unit Status records', 'Create, find and maintain Business Unit Status records. The list shows every Business Unit Status you have access to — select a row to open it, or use New to add one. Each row is a single Business Unit Status, described by 6 fields.
+
+Id and Code are unique: no two Business Unit Status records may share the same value, and a save that would duplicate one is rejected. Code, Name, Sequence and Is Active must be filled in before the record can be saved.
+
+Every save starts as a Draft. The business rules and workflows attached to Business Unit Status then run together in a single transaction: if all of them succeed the record becomes Final; if any of them fails, nothing they changed is kept — the record stays Draft and the reason is written onto it so you can fix the cause and retry. A Business Unit Status with no rules or workflows attached is marked Final immediately.', 'list', 'M', FALSE, TRUE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_table (sys_table_id, table_name, name, description, icon, access_level, is_view, is_document, is_high_volume, is_changelog, sys_window_id, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('c85fe77a-661a-5257-ba06-0ad03aaf2229', 'bus_business_unit_status', 'Business Unit Status', 'The values of business unit status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.', 'list', 'A', FALSE, FALSE, FALSE, TRUE, 'c6271d0e-1fa4-5ca4-94a5-76596c937cb5', 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_tab (sys_tab_id, sys_window_id, sys_table_id, name, help, tab_level, seq_no, is_single_row, has_tree, is_info_tab, is_translation_tab, is_read_only, is_insert_record, is_advanced_tab, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('62f069e9-c931-5aa3-83d3-30106200bf31', 'c6271d0e-1fa4-5ca4-94a5-76596c937cb5', 'c85fe77a-661a-5257-ba06-0ad03aaf2229', 'Business Unit Status', 'Shows one Business Unit Status at a time. Fields are grouped: General carries the identifying fields and Details carries the rest. 4 fields marked with a red asterisk (*) must have a value before Save will accept the record. Any field showing a ? beside its label has help of its own; click it for the rules that apply there.', 0, 10, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('dbe47a16-f2cc-5125-adf1-6e2ce7f8bd12', 'c85fe77a-661a-5257-ba06-0ad03aaf2229', 'id', 'Id', NULL, 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('22661e80-29c1-5220-a03b-aa8f6bbbdda4', 'c85fe77a-661a-5257-ba06-0ad03aaf2229', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('414c19c2-56ae-5834-890d-1bc321e0a106', 'c85fe77a-661a-5257-ba06-0ad03aaf2229', 'name', 'Name', 'What a person reads in the dropdown and on a record.', 10, 200, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('6bc80187-1c85-531f-90a7-6e8db7346610', 'c85fe77a-661a-5257-ba06-0ad03aaf2229', 'description', 'Description', 'What the value means to the business.', 14, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 40, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('f71d3289-918b-5a36-9ca4-a2695e9debe3', 'c85fe77a-661a-5257-ba06-0ad03aaf2229', 'sequence', 'Sequence', 'The position of the value in a dropdown, lowest first.', 11, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 50, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('280829c3-9a51-5163-ab87-a0567880e476', 'c85fe77a-661a-5257-ba06-0ad03aaf2229', 'is_active', 'Is Active', 'Whether the value is offered on new records.', 20, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 60, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('2fedfad2-e603-57de-95d5-f5e9aceeef3f', '62f069e9-c931-5aa3-83d3-30106200bf31', 'dbe47a16-f2cc-5125-adf1-6e2ce7f8bd12', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Id', 'The id of this Business Unit Status. Must be unique: a save is rejected if another Business Unit Status already uses this value.', 10, 10, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('a486fdd5-33f4-5355-8433-a20cf0d9df18', '62f069e9-c931-5aa3-83d3-30106200bf31', '22661e80-29c1-5220-a03b-aa8f6bbbdda4', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Code', 'The value stored on every record that uses this list. Fixed once created. Required — the record cannot be saved while this is empty. Must be unique: a save is rejected if another Business Unit Status already uses this value. Up to 100 characters.', 20, 20, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('fec4ab3c-6841-5e46-8a47-a415f41f74e6', '62f069e9-c931-5aa3-83d3-30106200bf31', '414c19c2-56ae-5834-890d-1bc321e0a106', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Name', 'What a person reads in the dropdown and on a record. Required — the record cannot be saved while this is empty. Up to 200 characters.', 30, 30, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('cbaf5334-2259-5063-a36c-7f51186d8f42', '62f069e9-c931-5aa3-83d3-30106200bf31', '6bc80187-1c85-531f-90a7-6e8db7346610', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Description', 'What the value means to the business.', 40, 40, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('d16a1391-f0d9-51b4-a6fe-c0500621d3d4', '62f069e9-c931-5aa3-83d3-30106200bf31', 'f71d3289-918b-5a36-9ca4-a2695e9debe3', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Sequence', 'The position of the value in a dropdown, lowest first. Required — the record cannot be saved while this is empty.', 50, 50, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('4ffae39f-5ce5-5542-85ef-39444abb97ef', '62f069e9-c931-5aa3-83d3-30106200bf31', '280829c3-9a51-5163-ab87-a0567880e476', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Is Active', 'Whether the value is offered on new records. Required — the record cannot be saved while this is empty.', 60, 60, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_access (sys_access_id, sys_role_id, sys_table_id, sys_window_id, access_type_table, is_read_only, is_exclude, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('8f19acfa-e02a-55d7-981d-12560a7d3564', (SELECT sys_role_id FROM sys_role WHERE name = 'Administrator'), 'c85fe77a-661a-5257-ba06-0ad03aaf2229', 'c6271d0e-1fa4-5ca4-94a5-76596c937cb5', 'W', FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_access (sys_access_id, sys_role_id, sys_table_id, sys_window_id, access_type_table, is_read_only, is_exclude, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('33c5eca9-bfa9-5fc6-9dee-8f956c57b49d', (SELECT sys_role_id FROM sys_role WHERE name = 'User'), 'c85fe77a-661a-5257-ba06-0ad03aaf2229', 'c6271d0e-1fa4-5ca4-94a5-76596c937cb5', 'R', TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+
+-- --------------------------------------------------------------------------
+-- Department Status (bus_department_status)
+-- --------------------------------------------------------------------------
+INSERT INTO sys_window (sys_window_id, name, description, help, icon, window_type, is_sales_transaction, is_default, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('fc6f15d2-4389-5fc0-ac7a-7147db0c98a2', 'Department Status', 'Maintain Department Status records', 'Create, find and maintain Department Status records. The list shows every Department Status you have access to — select a row to open it, or use New to add one. Each row is a single Department Status, described by 6 fields.
+
+Id and Code are unique: no two Department Status records may share the same value, and a save that would duplicate one is rejected. Code, Name, Sequence and Is Active must be filled in before the record can be saved.
+
+Every save starts as a Draft. The business rules and workflows attached to Department Status then run together in a single transaction: if all of them succeed the record becomes Final; if any of them fails, nothing they changed is kept — the record stays Draft and the reason is written onto it so you can fix the cause and retry. A Department Status with no rules or workflows attached is marked Final immediately.', 'list', 'M', FALSE, TRUE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_table (sys_table_id, table_name, name, description, icon, access_level, is_view, is_document, is_high_volume, is_changelog, sys_window_id, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('e1aec55b-0512-5896-8f21-11192b7134c2', 'bus_department_status', 'Department Status', 'The values of department status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.', 'list', 'A', FALSE, FALSE, FALSE, TRUE, 'fc6f15d2-4389-5fc0-ac7a-7147db0c98a2', 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_tab (sys_tab_id, sys_window_id, sys_table_id, name, help, tab_level, seq_no, is_single_row, has_tree, is_info_tab, is_translation_tab, is_read_only, is_insert_record, is_advanced_tab, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('74e29b8d-f0d0-58e8-83a9-04d182005dfc', 'fc6f15d2-4389-5fc0-ac7a-7147db0c98a2', 'e1aec55b-0512-5896-8f21-11192b7134c2', 'Department Status', 'Shows one Department Status at a time. Fields are grouped: General carries the identifying fields and Details carries the rest. 4 fields marked with a red asterisk (*) must have a value before Save will accept the record. Any field showing a ? beside its label has help of its own; click it for the rules that apply there.', 0, 10, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('922986f2-cf6f-54ab-8d99-23d350c6ffd7', 'e1aec55b-0512-5896-8f21-11192b7134c2', 'id', 'Id', NULL, 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('9656afff-75ee-55c0-9e89-2aa804cd4534', 'e1aec55b-0512-5896-8f21-11192b7134c2', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('4334692b-847e-53d1-ac22-4efdf21e6453', 'e1aec55b-0512-5896-8f21-11192b7134c2', 'name', 'Name', 'What a person reads in the dropdown and on a record.', 10, 200, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('77ee88a6-8867-5797-877e-21c3ebd4854f', 'e1aec55b-0512-5896-8f21-11192b7134c2', 'description', 'Description', 'What the value means to the business.', 14, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 40, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('4ac08a1c-9806-5950-8538-5775fd502000', 'e1aec55b-0512-5896-8f21-11192b7134c2', 'sequence', 'Sequence', 'The position of the value in a dropdown, lowest first.', 11, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 50, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('67046b0c-a61b-53f8-9c02-a2bc066aa07c', 'e1aec55b-0512-5896-8f21-11192b7134c2', 'is_active', 'Is Active', 'Whether the value is offered on new records.', 20, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 60, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('4081e988-f711-5942-88d9-4553f81be435', '74e29b8d-f0d0-58e8-83a9-04d182005dfc', '922986f2-cf6f-54ab-8d99-23d350c6ffd7', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Id', 'The id of this Department Status. Must be unique: a save is rejected if another Department Status already uses this value.', 10, 10, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('eafde0f3-e6c3-53ca-8aee-f427f7cf48c8', '74e29b8d-f0d0-58e8-83a9-04d182005dfc', '9656afff-75ee-55c0-9e89-2aa804cd4534', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Code', 'The value stored on every record that uses this list. Fixed once created. Required — the record cannot be saved while this is empty. Must be unique: a save is rejected if another Department Status already uses this value. Up to 100 characters.', 20, 20, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('bac13573-4b17-5a1b-85e3-0bf1e8b79b01', '74e29b8d-f0d0-58e8-83a9-04d182005dfc', '4334692b-847e-53d1-ac22-4efdf21e6453', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Name', 'What a person reads in the dropdown and on a record. Required — the record cannot be saved while this is empty. Up to 200 characters.', 30, 30, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('2bb2def5-d19b-5925-9613-fd051bce435a', '74e29b8d-f0d0-58e8-83a9-04d182005dfc', '77ee88a6-8867-5797-877e-21c3ebd4854f', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Description', 'What the value means to the business.', 40, 40, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('696ef9c9-5807-53ee-b725-1ec76345d983', '74e29b8d-f0d0-58e8-83a9-04d182005dfc', '4ac08a1c-9806-5950-8538-5775fd502000', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Sequence', 'The position of the value in a dropdown, lowest first. Required — the record cannot be saved while this is empty.', 50, 50, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('0db59c9f-9510-534d-9b80-e45aa8373a3d', '74e29b8d-f0d0-58e8-83a9-04d182005dfc', '67046b0c-a61b-53f8-9c02-a2bc066aa07c', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Is Active', 'Whether the value is offered on new records. Required — the record cannot be saved while this is empty.', 60, 60, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_access (sys_access_id, sys_role_id, sys_table_id, sys_window_id, access_type_table, is_read_only, is_exclude, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('fe958256-e38b-575a-8e82-229ad0358d54', (SELECT sys_role_id FROM sys_role WHERE name = 'Administrator'), 'e1aec55b-0512-5896-8f21-11192b7134c2', 'fc6f15d2-4389-5fc0-ac7a-7147db0c98a2', 'W', FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_access (sys_access_id, sys_role_id, sys_table_id, sys_window_id, access_type_table, is_read_only, is_exclude, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('5e417f82-9961-5421-b40e-58fd0b24d96e', (SELECT sys_role_id FROM sys_role WHERE name = 'User'), 'e1aec55b-0512-5896-8f21-11192b7134c2', 'fc6f15d2-4389-5fc0-ac7a-7147db0c98a2', 'R', TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+
+-- --------------------------------------------------------------------------
 -- Address Address Type (bus_address_address_type)
 -- --------------------------------------------------------------------------
 INSERT INTO sys_window (sys_window_id, name, description, help, icon, window_type, is_sales_transaction, is_default, entity_type, is_active, created_by, updated_by, created_at, updated_at)
@@ -3480,6 +4395,183 @@ VALUES ('3a26d6bd-dbf6-5ca7-9a26-95387f8d4132', (SELECT sys_role_id FROM sys_rol
 ON CONFLICT DO NOTHING;
 
 -- --------------------------------------------------------------------------
+-- Contact Point Channel (bus_contact_point_channel)
+-- --------------------------------------------------------------------------
+INSERT INTO sys_window (sys_window_id, name, description, help, icon, window_type, is_sales_transaction, is_default, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('65e09604-4134-50b0-9fcd-19b87fbea3d2', 'Contact Point Channel', 'Maintain Contact Point Channel records', 'Create, find and maintain Contact Point Channel records. The list shows every Contact Point Channel you have access to — select a row to open it, or use New to add one. Each row is a single Contact Point Channel, described by 6 fields.
+
+Id and Code are unique: no two Contact Point Channel records may share the same value, and a save that would duplicate one is rejected. Code, Name, Sequence and Is Active must be filled in before the record can be saved.
+
+Every save starts as a Draft. The business rules and workflows attached to Contact Point Channel then run together in a single transaction: if all of them succeed the record becomes Final; if any of them fails, nothing they changed is kept — the record stays Draft and the reason is written onto it so you can fix the cause and retry. A Contact Point Channel with no rules or workflows attached is marked Final immediately.', 'list', 'M', FALSE, TRUE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_table (sys_table_id, table_name, name, description, icon, access_level, is_view, is_document, is_high_volume, is_changelog, sys_window_id, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('fc869f52-f7d9-560e-8bba-4568ce7bc3a4', 'bus_contact_point_channel', 'Contact Point Channel', 'The values of contact point channel, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.', 'list', 'A', FALSE, FALSE, FALSE, TRUE, '65e09604-4134-50b0-9fcd-19b87fbea3d2', 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_tab (sys_tab_id, sys_window_id, sys_table_id, name, help, tab_level, seq_no, is_single_row, has_tree, is_info_tab, is_translation_tab, is_read_only, is_insert_record, is_advanced_tab, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('75425774-ab94-5927-b6c6-11a57c53786f', '65e09604-4134-50b0-9fcd-19b87fbea3d2', 'fc869f52-f7d9-560e-8bba-4568ce7bc3a4', 'Contact Point Channel', 'Shows one Contact Point Channel at a time. Fields are grouped: General carries the identifying fields and Details carries the rest. 4 fields marked with a red asterisk (*) must have a value before Save will accept the record. Any field showing a ? beside its label has help of its own; click it for the rules that apply there.', 0, 10, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('829d05ba-f2d5-5584-984f-dfdfd7508d15', 'fc869f52-f7d9-560e-8bba-4568ce7bc3a4', 'id', 'Id', NULL, 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('0d64a969-d976-5f2f-91c9-8b0176cd8291', 'fc869f52-f7d9-560e-8bba-4568ce7bc3a4', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('4a21f053-882d-5d03-b07e-bbe2e934e59e', 'fc869f52-f7d9-560e-8bba-4568ce7bc3a4', 'name', 'Name', 'What a person reads in the dropdown and on a record.', 10, 200, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('af5b0088-8ceb-5180-a150-0964acb2fc67', 'fc869f52-f7d9-560e-8bba-4568ce7bc3a4', 'description', 'Description', 'What the value means to the business.', 14, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 40, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('9b012169-2979-5984-b1eb-adff2affd29e', 'fc869f52-f7d9-560e-8bba-4568ce7bc3a4', 'sequence', 'Sequence', 'The position of the value in a dropdown, lowest first.', 11, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 50, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('2deb6646-21c8-5770-ace5-2636271c8a91', 'fc869f52-f7d9-560e-8bba-4568ce7bc3a4', 'is_active', 'Is Active', 'Whether the value is offered on new records.', 20, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 60, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('988ab492-6b09-5535-97d7-7f0bf9eec258', '75425774-ab94-5927-b6c6-11a57c53786f', '829d05ba-f2d5-5584-984f-dfdfd7508d15', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Id', 'The id of this Contact Point Channel. Must be unique: a save is rejected if another Contact Point Channel already uses this value.', 10, 10, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('32ace476-ce7f-5fbc-b448-3c0b83658051', '75425774-ab94-5927-b6c6-11a57c53786f', '0d64a969-d976-5f2f-91c9-8b0176cd8291', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Code', 'The value stored on every record that uses this list. Fixed once created. Required — the record cannot be saved while this is empty. Must be unique: a save is rejected if another Contact Point Channel already uses this value. Up to 100 characters.', 20, 20, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('a1117d16-2390-51a8-9b61-51a36080291a', '75425774-ab94-5927-b6c6-11a57c53786f', '4a21f053-882d-5d03-b07e-bbe2e934e59e', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Name', 'What a person reads in the dropdown and on a record. Required — the record cannot be saved while this is empty. Up to 200 characters.', 30, 30, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('ec356cee-09ea-5edf-b5e2-019e5d0e95b6', '75425774-ab94-5927-b6c6-11a57c53786f', 'af5b0088-8ceb-5180-a150-0964acb2fc67', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Description', 'What the value means to the business.', 40, 40, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('0d01826a-4553-5687-9f81-c591de33dae7', '75425774-ab94-5927-b6c6-11a57c53786f', '9b012169-2979-5984-b1eb-adff2affd29e', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Sequence', 'The position of the value in a dropdown, lowest first. Required — the record cannot be saved while this is empty.', 50, 50, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('8b5200ad-a966-550c-a72f-fc18c0492317', '75425774-ab94-5927-b6c6-11a57c53786f', '2deb6646-21c8-5770-ace5-2636271c8a91', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Is Active', 'Whether the value is offered on new records. Required — the record cannot be saved while this is empty.', 60, 60, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_access (sys_access_id, sys_role_id, sys_table_id, sys_window_id, access_type_table, is_read_only, is_exclude, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('db7ca145-182e-5ff5-b09e-1b847be1d4d7', (SELECT sys_role_id FROM sys_role WHERE name = 'Administrator'), 'fc869f52-f7d9-560e-8bba-4568ce7bc3a4', '65e09604-4134-50b0-9fcd-19b87fbea3d2', 'W', FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_access (sys_access_id, sys_role_id, sys_table_id, sys_window_id, access_type_table, is_read_only, is_exclude, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('a66354e7-a1eb-59b2-8ec4-924fafb9d1c8', (SELECT sys_role_id FROM sys_role WHERE name = 'User'), 'fc869f52-f7d9-560e-8bba-4568ce7bc3a4', '65e09604-4134-50b0-9fcd-19b87fbea3d2', 'R', TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+
+-- --------------------------------------------------------------------------
+-- Contact Point Purpose (bus_contact_point_purpose)
+-- --------------------------------------------------------------------------
+INSERT INTO sys_window (sys_window_id, name, description, help, icon, window_type, is_sales_transaction, is_default, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('91f1278f-9145-5067-a309-77af11acb230', 'Contact Point Purpose', 'Maintain Contact Point Purpose records', 'Create, find and maintain Contact Point Purpose records. The list shows every Contact Point Purpose you have access to — select a row to open it, or use New to add one. Each row is a single Contact Point Purpose, described by 6 fields.
+
+Id and Code are unique: no two Contact Point Purpose records may share the same value, and a save that would duplicate one is rejected. Code, Name, Sequence and Is Active must be filled in before the record can be saved.
+
+Every save starts as a Draft. The business rules and workflows attached to Contact Point Purpose then run together in a single transaction: if all of them succeed the record becomes Final; if any of them fails, nothing they changed is kept — the record stays Draft and the reason is written onto it so you can fix the cause and retry. A Contact Point Purpose with no rules or workflows attached is marked Final immediately.', 'list', 'M', FALSE, TRUE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_table (sys_table_id, table_name, name, description, icon, access_level, is_view, is_document, is_high_volume, is_changelog, sys_window_id, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('92dfffb2-5a7b-58ba-9640-cb04b38e2972', 'bus_contact_point_purpose', 'Contact Point Purpose', 'The values of contact point purpose, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.', 'list', 'A', FALSE, FALSE, FALSE, TRUE, '91f1278f-9145-5067-a309-77af11acb230', 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_tab (sys_tab_id, sys_window_id, sys_table_id, name, help, tab_level, seq_no, is_single_row, has_tree, is_info_tab, is_translation_tab, is_read_only, is_insert_record, is_advanced_tab, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('523a19cc-7c2a-596a-b650-684e6353bfd3', '91f1278f-9145-5067-a309-77af11acb230', '92dfffb2-5a7b-58ba-9640-cb04b38e2972', 'Contact Point Purpose', 'Shows one Contact Point Purpose at a time. Fields are grouped: General carries the identifying fields and Details carries the rest. 4 fields marked with a red asterisk (*) must have a value before Save will accept the record. Any field showing a ? beside its label has help of its own; click it for the rules that apply there.', 0, 10, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('bf1f2e27-6e48-5ad9-a778-991a72a244d2', '92dfffb2-5a7b-58ba-9640-cb04b38e2972', 'id', 'Id', NULL, 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('65095772-e3d6-57a1-81a9-5e7876c2e452', '92dfffb2-5a7b-58ba-9640-cb04b38e2972', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('d5c24f27-cd91-55f9-8dd8-0b43003e62fc', '92dfffb2-5a7b-58ba-9640-cb04b38e2972', 'name', 'Name', 'What a person reads in the dropdown and on a record.', 10, 200, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('4e47241a-674b-5fe1-bb56-5df8d05923ad', '92dfffb2-5a7b-58ba-9640-cb04b38e2972', 'description', 'Description', 'What the value means to the business.', 14, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 40, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('a4512e2e-b313-5f6f-9a2e-d658d53533e7', '92dfffb2-5a7b-58ba-9640-cb04b38e2972', 'sequence', 'Sequence', 'The position of the value in a dropdown, lowest first.', 11, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 50, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('59acf0c4-619f-55e6-a4d6-53998d5c24c2', '92dfffb2-5a7b-58ba-9640-cb04b38e2972', 'is_active', 'Is Active', 'Whether the value is offered on new records.', 20, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 60, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('a9bb0460-0921-5782-b858-4c3131a2043e', '523a19cc-7c2a-596a-b650-684e6353bfd3', 'bf1f2e27-6e48-5ad9-a778-991a72a244d2', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Id', 'The id of this Contact Point Purpose. Must be unique: a save is rejected if another Contact Point Purpose already uses this value.', 10, 10, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('36b2b296-e79b-556c-88e9-de7add9e4191', '523a19cc-7c2a-596a-b650-684e6353bfd3', '65095772-e3d6-57a1-81a9-5e7876c2e452', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Code', 'The value stored on every record that uses this list. Fixed once created. Required — the record cannot be saved while this is empty. Must be unique: a save is rejected if another Contact Point Purpose already uses this value. Up to 100 characters.', 20, 20, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('82976b6f-0f7b-55b2-ae78-4b36cbf92ca5', '523a19cc-7c2a-596a-b650-684e6353bfd3', 'd5c24f27-cd91-55f9-8dd8-0b43003e62fc', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Name', 'What a person reads in the dropdown and on a record. Required — the record cannot be saved while this is empty. Up to 200 characters.', 30, 30, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('6330c939-1e86-5606-a6f9-5204aa8e5e18', '523a19cc-7c2a-596a-b650-684e6353bfd3', '4e47241a-674b-5fe1-bb56-5df8d05923ad', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Description', 'What the value means to the business.', 40, 40, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('c42da7bd-8ab5-50a0-bd3b-0e3877823679', '523a19cc-7c2a-596a-b650-684e6353bfd3', 'a4512e2e-b313-5f6f-9a2e-d658d53533e7', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Sequence', 'The position of the value in a dropdown, lowest first. Required — the record cannot be saved while this is empty.', 50, 50, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('2232c911-68c7-55c0-9759-2d34652cd116', '523a19cc-7c2a-596a-b650-684e6353bfd3', '59acf0c4-619f-55e6-a4d6-53998d5c24c2', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Is Active', 'Whether the value is offered on new records. Required — the record cannot be saved while this is empty.', 60, 60, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_access (sys_access_id, sys_role_id, sys_table_id, sys_window_id, access_type_table, is_read_only, is_exclude, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('16544077-946e-51c8-8e16-af7008b0bc1d', (SELECT sys_role_id FROM sys_role WHERE name = 'Administrator'), '92dfffb2-5a7b-58ba-9640-cb04b38e2972', '91f1278f-9145-5067-a309-77af11acb230', 'W', FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_access (sys_access_id, sys_role_id, sys_table_id, sys_window_id, access_type_table, is_read_only, is_exclude, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('0b6ba269-b072-54eb-8ea7-7be7db0dc1cc', (SELECT sys_role_id FROM sys_role WHERE name = 'User'), '92dfffb2-5a7b-58ba-9640-cb04b38e2972', '91f1278f-9145-5067-a309-77af11acb230', 'R', TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+
+-- --------------------------------------------------------------------------
+-- Contact Point Status (bus_contact_point_status)
+-- --------------------------------------------------------------------------
+INSERT INTO sys_window (sys_window_id, name, description, help, icon, window_type, is_sales_transaction, is_default, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('207af6c7-bd77-52bc-a6b8-0286c0751029', 'Contact Point Status', 'Maintain Contact Point Status records', 'Create, find and maintain Contact Point Status records. The list shows every Contact Point Status you have access to — select a row to open it, or use New to add one. Each row is a single Contact Point Status, described by 6 fields.
+
+Id and Code are unique: no two Contact Point Status records may share the same value, and a save that would duplicate one is rejected. Code, Name, Sequence and Is Active must be filled in before the record can be saved.
+
+Every save starts as a Draft. The business rules and workflows attached to Contact Point Status then run together in a single transaction: if all of them succeed the record becomes Final; if any of them fails, nothing they changed is kept — the record stays Draft and the reason is written onto it so you can fix the cause and retry. A Contact Point Status with no rules or workflows attached is marked Final immediately.', 'list', 'M', FALSE, TRUE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_table (sys_table_id, table_name, name, description, icon, access_level, is_view, is_document, is_high_volume, is_changelog, sys_window_id, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('975561d3-2966-519f-ad41-ea5a6f450179', 'bus_contact_point_status', 'Contact Point Status', 'The values of contact point status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.', 'list', 'A', FALSE, FALSE, FALSE, TRUE, '207af6c7-bd77-52bc-a6b8-0286c0751029', 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_tab (sys_tab_id, sys_window_id, sys_table_id, name, help, tab_level, seq_no, is_single_row, has_tree, is_info_tab, is_translation_tab, is_read_only, is_insert_record, is_advanced_tab, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('f1f71e68-97f9-56db-800d-2912d27c1474', '207af6c7-bd77-52bc-a6b8-0286c0751029', '975561d3-2966-519f-ad41-ea5a6f450179', 'Contact Point Status', 'Shows one Contact Point Status at a time. Fields are grouped: General carries the identifying fields and Details carries the rest. 4 fields marked with a red asterisk (*) must have a value before Save will accept the record. Any field showing a ? beside its label has help of its own; click it for the rules that apply there.', 0, 10, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('fbfb502e-32cd-5628-949c-1ad51b60e522', '975561d3-2966-519f-ad41-ea5a6f450179', 'id', 'Id', NULL, 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('3774c8ce-72af-5439-b0a5-9a6e753a480e', '975561d3-2966-519f-ad41-ea5a6f450179', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('54acfe62-4df7-547a-8ce0-761d4bdb8171', '975561d3-2966-519f-ad41-ea5a6f450179', 'name', 'Name', 'What a person reads in the dropdown and on a record.', 10, 200, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('e1853da7-bdef-5350-b6ae-a6fb926ef835', '975561d3-2966-519f-ad41-ea5a6f450179', 'description', 'Description', 'What the value means to the business.', 14, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 40, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('598657d1-94d0-5a2a-8b08-db04adc610f6', '975561d3-2966-519f-ad41-ea5a6f450179', 'sequence', 'Sequence', 'The position of the value in a dropdown, lowest first.', 11, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 50, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('b1e20761-a8a2-5ddd-ac0e-74fd1d292b0e', '975561d3-2966-519f-ad41-ea5a6f450179', 'is_active', 'Is Active', 'Whether the value is offered on new records.', 20, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 60, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('54556983-1b8f-5fcf-b7c8-83d48beb64c2', 'f1f71e68-97f9-56db-800d-2912d27c1474', 'fbfb502e-32cd-5628-949c-1ad51b60e522', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Id', 'The id of this Contact Point Status. Must be unique: a save is rejected if another Contact Point Status already uses this value.', 10, 10, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('c1ee1f04-a097-534a-98fa-5826006a0c4d', 'f1f71e68-97f9-56db-800d-2912d27c1474', '3774c8ce-72af-5439-b0a5-9a6e753a480e', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Code', 'The value stored on every record that uses this list. Fixed once created. Required — the record cannot be saved while this is empty. Must be unique: a save is rejected if another Contact Point Status already uses this value. Up to 100 characters.', 20, 20, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('6ee323fd-0eea-59af-80e7-4dcd8e3a3ef9', 'f1f71e68-97f9-56db-800d-2912d27c1474', '54acfe62-4df7-547a-8ce0-761d4bdb8171', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Name', 'What a person reads in the dropdown and on a record. Required — the record cannot be saved while this is empty. Up to 200 characters.', 30, 30, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('a05eb208-eabf-5bc3-81df-c61dbbf9ee61', 'f1f71e68-97f9-56db-800d-2912d27c1474', 'e1853da7-bdef-5350-b6ae-a6fb926ef835', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Description', 'What the value means to the business.', 40, 40, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('47188bb8-eaf5-5a34-973e-feddde2f1b42', 'f1f71e68-97f9-56db-800d-2912d27c1474', '598657d1-94d0-5a2a-8b08-db04adc610f6', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Sequence', 'The position of the value in a dropdown, lowest first. Required — the record cannot be saved while this is empty.', 50, 50, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('ec73a3a6-bb34-5694-876f-d2a7377dea8a', 'f1f71e68-97f9-56db-800d-2912d27c1474', 'b1e20761-a8a2-5ddd-ac0e-74fd1d292b0e', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Is Active', 'Whether the value is offered on new records. Required — the record cannot be saved while this is empty.', 60, 60, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_access (sys_access_id, sys_role_id, sys_table_id, sys_window_id, access_type_table, is_read_only, is_exclude, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('38917a47-cae6-5ef4-a709-cbd26921c755', (SELECT sys_role_id FROM sys_role WHERE name = 'Administrator'), '975561d3-2966-519f-ad41-ea5a6f450179', '207af6c7-bd77-52bc-a6b8-0286c0751029', 'W', FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_access (sys_access_id, sys_role_id, sys_table_id, sys_window_id, access_type_table, is_read_only, is_exclude, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('346ee58d-0b61-5aa7-be1a-b8b337d6e8ce', (SELECT sys_role_id FROM sys_role WHERE name = 'User'), '975561d3-2966-519f-ad41-ea5a6f450179', '207af6c7-bd77-52bc-a6b8-0286c0751029', 'R', TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+
+-- --------------------------------------------------------------------------
 -- Location Location Type (bus_location_location_type)
 -- --------------------------------------------------------------------------
 INSERT INTO sys_window (sys_window_id, name, description, help, icon, window_type, is_sales_transaction, is_default, entity_type, is_active, created_by, updated_by, created_at, updated_at)
@@ -3595,6 +4687,65 @@ VALUES ('190c1858-e427-5ab9-9e91-060d7bead620', (SELECT sys_role_id FROM sys_rol
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_access (sys_access_id, sys_role_id, sys_table_id, sys_window_id, access_type_table, is_read_only, is_exclude, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('a8e9960c-6473-50e0-a5e6-6217e04e15b7', (SELECT sys_role_id FROM sys_role WHERE name = 'User'), 'c690045e-d6fc-5d79-b95d-ff4b7d83394e', '1e2d9f7f-7530-5f09-9a2d-e59beaa44260', 'R', TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+
+-- --------------------------------------------------------------------------
+-- Language Direction (bus_language_direction)
+-- --------------------------------------------------------------------------
+INSERT INTO sys_window (sys_window_id, name, description, help, icon, window_type, is_sales_transaction, is_default, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('129b42ea-8084-5bc9-a15d-bfdc7e7a1f11', 'Language Direction', 'Maintain Language Direction records', 'Create, find and maintain Language Direction records. The list shows every Language Direction you have access to — select a row to open it, or use New to add one. Each row is a single Language Direction, described by 6 fields.
+
+Id and Code are unique: no two Language Direction records may share the same value, and a save that would duplicate one is rejected. Code, Name, Sequence and Is Active must be filled in before the record can be saved.
+
+Every save starts as a Draft. The business rules and workflows attached to Language Direction then run together in a single transaction: if all of them succeed the record becomes Final; if any of them fails, nothing they changed is kept — the record stays Draft and the reason is written onto it so you can fix the cause and retry. A Language Direction with no rules or workflows attached is marked Final immediately.', 'list', 'M', FALSE, TRUE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_table (sys_table_id, table_name, name, description, icon, access_level, is_view, is_document, is_high_volume, is_changelog, sys_window_id, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('3bd5031a-380e-523d-9f6f-dce3d088ddf9', 'bus_language_direction', 'Language Direction', 'The values of language direction, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.', 'list', 'A', FALSE, FALSE, FALSE, TRUE, '129b42ea-8084-5bc9-a15d-bfdc7e7a1f11', 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_tab (sys_tab_id, sys_window_id, sys_table_id, name, help, tab_level, seq_no, is_single_row, has_tree, is_info_tab, is_translation_tab, is_read_only, is_insert_record, is_advanced_tab, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('71e24217-7cfd-575a-84e4-c0c16e74f423', '129b42ea-8084-5bc9-a15d-bfdc7e7a1f11', '3bd5031a-380e-523d-9f6f-dce3d088ddf9', 'Language Direction', 'Shows one Language Direction at a time. Fields are grouped: General carries the identifying fields and Details carries the rest. 4 fields marked with a red asterisk (*) must have a value before Save will accept the record. Any field showing a ? beside its label has help of its own; click it for the rules that apply there.', 0, 10, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('68fbea8b-f87f-5ece-b2e5-a7c4145dabb9', '3bd5031a-380e-523d-9f6f-dce3d088ddf9', 'id', 'Id', NULL, 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('1b87e5a1-5788-544b-b608-9a3cfc2c9f64', '3bd5031a-380e-523d-9f6f-dce3d088ddf9', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('68c40230-e4fa-544c-95f4-c15d950db71c', '3bd5031a-380e-523d-9f6f-dce3d088ddf9', 'name', 'Name', 'What a person reads in the dropdown and on a record.', 10, 200, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('20f9007e-e453-56c5-88da-063841345b62', '3bd5031a-380e-523d-9f6f-dce3d088ddf9', 'description', 'Description', 'What the value means to the business.', 14, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 40, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('757daf05-16b2-59f0-9781-c191bcb2c8fc', '3bd5031a-380e-523d-9f6f-dce3d088ddf9', 'sequence', 'Sequence', 'The position of the value in a dropdown, lowest first.', 11, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 50, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('d0d80a99-972f-58a4-b3c7-485e340d8d22', '3bd5031a-380e-523d-9f6f-dce3d088ddf9', 'is_active', 'Is Active', 'Whether the value is offered on new records.', 20, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 60, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('cdf17f71-5127-55c7-83f9-d47415bb0868', '71e24217-7cfd-575a-84e4-c0c16e74f423', '68fbea8b-f87f-5ece-b2e5-a7c4145dabb9', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Id', 'The id of this Language Direction. Must be unique: a save is rejected if another Language Direction already uses this value.', 10, 10, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('7ef3225f-1ace-5e00-9316-b5646330795c', '71e24217-7cfd-575a-84e4-c0c16e74f423', '1b87e5a1-5788-544b-b608-9a3cfc2c9f64', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Code', 'The value stored on every record that uses this list. Fixed once created. Required — the record cannot be saved while this is empty. Must be unique: a save is rejected if another Language Direction already uses this value. Up to 100 characters.', 20, 20, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('ba0ba3e7-179d-5b68-8c53-a1ef358ab2df', '71e24217-7cfd-575a-84e4-c0c16e74f423', '68c40230-e4fa-544c-95f4-c15d950db71c', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Name', 'What a person reads in the dropdown and on a record. Required — the record cannot be saved while this is empty. Up to 200 characters.', 30, 30, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('4e62a5c1-80d9-5365-beb0-b270473fd5a2', '71e24217-7cfd-575a-84e4-c0c16e74f423', '20f9007e-e453-56c5-88da-063841345b62', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Description', 'What the value means to the business.', 40, 40, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('e9bdd609-3962-5c16-8a5c-e027353b9302', '71e24217-7cfd-575a-84e4-c0c16e74f423', '757daf05-16b2-59f0-9781-c191bcb2c8fc', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Sequence', 'The position of the value in a dropdown, lowest first. Required — the record cannot be saved while this is empty.', 50, 50, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('81500139-284c-598f-8f34-c67ea300e012', '71e24217-7cfd-575a-84e4-c0c16e74f423', 'd0d80a99-972f-58a4-b3c7-485e340d8d22', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Is Active', 'Whether the value is offered on new records. Required — the record cannot be saved while this is empty.', 60, 60, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_access (sys_access_id, sys_role_id, sys_table_id, sys_window_id, access_type_table, is_read_only, is_exclude, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('82765f87-e02a-5288-a6e0-3084a58537f0', (SELECT sys_role_id FROM sys_role WHERE name = 'Administrator'), '3bd5031a-380e-523d-9f6f-dce3d088ddf9', '129b42ea-8084-5bc9-a15d-bfdc7e7a1f11', 'W', FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_access (sys_access_id, sys_role_id, sys_table_id, sys_window_id, access_type_table, is_read_only, is_exclude, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('f526e911-b805-5fb0-b9c6-8b4ce3ddb753', (SELECT sys_role_id FROM sys_role WHERE name = 'User'), '3bd5031a-380e-523d-9f6f-dce3d088ddf9', '129b42ea-8084-5bc9-a15d-bfdc7e7a1f11', 'R', TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
 -- --------------------------------------------------------------------------
@@ -3890,6 +5041,183 @@ VALUES ('33af7d99-23e4-594c-bdba-1570310bfe50', (SELECT sys_role_id FROM sys_rol
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_access (sys_access_id, sys_role_id, sys_table_id, sys_window_id, access_type_table, is_read_only, is_exclude, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('c4e75b57-c57e-52a1-9449-8135caeaec7b', (SELECT sys_role_id FROM sys_role WHERE name = 'User'), '73e16f24-dc02-50a7-97e7-b67ca3f4c414', '3e5c2acc-e00c-53dc-b291-c87d21c53e86', 'R', TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+
+-- --------------------------------------------------------------------------
+-- Calendar Status (bus_calendar_status)
+-- --------------------------------------------------------------------------
+INSERT INTO sys_window (sys_window_id, name, description, help, icon, window_type, is_sales_transaction, is_default, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('52ae923e-c5d1-58b6-94f3-a2f53ef2aab4', 'Calendar Status', 'Maintain Calendar Status records', 'Create, find and maintain Calendar Status records. The list shows every Calendar Status you have access to — select a row to open it, or use New to add one. Each row is a single Calendar Status, described by 6 fields.
+
+Id and Code are unique: no two Calendar Status records may share the same value, and a save that would duplicate one is rejected. Code, Name, Sequence and Is Active must be filled in before the record can be saved.
+
+Every save starts as a Draft. The business rules and workflows attached to Calendar Status then run together in a single transaction: if all of them succeed the record becomes Final; if any of them fails, nothing they changed is kept — the record stays Draft and the reason is written onto it so you can fix the cause and retry. A Calendar Status with no rules or workflows attached is marked Final immediately.', 'list', 'M', FALSE, TRUE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_table (sys_table_id, table_name, name, description, icon, access_level, is_view, is_document, is_high_volume, is_changelog, sys_window_id, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('166ef60e-3cfa-5601-b5c8-241d6caa0a6d', 'bus_calendar_status', 'Calendar Status', 'The values of calendar status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.', 'list', 'A', FALSE, FALSE, FALSE, TRUE, '52ae923e-c5d1-58b6-94f3-a2f53ef2aab4', 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_tab (sys_tab_id, sys_window_id, sys_table_id, name, help, tab_level, seq_no, is_single_row, has_tree, is_info_tab, is_translation_tab, is_read_only, is_insert_record, is_advanced_tab, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('8b961136-f9b9-5fb2-b9aa-8ed05a2d774e', '52ae923e-c5d1-58b6-94f3-a2f53ef2aab4', '166ef60e-3cfa-5601-b5c8-241d6caa0a6d', 'Calendar Status', 'Shows one Calendar Status at a time. Fields are grouped: General carries the identifying fields and Details carries the rest. 4 fields marked with a red asterisk (*) must have a value before Save will accept the record. Any field showing a ? beside its label has help of its own; click it for the rules that apply there.', 0, 10, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('74615e79-58e1-5654-a16b-cba759615d41', '166ef60e-3cfa-5601-b5c8-241d6caa0a6d', 'id', 'Id', NULL, 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('3385e247-ce81-551d-9b0e-a39354dc52c5', '166ef60e-3cfa-5601-b5c8-241d6caa0a6d', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('c88724cd-9441-5a99-87d3-f1dd04482b2f', '166ef60e-3cfa-5601-b5c8-241d6caa0a6d', 'name', 'Name', 'What a person reads in the dropdown and on a record.', 10, 200, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('851bbcad-baee-553e-bf22-55525b9fb367', '166ef60e-3cfa-5601-b5c8-241d6caa0a6d', 'description', 'Description', 'What the value means to the business.', 14, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 40, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('37eb7797-9e42-5839-81e3-2d79a7f6d311', '166ef60e-3cfa-5601-b5c8-241d6caa0a6d', 'sequence', 'Sequence', 'The position of the value in a dropdown, lowest first.', 11, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 50, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('761173a8-2d3e-52c1-af56-ed046d245bb7', '166ef60e-3cfa-5601-b5c8-241d6caa0a6d', 'is_active', 'Is Active', 'Whether the value is offered on new records.', 20, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 60, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('4ec27d74-27c0-5e27-a508-26a5f67e7418', '8b961136-f9b9-5fb2-b9aa-8ed05a2d774e', '74615e79-58e1-5654-a16b-cba759615d41', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Id', 'The id of this Calendar Status. Must be unique: a save is rejected if another Calendar Status already uses this value.', 10, 10, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('2e429cbb-1068-5971-8b45-3de7c6e1fcb0', '8b961136-f9b9-5fb2-b9aa-8ed05a2d774e', '3385e247-ce81-551d-9b0e-a39354dc52c5', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Code', 'The value stored on every record that uses this list. Fixed once created. Required — the record cannot be saved while this is empty. Must be unique: a save is rejected if another Calendar Status already uses this value. Up to 100 characters.', 20, 20, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('837eee6f-a622-5ef2-86be-a1c90c0d07c9', '8b961136-f9b9-5fb2-b9aa-8ed05a2d774e', 'c88724cd-9441-5a99-87d3-f1dd04482b2f', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Name', 'What a person reads in the dropdown and on a record. Required — the record cannot be saved while this is empty. Up to 200 characters.', 30, 30, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('408a0bdb-8372-5816-a730-a56d240a7178', '8b961136-f9b9-5fb2-b9aa-8ed05a2d774e', '851bbcad-baee-553e-bf22-55525b9fb367', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Description', 'What the value means to the business.', 40, 40, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('b9fbf5b1-f166-56f8-bfc9-b330b84676e5', '8b961136-f9b9-5fb2-b9aa-8ed05a2d774e', '37eb7797-9e42-5839-81e3-2d79a7f6d311', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Sequence', 'The position of the value in a dropdown, lowest first. Required — the record cannot be saved while this is empty.', 50, 50, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('12e834f2-9c05-5bee-acdf-74b08d0642e1', '8b961136-f9b9-5fb2-b9aa-8ed05a2d774e', '761173a8-2d3e-52c1-af56-ed046d245bb7', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Is Active', 'Whether the value is offered on new records. Required — the record cannot be saved while this is empty.', 60, 60, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_access (sys_access_id, sys_role_id, sys_table_id, sys_window_id, access_type_table, is_read_only, is_exclude, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('aea61012-e5e5-5004-9556-ac6b34ef404c', (SELECT sys_role_id FROM sys_role WHERE name = 'Administrator'), '166ef60e-3cfa-5601-b5c8-241d6caa0a6d', '52ae923e-c5d1-58b6-94f3-a2f53ef2aab4', 'W', FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_access (sys_access_id, sys_role_id, sys_table_id, sys_window_id, access_type_table, is_read_only, is_exclude, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('45e83934-8caa-5d2c-8161-b050b0a736b8', (SELECT sys_role_id FROM sys_role WHERE name = 'User'), '166ef60e-3cfa-5601-b5c8-241d6caa0a6d', '52ae923e-c5d1-58b6-94f3-a2f53ef2aab4', 'R', TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+
+-- --------------------------------------------------------------------------
+-- Calendar Exception Exception Type (bus_calendar_exception_exception_type)
+-- --------------------------------------------------------------------------
+INSERT INTO sys_window (sys_window_id, name, description, help, icon, window_type, is_sales_transaction, is_default, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('9cae049e-f7a1-536e-b743-b839f4bf1aaf', 'Calendar Exception Exception Type', 'Maintain Calendar Exception Exception Type records', 'Create, find and maintain Calendar Exception Exception Type records. The list shows every Calendar Exception Exception Type you have access to — select a row to open it, or use New to add one. Each row is a single Calendar Exception Exception Type, described by 6 fields.
+
+Id and Code are unique: no two Calendar Exception Exception Type records may share the same value, and a save that would duplicate one is rejected. Code, Name, Sequence and Is Active must be filled in before the record can be saved.
+
+Every save starts as a Draft. The business rules and workflows attached to Calendar Exception Exception Type then run together in a single transaction: if all of them succeed the record becomes Final; if any of them fails, nothing they changed is kept — the record stays Draft and the reason is written onto it so you can fix the cause and retry. A Calendar Exception Exception Type with no rules or workflows attached is marked Final immediately.', 'list', 'M', FALSE, TRUE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_table (sys_table_id, table_name, name, description, icon, access_level, is_view, is_document, is_high_volume, is_changelog, sys_window_id, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('97fafa18-4373-5bef-b94d-5c103fc34f9c', 'bus_calendar_exception_exception_type', 'Calendar Exception Exception Type', 'The values of calendar exception exception type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.', 'list', 'A', FALSE, FALSE, FALSE, TRUE, '9cae049e-f7a1-536e-b743-b839f4bf1aaf', 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_tab (sys_tab_id, sys_window_id, sys_table_id, name, help, tab_level, seq_no, is_single_row, has_tree, is_info_tab, is_translation_tab, is_read_only, is_insert_record, is_advanced_tab, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('c6155a5a-a7f0-50a9-b6dc-82ce0eb7ccc1', '9cae049e-f7a1-536e-b743-b839f4bf1aaf', '97fafa18-4373-5bef-b94d-5c103fc34f9c', 'Calendar Exception Exception Type', 'Shows one Calendar Exception Exception Type at a time. Fields are grouped: General carries the identifying fields and Details carries the rest. 4 fields marked with a red asterisk (*) must have a value before Save will accept the record. Any field showing a ? beside its label has help of its own; click it for the rules that apply there.', 0, 10, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('c3d8d426-1f23-5a34-b08f-fbef6fa6eede', '97fafa18-4373-5bef-b94d-5c103fc34f9c', 'id', 'Id', NULL, 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('22d7a762-7da3-5cb4-aeea-1ce68b5271f1', '97fafa18-4373-5bef-b94d-5c103fc34f9c', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('527e42ac-baee-5421-8256-ae5c26429b65', '97fafa18-4373-5bef-b94d-5c103fc34f9c', 'name', 'Name', 'What a person reads in the dropdown and on a record.', 10, 200, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('cff83d30-84c5-5d38-8b02-8569e4e918c0', '97fafa18-4373-5bef-b94d-5c103fc34f9c', 'description', 'Description', 'What the value means to the business.', 14, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 40, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('1642ada1-ff3d-5062-8982-30dde7acbba8', '97fafa18-4373-5bef-b94d-5c103fc34f9c', 'sequence', 'Sequence', 'The position of the value in a dropdown, lowest first.', 11, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 50, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('96edc4ef-b29b-5486-95ce-5c4dd8f60336', '97fafa18-4373-5bef-b94d-5c103fc34f9c', 'is_active', 'Is Active', 'Whether the value is offered on new records.', 20, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 60, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('d4b33493-7833-5941-be68-2316b9b3bdd0', 'c6155a5a-a7f0-50a9-b6dc-82ce0eb7ccc1', 'c3d8d426-1f23-5a34-b08f-fbef6fa6eede', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Id', 'The id of this Calendar Exception Exception Type. Must be unique: a save is rejected if another Calendar Exception Exception Type already uses this value.', 10, 10, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('e21468a7-d263-5b54-a489-dbf3a287eb46', 'c6155a5a-a7f0-50a9-b6dc-82ce0eb7ccc1', '22d7a762-7da3-5cb4-aeea-1ce68b5271f1', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Code', 'The value stored on every record that uses this list. Fixed once created. Required — the record cannot be saved while this is empty. Must be unique: a save is rejected if another Calendar Exception Exception Type already uses this value. Up to 100 characters.', 20, 20, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('2fd3643a-7ae3-5001-b7ce-3ca0c40d242e', 'c6155a5a-a7f0-50a9-b6dc-82ce0eb7ccc1', '527e42ac-baee-5421-8256-ae5c26429b65', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Name', 'What a person reads in the dropdown and on a record. Required — the record cannot be saved while this is empty. Up to 200 characters.', 30, 30, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('934217bd-c391-523e-ad94-e510f5824f4b', 'c6155a5a-a7f0-50a9-b6dc-82ce0eb7ccc1', 'cff83d30-84c5-5d38-8b02-8569e4e918c0', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Description', 'What the value means to the business.', 40, 40, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('0a2a414a-29ba-5d60-90f7-343fbaa51621', 'c6155a5a-a7f0-50a9-b6dc-82ce0eb7ccc1', '1642ada1-ff3d-5062-8982-30dde7acbba8', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Sequence', 'The position of the value in a dropdown, lowest first. Required — the record cannot be saved while this is empty.', 50, 50, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('bab3db3f-03a3-59a4-8ec0-4a3b225c9e6c', 'c6155a5a-a7f0-50a9-b6dc-82ce0eb7ccc1', '96edc4ef-b29b-5486-95ce-5c4dd8f60336', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Is Active', 'Whether the value is offered on new records. Required — the record cannot be saved while this is empty.', 60, 60, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_access (sys_access_id, sys_role_id, sys_table_id, sys_window_id, access_type_table, is_read_only, is_exclude, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('6a9b20d2-f21c-5f7a-8f1a-94f7ead914e0', (SELECT sys_role_id FROM sys_role WHERE name = 'Administrator'), '97fafa18-4373-5bef-b94d-5c103fc34f9c', '9cae049e-f7a1-536e-b743-b839f4bf1aaf', 'W', FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_access (sys_access_id, sys_role_id, sys_table_id, sys_window_id, access_type_table, is_read_only, is_exclude, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('1a7b53b2-45ac-544b-bee5-b234890ceaf4', (SELECT sys_role_id FROM sys_role WHERE name = 'User'), '97fafa18-4373-5bef-b94d-5c103fc34f9c', '9cae049e-f7a1-536e-b743-b839f4bf1aaf', 'R', TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+
+-- --------------------------------------------------------------------------
+-- Attachment Status (bus_attachment_status)
+-- --------------------------------------------------------------------------
+INSERT INTO sys_window (sys_window_id, name, description, help, icon, window_type, is_sales_transaction, is_default, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('38d9d101-7c2f-505d-9c92-07a92777a741', 'Attachment Status', 'Maintain Attachment Status records', 'Create, find and maintain Attachment Status records. The list shows every Attachment Status you have access to — select a row to open it, or use New to add one. Each row is a single Attachment Status, described by 6 fields.
+
+Id and Code are unique: no two Attachment Status records may share the same value, and a save that would duplicate one is rejected. Code, Name, Sequence and Is Active must be filled in before the record can be saved.
+
+Every save starts as a Draft. The business rules and workflows attached to Attachment Status then run together in a single transaction: if all of them succeed the record becomes Final; if any of them fails, nothing they changed is kept — the record stays Draft and the reason is written onto it so you can fix the cause and retry. An Attachment Status with no rules or workflows attached is marked Final immediately.', 'list', 'M', FALSE, TRUE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_table (sys_table_id, table_name, name, description, icon, access_level, is_view, is_document, is_high_volume, is_changelog, sys_window_id, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('b30ae7a6-f729-5b87-9c08-596f0e366a7a', 'bus_attachment_status', 'Attachment Status', 'The values of attachment status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.', 'list', 'A', FALSE, FALSE, FALSE, TRUE, '38d9d101-7c2f-505d-9c92-07a92777a741', 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_tab (sys_tab_id, sys_window_id, sys_table_id, name, help, tab_level, seq_no, is_single_row, has_tree, is_info_tab, is_translation_tab, is_read_only, is_insert_record, is_advanced_tab, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('5cdeff61-450f-5588-87f7-859e80797787', '38d9d101-7c2f-505d-9c92-07a92777a741', 'b30ae7a6-f729-5b87-9c08-596f0e366a7a', 'Attachment Status', 'Shows one Attachment Status at a time. Fields are grouped: General carries the identifying fields and Details carries the rest. 4 fields marked with a red asterisk (*) must have a value before Save will accept the record. Any field showing a ? beside its label has help of its own; click it for the rules that apply there.', 0, 10, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('dd08308a-630a-5ac9-a014-e0c8bcbe6bef', 'b30ae7a6-f729-5b87-9c08-596f0e366a7a', 'id', 'Id', NULL, 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('ec9bf680-3312-56aa-a2db-68ba4156a9f6', 'b30ae7a6-f729-5b87-9c08-596f0e366a7a', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('92d358b2-4976-588d-9413-27c265afbdfa', 'b30ae7a6-f729-5b87-9c08-596f0e366a7a', 'name', 'Name', 'What a person reads in the dropdown and on a record.', 10, 200, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('57e3d170-9425-58d6-b417-90063fd2a7f9', 'b30ae7a6-f729-5b87-9c08-596f0e366a7a', 'description', 'Description', 'What the value means to the business.', 14, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 40, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('834992b9-7ba1-58fe-87a8-918c5b5c6898', 'b30ae7a6-f729-5b87-9c08-596f0e366a7a', 'sequence', 'Sequence', 'The position of the value in a dropdown, lowest first.', 11, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 50, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('7115150b-7fbd-51f0-adc6-9f5dd3daf5cb', 'b30ae7a6-f729-5b87-9c08-596f0e366a7a', 'is_active', 'Is Active', 'Whether the value is offered on new records.', 20, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 60, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('2193dfaf-ebf4-5af0-92e7-f14a789fa3fb', '5cdeff61-450f-5588-87f7-859e80797787', 'dd08308a-630a-5ac9-a014-e0c8bcbe6bef', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Id', 'The id of this Attachment Status. Must be unique: a save is rejected if another Attachment Status already uses this value.', 10, 10, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('f8fa4778-cf8a-5b04-8dad-09f32d3f3a94', '5cdeff61-450f-5588-87f7-859e80797787', 'ec9bf680-3312-56aa-a2db-68ba4156a9f6', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Code', 'The value stored on every record that uses this list. Fixed once created. Required — the record cannot be saved while this is empty. Must be unique: a save is rejected if another Attachment Status already uses this value. Up to 100 characters.', 20, 20, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('1c119483-a272-5c64-9399-c3f12d33720b', '5cdeff61-450f-5588-87f7-859e80797787', '92d358b2-4976-588d-9413-27c265afbdfa', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Name', 'What a person reads in the dropdown and on a record. Required — the record cannot be saved while this is empty. Up to 200 characters.', 30, 30, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('46a38df2-25c0-582e-81f0-cb09e1d3fe63', '5cdeff61-450f-5588-87f7-859e80797787', '57e3d170-9425-58d6-b417-90063fd2a7f9', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Description', 'What the value means to the business.', 40, 40, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('c396e5e6-0a3a-55e4-ace2-a5c1b23477bf', '5cdeff61-450f-5588-87f7-859e80797787', '834992b9-7ba1-58fe-87a8-918c5b5c6898', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Sequence', 'The position of the value in a dropdown, lowest first. Required — the record cannot be saved while this is empty.', 50, 50, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('0b44dd1c-d6b8-53df-906b-37ba5336fd62', '5cdeff61-450f-5588-87f7-859e80797787', '7115150b-7fbd-51f0-adc6-9f5dd3daf5cb', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Is Active', 'Whether the value is offered on new records. Required — the record cannot be saved while this is empty.', 60, 60, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_access (sys_access_id, sys_role_id, sys_table_id, sys_window_id, access_type_table, is_read_only, is_exclude, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('2916572a-be75-5a58-a8c6-6bada603e083', (SELECT sys_role_id FROM sys_role WHERE name = 'Administrator'), 'b30ae7a6-f729-5b87-9c08-596f0e366a7a', '38d9d101-7c2f-505d-9c92-07a92777a741', 'W', FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_access (sys_access_id, sys_role_id, sys_table_id, sys_window_id, access_type_table, is_read_only, is_exclude, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('fbe0cd13-9905-509f-8cb6-19e81d84fb1d', (SELECT sys_role_id FROM sys_role WHERE name = 'User'), 'b30ae7a6-f729-5b87-9c08-596f0e366a7a', '38d9d101-7c2f-505d-9c92-07a92777a741', 'R', TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
 -- --------------------------------------------------------------------------
@@ -4303,6 +5631,183 @@ VALUES ('88388eac-1347-5e05-bbe7-00973c6580a7', (SELECT sys_role_id FROM sys_rol
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_access (sys_access_id, sys_role_id, sys_table_id, sys_window_id, access_type_table, is_read_only, is_exclude, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('34957543-ae12-5117-93b7-daea0e58fd6d', (SELECT sys_role_id FROM sys_role WHERE name = 'User'), 'b1b54382-fc57-5bf6-8b27-5e89fafcc219', 'f5af6748-8d86-583c-bce9-b60c28f3ba7b', 'R', TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+
+-- --------------------------------------------------------------------------
+-- Inventory Count Count Type (bus_inventory_count_count_type)
+-- --------------------------------------------------------------------------
+INSERT INTO sys_window (sys_window_id, name, description, help, icon, window_type, is_sales_transaction, is_default, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('6df7cc75-c2dc-545c-9044-12a2c7495578', 'Inventory Count Count Type', 'Maintain Inventory Count Count Type records', 'Create, find and maintain Inventory Count Count Type records. The list shows every Inventory Count Count Type you have access to — select a row to open it, or use New to add one. Each row is a single Inventory Count Count Type, described by 6 fields.
+
+Id and Code are unique: no two Inventory Count Count Type records may share the same value, and a save that would duplicate one is rejected. Code, Name, Sequence and Is Active must be filled in before the record can be saved.
+
+Every save starts as a Draft. The business rules and workflows attached to Inventory Count Count Type then run together in a single transaction: if all of them succeed the record becomes Final; if any of them fails, nothing they changed is kept — the record stays Draft and the reason is written onto it so you can fix the cause and retry. An Inventory Count Count Type with no rules or workflows attached is marked Final immediately.', 'list', 'M', FALSE, TRUE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_table (sys_table_id, table_name, name, description, icon, access_level, is_view, is_document, is_high_volume, is_changelog, sys_window_id, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('be84d136-6fac-59dd-86d5-18cb88286de8', 'bus_inventory_count_count_type', 'Inventory Count Count Type', 'The values of inventory count count type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.', 'list', 'A', FALSE, FALSE, FALSE, TRUE, '6df7cc75-c2dc-545c-9044-12a2c7495578', 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_tab (sys_tab_id, sys_window_id, sys_table_id, name, help, tab_level, seq_no, is_single_row, has_tree, is_info_tab, is_translation_tab, is_read_only, is_insert_record, is_advanced_tab, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('0cc3103e-4d81-55f8-baad-234b2dd61f25', '6df7cc75-c2dc-545c-9044-12a2c7495578', 'be84d136-6fac-59dd-86d5-18cb88286de8', 'Inventory Count Count Type', 'Shows one Inventory Count Count Type at a time. Fields are grouped: General carries the identifying fields and Details carries the rest. 4 fields marked with a red asterisk (*) must have a value before Save will accept the record. Any field showing a ? beside its label has help of its own; click it for the rules that apply there.', 0, 10, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('0b9aa1ff-31b1-5904-be00-4527a383dd91', 'be84d136-6fac-59dd-86d5-18cb88286de8', 'id', 'Id', NULL, 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('f189208d-3347-5376-b2ca-85e6e7afafce', 'be84d136-6fac-59dd-86d5-18cb88286de8', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('43d4cbe8-4a31-588f-9185-09e7650de7e0', 'be84d136-6fac-59dd-86d5-18cb88286de8', 'name', 'Name', 'What a person reads in the dropdown and on a record.', 10, 200, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('73a1bbca-a84d-5207-9f48-5e3a54beb1dd', 'be84d136-6fac-59dd-86d5-18cb88286de8', 'description', 'Description', 'What the value means to the business.', 14, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 40, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('649c430d-a6be-5d48-b6fc-4d6730e592b6', 'be84d136-6fac-59dd-86d5-18cb88286de8', 'sequence', 'Sequence', 'The position of the value in a dropdown, lowest first.', 11, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 50, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('27108eee-3eb7-52af-837b-80f9d76fc761', 'be84d136-6fac-59dd-86d5-18cb88286de8', 'is_active', 'Is Active', 'Whether the value is offered on new records.', 20, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 60, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('2739fb14-0802-55b6-8d28-a93c7dd8f855', '0cc3103e-4d81-55f8-baad-234b2dd61f25', '0b9aa1ff-31b1-5904-be00-4527a383dd91', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Id', 'The id of this Inventory Count Count Type. Must be unique: a save is rejected if another Inventory Count Count Type already uses this value.', 10, 10, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('ad8e5ae6-08c7-5b30-a90c-18742b0c508a', '0cc3103e-4d81-55f8-baad-234b2dd61f25', 'f189208d-3347-5376-b2ca-85e6e7afafce', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Code', 'The value stored on every record that uses this list. Fixed once created. Required — the record cannot be saved while this is empty. Must be unique: a save is rejected if another Inventory Count Count Type already uses this value. Up to 100 characters.', 20, 20, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('2040d03c-d418-5a1f-84ff-93e343139c1f', '0cc3103e-4d81-55f8-baad-234b2dd61f25', '43d4cbe8-4a31-588f-9185-09e7650de7e0', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Name', 'What a person reads in the dropdown and on a record. Required — the record cannot be saved while this is empty. Up to 200 characters.', 30, 30, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('8f6b2e7d-5145-54b1-a73a-d507132c25dc', '0cc3103e-4d81-55f8-baad-234b2dd61f25', '73a1bbca-a84d-5207-9f48-5e3a54beb1dd', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Description', 'What the value means to the business.', 40, 40, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('46519106-9685-5780-ab13-b628e74ed7ae', '0cc3103e-4d81-55f8-baad-234b2dd61f25', '649c430d-a6be-5d48-b6fc-4d6730e592b6', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Sequence', 'The position of the value in a dropdown, lowest first. Required — the record cannot be saved while this is empty.', 50, 50, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('d5a3bc5b-1194-5e04-86c1-8db84325fb0f', '0cc3103e-4d81-55f8-baad-234b2dd61f25', '27108eee-3eb7-52af-837b-80f9d76fc761', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Is Active', 'Whether the value is offered on new records. Required — the record cannot be saved while this is empty.', 60, 60, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_access (sys_access_id, sys_role_id, sys_table_id, sys_window_id, access_type_table, is_read_only, is_exclude, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('9346398c-435f-516e-94c8-5b08f111529c', (SELECT sys_role_id FROM sys_role WHERE name = 'Administrator'), 'be84d136-6fac-59dd-86d5-18cb88286de8', '6df7cc75-c2dc-545c-9044-12a2c7495578', 'W', FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_access (sys_access_id, sys_role_id, sys_table_id, sys_window_id, access_type_table, is_read_only, is_exclude, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('948ec066-3d68-5898-a4b6-96b19b979e3d', (SELECT sys_role_id FROM sys_role WHERE name = 'User'), 'be84d136-6fac-59dd-86d5-18cb88286de8', '6df7cc75-c2dc-545c-9044-12a2c7495578', 'R', TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+
+-- --------------------------------------------------------------------------
+-- Inventory Count Status (bus_inventory_count_status)
+-- --------------------------------------------------------------------------
+INSERT INTO sys_window (sys_window_id, name, description, help, icon, window_type, is_sales_transaction, is_default, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('c2ac44fb-44a2-5d83-a626-9c07e20ca197', 'Inventory Count Status', 'Maintain Inventory Count Status records', 'Create, find and maintain Inventory Count Status records. The list shows every Inventory Count Status you have access to — select a row to open it, or use New to add one. Each row is a single Inventory Count Status, described by 6 fields.
+
+Id and Code are unique: no two Inventory Count Status records may share the same value, and a save that would duplicate one is rejected. Code, Name, Sequence and Is Active must be filled in before the record can be saved.
+
+Every save starts as a Draft. The business rules and workflows attached to Inventory Count Status then run together in a single transaction: if all of them succeed the record becomes Final; if any of them fails, nothing they changed is kept — the record stays Draft and the reason is written onto it so you can fix the cause and retry. An Inventory Count Status with no rules or workflows attached is marked Final immediately.', 'list', 'M', FALSE, TRUE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_table (sys_table_id, table_name, name, description, icon, access_level, is_view, is_document, is_high_volume, is_changelog, sys_window_id, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('5d9c5178-55c9-54e9-88c5-b7d2f7f8f3a9', 'bus_inventory_count_status', 'Inventory Count Status', 'The values of inventory count status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.', 'list', 'A', FALSE, FALSE, FALSE, TRUE, 'c2ac44fb-44a2-5d83-a626-9c07e20ca197', 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_tab (sys_tab_id, sys_window_id, sys_table_id, name, help, tab_level, seq_no, is_single_row, has_tree, is_info_tab, is_translation_tab, is_read_only, is_insert_record, is_advanced_tab, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('ec01bd5c-c64e-526f-834e-023d70d7c569', 'c2ac44fb-44a2-5d83-a626-9c07e20ca197', '5d9c5178-55c9-54e9-88c5-b7d2f7f8f3a9', 'Inventory Count Status', 'Shows one Inventory Count Status at a time. Fields are grouped: General carries the identifying fields and Details carries the rest. 4 fields marked with a red asterisk (*) must have a value before Save will accept the record. Any field showing a ? beside its label has help of its own; click it for the rules that apply there.', 0, 10, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('c6257f22-03c0-5650-a7ed-1790830fb8fc', '5d9c5178-55c9-54e9-88c5-b7d2f7f8f3a9', 'id', 'Id', NULL, 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('fd269846-b39d-5c2a-ac15-977834617c1f', '5d9c5178-55c9-54e9-88c5-b7d2f7f8f3a9', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('f28a9d19-17d5-52cd-a95d-197924c9fe94', '5d9c5178-55c9-54e9-88c5-b7d2f7f8f3a9', 'name', 'Name', 'What a person reads in the dropdown and on a record.', 10, 200, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('2f9d8177-aa5c-58cb-a4fc-3f28c9fe845d', '5d9c5178-55c9-54e9-88c5-b7d2f7f8f3a9', 'description', 'Description', 'What the value means to the business.', 14, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 40, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('8d6e281b-3e47-5129-bd6c-942590aefef8', '5d9c5178-55c9-54e9-88c5-b7d2f7f8f3a9', 'sequence', 'Sequence', 'The position of the value in a dropdown, lowest first.', 11, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 50, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('77a8af3a-d6c9-55a5-9e1d-660fda823aea', '5d9c5178-55c9-54e9-88c5-b7d2f7f8f3a9', 'is_active', 'Is Active', 'Whether the value is offered on new records.', 20, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 60, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('9f062959-b82c-534d-a66e-1bcf410d432f', 'ec01bd5c-c64e-526f-834e-023d70d7c569', 'c6257f22-03c0-5650-a7ed-1790830fb8fc', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Id', 'The id of this Inventory Count Status. Must be unique: a save is rejected if another Inventory Count Status already uses this value.', 10, 10, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('04219fc4-e1a3-5872-840b-ad3f2c57102b', 'ec01bd5c-c64e-526f-834e-023d70d7c569', 'fd269846-b39d-5c2a-ac15-977834617c1f', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Code', 'The value stored on every record that uses this list. Fixed once created. Required — the record cannot be saved while this is empty. Must be unique: a save is rejected if another Inventory Count Status already uses this value. Up to 100 characters.', 20, 20, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('bf97b255-b15c-5d15-90f1-234e4f5bb3d7', 'ec01bd5c-c64e-526f-834e-023d70d7c569', 'f28a9d19-17d5-52cd-a95d-197924c9fe94', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Name', 'What a person reads in the dropdown and on a record. Required — the record cannot be saved while this is empty. Up to 200 characters.', 30, 30, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('c6455b06-2b42-5eb2-9d72-4f9c5628e08d', 'ec01bd5c-c64e-526f-834e-023d70d7c569', '2f9d8177-aa5c-58cb-a4fc-3f28c9fe845d', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Description', 'What the value means to the business.', 40, 40, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('f867b0a8-a3bd-5931-9571-4fe91a0be351', 'ec01bd5c-c64e-526f-834e-023d70d7c569', '8d6e281b-3e47-5129-bd6c-942590aefef8', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Sequence', 'The position of the value in a dropdown, lowest first. Required — the record cannot be saved while this is empty.', 50, 50, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('d7cb176e-071d-58e4-8f7c-a867ab284fc5', 'ec01bd5c-c64e-526f-834e-023d70d7c569', '77a8af3a-d6c9-55a5-9e1d-660fda823aea', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Is Active', 'Whether the value is offered on new records. Required — the record cannot be saved while this is empty.', 60, 60, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_access (sys_access_id, sys_role_id, sys_table_id, sys_window_id, access_type_table, is_read_only, is_exclude, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('cb85e937-045d-5835-b64c-cf5db92d8c52', (SELECT sys_role_id FROM sys_role WHERE name = 'Administrator'), '5d9c5178-55c9-54e9-88c5-b7d2f7f8f3a9', 'c2ac44fb-44a2-5d83-a626-9c07e20ca197', 'W', FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_access (sys_access_id, sys_role_id, sys_table_id, sys_window_id, access_type_table, is_read_only, is_exclude, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('00550a75-30ec-5b24-8790-b7b80c7c4e41', (SELECT sys_role_id FROM sys_role WHERE name = 'User'), '5d9c5178-55c9-54e9-88c5-b7d2f7f8f3a9', 'c2ac44fb-44a2-5d83-a626-9c07e20ca197', 'R', TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+
+-- --------------------------------------------------------------------------
+-- Inventory Adjustment Status (bus_inventory_adjustment_status)
+-- --------------------------------------------------------------------------
+INSERT INTO sys_window (sys_window_id, name, description, help, icon, window_type, is_sales_transaction, is_default, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('35ed6fed-9311-59dd-b1b8-a9202d4fa50b', 'Inventory Adjustment Status', 'Maintain Inventory Adjustment Status records', 'Create, find and maintain Inventory Adjustment Status records. The list shows every Inventory Adjustment Status you have access to — select a row to open it, or use New to add one. Each row is a single Inventory Adjustment Status, described by 6 fields.
+
+Id and Code are unique: no two Inventory Adjustment Status records may share the same value, and a save that would duplicate one is rejected. Code, Name, Sequence and Is Active must be filled in before the record can be saved.
+
+Every save starts as a Draft. The business rules and workflows attached to Inventory Adjustment Status then run together in a single transaction: if all of them succeed the record becomes Final; if any of them fails, nothing they changed is kept — the record stays Draft and the reason is written onto it so you can fix the cause and retry. An Inventory Adjustment Status with no rules or workflows attached is marked Final immediately.', 'list', 'M', FALSE, TRUE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_table (sys_table_id, table_name, name, description, icon, access_level, is_view, is_document, is_high_volume, is_changelog, sys_window_id, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('ef94b600-70d3-503a-933f-2d3a760352ec', 'bus_inventory_adjustment_status', 'Inventory Adjustment Status', 'The values of inventory adjustment status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.', 'list', 'A', FALSE, FALSE, FALSE, TRUE, '35ed6fed-9311-59dd-b1b8-a9202d4fa50b', 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_tab (sys_tab_id, sys_window_id, sys_table_id, name, help, tab_level, seq_no, is_single_row, has_tree, is_info_tab, is_translation_tab, is_read_only, is_insert_record, is_advanced_tab, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('ab82537e-af75-5ced-aed2-0ceb20386b4c', '35ed6fed-9311-59dd-b1b8-a9202d4fa50b', 'ef94b600-70d3-503a-933f-2d3a760352ec', 'Inventory Adjustment Status', 'Shows one Inventory Adjustment Status at a time. Fields are grouped: General carries the identifying fields and Details carries the rest. 4 fields marked with a red asterisk (*) must have a value before Save will accept the record. Any field showing a ? beside its label has help of its own; click it for the rules that apply there.', 0, 10, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('e57ab841-eeae-53b5-8ed1-de51a885225c', 'ef94b600-70d3-503a-933f-2d3a760352ec', 'id', 'Id', NULL, 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('8c2e79ec-1ff3-5826-91ea-a16d8d62bdcf', 'ef94b600-70d3-503a-933f-2d3a760352ec', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('98612037-9756-54a5-82dd-9a4cfe86872c', 'ef94b600-70d3-503a-933f-2d3a760352ec', 'name', 'Name', 'What a person reads in the dropdown and on a record.', 10, 200, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('84a5110b-beaa-5c9c-9065-bdc39adf8860', 'ef94b600-70d3-503a-933f-2d3a760352ec', 'description', 'Description', 'What the value means to the business.', 14, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 40, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('a4461a22-a769-5e4b-aa2b-8b41d297a657', 'ef94b600-70d3-503a-933f-2d3a760352ec', 'sequence', 'Sequence', 'The position of the value in a dropdown, lowest first.', 11, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 50, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('b70692c2-67f2-5bc1-8a04-2974663a07b6', 'ef94b600-70d3-503a-933f-2d3a760352ec', 'is_active', 'Is Active', 'Whether the value is offered on new records.', 20, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 60, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('0d07756b-7d62-5881-8196-b9119d87ccb1', 'ab82537e-af75-5ced-aed2-0ceb20386b4c', 'e57ab841-eeae-53b5-8ed1-de51a885225c', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Id', 'The id of this Inventory Adjustment Status. Must be unique: a save is rejected if another Inventory Adjustment Status already uses this value.', 10, 10, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('5b28cb9f-98ac-5b6b-a567-8e02d9dbc71a', 'ab82537e-af75-5ced-aed2-0ceb20386b4c', '8c2e79ec-1ff3-5826-91ea-a16d8d62bdcf', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Code', 'The value stored on every record that uses this list. Fixed once created. Required — the record cannot be saved while this is empty. Must be unique: a save is rejected if another Inventory Adjustment Status already uses this value. Up to 100 characters.', 20, 20, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('63b9bd8b-6bc7-5d57-8df0-d1d246c28ce1', 'ab82537e-af75-5ced-aed2-0ceb20386b4c', '98612037-9756-54a5-82dd-9a4cfe86872c', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Name', 'What a person reads in the dropdown and on a record. Required — the record cannot be saved while this is empty. Up to 200 characters.', 30, 30, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('db2af0c2-a098-5d05-8daf-e7f3fd3a493b', 'ab82537e-af75-5ced-aed2-0ceb20386b4c', '84a5110b-beaa-5c9c-9065-bdc39adf8860', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Description', 'What the value means to the business.', 40, 40, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('cd11b06c-c607-5e4f-be4f-303c43d3735d', 'ab82537e-af75-5ced-aed2-0ceb20386b4c', 'a4461a22-a769-5e4b-aa2b-8b41d297a657', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Sequence', 'The position of the value in a dropdown, lowest first. Required — the record cannot be saved while this is empty.', 50, 50, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('bb0b8ceb-bb96-5e63-927d-873adced58a1', 'ab82537e-af75-5ced-aed2-0ceb20386b4c', 'b70692c2-67f2-5bc1-8a04-2974663a07b6', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Is Active', 'Whether the value is offered on new records. Required — the record cannot be saved while this is empty.', 60, 60, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_access (sys_access_id, sys_role_id, sys_table_id, sys_window_id, access_type_table, is_read_only, is_exclude, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('f15de66a-e798-5374-aabf-5a24bffa0478', (SELECT sys_role_id FROM sys_role WHERE name = 'Administrator'), 'ef94b600-70d3-503a-933f-2d3a760352ec', '35ed6fed-9311-59dd-b1b8-a9202d4fa50b', 'W', FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_access (sys_access_id, sys_role_id, sys_table_id, sys_window_id, access_type_table, is_read_only, is_exclude, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('62fd760a-f2f6-5134-93b8-30c05de43c86', (SELECT sys_role_id FROM sys_role WHERE name = 'User'), 'ef94b600-70d3-503a-933f-2d3a760352ec', '35ed6fed-9311-59dd-b1b8-a9202d4fa50b', 'R', TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
 -- --------------------------------------------------------------------------
@@ -4896,6 +6401,65 @@ VALUES ('5dae219b-e78a-52f7-992c-86f1ab08c6d5', (SELECT sys_role_id FROM sys_rol
 ON CONFLICT DO NOTHING;
 
 -- --------------------------------------------------------------------------
+-- Warehouse Zone Status (bus_warehouse_zone_status)
+-- --------------------------------------------------------------------------
+INSERT INTO sys_window (sys_window_id, name, description, help, icon, window_type, is_sales_transaction, is_default, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('b99f98b3-2985-5db2-b027-6db10a8b21c5', 'Warehouse Zone Status', 'Maintain Warehouse Zone Status records', 'Create, find and maintain Warehouse Zone Status records. The list shows every Warehouse Zone Status you have access to — select a row to open it, or use New to add one. Each row is a single Warehouse Zone Status, described by 6 fields.
+
+Id and Code are unique: no two Warehouse Zone Status records may share the same value, and a save that would duplicate one is rejected. Code, Name, Sequence and Is Active must be filled in before the record can be saved.
+
+Every save starts as a Draft. The business rules and workflows attached to Warehouse Zone Status then run together in a single transaction: if all of them succeed the record becomes Final; if any of them fails, nothing they changed is kept — the record stays Draft and the reason is written onto it so you can fix the cause and retry. A Warehouse Zone Status with no rules or workflows attached is marked Final immediately.', 'list', 'M', FALSE, TRUE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_table (sys_table_id, table_name, name, description, icon, access_level, is_view, is_document, is_high_volume, is_changelog, sys_window_id, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('18e123c3-8d40-5050-a9fa-7573b9136e6d', 'bus_warehouse_zone_status', 'Warehouse Zone Status', 'The values of warehouse zone status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.', 'list', 'A', FALSE, FALSE, FALSE, TRUE, 'b99f98b3-2985-5db2-b027-6db10a8b21c5', 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_tab (sys_tab_id, sys_window_id, sys_table_id, name, help, tab_level, seq_no, is_single_row, has_tree, is_info_tab, is_translation_tab, is_read_only, is_insert_record, is_advanced_tab, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('66e32947-2c69-5ab4-a5ce-735ed783eb61', 'b99f98b3-2985-5db2-b027-6db10a8b21c5', '18e123c3-8d40-5050-a9fa-7573b9136e6d', 'Warehouse Zone Status', 'Shows one Warehouse Zone Status at a time. Fields are grouped: General carries the identifying fields and Details carries the rest. 4 fields marked with a red asterisk (*) must have a value before Save will accept the record. Any field showing a ? beside its label has help of its own; click it for the rules that apply there.', 0, 10, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('c8fe043f-e5ca-50f9-8e55-2d322bad6cd0', '18e123c3-8d40-5050-a9fa-7573b9136e6d', 'id', 'Id', NULL, 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('2251558a-7a0d-568c-ac0e-d16551551f06', '18e123c3-8d40-5050-a9fa-7573b9136e6d', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('0070cc47-7a7a-527e-ae64-a3a88cf465f0', '18e123c3-8d40-5050-a9fa-7573b9136e6d', 'name', 'Name', 'What a person reads in the dropdown and on a record.', 10, 200, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('24ef3bf0-fda2-54f7-bf8f-b9129755ed1b', '18e123c3-8d40-5050-a9fa-7573b9136e6d', 'description', 'Description', 'What the value means to the business.', 14, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 40, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('1c1d1265-216b-5892-85a3-eefa51b92e0e', '18e123c3-8d40-5050-a9fa-7573b9136e6d', 'sequence', 'Sequence', 'The position of the value in a dropdown, lowest first.', 11, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 50, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('f97cced3-7431-5dd4-ab64-06ee2f2f3791', '18e123c3-8d40-5050-a9fa-7573b9136e6d', 'is_active', 'Is Active', 'Whether the value is offered on new records.', 20, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 60, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('c328cd73-2e76-5285-b87f-11a82f2cf344', '66e32947-2c69-5ab4-a5ce-735ed783eb61', 'c8fe043f-e5ca-50f9-8e55-2d322bad6cd0', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Id', 'The id of this Warehouse Zone Status. Must be unique: a save is rejected if another Warehouse Zone Status already uses this value.', 10, 10, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('3ab821df-afba-58e5-b9c2-ba7ca0f93fb6', '66e32947-2c69-5ab4-a5ce-735ed783eb61', '2251558a-7a0d-568c-ac0e-d16551551f06', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Code', 'The value stored on every record that uses this list. Fixed once created. Required — the record cannot be saved while this is empty. Must be unique: a save is rejected if another Warehouse Zone Status already uses this value. Up to 100 characters.', 20, 20, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('42fe942f-d20e-54bb-abd2-5d20876f6549', '66e32947-2c69-5ab4-a5ce-735ed783eb61', '0070cc47-7a7a-527e-ae64-a3a88cf465f0', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Name', 'What a person reads in the dropdown and on a record. Required — the record cannot be saved while this is empty. Up to 200 characters.', 30, 30, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('e19d8bb5-a88a-5bec-b05c-956fbd6a2b3d', '66e32947-2c69-5ab4-a5ce-735ed783eb61', '24ef3bf0-fda2-54f7-bf8f-b9129755ed1b', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Description', 'What the value means to the business.', 40, 40, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('6a1dc2ad-6bce-5760-a0f6-6719cae86ab8', '66e32947-2c69-5ab4-a5ce-735ed783eb61', '1c1d1265-216b-5892-85a3-eefa51b92e0e', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Sequence', 'The position of the value in a dropdown, lowest first. Required — the record cannot be saved while this is empty.', 50, 50, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('408e63f3-170e-5a73-a4c9-9f67ec7e074e', '66e32947-2c69-5ab4-a5ce-735ed783eb61', 'f97cced3-7431-5dd4-ab64-06ee2f2f3791', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Is Active', 'Whether the value is offered on new records. Required — the record cannot be saved while this is empty.', 60, 60, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_access (sys_access_id, sys_role_id, sys_table_id, sys_window_id, access_type_table, is_read_only, is_exclude, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('6f16d503-ff32-51d6-80fd-3bede3a94f85', (SELECT sys_role_id FROM sys_role WHERE name = 'Administrator'), '18e123c3-8d40-5050-a9fa-7573b9136e6d', 'b99f98b3-2985-5db2-b027-6db10a8b21c5', 'W', FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_access (sys_access_id, sys_role_id, sys_table_id, sys_window_id, access_type_table, is_read_only, is_exclude, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('f067fa2d-69f6-5673-ba8f-8dbcdb40c01f', (SELECT sys_role_id FROM sys_role WHERE name = 'User'), '18e123c3-8d40-5050-a9fa-7573b9136e6d', 'b99f98b3-2985-5db2-b027-6db10a8b21c5', 'R', TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+
+-- --------------------------------------------------------------------------
 -- Dock Dock Type (bus_dock_dock_type)
 -- --------------------------------------------------------------------------
 INSERT INTO sys_window (sys_window_id, name, description, help, icon, window_type, is_sales_transaction, is_default, entity_type, is_active, created_by, updated_by, created_at, updated_at)
@@ -4955,6 +6519,65 @@ VALUES ('f38e5c59-6202-531a-a7d2-da153ef6b105', (SELECT sys_role_id FROM sys_rol
 ON CONFLICT DO NOTHING;
 
 -- --------------------------------------------------------------------------
+-- Dock Status (bus_dock_status)
+-- --------------------------------------------------------------------------
+INSERT INTO sys_window (sys_window_id, name, description, help, icon, window_type, is_sales_transaction, is_default, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('d8a2e730-2718-5502-b647-d32079c253f4', 'Dock Status', 'Maintain Dock Status records', 'Create, find and maintain Dock Status records. The list shows every Dock Status you have access to — select a row to open it, or use New to add one. Each row is a single Dock Status, described by 6 fields.
+
+Id and Code are unique: no two Dock Status records may share the same value, and a save that would duplicate one is rejected. Code, Name, Sequence and Is Active must be filled in before the record can be saved.
+
+Every save starts as a Draft. The business rules and workflows attached to Dock Status then run together in a single transaction: if all of them succeed the record becomes Final; if any of them fails, nothing they changed is kept — the record stays Draft and the reason is written onto it so you can fix the cause and retry. A Dock Status with no rules or workflows attached is marked Final immediately.', 'list', 'M', FALSE, TRUE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_table (sys_table_id, table_name, name, description, icon, access_level, is_view, is_document, is_high_volume, is_changelog, sys_window_id, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('a9a4247b-255e-5e59-a81e-af954bc3fa62', 'bus_dock_status', 'Dock Status', 'The values of dock status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.', 'list', 'A', FALSE, FALSE, FALSE, TRUE, 'd8a2e730-2718-5502-b647-d32079c253f4', 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_tab (sys_tab_id, sys_window_id, sys_table_id, name, help, tab_level, seq_no, is_single_row, has_tree, is_info_tab, is_translation_tab, is_read_only, is_insert_record, is_advanced_tab, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('1d09f799-e79c-5f75-9d1b-a4b05c2d48a8', 'd8a2e730-2718-5502-b647-d32079c253f4', 'a9a4247b-255e-5e59-a81e-af954bc3fa62', 'Dock Status', 'Shows one Dock Status at a time. Fields are grouped: General carries the identifying fields and Details carries the rest. 4 fields marked with a red asterisk (*) must have a value before Save will accept the record. Any field showing a ? beside its label has help of its own; click it for the rules that apply there.', 0, 10, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('3c9bd51a-eca0-525e-9e0f-aa9febca4758', 'a9a4247b-255e-5e59-a81e-af954bc3fa62', 'id', 'Id', NULL, 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('03068127-f182-52e2-aac7-8e38510e2ae5', 'a9a4247b-255e-5e59-a81e-af954bc3fa62', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('2d4fdf10-0953-5b32-9f9b-d3499c478b15', 'a9a4247b-255e-5e59-a81e-af954bc3fa62', 'name', 'Name', 'What a person reads in the dropdown and on a record.', 10, 200, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('009a3d63-f3bc-542b-b647-96915d16ed80', 'a9a4247b-255e-5e59-a81e-af954bc3fa62', 'description', 'Description', 'What the value means to the business.', 14, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 40, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('0c30bd17-4367-5c3d-b7a4-845c4b84323e', 'a9a4247b-255e-5e59-a81e-af954bc3fa62', 'sequence', 'Sequence', 'The position of the value in a dropdown, lowest first.', 11, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 50, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('413b2d9f-681c-57ea-b826-3926e671843e', 'a9a4247b-255e-5e59-a81e-af954bc3fa62', 'is_active', 'Is Active', 'Whether the value is offered on new records.', 20, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 60, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('79bcf3e3-5427-5460-b7ba-76845fae24a0', '1d09f799-e79c-5f75-9d1b-a4b05c2d48a8', '3c9bd51a-eca0-525e-9e0f-aa9febca4758', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Id', 'The id of this Dock Status. Must be unique: a save is rejected if another Dock Status already uses this value.', 10, 10, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('14e37a9e-9bca-54e3-873a-060c3a370a6c', '1d09f799-e79c-5f75-9d1b-a4b05c2d48a8', '03068127-f182-52e2-aac7-8e38510e2ae5', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Code', 'The value stored on every record that uses this list. Fixed once created. Required — the record cannot be saved while this is empty. Must be unique: a save is rejected if another Dock Status already uses this value. Up to 100 characters.', 20, 20, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('2d595fc2-35c5-5b75-9e27-61d8398278ef', '1d09f799-e79c-5f75-9d1b-a4b05c2d48a8', '2d4fdf10-0953-5b32-9f9b-d3499c478b15', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Name', 'What a person reads in the dropdown and on a record. Required — the record cannot be saved while this is empty. Up to 200 characters.', 30, 30, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('014e6ac7-fa1b-5a22-b577-93ad1ac65410', '1d09f799-e79c-5f75-9d1b-a4b05c2d48a8', '009a3d63-f3bc-542b-b647-96915d16ed80', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Description', 'What the value means to the business.', 40, 40, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('d5d9ba35-21f9-53ae-b53d-177870fd27ce', '1d09f799-e79c-5f75-9d1b-a4b05c2d48a8', '0c30bd17-4367-5c3d-b7a4-845c4b84323e', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Sequence', 'The position of the value in a dropdown, lowest first. Required — the record cannot be saved while this is empty.', 50, 50, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('8db224df-113a-562b-9e89-75dcdc378438', '1d09f799-e79c-5f75-9d1b-a4b05c2d48a8', '413b2d9f-681c-57ea-b826-3926e671843e', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Is Active', 'Whether the value is offered on new records. Required — the record cannot be saved while this is empty.', 60, 60, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_access (sys_access_id, sys_role_id, sys_table_id, sys_window_id, access_type_table, is_read_only, is_exclude, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('edb561cb-1dbb-528e-8a0c-370ca4064a5e', (SELECT sys_role_id FROM sys_role WHERE name = 'Administrator'), 'a9a4247b-255e-5e59-a81e-af954bc3fa62', 'd8a2e730-2718-5502-b647-d32079c253f4', 'W', FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_access (sys_access_id, sys_role_id, sys_table_id, sys_window_id, access_type_table, is_read_only, is_exclude, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('67b5e5b1-5de4-58c1-8625-8f8440daa842', (SELECT sys_role_id FROM sys_role WHERE name = 'User'), 'a9a4247b-255e-5e59-a81e-af954bc3fa62', 'd8a2e730-2718-5502-b647-d32079c253f4', 'R', TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+
+-- --------------------------------------------------------------------------
 -- Handling Unit Type (bus_handling_unit_type)
 -- --------------------------------------------------------------------------
 INSERT INTO sys_window (sys_window_id, name, description, help, icon, window_type, is_sales_transaction, is_default, entity_type, is_active, created_by, updated_by, created_at, updated_at)
@@ -5011,6 +6634,65 @@ VALUES ('82b81233-a12d-5617-a45a-1c3699741d32', (SELECT sys_role_id FROM sys_rol
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_access (sys_access_id, sys_role_id, sys_table_id, sys_window_id, access_type_table, is_read_only, is_exclude, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('f754e913-8ac9-518e-a241-28953bf50058', (SELECT sys_role_id FROM sys_role WHERE name = 'User'), '32a31408-eb76-5054-a7b5-13fb0c8fc791', 'ad73b93c-b1a3-5d99-a4c4-7b165b00255c', 'R', TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+
+-- --------------------------------------------------------------------------
+-- Handling Unit Status (bus_handling_unit_status)
+-- --------------------------------------------------------------------------
+INSERT INTO sys_window (sys_window_id, name, description, help, icon, window_type, is_sales_transaction, is_default, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('0d6cb5dc-91b4-5301-8cb7-56943c43ac25', 'Handling Unit Status', 'Maintain Handling Unit Status records', 'Create, find and maintain Handling Unit Status records. The list shows every Handling Unit Status you have access to — select a row to open it, or use New to add one. Each row is a single Handling Unit Status, described by 6 fields.
+
+Id and Code are unique: no two Handling Unit Status records may share the same value, and a save that would duplicate one is rejected. Code, Name, Sequence and Is Active must be filled in before the record can be saved.
+
+Every save starts as a Draft. The business rules and workflows attached to Handling Unit Status then run together in a single transaction: if all of them succeed the record becomes Final; if any of them fails, nothing they changed is kept — the record stays Draft and the reason is written onto it so you can fix the cause and retry. A Handling Unit Status with no rules or workflows attached is marked Final immediately.', 'list', 'M', FALSE, TRUE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_table (sys_table_id, table_name, name, description, icon, access_level, is_view, is_document, is_high_volume, is_changelog, sys_window_id, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('fd1464e4-ea29-51ae-922f-7e28447f15aa', 'bus_handling_unit_status', 'Handling Unit Status', 'The values of handling unit status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.', 'list', 'A', FALSE, FALSE, FALSE, TRUE, '0d6cb5dc-91b4-5301-8cb7-56943c43ac25', 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_tab (sys_tab_id, sys_window_id, sys_table_id, name, help, tab_level, seq_no, is_single_row, has_tree, is_info_tab, is_translation_tab, is_read_only, is_insert_record, is_advanced_tab, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('86af910e-d1a4-523f-b391-d3c9deb570f1', '0d6cb5dc-91b4-5301-8cb7-56943c43ac25', 'fd1464e4-ea29-51ae-922f-7e28447f15aa', 'Handling Unit Status', 'Shows one Handling Unit Status at a time. Fields are grouped: General carries the identifying fields and Details carries the rest. 4 fields marked with a red asterisk (*) must have a value before Save will accept the record. Any field showing a ? beside its label has help of its own; click it for the rules that apply there.', 0, 10, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('752fb345-a9cd-5b2f-9397-5a539be45155', 'fd1464e4-ea29-51ae-922f-7e28447f15aa', 'id', 'Id', NULL, 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('b0e2d6c9-7726-5b24-984b-a9a29f818e9f', 'fd1464e4-ea29-51ae-922f-7e28447f15aa', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('5526f6c9-88ac-5466-a903-2666feb33ee7', 'fd1464e4-ea29-51ae-922f-7e28447f15aa', 'name', 'Name', 'What a person reads in the dropdown and on a record.', 10, 200, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('a9bc7e96-a929-579a-a518-c79c196c4e0b', 'fd1464e4-ea29-51ae-922f-7e28447f15aa', 'description', 'Description', 'What the value means to the business.', 14, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 40, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('14d54294-c120-5305-afa8-8b7f31f29a72', 'fd1464e4-ea29-51ae-922f-7e28447f15aa', 'sequence', 'Sequence', 'The position of the value in a dropdown, lowest first.', 11, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 50, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('ad1e3601-1678-5121-aed7-759efbbd9c7c', 'fd1464e4-ea29-51ae-922f-7e28447f15aa', 'is_active', 'Is Active', 'Whether the value is offered on new records.', 20, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 60, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('bdf6da18-5a2c-50dd-a93e-89577056d7c2', '86af910e-d1a4-523f-b391-d3c9deb570f1', '752fb345-a9cd-5b2f-9397-5a539be45155', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Id', 'The id of this Handling Unit Status. Must be unique: a save is rejected if another Handling Unit Status already uses this value.', 10, 10, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('9b8d27f2-118d-5032-b3bf-40a4747b6382', '86af910e-d1a4-523f-b391-d3c9deb570f1', 'b0e2d6c9-7726-5b24-984b-a9a29f818e9f', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Code', 'The value stored on every record that uses this list. Fixed once created. Required — the record cannot be saved while this is empty. Must be unique: a save is rejected if another Handling Unit Status already uses this value. Up to 100 characters.', 20, 20, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('6f484f8a-c711-51d6-8554-96e22583e5bc', '86af910e-d1a4-523f-b391-d3c9deb570f1', '5526f6c9-88ac-5466-a903-2666feb33ee7', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Name', 'What a person reads in the dropdown and on a record. Required — the record cannot be saved while this is empty. Up to 200 characters.', 30, 30, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('b1d36f44-3d56-5c61-bc01-b53983fd1ace', '86af910e-d1a4-523f-b391-d3c9deb570f1', 'a9bc7e96-a929-579a-a518-c79c196c4e0b', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Description', 'What the value means to the business.', 40, 40, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('cd0e6a9a-640b-564c-828c-0c7ab146527d', '86af910e-d1a4-523f-b391-d3c9deb570f1', '14d54294-c120-5305-afa8-8b7f31f29a72', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Sequence', 'The position of the value in a dropdown, lowest first. Required — the record cannot be saved while this is empty.', 50, 50, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('d0da9630-f3f4-5459-b08b-03414ce4ff31', '86af910e-d1a4-523f-b391-d3c9deb570f1', 'ad1e3601-1678-5121-aed7-759efbbd9c7c', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Is Active', 'Whether the value is offered on new records. Required — the record cannot be saved while this is empty.', 60, 60, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_access (sys_access_id, sys_role_id, sys_table_id, sys_window_id, access_type_table, is_read_only, is_exclude, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('3768693e-c968-595f-9964-6bed32e69ac4', (SELECT sys_role_id FROM sys_role WHERE name = 'Administrator'), 'fd1464e4-ea29-51ae-922f-7e28447f15aa', '0d6cb5dc-91b4-5301-8cb7-56943c43ac25', 'W', FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_access (sys_access_id, sys_role_id, sys_table_id, sys_window_id, access_type_table, is_read_only, is_exclude, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('c3bdff58-7aa0-5761-83d6-a005cb727ba6', (SELECT sys_role_id FROM sys_role WHERE name = 'User'), 'fd1464e4-ea29-51ae-922f-7e28447f15aa', '0d6cb5dc-91b4-5301-8cb7-56943c43ac25', 'R', TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
 -- --------------------------------------------------------------------------
@@ -5250,6 +6932,177 @@ VALUES ('d63611c6-d2c4-5c88-9a2c-66ee44626a51', (SELECT sys_role_id FROM sys_rol
 ON CONFLICT DO NOTHING;
 
 -- --------------------------------------------------------------------------
+-- Wave Wave Type (bus_wave_wave_type)
+-- --------------------------------------------------------------------------
+INSERT INTO sys_window (sys_window_id, name, description, help, icon, window_type, is_sales_transaction, is_default, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('62d81784-8af8-55ef-affa-238e750fbb83', 'Wave Wave Type', 'Maintain Wave Wave Type records', 'Create, find and maintain Wave Wave Type records. The list shows every Wave Wave Type you have access to — select a row to open it, or use New to add one. Each row is a single Wave Wave Type, described by 6 fields.
+
+Id and Code are unique: no two Wave Wave Type records may share the same value, and a save that would duplicate one is rejected. Code, Name, Sequence and Is Active must be filled in before the record can be saved.
+
+Every save starts as a Draft. The business rules and workflows attached to Wave Wave Type then run together in a single transaction: if all of them succeed the record becomes Final; if any of them fails, nothing they changed is kept — the record stays Draft and the reason is written onto it so you can fix the cause and retry. A Wave Wave Type with no rules or workflows attached is marked Final immediately.', 'list', 'M', FALSE, TRUE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_table (sys_table_id, table_name, name, description, icon, access_level, is_view, is_document, is_high_volume, is_changelog, sys_window_id, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('85a0d490-674d-57f4-a559-4498ebcc5244', 'bus_wave_wave_type', 'Wave Wave Type', 'The values of wave wave type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.', 'list', 'A', FALSE, FALSE, FALSE, TRUE, '62d81784-8af8-55ef-affa-238e750fbb83', 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_tab (sys_tab_id, sys_window_id, sys_table_id, name, help, tab_level, seq_no, is_single_row, has_tree, is_info_tab, is_translation_tab, is_read_only, is_insert_record, is_advanced_tab, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('8bd450da-fe23-5efe-a14d-a05e43b4c361', '62d81784-8af8-55ef-affa-238e750fbb83', '85a0d490-674d-57f4-a559-4498ebcc5244', 'Wave Wave Type', 'Shows one Wave Wave Type at a time. Fields are grouped: General carries the identifying fields and Details carries the rest. 4 fields marked with a red asterisk (*) must have a value before Save will accept the record. Any field showing a ? beside its label has help of its own; click it for the rules that apply there.', 0, 10, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('4d67b327-206e-50b6-be39-4f51f33516f3', '85a0d490-674d-57f4-a559-4498ebcc5244', 'id', 'Id', NULL, 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('43fea218-10db-5297-ba77-c1f5898c69e4', '85a0d490-674d-57f4-a559-4498ebcc5244', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('749a4f7f-c027-547c-8802-548bcd81a8d4', '85a0d490-674d-57f4-a559-4498ebcc5244', 'name', 'Name', 'What a person reads in the dropdown and on a record.', 10, 200, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('37e44787-5575-5353-aaed-67f4b3a1cc03', '85a0d490-674d-57f4-a559-4498ebcc5244', 'description', 'Description', 'What the value means to the business.', 14, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 40, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('ef45436a-4948-5f20-9f5d-68c7f516ef47', '85a0d490-674d-57f4-a559-4498ebcc5244', 'sequence', 'Sequence', 'The position of the value in a dropdown, lowest first.', 11, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 50, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('07b182d2-9528-5856-9b93-6e3b01dc7990', '85a0d490-674d-57f4-a559-4498ebcc5244', 'is_active', 'Is Active', 'Whether the value is offered on new records.', 20, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 60, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('e6e23940-6066-5534-aec0-178acbbccbec', '8bd450da-fe23-5efe-a14d-a05e43b4c361', '4d67b327-206e-50b6-be39-4f51f33516f3', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Id', 'The id of this Wave Wave Type. Must be unique: a save is rejected if another Wave Wave Type already uses this value.', 10, 10, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('d4514ec3-1017-5a8e-a9eb-020442ffa808', '8bd450da-fe23-5efe-a14d-a05e43b4c361', '43fea218-10db-5297-ba77-c1f5898c69e4', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Code', 'The value stored on every record that uses this list. Fixed once created. Required — the record cannot be saved while this is empty. Must be unique: a save is rejected if another Wave Wave Type already uses this value. Up to 100 characters.', 20, 20, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('97c5e1ab-bdb9-5238-bb58-e40495fa744a', '8bd450da-fe23-5efe-a14d-a05e43b4c361', '749a4f7f-c027-547c-8802-548bcd81a8d4', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Name', 'What a person reads in the dropdown and on a record. Required — the record cannot be saved while this is empty. Up to 200 characters.', 30, 30, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('33516b78-c37a-51e0-8995-d478eac45bb9', '8bd450da-fe23-5efe-a14d-a05e43b4c361', '37e44787-5575-5353-aaed-67f4b3a1cc03', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Description', 'What the value means to the business.', 40, 40, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('0dac3ebf-bf66-554b-bbf4-656db5703920', '8bd450da-fe23-5efe-a14d-a05e43b4c361', 'ef45436a-4948-5f20-9f5d-68c7f516ef47', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Sequence', 'The position of the value in a dropdown, lowest first. Required — the record cannot be saved while this is empty.', 50, 50, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('e2d91bd6-d497-5331-a6e5-c881b408a0ce', '8bd450da-fe23-5efe-a14d-a05e43b4c361', '07b182d2-9528-5856-9b93-6e3b01dc7990', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Is Active', 'Whether the value is offered on new records. Required — the record cannot be saved while this is empty.', 60, 60, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_access (sys_access_id, sys_role_id, sys_table_id, sys_window_id, access_type_table, is_read_only, is_exclude, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('0ee778dd-6a95-5a9b-9836-4e7e5dc5b872', (SELECT sys_role_id FROM sys_role WHERE name = 'Administrator'), '85a0d490-674d-57f4-a559-4498ebcc5244', '62d81784-8af8-55ef-affa-238e750fbb83', 'W', FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_access (sys_access_id, sys_role_id, sys_table_id, sys_window_id, access_type_table, is_read_only, is_exclude, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('fadf0743-a0fa-532e-a4c3-5e3d7b2cea13', (SELECT sys_role_id FROM sys_role WHERE name = 'User'), '85a0d490-674d-57f4-a559-4498ebcc5244', '62d81784-8af8-55ef-affa-238e750fbb83', 'R', TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+
+-- --------------------------------------------------------------------------
+-- Packaging Packaging Level (bus_packaging_packaging_level)
+-- --------------------------------------------------------------------------
+INSERT INTO sys_window (sys_window_id, name, description, help, icon, window_type, is_sales_transaction, is_default, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('5797c78f-bbf2-5a84-bb59-3155efda5613', 'Packaging Packaging Level', 'Maintain Packaging Packaging Level records', 'Create, find and maintain Packaging Packaging Level records. The list shows every Packaging Packaging Level you have access to — select a row to open it, or use New to add one. Each row is a single Packaging Packaging Level, described by 6 fields.
+
+Id and Code are unique: no two Packaging Packaging Level records may share the same value, and a save that would duplicate one is rejected. Code, Name, Sequence and Is Active must be filled in before the record can be saved.
+
+Every save starts as a Draft. The business rules and workflows attached to Packaging Packaging Level then run together in a single transaction: if all of them succeed the record becomes Final; if any of them fails, nothing they changed is kept — the record stays Draft and the reason is written onto it so you can fix the cause and retry. A Packaging Packaging Level with no rules or workflows attached is marked Final immediately.', 'list', 'M', FALSE, TRUE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_table (sys_table_id, table_name, name, description, icon, access_level, is_view, is_document, is_high_volume, is_changelog, sys_window_id, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('ba48e56f-ab0a-509f-8056-19d8b13325c2', 'bus_packaging_packaging_level', 'Packaging Packaging Level', 'The values of packaging packaging level, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.', 'list', 'A', FALSE, FALSE, FALSE, TRUE, '5797c78f-bbf2-5a84-bb59-3155efda5613', 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_tab (sys_tab_id, sys_window_id, sys_table_id, name, help, tab_level, seq_no, is_single_row, has_tree, is_info_tab, is_translation_tab, is_read_only, is_insert_record, is_advanced_tab, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('f88d6010-fe0b-54a1-9510-802fc4b90954', '5797c78f-bbf2-5a84-bb59-3155efda5613', 'ba48e56f-ab0a-509f-8056-19d8b13325c2', 'Packaging Packaging Level', 'Shows one Packaging Packaging Level at a time. Fields are grouped: General carries the identifying fields and Details carries the rest. 4 fields marked with a red asterisk (*) must have a value before Save will accept the record. Any field showing a ? beside its label has help of its own; click it for the rules that apply there.', 0, 10, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('939a2403-39ba-5cae-a3aa-685208051dc0', 'ba48e56f-ab0a-509f-8056-19d8b13325c2', 'id', 'Id', NULL, 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('71b18c0f-3757-58a8-802d-ac589d60b509', 'ba48e56f-ab0a-509f-8056-19d8b13325c2', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('f20be924-212f-5640-a1ef-ae34dac07832', 'ba48e56f-ab0a-509f-8056-19d8b13325c2', 'name', 'Name', 'What a person reads in the dropdown and on a record.', 10, 200, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('86321114-63de-5a9f-ba8a-b621d66eea4f', 'ba48e56f-ab0a-509f-8056-19d8b13325c2', 'description', 'Description', 'What the value means to the business.', 14, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 40, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('ccaa23b6-a1f8-51ff-92a6-c91b03c39fc3', 'ba48e56f-ab0a-509f-8056-19d8b13325c2', 'sequence', 'Sequence', 'The position of the value in a dropdown, lowest first.', 11, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 50, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('de51d9cf-f7fb-57b2-8453-f4033123ddeb', 'ba48e56f-ab0a-509f-8056-19d8b13325c2', 'is_active', 'Is Active', 'Whether the value is offered on new records.', 20, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 60, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('0ad6e3cd-06c4-5f88-b22a-e2d5482b9beb', 'f88d6010-fe0b-54a1-9510-802fc4b90954', '939a2403-39ba-5cae-a3aa-685208051dc0', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Id', 'The id of this Packaging Packaging Level. Must be unique: a save is rejected if another Packaging Packaging Level already uses this value.', 10, 10, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('86ed0bec-e317-5cec-952c-bd1333643e4c', 'f88d6010-fe0b-54a1-9510-802fc4b90954', '71b18c0f-3757-58a8-802d-ac589d60b509', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Code', 'The value stored on every record that uses this list. Fixed once created. Required — the record cannot be saved while this is empty. Must be unique: a save is rejected if another Packaging Packaging Level already uses this value. Up to 100 characters.', 20, 20, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('d4776312-886d-5a9e-9806-62c1715f0449', 'f88d6010-fe0b-54a1-9510-802fc4b90954', 'f20be924-212f-5640-a1ef-ae34dac07832', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Name', 'What a person reads in the dropdown and on a record. Required — the record cannot be saved while this is empty. Up to 200 characters.', 30, 30, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('ff511f59-07c8-55fc-8116-2a439280b2f2', 'f88d6010-fe0b-54a1-9510-802fc4b90954', '86321114-63de-5a9f-ba8a-b621d66eea4f', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Description', 'What the value means to the business.', 40, 40, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('b50514c2-5e6a-5dac-88c7-3d8518379e15', 'f88d6010-fe0b-54a1-9510-802fc4b90954', 'ccaa23b6-a1f8-51ff-92a6-c91b03c39fc3', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Sequence', 'The position of the value in a dropdown, lowest first. Required — the record cannot be saved while this is empty.', 50, 50, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('749c1700-4fc4-58b4-8974-a4d75c4a5f12', 'f88d6010-fe0b-54a1-9510-802fc4b90954', 'de51d9cf-f7fb-57b2-8453-f4033123ddeb', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Is Active', 'Whether the value is offered on new records. Required — the record cannot be saved while this is empty.', 60, 60, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_access (sys_access_id, sys_role_id, sys_table_id, sys_window_id, access_type_table, is_read_only, is_exclude, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('ae236e31-e30a-5044-b54d-079e76b87d57', (SELECT sys_role_id FROM sys_role WHERE name = 'Administrator'), 'ba48e56f-ab0a-509f-8056-19d8b13325c2', '5797c78f-bbf2-5a84-bb59-3155efda5613', 'W', FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_access (sys_access_id, sys_role_id, sys_table_id, sys_window_id, access_type_table, is_read_only, is_exclude, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('e487ae1a-944c-5054-ba97-688ed0bd3012', (SELECT sys_role_id FROM sys_role WHERE name = 'User'), 'ba48e56f-ab0a-509f-8056-19d8b13325c2', '5797c78f-bbf2-5a84-bb59-3155efda5613', 'R', TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+
+-- --------------------------------------------------------------------------
+-- Calendar Exception (bus_calendar_exception)
+-- --------------------------------------------------------------------------
+INSERT INTO sys_table (sys_table_id, table_name, name, description, icon, access_level, is_view, is_document, is_high_volume, is_changelog, sys_window_id, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('b831bd63-5311-5b01-9b98-6a7f3209bd09', 'bus_calendar_exception', 'Calendar Exception', 'One holiday, closure or extra working day in a calendar. Exceptions are what make a calendar accurate. Each records a date, what it is and whether work happens on it, so that working-day calculations skip holidays and closures and count extra working days. Entered each year for the coming year''s holidays and planned closures; read by every calculation that counts working days. An exception belongs to one Calendar and is listed among its exceptions. An exception has no lifecycle; it is added, and removed if the closure is cancelled. Annual calendar maintenance, due-date and delivery calculations. 14 July 2024 — ''Fête nationale'', public holiday, non-working, in calendar FR.', 'calendar-x', 'A', FALSE, FALSE, FALSE, TRUE, 'daa696d8-8ba1-54e1-b738-892ca01287fe', 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_tab (sys_tab_id, sys_window_id, sys_table_id, name, help, tab_level, seq_no, is_single_row, has_tree, is_info_tab, is_translation_tab, is_read_only, is_insert_record, is_advanced_tab, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('72dfc091-a5dd-5e84-9c88-360a4c071cdb', 'daa696d8-8ba1-54e1-b738-892ca01287fe', 'b831bd63-5311-5b01-9b98-6a7f3209bd09', 'Calendar Exception', 'Shows one Calendar Exception at a time. Fields are grouped: General carries the identifying fields and Details carries the rest. 5 fields marked with a red asterisk (*) must have a value before Save will accept the record. Calendar is a lookup — search the linked records instead of entering an identifier by hand. Any field showing a ? beside its label has help of its own; click it for the rules that apply there.', 1, 20, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('ddb41580-9bde-5939-a3cb-a9577b9e5e85', 'b831bd63-5311-5b01-9b98-6a7f3209bd09', 'id', 'Id', 'The permanent system identifier of the calendar exception record. Assigned by the application when the record is created and never changed; integrations and links use it to find the record. Other records that refer to a calendar exception store this identifier. The number or code people quote is a separate field.', 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('69c5f03c-df53-5c10-94b0-e813a6b841dc', 'b831bd63-5311-5b01-9b98-6a7f3209bd09', 'exception_date', 'Exception Date', 'The date the exception applies to. Entered when the holiday or closure is known. One exception per date in a calendar.', 15, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('a69e32e4-28a2-5d99-85f3-389168cfb153', 'b831bd63-5311-5b01-9b98-6a7f3209bd09', 'name', 'Name', 'What the date is, such as "Christmas Day" or "Summer shutdown". Shown on calendars and in planning. Free text.', 10, 150, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('6a475181-8620-5fd5-b445-4d8f0e67ad93', 'b831bd63-5311-5b01-9b98-6a7f3209bd09', 'exception_type', 'Exception Type', 'What kind of departure from the normal working pattern this entry records. Chosen by the calendar owner when the entry is added. Extra working days turn a normally free day into a working day. A public holiday on which work does not happen. A day the company or site is closed. A normally free day that is worked.', 1004, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 40, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('cbb24dc3-a6dd-5086-83e8-81276a33ad06', 'b831bd63-5311-5b01-9b98-6a7f3209bd09', 'is_working_day', 'Is Working Day', 'Whether work happens on the date. Decides whether the date counts in working-day calculations. False for holidays and closures, true for extra working days.', 20, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 50, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('c697246b-e180-5a26-b5dd-c296f510fc9c', 'b831bd63-5311-5b01-9b98-6a7f3209bd09', 'calendar_id', 'Calendar', 'The calendar the exception belongs to. Set when adding it. Every exception belongs to exactly one calendar. Listed under the calendar.', 19, NULL, NULL, FALSE, TRUE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 60, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+UPDATE sys_tab SET link_column_id = 'c697246b-e180-5a26-b5dd-c296f510fc9c' WHERE sys_tab_id = '72dfc091-a5dd-5e84-9c88-360a4c071cdb';
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('7c37232d-98e0-54eb-a33a-4cd188a4c9a4', '72dfc091-a5dd-5e84-9c88-360a4c071cdb', 'ddb41580-9bde-5939-a3cb-a9577b9e5e85', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Id', 'The permanent system identifier of the calendar exception record. Assigned by the application when the record is created and never changed; integrations and links use it to find the record. Other records that refer to a calendar exception store this identifier. The number or code people quote is a separate field. Must be unique: a save is rejected if another Calendar Exception already uses this value.', 10, 10, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('0ffdf3fc-1348-533c-be19-2dc82464357d', '72dfc091-a5dd-5e84-9c88-360a4c071cdb', '69c5f03c-df53-5c10-94b0-e813a6b841dc', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Exception Date', 'The date the exception applies to. Entered when the holiday or closure is known. One exception per date in a calendar. Required — the record cannot be saved while this is empty.', 20, 20, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('72981cbf-bb26-598a-9e02-7dc98e78a783', '72dfc091-a5dd-5e84-9c88-360a4c071cdb', 'a69e32e4-28a2-5d99-85f3-389168cfb153', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Name', 'What the date is, such as "Christmas Day" or "Summer shutdown". Shown on calendars and in planning. Free text. Required — the record cannot be saved while this is empty. Up to 150 characters.', 30, 30, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('d0412926-0853-5282-be0f-8565d3172afa', '72dfc091-a5dd-5e84-9c88-360a4c071cdb', '6a475181-8620-5fd5-b445-4d8f0e67ad93', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Exception Type', 'What kind of departure from the normal working pattern this entry records. Chosen by the calendar owner when the entry is added. Extra working days turn a normally free day into a working day. A public holiday on which work does not happen. A day the company or site is closed. A normally free day that is worked. Required — the record cannot be saved while this is empty.', 40, 40, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('8c172175-1891-533b-ac80-7bd29e5b88f2', '72dfc091-a5dd-5e84-9c88-360a4c071cdb', 'cbb24dc3-a6dd-5086-83e8-81276a33ad06', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Is Working Day', 'Whether work happens on the date. Decides whether the date counts in working-day calculations. False for holidays and closures, true for extra working days. Required — the record cannot be saved while this is empty.', 50, 50, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('87c3535d-8698-5536-922e-fbb9d05b7eb1', '72dfc091-a5dd-5e84-9c88-360a4c071cdb', 'c697246b-e180-5a26-b5dd-c296f510fc9c', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Calendar', 'The calendar the exception belongs to. Set when adding it. Every exception belongs to exactly one calendar. Listed under the calendar. Required — the record cannot be saved while this is empty.', 60, 60, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_access (sys_access_id, sys_role_id, sys_table_id, sys_window_id, access_type_table, is_read_only, is_exclude, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('37891e11-58ff-5f16-ba7f-7fc33e2946d3', (SELECT sys_role_id FROM sys_role WHERE name = 'Administrator'), 'b831bd63-5311-5b01-9b98-6a7f3209bd09', 'daa696d8-8ba1-54e1-b738-892ca01287fe', 'W', FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_access (sys_access_id, sys_role_id, sys_table_id, sys_window_id, access_type_table, is_read_only, is_exclude, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('8df7cd0c-088c-5d1b-b848-d5d5c2e13f59', (SELECT sys_role_id FROM sys_role WHERE name = 'User'), 'b831bd63-5311-5b01-9b98-6a7f3209bd09', 'daa696d8-8ba1-54e1-b738-892ca01287fe', 'R', TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+
+-- --------------------------------------------------------------------------
 -- Inventory Location (bus_inventory_location)
 -- --------------------------------------------------------------------------
 INSERT INTO sys_table (sys_table_id, table_name, name, description, icon, access_level, is_view, is_document, is_high_volume, is_changelog, sys_window_id, entity_type, is_active, created_by, updated_by, created_at, updated_at)
@@ -5265,10 +7118,10 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('9544a3af-faa9-5e73-85f7-da3dcbf29903', '21312616-21ce-5dc9-a3fb-2aac8f694a85', 'code', 'Code', 'The code of the position, such as A-03-02 for aisle, rack and level. Unique; printed on labels and scanned during putaway, picking and counts.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('f9f61969-040d-5e52-9d1e-54204fd338a9', '21312616-21ce-5dc9-a3fb-2aac8f694a85', 'location_type', 'Location Type', 'The kind of stock-holding position this location is, such as a bin, shelf, rack or quarantine area. Chosen when the location is created; it decides which warehouse processes, such as putaway, picking or quality holds, may use the position. Where goods wait after arrival, before they are checked and put away. A small storage compartment holding loose items. A shelf position for storing cartons or small goods by hand. A pallet rack position holding palletised goods. A position on the warehouse floor, such as block stacking. A forward position from which customer orders are picked. Where orders are gathered and checked before loading. Where stock is held apart pending a quality decision. A slot in the outside yard for trailers, containers or bulky goods. Any other kind of stock-holding position.', 1008, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('f9f61969-040d-5e52-9d1e-54204fd338a9', '21312616-21ce-5dc9-a3fb-2aac8f694a85', 'location_type', 'Location Type', 'The kind of stock-holding position this location is, such as a bin, shelf, rack or quarantine area. Chosen when the location is created; it decides which warehouse processes, such as putaway, picking or quality holds, may use the position. Where goods wait after arrival, before they are checked and put away. A small storage compartment holding loose items. A shelf position for storing cartons or small goods by hand. A pallet rack position holding palletised goods. A position on the warehouse floor, such as block stacking. A forward position from which customer orders are picked. Where orders are gathered and checked before loading. Where stock is held apart pending a quality decision. A slot in the outside yard for trailers, containers or bulky goods. Any other kind of stock-holding position.', 1021, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('b67d9e21-b67e-59ee-90b4-168d1cff22d4', '21312616-21ce-5dc9-a3fb-2aac8f694a85', 'status', 'Status', 'Open for receiving, storing and picking. Temporarily barred from movements, for example for a count or a quality hold; it can be unblocked. Not in use; no stock should be placed there, though it can be reactivated. Controls whether the location can participate in normal future inventory operations. Applies to receiving, put-away, picking, transfer, allocation, replenishment, counting and staging. Status constrains future operations; it never deletes current balances or historical movements. Status changes trigger dependent-workflow validation before operational eligibility changes become effective.', 1009, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 40, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('b67d9e21-b67e-59ee-90b4-168d1cff22d4', '21312616-21ce-5dc9-a3fb-2aac8f694a85', 'status', 'Status', 'Open for receiving, storing and picking. Temporarily barred from movements, for example for a count or a quality hold; it can be unblocked. Not in use; no stock should be placed there, though it can be reactivated. Controls whether the location can participate in normal future inventory operations. Applies to receiving, put-away, picking, transfer, allocation, replenishment, counting and staging. Status constrains future operations; it never deletes current balances or historical movements. Status changes trigger dependent-workflow validation before operational eligibility changes become effective.', 1022, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 40, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('2f7090ee-2544-5a58-b5b2-8f17e5535dc8', '21312616-21ce-5dc9-a3fb-2aac8f694a85', 'capacity', 'Capacity', 'How much the location can hold. Set from the physical layout; putaway checks it before assigning stock.', 12, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 50, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -5315,19 +7168,34 @@ INSERT INTO sys_table (sys_table_id, table_name, name, description, icon, access
 VALUES ('ec73e494-972b-5fe3-b221-ce3859c47444', 'bus_warehouse_zone', 'Warehouse Zone', 'Operational grouping between Warehouse and InventoryLocation. Warehouse is the facility, WarehouseZone is the process/storage area, InventoryLocation is the stock-control position. Receiving, putaway, reserve/pick storage, quarantine, returns, staging and shipping. Zone rules guide InventoryTransfer and WMS tasks but do not themselves alter inventory. Configured → active/restricted → retired while historical transactions retain zone context. Zone control changes revalidate future putaway/picking/transfer destinations without rewriting completed movements.', 'warehouse', 'A', FALSE, FALSE, FALSE, TRUE, '7e4b220e-a737-5ee6-ab11-d39c06e8de5a', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_tab (sys_tab_id, sys_window_id, sys_table_id, name, help, tab_level, seq_no, is_single_row, has_tree, is_info_tab, is_translation_tab, is_read_only, is_insert_record, is_advanced_tab, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('d5afe7fd-5e5b-5533-ab50-0bde20a259de', '7e4b220e-a737-5ee6-ab11-d39c06e8de5a', 'ec73e494-972b-5fe3-b221-ce3859c47444', 'Warehouse Zone', 'Shows one Warehouse Zone at a time. Fields are grouped: General carries the identifying fields and Details carries the rest. 3 fields marked with a red asterisk (*) must have a value before Save will accept the record. Warehouse is a lookup — search the linked records instead of entering an identifier by hand. Any field showing a ? beside its label has help of its own; click it for the rules that apply there.', 1, 30, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('d5afe7fd-5e5b-5533-ab50-0bde20a259de', '7e4b220e-a737-5ee6-ab11-d39c06e8de5a', 'ec73e494-972b-5fe3-b221-ce3859c47444', 'Warehouse Zone', 'Shows one Warehouse Zone at a time. Fields are grouped: General carries the identifying fields and Details carries the rest. 6 fields marked with a red asterisk (*) must have a value before Save will accept the record. Warehouse is a lookup — search the linked records instead of entering an identifier by hand. Any field showing a ? beside its label has help of its own; click it for the rules that apply there.', 1, 30, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('70ae1197-8e44-55e9-a000-81c47b3d877a', 'ec73e494-972b-5fe3-b221-ce3859c47444', 'id', 'Id', 'The identity of the zone, constant for its life. Identifies an operational storage/handling area. Putaway, picking, replenishment, capacity and controls. Groups InventoryLocations within one Warehouse.', 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('9c66344b-2e3e-56a7-9748-84ae1b76c761', 'ec73e494-972b-5fe3-b221-ce3859c47444', 'zone_code', 'Zone Code', 'The short code that names the zone within its warehouse, as shown on labels and screens. Entered when the zone is created; used in putaway and pick routing, location labels and reports, so it should stay stable. Operational identifier used by warehouse workers and systems. Unique within Warehouse.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, FALSE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('9c66344b-2e3e-56a7-9748-84ae1b76c761', 'ec73e494-972b-5fe3-b221-ce3859c47444', 'zone_code', 'Zone Code', 'The short code that names the zone within its warehouse, as shown on labels and screens. Entered when the zone is created; used in putaway and pick routing, location labels and reports, so it should stay stable. Operational identifier used by warehouse workers and systems. Unique within Warehouse.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('92a151d2-bb79-59a7-b4c8-eb0c3bcd807b', 'ec73e494-972b-5fe3-b221-ce3859c47444', 'zone_type', 'Zone Type', 'The main operational purpose of the zone, such as receiving, picking or cold storage. Chosen on creation; putaway and picking logic route stock by it, and compliance rules apply to restricted types. Where inbound goods are unloaded and checked before putaway. Bulk storage that holds stock to replenish picking areas. Forward area from which orders are picked in small quantities. A temporary holding area where goods wait to be consolidated or loaded. Where packed orders are held and loaded onto outbound transport. A segregated area holding stock that failed or awaits inspection and may not be used. Where returned goods are received and assessed for restock, repair or disposal. A temperature-controlled area for goods needing refrigeration or freezing. A restricted area for dangerous goods, storing them under safety and regulatory controls. Ordinary storage with no special handling or purpose. Governs eligible warehouse processes and stock. Location-level controls may further restrict eligibility.', 1040, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('92a151d2-bb79-59a7-b4c8-eb0c3bcd807b', 'ec73e494-972b-5fe3-b221-ce3859c47444', 'zone_type', 'Zone Type', 'The main operational purpose of the zone, such as receiving, picking or cold storage. Chosen on creation; putaway and picking logic route stock by it, and compliance rules apply to restricted types. Where inbound goods are unloaded and checked before putaway. Bulk storage that holds stock to replenish picking areas. Forward area from which orders are picked in small quantities. A temporary holding area where goods wait to be consolidated or loaded. Where packed orders are held and loaded onto outbound transport. A segregated area holding stock that failed or awaits inspection and may not be used. Where returned goods are received and assessed for restock, repair or disposal. A temperature-controlled area for goods needing refrigeration or freezing. A restricted area for dangerous goods, storing them under safety and regulatory controls. Ordinary storage with no special handling or purpose. Governs eligible warehouse processes and stock. Location-level controls may further restrict eligibility.', 1059, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('a8173e67-34ac-5194-9293-27c9b95bd35b', 'ec73e494-972b-5fe3-b221-ce3859c47444', 'warehouse_id', 'Warehouse', 'The warehouse the zone belongs to. Each zone belongs to exactly one warehouse. Supplies facility and operating context. WMS hierarchy. Warehouse status constrains zone use.', 19, NULL, NULL, FALSE, TRUE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 40, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('75562692-012b-56b1-badb-9b061bb45214', 'ec73e494-972b-5fe3-b221-ce3859c47444', 'name', 'Name', 'The name of the zone, such as "Cold store 1". Shown in warehouse screens. Identifies the zone for people.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 40, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('fd05f036-ced1-5cfe-bb61-fa15ec57a84b', 'ec73e494-972b-5fe3-b221-ce3859c47444', 'min_temperature_c', 'Min Temperature C', 'The lowest temperature the zone is kept at, in °C. Checked when products with storage conditions are put away. Empty for zones without temperature control.', 12, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 50, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('0f9137b2-a938-5bc2-b9ba-b542334cc085', 'ec73e494-972b-5fe3-b221-ce3859c47444', 'max_temperature_c', 'Max Temperature C', 'The highest temperature the zone is kept at, in °C. Checked when products with storage conditions are put away. Not lower than the minimum.', 12, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 60, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('305c256d-a031-5148-98ee-63344089b0f9', 'ec73e494-972b-5fe3-b221-ce3859c47444', 'is_restricted', 'Is Restricted', 'Whether access to the zone is restricted to authorised staff. Used for high-value, hazardous or quarantined goods. Tasks in restricted zones go only to authorised people.', 20, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 70, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('06fabfc7-2423-55a7-bacc-4edf58d78086', 'ec73e494-972b-5fe3-b221-ce3859c47444', 'status', 'Status', 'Whether the zone is currently in use in the warehouse. Changed during refits or closures; inactive zones receive no putaway. The zone is open and can receive and release stock. The zone is closed or being refitted and takes no new stock. Inactive zones receive no putaway.', 1058, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 80, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('a8173e67-34ac-5194-9293-27c9b95bd35b', 'ec73e494-972b-5fe3-b221-ce3859c47444', 'warehouse_id', 'Warehouse', 'The warehouse the zone belongs to. Each zone belongs to exactly one warehouse. Supplies facility and operating context. WMS hierarchy. Warehouse status constrains zone use.', 19, NULL, NULL, FALSE, TRUE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 90, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 UPDATE sys_tab SET link_column_id = 'a8173e67-34ac-5194-9293-27c9b95bd35b' WHERE sys_tab_id = 'd5afe7fd-5e5b-5533-ab50-0bde20a259de';
 INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
@@ -5340,7 +7208,22 @@ INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_
 VALUES ('dccd0ebb-cb2b-55ac-b209-300855e3b04b', 'd5afe7fd-5e5b-5533-ab50-0bde20a259de', '92a151d2-bb79-59a7-b4c8-eb0c3bcd807b', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Zone Type', 'The main operational purpose of the zone, such as receiving, picking or cold storage. Chosen on creation; putaway and picking logic route stock by it, and compliance rules apply to restricted types. Where inbound goods are unloaded and checked before putaway. Bulk storage that holds stock to replenish picking areas. Forward area from which orders are picked in small quantities. A temporary holding area where goods wait to be consolidated or loaded. Where packed orders are held and loaded onto outbound transport. A segregated area holding stock that failed or awaits inspection and may not be used. Where returned goods are received and assessed for restock, repair or disposal. A temperature-controlled area for goods needing refrigeration or freezing. A restricted area for dangerous goods, storing them under safety and regulatory controls. Ordinary storage with no special handling or purpose. Governs eligible warehouse processes and stock. Location-level controls may further restrict eligibility. Required — the record cannot be saved while this is empty.', 30, 30, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('75ab4957-0c66-53a8-a784-51fe7109d189', 'd5afe7fd-5e5b-5533-ab50-0bde20a259de', 'a8173e67-34ac-5194-9293-27c9b95bd35b', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Warehouse', 'The warehouse the zone belongs to. Each zone belongs to exactly one warehouse. Supplies facility and operating context. WMS hierarchy. Warehouse status constrains zone use. Required — the record cannot be saved while this is empty.', 40, 40, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('00c21879-5aa7-5c6d-9409-52c524ee24ef', 'd5afe7fd-5e5b-5533-ab50-0bde20a259de', '75562692-012b-56b1-badb-9b061bb45214', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Name', 'The name of the zone, such as "Cold store 1". Shown in warehouse screens. Identifies the zone for people. Required — the record cannot be saved while this is empty. Up to 100 characters.', 40, 40, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('daca5b8e-5d76-5024-8228-685f402f17e6', 'd5afe7fd-5e5b-5533-ab50-0bde20a259de', 'fd05f036-ced1-5cfe-bb61-fa15ec57a84b', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Min Temperature C', 'The lowest temperature the zone is kept at, in °C. Checked when products with storage conditions are put away. Empty for zones without temperature control.', 50, 50, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('0a0200c5-4894-5495-a10d-776af1695c0f', 'd5afe7fd-5e5b-5533-ab50-0bde20a259de', '0f9137b2-a938-5bc2-b9ba-b542334cc085', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Max Temperature C', 'The highest temperature the zone is kept at, in °C. Checked when products with storage conditions are put away. Not lower than the minimum.', 60, 60, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('f6ff85f9-557b-5f79-ae1e-ac9c6c52f500', 'd5afe7fd-5e5b-5533-ab50-0bde20a259de', '305c256d-a031-5148-98ee-63344089b0f9', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Is Restricted', 'Whether access to the zone is restricted to authorised staff. Used for high-value, hazardous or quarantined goods. Tasks in restricted zones go only to authorised people. Required — the record cannot be saved while this is empty.', 70, 70, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('7da84950-9781-5d0c-afb6-24bc7f972d19', 'd5afe7fd-5e5b-5533-ab50-0bde20a259de', '06fabfc7-2423-55a7-bacc-4edf58d78086', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Status', 'Whether the zone is currently in use in the warehouse. Changed during refits or closures; inactive zones receive no putaway. The zone is open and can receive and release stock. The zone is closed or being refitted and takes no new stock. Inactive zones receive no putaway. Required — the record cannot be saved while this is empty.', 80, 80, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('75ab4957-0c66-53a8-a784-51fe7109d189', 'd5afe7fd-5e5b-5533-ab50-0bde20a259de', 'a8173e67-34ac-5194-9293-27c9b95bd35b', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Warehouse', 'The warehouse the zone belongs to. Each zone belongs to exactly one warehouse. Supplies facility and operating context. WMS hierarchy. Warehouse status constrains zone use. Required — the record cannot be saved while this is empty.', 90, 90, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_access (sys_access_id, sys_role_id, sys_table_id, sys_window_id, access_type_table, is_read_only, is_exclude, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('cb223c0f-9c97-5906-aee0-bf584b3bdd68', (SELECT sys_role_id FROM sys_role WHERE name = 'Administrator'), 'ec73e494-972b-5fe3-b221-ce3859c47444', '7e4b220e-a737-5ee6-ab11-d39c06e8de5a', 'W', FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -5356,22 +7239,37 @@ INSERT INTO sys_table (sys_table_id, table_name, name, description, icon, access
 VALUES ('1dff25e9-d6cb-5c5c-8cb2-b3beffe2545d', 'bus_dock', 'Dock', 'A warehouse door, bay or loading position used for receiving, shipping, transfer and staging of goods. Trucks queue at docks, and a warehouse is only as fast as its docks. Each dock is a resource that is scheduled, assigned to a purpose and tied to the area where goods are staged. Defined by warehouse managers; booked by carrier appointments; read by yard and dock schedulers. A dock belongs to a Warehouse and may name a staging InventoryLocation where goods wait before loading or after unloading. Docks are in service or out of service according to maintenance; the dock code is stable. Dock D-07, a bidirectional door used for outbound parcels in the morning and returns in the afternoon.', 'database', 'A', FALSE, FALSE, FALSE, TRUE, '7e4b220e-a737-5ee6-ab11-d39c06e8de5a', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_tab (sys_tab_id, sys_window_id, sys_table_id, name, help, tab_level, seq_no, is_single_row, has_tree, is_info_tab, is_translation_tab, is_read_only, is_insert_record, is_advanced_tab, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('61cef362-f43d-54d1-a370-a206551e78eb', '7e4b220e-a737-5ee6-ab11-d39c06e8de5a', '1dff25e9-d6cb-5c5c-8cb2-b3beffe2545d', 'Dock', 'Shows one Dock at a time. Fields are grouped: General carries the identifying fields and Details carries the rest. 3 fields marked with a red asterisk (*) must have a value before Save will accept the record. Warehouse is a lookup — search the linked records instead of entering an identifier by hand. Any field showing a ? beside its label has help of its own; click it for the rules that apply there.', 1, 40, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('61cef362-f43d-54d1-a370-a206551e78eb', '7e4b220e-a737-5ee6-ab11-d39c06e8de5a', '1dff25e9-d6cb-5c5c-8cb2-b3beffe2545d', 'Dock', 'Shows one Dock at a time. Fields are grouped: General carries the identifying fields and Details carries the rest. 6 fields marked with a red asterisk (*) must have a value before Save will accept the record. Warehouse is a lookup — search the linked records instead of entering an identifier by hand. Any field showing a ? beside its label has help of its own; click it for the rules that apply there.', 1, 40, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('bee1d0b6-8098-51b3-914a-08f4b3f0178a', '1dff25e9-d6cb-5c5c-8cb2-b3beffe2545d', 'id', 'Id', 'The identity of the dock, independent of its door number. Generated on creation; appointments and gate events refer to it. Identifies one loading/receiving resource. Belongs to one Warehouse.', 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('60c5d0f8-b012-5e84-b775-256b0fa3dc67', '1dff25e9-d6cb-5c5c-8cb2-b3beffe2545d', 'dock_code', 'Dock Code', 'The number or code of the door, as painted at the warehouse. Unique within the warehouse; used by drivers and loaders. Human/scanner identifier for the physical position. Unique within Warehouse.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, FALSE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('60c5d0f8-b012-5e84-b775-256b0fa3dc67', '1dff25e9-d6cb-5c5c-8cb2-b3beffe2545d', 'dock_code', 'Dock Code', 'The number or code of the door, as painted at the warehouse. Unique within the warehouse; used by drivers and loaders. Human/scanner identifier for the physical position. Unique within Warehouse.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('1e0c8160-8fd0-5043-a24a-d8b9a9a0fd1a', '1dff25e9-d6cb-5c5c-8cb2-b3beffe2545d', 'dock_type', 'Dock Type', 'What traffic the dock handles. Set by the warehouse manager; scheduling offers only docks suited to the movement. Receiving goods from suppliers or transfers. Shipping goods to customers or other sites. Used for both receiving and shipping, as needed. Goods move straight from inbound to outbound without being stored. Controls eligible receiving/shipping work. Warehouse policy may add constraints.', 1003, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('1e0c8160-8fd0-5043-a24a-d8b9a9a0fd1a', '1dff25e9-d6cb-5c5c-8cb2-b3beffe2545d', 'dock_type', 'Dock Type', 'What traffic the dock handles. Set by the warehouse manager; scheduling offers only docks suited to the movement. Receiving goods from suppliers or transfers. Shipping goods to customers or other sites. Used for both receiving and shipping, as needed. Goods move straight from inbound to outbound without being stored. Controls eligible receiving/shipping work. Warehouse policy may add constraints.', 1011, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('a7bc0349-d4f7-539a-89a3-9c64e88cd0e0', '1dff25e9-d6cb-5c5c-8cb2-b3beffe2545d', 'warehouse_id', 'Warehouse', 'The warehouse the dock belongs to. Set when the dock is created. Exactly one warehouse: a dock is a physical door of a single building. Places the dock in the site''s capacity. Supplies facility context.', 19, NULL, NULL, FALSE, TRUE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 40, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('138a7427-d4bc-5432-9d9f-2411e5dc5db6', '1dff25e9-d6cb-5c5c-8cb2-b3beffe2545d', 'name', 'Name', 'A descriptive name for the dock, such as "North yard door 7". Shown in dock schedules and to drivers directed to the door. Optional, since the code already identifies the door.', 10, 100, NULL, FALSE, FALSE, FALSE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 40, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('a963af5a-bbb3-5af8-99a8-d2dd5e12df6b', '1dff25e9-d6cb-5c5c-8cb2-b3beffe2545d', 'staging_location_id', 'Staging Location', 'The area in which goods wait next to the dock. Chosen to link dock activity with inventory location records. At most one staging location; some docks load directly from trailers. Lets receiving and picking hand goods over at a known spot. Connects loading resource to stock-control location.', 19, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 50, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('5933fe24-f1f0-568a-b763-7454124325e6', '1dff25e9-d6cb-5c5c-8cb2-b3beffe2545d', 'max_vehicle_length_m', 'Max Vehicle Length M', 'The longest vehicle the dock can take, in metres. Checked when a vehicle is scheduled at the dock. Read with the leveller and height.', 12, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 50, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('673693c8-fd15-5969-b0ee-12b893c1e56c', '1dff25e9-d6cb-5c5c-8cb2-b3beffe2545d', 'has_leveller', 'Has Leveller', 'Whether the dock has a dock leveller for loading at truck height. Vehicles without a tail lift need one. Read when assigning vehicles.', 20, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 60, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('19270656-c66f-5ff0-9283-bfd15de03475', '1dff25e9-d6cb-5c5c-8cb2-b3beffe2545d', 'is_temperature_controlled', 'Is Temperature Controlled', 'Whether the dock is sealed and temperature-controlled for chilled or frozen goods. Cold-chain loads are scheduled only at such docks. Read with the warehouse zone it serves.', 20, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 70, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('828ce7cc-9cf1-5044-b84f-bda78c1e2d2b', '1dff25e9-d6cb-5c5c-8cb2-b3beffe2545d', 'status', 'Status', 'In service and offered when appointments and loads are scheduled. Not usable, for example during repair, and left out of scheduling. Whether the dock can be used. Changed when the dock is out of service. Unavailable docks are not offered in scheduling.', 1012, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 80, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('a7bc0349-d4f7-539a-89a3-9c64e88cd0e0', '1dff25e9-d6cb-5c5c-8cb2-b3beffe2545d', 'warehouse_id', 'Warehouse', 'The warehouse the dock belongs to. Set when the dock is created. Exactly one warehouse: a dock is a physical door of a single building. Places the dock in the site''s capacity. Supplies facility context.', 19, NULL, NULL, FALSE, TRUE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 90, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('a963af5a-bbb3-5af8-99a8-d2dd5e12df6b', '1dff25e9-d6cb-5c5c-8cb2-b3beffe2545d', 'staging_location_id', 'Staging Location', 'The area in which goods wait next to the dock. Chosen to link dock activity with inventory location records. At most one staging location; some docks load directly from trailers. Lets receiving and picking hand goods over at a known spot. Connects loading resource to stock-control location.', 19, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 100, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 UPDATE sys_column SET ref_table_name = 'bus_inventory_location' WHERE sys_column_id = 'a963af5a-bbb3-5af8-99a8-d2dd5e12df6b';
 UPDATE sys_tab SET link_column_id = 'a7bc0349-d4f7-539a-89a3-9c64e88cd0e0' WHERE sys_tab_id = '61cef362-f43d-54d1-a370-a206551e78eb';
@@ -5385,10 +7283,25 @@ INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_
 VALUES ('0331106b-8885-58e3-8ac3-f714abe735c6', '61cef362-f43d-54d1-a370-a206551e78eb', '1e0c8160-8fd0-5043-a24a-d8b9a9a0fd1a', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Dock Type', 'What traffic the dock handles. Set by the warehouse manager; scheduling offers only docks suited to the movement. Receiving goods from suppliers or transfers. Shipping goods to customers or other sites. Used for both receiving and shipping, as needed. Goods move straight from inbound to outbound without being stored. Controls eligible receiving/shipping work. Warehouse policy may add constraints. Required — the record cannot be saved while this is empty.', 30, 30, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('0a23d8d0-4522-539f-bc81-71c6bae79e44', '61cef362-f43d-54d1-a370-a206551e78eb', 'a7bc0349-d4f7-539a-89a3-9c64e88cd0e0', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Warehouse', 'The warehouse the dock belongs to. Set when the dock is created. Exactly one warehouse: a dock is a physical door of a single building. Places the dock in the site''s capacity. Supplies facility context. Required — the record cannot be saved while this is empty.', 40, 40, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('5a1441fd-2bac-5678-85bc-05d3a6dd7816', '61cef362-f43d-54d1-a370-a206551e78eb', '138a7427-d4bc-5432-9d9f-2411e5dc5db6', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Name', 'A descriptive name for the dock, such as "North yard door 7". Shown in dock schedules and to drivers directed to the door. Optional, since the code already identifies the door. Up to 100 characters.', 40, 40, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('d119ad66-f39f-5be3-97b8-ae28a6d41597', '61cef362-f43d-54d1-a370-a206551e78eb', 'a963af5a-bbb3-5af8-99a8-d2dd5e12df6b', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Staging Location', 'The area in which goods wait next to the dock. Chosen to link dock activity with inventory location records. At most one staging location; some docks load directly from trailers. Lets receiving and picking hand goods over at a known spot. Connects loading resource to stock-control location.', 50, 50, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('2301b8e2-a3df-5c65-a9a6-33be6abadb3a', '61cef362-f43d-54d1-a370-a206551e78eb', '5933fe24-f1f0-568a-b763-7454124325e6', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Max Vehicle Length M', 'The longest vehicle the dock can take, in metres. Checked when a vehicle is scheduled at the dock. Read with the leveller and height.', 50, 50, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('118a6e37-e7d5-5be6-86fb-2bab1609380c', '61cef362-f43d-54d1-a370-a206551e78eb', '673693c8-fd15-5969-b0ee-12b893c1e56c', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Has Leveller', 'Whether the dock has a dock leveller for loading at truck height. Vehicles without a tail lift need one. Read when assigning vehicles. Required — the record cannot be saved while this is empty.', 60, 60, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('e8128416-339e-5d16-8293-d205e9dd1abb', '61cef362-f43d-54d1-a370-a206551e78eb', '19270656-c66f-5ff0-9283-bfd15de03475', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Is Temperature Controlled', 'Whether the dock is sealed and temperature-controlled for chilled or frozen goods. Cold-chain loads are scheduled only at such docks. Read with the warehouse zone it serves. Required — the record cannot be saved while this is empty.', 70, 70, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('65b1c9d0-4e7d-5d03-974b-a7578622f4ea', '61cef362-f43d-54d1-a370-a206551e78eb', '828ce7cc-9cf1-5044-b84f-bda78c1e2d2b', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Status', 'In service and offered when appointments and loads are scheduled. Not usable, for example during repair, and left out of scheduling. Whether the dock can be used. Changed when the dock is out of service. Unavailable docks are not offered in scheduling. Required — the record cannot be saved while this is empty.', 80, 80, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('0a23d8d0-4522-539f-bc81-71c6bae79e44', '61cef362-f43d-54d1-a370-a206551e78eb', 'a7bc0349-d4f7-539a-89a3-9c64e88cd0e0', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Warehouse', 'The warehouse the dock belongs to. Set when the dock is created. Exactly one warehouse: a dock is a physical door of a single building. Places the dock in the site''s capacity. Supplies facility context. Required — the record cannot be saved while this is empty.', 90, 90, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('d119ad66-f39f-5be3-97b8-ae28a6d41597', '61cef362-f43d-54d1-a370-a206551e78eb', 'a963af5a-bbb3-5af8-99a8-d2dd5e12df6b', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Staging Location', 'The area in which goods wait next to the dock. Chosen to link dock activity with inventory location records. At most one staging location; some docks load directly from trailers. Lets receiving and picking hand goods over at a known spot. Connects loading resource to stock-control location.', 100, 100, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_access (sys_access_id, sys_role_id, sys_table_id, sys_window_id, access_type_table, is_read_only, is_exclude, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('920d04cc-9b39-5f6b-98a8-f38d06b6ef32', (SELECT sys_role_id FROM sys_role WHERE name = 'Administrator'), '1dff25e9-d6cb-5c5c-8cb2-b3beffe2545d', '7e4b220e-a737-5ee6-ab11-d39c06e8de5a', 'W', FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -5404,7 +7317,7 @@ INSERT INTO sys_table (sys_table_id, table_name, name, description, icon, access
 VALUES ('f0b74303-fb35-58f0-b1a3-fbc8e9dbcd4e', 'bus_packaging', 'Packaging', 'A packaging configuration that defines how a product or variant is contained, counted and handled for buying, storing, selling and shipping. Goods are traded in packs, not just units: a carton of twelve, a pallet of forty cartons. The packaging record states these configurations so orders, stock and transport all count in the same units. Defined by product management or logistics; chosen on purchase and sales documents; read by warehouse and transport. Packaging belongs to a Product (and optionally a ProductVariant) and is measured in a UnitOfMeasure. Packaging definitions are maintained over the product''s life; changes apply to future documents while past documents keep what they used. Carton of 12 bottles of 75 cl for the house red wine.', 'database', 'A', FALSE, FALSE, FALSE, TRUE, '4a021c44-d4ff-56c5-98e5-4f4131ee959a', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_tab (sys_tab_id, sys_window_id, sys_table_id, name, help, tab_level, seq_no, is_single_row, has_tree, is_info_tab, is_translation_tab, is_read_only, is_insert_record, is_advanced_tab, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('b9b9c57f-0be3-541c-a8c6-4725ecc44434', '4a021c44-d4ff-56c5-98e5-4f4131ee959a', 'f0b74303-fb35-58f0-b1a3-fbc8e9dbcd4e', 'Packaging', 'Shows one Packaging at a time. Fields are grouped: General carries the identifying fields and Details carries the rest. 4 fields marked with a red asterisk (*) must have a value before Save will accept the record. Product and Unit Of Measure are lookups — search the linked records instead of entering an identifier by hand. Any field showing a ? beside its label has help of its own; click it for the rules that apply there.', 1, 20, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('b9b9c57f-0be3-541c-a8c6-4725ecc44434', '4a021c44-d4ff-56c5-98e5-4f4131ee959a', 'f0b74303-fb35-58f0-b1a3-fbc8e9dbcd4e', 'Packaging', 'Shows one Packaging at a time. Fields are grouped: General carries the identifying fields and Details carries the rest. 6 fields marked with a red asterisk (*) must have a value before Save will accept the record. Product and Unit Of Measure are lookups — search the linked records instead of entering an identifier by hand. Any field showing a ? beside its label has help of its own; click it for the rules that apply there.', 1, 20, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('29d8cc3e-f41d-5204-8ad6-0fcefc94cebc', 'f0b74303-fb35-58f0-b1a3-fbc8e9dbcd4e', 'id', 'Id', 'The identity of the packaging definition. Generated on creation; documents and labels refer to it. Identifies one governed pack configuration. References Product and quantity/UOM semantics.', 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -5416,10 +7329,31 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('8d88f6b4-f2d0-5eeb-8ce0-e83f05e11cae', 'f0b74303-fb35-58f0-b1a3-fbc8e9dbcd4e', 'quantity_per_package', 'Quantity Per Package', 'How many units of the product are in one package. Entered by logistics; used to convert between packs and units. Greater than zero. Defines pack conversion. Interpreted with UnitOfMeasure.', 12, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('beb7b215-5a15-5158-ac95-208d4cd620f1', 'f0b74303-fb35-58f0-b1a3-fbc8e9dbcd4e', 'product_id', 'Product', 'The product that is packaged. Set when the packaging is defined. Exactly one product: a packaging configuration describes how a particular item is packed. Lets orders and stock for the product be expressed in packs. Defines package contents.', 19, NULL, NULL, FALSE, TRUE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 40, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('2ba74172-75af-5de5-83a3-06c3723e1d2f', 'f0b74303-fb35-58f0-b1a3-fbc8e9dbcd4e', 'packaging_level', 'Packaging Level', 'The single sellable unit as a customer buys it. A smaller inner pack grouped inside a case. A shipping case or carton holding several units. A full pallet of cases ready to be moved by forklift. The level of the packaging hierarchy. Orders and shipping work at different levels — each, case, pallet. Each level holds a whole number of the level below.', 1034, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 40, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('663d85df-3965-5d01-8d8b-bbb4fd1a5638', 'f0b74303-fb35-58f0-b1a3-fbc8e9dbcd4e', 'unit_of_measure_id', 'Unit Of Measure', 'The unit in which the package quantity is expressed. Chosen when defined. Exactly one unit, so the quantity per package is unambiguous. Allows correct conversion between packs and base units. Makes pack quantity unambiguous.', 19, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 50, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('56003781-4e92-5133-a07d-fd687372de8c', 'f0b74303-fb35-58f0-b1a3-fbc8e9dbcd4e', 'gtin', 'Gtin', 'The barcode number (GTIN) printed on this packaging. Scanned at receiving and in stores. Each packaging level has its own GTIN.', 10, 14, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 50, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('7e2bb1eb-d548-533e-b4e7-50a0305c0cf3', 'f0b74303-fb35-58f0-b1a3-fbc8e9dbcd4e', 'gross_weight_kg', 'Gross Weight Kg', 'The weight of one package with its contents, in kilograms. Used for freight and loading. Includes the packaging itself.', 12, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 60, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('21d71d38-c02c-5bb4-86b3-32adedd7a00e', 'f0b74303-fb35-58f0-b1a3-fbc8e9dbcd4e', 'length_cm', 'Length Cm', 'The outer length of one package, measured in centimetres. Entered from the packaging specification and used by warehouse and transport planners to fit stock into locations and vehicles. Measured on the outside of the package.', 12, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 70, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('c4e248b5-bd94-5c12-984f-b9c414909772', 'f0b74303-fb35-58f0-b1a3-fbc8e9dbcd4e', 'width_cm', 'Width Cm', 'The outer width of one package, measured in centimetres. Entered from the packaging specification and used by warehouse and transport planners to fit stock into locations and vehicles. Measured on the outside of the package.', 12, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 80, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('6d17dd52-29d8-5c05-a249-02b1793015bf', 'f0b74303-fb35-58f0-b1a3-fbc8e9dbcd4e', 'height_cm', 'Height Cm', 'The outer height of one package, measured in centimetres. Entered from the packaging specification and used by warehouse and transport planners to plan stacking and vehicle loading. Measured on the outside of the package.', 12, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 90, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('eca5d04e-d665-5786-b96a-0affb61d1b64', 'f0b74303-fb35-58f0-b1a3-fbc8e9dbcd4e', 'is_default', 'Is Default', 'Whether this is the product''s standard packaging at this level. Used when an order does not say otherwise. One default per product and level.', 20, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 100, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('beb7b215-5a15-5158-ac95-208d4cd620f1', 'f0b74303-fb35-58f0-b1a3-fbc8e9dbcd4e', 'product_id', 'Product', 'The product that is packaged. Set when the packaging is defined. Exactly one product: a packaging configuration describes how a particular item is packed. Lets orders and stock for the product be expressed in packs. Defines package contents.', 19, NULL, NULL, FALSE, TRUE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 110, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('663d85df-3965-5d01-8d8b-bbb4fd1a5638', 'f0b74303-fb35-58f0-b1a3-fbc8e9dbcd4e', 'unit_of_measure_id', 'Unit Of Measure', 'The unit in which the package quantity is expressed. Chosen when defined. Exactly one unit, so the quantity per package is unambiguous. Allows correct conversion between packs and base units. Makes pack quantity unambiguous.', 19, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 120, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 UPDATE sys_tab SET link_column_id = 'beb7b215-5a15-5158-ac95-208d4cd620f1' WHERE sys_tab_id = 'b9b9c57f-0be3-541c-a8c6-4725ecc44434';
 INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
@@ -5432,10 +7366,31 @@ INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_
 VALUES ('ad3e1170-88d3-538c-b26e-b1d3537c3df4', 'b9b9c57f-0be3-541c-a8c6-4725ecc44434', '8d88f6b4-f2d0-5eeb-8ce0-e83f05e11cae', 'fbd956d9-615b-5d01-a889-c05dd3ece722', 'Quantity Per Package', 'How many units of the product are in one package. Entered by logistics; used to convert between packs and units. Greater than zero. Defines pack conversion. Interpreted with UnitOfMeasure. Required — the record cannot be saved while this is empty.', 30, 30, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('e73d493c-03ef-5dbb-b193-d6591e62ef5f', 'b9b9c57f-0be3-541c-a8c6-4725ecc44434', 'beb7b215-5a15-5158-ac95-208d4cd620f1', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Product', 'The product that is packaged. Set when the packaging is defined. Exactly one product: a packaging configuration describes how a particular item is packed. Lets orders and stock for the product be expressed in packs. Defines package contents. Required — the record cannot be saved while this is empty.', 40, 40, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('ffb8bfb7-28b4-55e9-8e4e-aa02f119106b', 'b9b9c57f-0be3-541c-a8c6-4725ecc44434', '2ba74172-75af-5de5-83a3-06c3723e1d2f', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Packaging Level', 'The single sellable unit as a customer buys it. A smaller inner pack grouped inside a case. A shipping case or carton holding several units. A full pallet of cases ready to be moved by forklift. The level of the packaging hierarchy. Orders and shipping work at different levels — each, case, pallet. Each level holds a whole number of the level below. Required — the record cannot be saved while this is empty.', 40, 40, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('68349650-ff44-50fb-91a8-9ea506bed8b8', 'b9b9c57f-0be3-541c-a8c6-4725ecc44434', '663d85df-3965-5d01-8d8b-bbb4fd1a5638', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Unit Of Measure', 'The unit in which the package quantity is expressed. Chosen when defined. Exactly one unit, so the quantity per package is unambiguous. Allows correct conversion between packs and base units. Makes pack quantity unambiguous. Required — the record cannot be saved while this is empty.', 50, 50, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('7a6c1c8f-0be3-53be-b877-93e8c46c4d0d', 'b9b9c57f-0be3-541c-a8c6-4725ecc44434', '56003781-4e92-5133-a07d-fd687372de8c', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Gtin', 'The barcode number (GTIN) printed on this packaging. Scanned at receiving and in stores. Each packaging level has its own GTIN. Up to 14 characters.', 50, 50, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('e2f45639-b331-52d0-9559-f621f7d734ce', 'b9b9c57f-0be3-541c-a8c6-4725ecc44434', '7e2bb1eb-d548-533e-b4e7-50a0305c0cf3', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Gross Weight Kg', 'The weight of one package with its contents, in kilograms. Used for freight and loading. Includes the packaging itself.', 60, 60, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('bcb08527-a3da-5865-8028-9482016779b1', 'b9b9c57f-0be3-541c-a8c6-4725ecc44434', '21d71d38-c02c-5bb4-86b3-32adedd7a00e', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Length Cm', 'The outer length of one package, measured in centimetres. Entered from the packaging specification and used by warehouse and transport planners to fit stock into locations and vehicles. Measured on the outside of the package.', 70, 70, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('8fe9395d-0bd0-5e54-8389-9006f0e3272a', 'b9b9c57f-0be3-541c-a8c6-4725ecc44434', 'c4e248b5-bd94-5c12-984f-b9c414909772', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Width Cm', 'The outer width of one package, measured in centimetres. Entered from the packaging specification and used by warehouse and transport planners to fit stock into locations and vehicles. Measured on the outside of the package.', 80, 80, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('5d352931-2d08-50b3-958f-f1915a53c129', 'b9b9c57f-0be3-541c-a8c6-4725ecc44434', '6d17dd52-29d8-5c05-a249-02b1793015bf', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Height Cm', 'The outer height of one package, measured in centimetres. Entered from the packaging specification and used by warehouse and transport planners to plan stacking and vehicle loading. Measured on the outside of the package.', 90, 90, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('0cc15193-3692-58d8-848e-7c1c301d6def', 'b9b9c57f-0be3-541c-a8c6-4725ecc44434', 'eca5d04e-d665-5786-b96a-0affb61d1b64', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Is Default', 'Whether this is the product''s standard packaging at this level. Used when an order does not say otherwise. One default per product and level. Required — the record cannot be saved while this is empty.', 100, 100, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('e73d493c-03ef-5dbb-b193-d6591e62ef5f', 'b9b9c57f-0be3-541c-a8c6-4725ecc44434', 'beb7b215-5a15-5158-ac95-208d4cd620f1', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Product', 'The product that is packaged. Set when the packaging is defined. Exactly one product: a packaging configuration describes how a particular item is packed. Lets orders and stock for the product be expressed in packs. Defines package contents. Required — the record cannot be saved while this is empty.', 110, 110, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('68349650-ff44-50fb-91a8-9ea506bed8b8', 'b9b9c57f-0be3-541c-a8c6-4725ecc44434', '663d85df-3965-5d01-8d8b-bbb4fd1a5638', 'c1461456-1ff4-551b-8b77-a45dcc0311e0', 'Unit Of Measure', 'The unit in which the package quantity is expressed. Chosen when defined. Exactly one unit, so the quantity per package is unambiguous. Allows correct conversion between packs and base units. Makes pack quantity unambiguous. Required — the record cannot be saved while this is empty.', 120, 120, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_access (sys_access_id, sys_role_id, sys_table_id, sys_window_id, access_type_table, is_read_only, is_exclude, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('de5e9c89-2618-5faf-a7d7-a2c7fc5a6b18', (SELECT sys_role_id FROM sys_role WHERE name = 'Administrator'), 'f0b74303-fb35-58f0-b1a3-fbc8e9dbcd4e', '4a021c44-d4ff-56c5-98e5-4f4131ee959a', 'W', FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -12850,557 +14805,557 @@ ON CONFLICT DO NOTHING;
 INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
 VALUES ('c176ef27-1ad7-5d30-afd3-397fba08588b', 'ZW-HARARE', 'Harare', 'ab509e93-16c6-50cd-a6d8-bc2f5f30f8f3', 1542813, -17.8277, 31.0534, 'Africa/Harare', TRUE)
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('f4a3d184-be32-595b-ae94-58089a551da6', 'aa', 'Afar')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('f4a3d184-be32-595b-ae94-58089a551da6', 'aa', 'aar', 'Afar', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('51eb6173-a63d-5cd8-bda9-b2e6e2f83ae0', 'ab', 'Abkhazian')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('51eb6173-a63d-5cd8-bda9-b2e6e2f83ae0', 'ab', 'abk', 'Abkhazian', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('bbfc572c-9f01-5df6-abf3-2c4073498d05', 'ae', 'Avestan')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('bbfc572c-9f01-5df6-abf3-2c4073498d05', 'ae', 'ave', 'Avestan', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('8374764a-f492-5345-a409-b04428bcbbdf', 'af', 'Afrikaans')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('8374764a-f492-5345-a409-b04428bcbbdf', 'af', 'afr', 'Afrikaans', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('87b8b0e9-0296-53bf-9ea2-4c1a3972a6fe', 'ak', 'Akan')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('87b8b0e9-0296-53bf-9ea2-4c1a3972a6fe', 'ak', 'aka', 'Akan', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('6954feb0-dbbc-5869-8b7b-3456cafa68de', 'am', 'Amharic')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('6954feb0-dbbc-5869-8b7b-3456cafa68de', 'am', 'amh', 'Amharic', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('2fecd272-8428-5645-bbf1-be7506d67cef', 'an', 'Aragonese')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('2fecd272-8428-5645-bbf1-be7506d67cef', 'an', 'arg', 'Aragonese', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('9effc203-6685-5651-a70e-425a258c32b9', 'ar', 'Arabic')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('9effc203-6685-5651-a70e-425a258c32b9', 'ar', 'ara', 'Arabic', 'RTL')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('341c97e3-7aff-5ff1-a770-f4402d03b7e5', 'as', 'Assamese')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('341c97e3-7aff-5ff1-a770-f4402d03b7e5', 'as', 'asm', 'Assamese', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('64fd20af-2fce-58d9-9b84-e885fb7c39af', 'av', 'Avaric')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('64fd20af-2fce-58d9-9b84-e885fb7c39af', 'av', 'ava', 'Avaric', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('a8fa0657-2229-55ad-b979-79acd385501a', 'ay', 'Aymara')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('a8fa0657-2229-55ad-b979-79acd385501a', 'ay', 'aym', 'Aymara', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('2b6495ce-855f-56ec-94ca-8b9f24cfbc55', 'az', 'Azerbaijani')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('2b6495ce-855f-56ec-94ca-8b9f24cfbc55', 'az', 'aze', 'Azerbaijani', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('4577a50f-ce73-514f-a1ea-b67f051c9621', 'ba', 'Bashkir')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('4577a50f-ce73-514f-a1ea-b67f051c9621', 'ba', 'bak', 'Bashkir', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('a6933012-8e22-544b-a400-112c7a40f4f5', 'be', 'Belarusian')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('a6933012-8e22-544b-a400-112c7a40f4f5', 'be', 'bel', 'Belarusian', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('383a5053-0b23-57b3-996b-2f39e6aed061', 'bg', 'Bulgarian')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('383a5053-0b23-57b3-996b-2f39e6aed061', 'bg', 'bul', 'Bulgarian', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('3facfa12-8f65-527b-9cce-eb792d420386', 'bi', 'Bislama')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('3facfa12-8f65-527b-9cce-eb792d420386', 'bi', 'bis', 'Bislama', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('04d92328-b4fd-57f1-a5cb-1b385d9c297b', 'bm', 'Bambara')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('04d92328-b4fd-57f1-a5cb-1b385d9c297b', 'bm', 'bam', 'Bambara', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('b76072dd-048f-5d68-bc1e-49b400e33879', 'bn', 'Bengali')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('b76072dd-048f-5d68-bc1e-49b400e33879', 'bn', 'ben', 'Bengali', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('53826113-6c2b-5da5-af38-0aeeb341f3c8', 'bo', 'Tibetan')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('53826113-6c2b-5da5-af38-0aeeb341f3c8', 'bo', 'bod', 'Tibetan', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('9874d56b-a42b-5823-9262-a3f2e2670917', 'br', 'Breton')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('9874d56b-a42b-5823-9262-a3f2e2670917', 'br', 'bre', 'Breton', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('550bf48a-8077-5859-88b6-bcbfe5148fb7', 'bs', 'Bosnian')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('550bf48a-8077-5859-88b6-bcbfe5148fb7', 'bs', 'bos', 'Bosnian', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('009325df-f99e-53f0-a645-4d92bfb5ac05', 'ca', 'Catalan')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('009325df-f99e-53f0-a645-4d92bfb5ac05', 'ca', 'cat', 'Catalan', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('e330ffd0-2f62-511a-98c3-e4aaf485d868', 'ce', 'Chechen')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('e330ffd0-2f62-511a-98c3-e4aaf485d868', 'ce', 'che', 'Chechen', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('9a122efd-ce85-5a16-8909-0df8c77aaa3b', 'ch', 'Chamorro')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('9a122efd-ce85-5a16-8909-0df8c77aaa3b', 'ch', 'cha', 'Chamorro', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('1346e7d1-b64b-5504-8725-a76b69bae541', 'co', 'Corsican')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('1346e7d1-b64b-5504-8725-a76b69bae541', 'co', 'cos', 'Corsican', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('2014a58d-bdc6-5b5f-8062-bda48f2bcdcb', 'cr', 'Cree')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('2014a58d-bdc6-5b5f-8062-bda48f2bcdcb', 'cr', 'cre', 'Cree', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('0be9aa7e-4eee-5d2e-9ef7-762dcbda0767', 'cs', 'Czech')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('0be9aa7e-4eee-5d2e-9ef7-762dcbda0767', 'cs', 'ces', 'Czech', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('327407af-ef06-54c4-a797-405aeba69e99', 'cu', 'Church Slavic')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('327407af-ef06-54c4-a797-405aeba69e99', 'cu', 'chu', 'Church Slavic', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('abe17a1d-0013-57a0-9590-e1991aff450d', 'cv', 'Chuvash')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('abe17a1d-0013-57a0-9590-e1991aff450d', 'cv', 'chv', 'Chuvash', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('7feb6a07-bfbb-55e8-8a2e-4d021bf5ce54', 'cy', 'Welsh')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('7feb6a07-bfbb-55e8-8a2e-4d021bf5ce54', 'cy', 'cym', 'Welsh', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('b8ad1b38-d14a-5594-95da-b89dbc87a62f', 'da', 'Danish')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('b8ad1b38-d14a-5594-95da-b89dbc87a62f', 'da', 'dan', 'Danish', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('5a6d30fb-862c-5703-972d-308a0a7e5784', 'de', 'German')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('5a6d30fb-862c-5703-972d-308a0a7e5784', 'de', 'deu', 'German', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('299e2aa7-d1cf-5590-b401-260697548a3b', 'dv', 'Divehi')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('299e2aa7-d1cf-5590-b401-260697548a3b', 'dv', 'div', 'Divehi', 'RTL')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('5c4ef840-341d-5dc1-989f-0daa34846e4a', 'dz', 'Dzongkha')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('5c4ef840-341d-5dc1-989f-0daa34846e4a', 'dz', 'dzo', 'Dzongkha', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('dafc470c-548a-5f18-99df-c3f147bff090', 'ee', 'Ewe')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('dafc470c-548a-5f18-99df-c3f147bff090', 'ee', 'ewe', 'Ewe', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('84fc5b17-061e-5624-bb8d-5c64d7f7f7b3', 'el', 'Modern Greek (1453-)')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('84fc5b17-061e-5624-bb8d-5c64d7f7f7b3', 'el', 'ell', 'Modern Greek (1453-)', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('02477f0d-755f-5171-b7b0-056c5abd222b', 'en', 'English')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('02477f0d-755f-5171-b7b0-056c5abd222b', 'en', 'eng', 'English', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('913c55e1-8328-508c-897a-8a1687498246', 'eo', 'Esperanto')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('913c55e1-8328-508c-897a-8a1687498246', 'eo', 'epo', 'Esperanto', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('1a48d0bc-cd72-5154-b444-5b2e2d74df87', 'es', 'Spanish')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('1a48d0bc-cd72-5154-b444-5b2e2d74df87', 'es', 'spa', 'Spanish', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('f23f6171-b694-5141-aeac-f2e960bd146f', 'et', 'Estonian')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('f23f6171-b694-5141-aeac-f2e960bd146f', 'et', 'est', 'Estonian', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('5b2eb57b-91cd-5257-8b7b-7e8f8010e231', 'eu', 'Basque')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('5b2eb57b-91cd-5257-8b7b-7e8f8010e231', 'eu', 'eus', 'Basque', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('05ec48f0-fd0c-5263-9c28-994e53683447', 'fa', 'Persian')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('05ec48f0-fd0c-5263-9c28-994e53683447', 'fa', 'fas', 'Persian', 'RTL')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('2a131825-2ca3-59d7-800d-307d087a2c07', 'ff', 'Fulah')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('2a131825-2ca3-59d7-800d-307d087a2c07', 'ff', 'ful', 'Fulah', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('c7d41617-8a12-53ff-a1e6-0e9c5c756107', 'fi', 'Finnish')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('c7d41617-8a12-53ff-a1e6-0e9c5c756107', 'fi', 'fin', 'Finnish', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('956ae6ac-30ad-593f-a8b7-e8b3e7593c87', 'fj', 'Fijian')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('956ae6ac-30ad-593f-a8b7-e8b3e7593c87', 'fj', 'fij', 'Fijian', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('ded72dab-48bd-516c-83fe-2e485fb903e8', 'fo', 'Faroese')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('ded72dab-48bd-516c-83fe-2e485fb903e8', 'fo', 'fao', 'Faroese', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('70d0ac7d-af5d-5dd0-a2bd-4cc9c08e2006', 'fr', 'French')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('70d0ac7d-af5d-5dd0-a2bd-4cc9c08e2006', 'fr', 'fra', 'French', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('0214c767-6f12-5b65-ba01-d8c58a6297a1', 'fy', 'Western Frisian')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('0214c767-6f12-5b65-ba01-d8c58a6297a1', 'fy', 'fry', 'Western Frisian', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('84946ef2-9dad-51ca-90e2-1ead308ad8b7', 'ga', 'Irish')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('84946ef2-9dad-51ca-90e2-1ead308ad8b7', 'ga', 'gle', 'Irish', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('2bd2321d-0796-5961-8f4d-f26423430c30', 'gd', 'Scottish Gaelic')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('2bd2321d-0796-5961-8f4d-f26423430c30', 'gd', 'gla', 'Scottish Gaelic', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('cddd9db7-8843-52a8-a20b-5affd39d0ec3', 'gl', 'Galician')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('cddd9db7-8843-52a8-a20b-5affd39d0ec3', 'gl', 'glg', 'Galician', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('79467231-245e-5c62-9074-d96f861402d6', 'gn', 'Guarani')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('79467231-245e-5c62-9074-d96f861402d6', 'gn', 'grn', 'Guarani', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('fdf23cf6-e4b1-51a8-9351-4f396ef280a8', 'gu', 'Gujarati')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('fdf23cf6-e4b1-51a8-9351-4f396ef280a8', 'gu', 'guj', 'Gujarati', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('7cbb1e96-dd03-518c-858d-06046de9f3a5', 'gv', 'Manx')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('7cbb1e96-dd03-518c-858d-06046de9f3a5', 'gv', 'glv', 'Manx', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('e4da5d45-403b-5976-a129-0e2bec5027df', 'ha', 'Hausa')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('e4da5d45-403b-5976-a129-0e2bec5027df', 'ha', 'hau', 'Hausa', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('17fb0aa2-f7af-54fa-a8d2-610f8bbc1aab', 'he', 'Hebrew')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('17fb0aa2-f7af-54fa-a8d2-610f8bbc1aab', 'he', 'heb', 'Hebrew', 'RTL')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('3dba0401-78f0-5f92-8762-223eb2c0cb02', 'hi', 'Hindi')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('3dba0401-78f0-5f92-8762-223eb2c0cb02', 'hi', 'hin', 'Hindi', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('b012995d-e441-58d1-81f1-eed48a6d4835', 'ho', 'Hiri Motu')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('b012995d-e441-58d1-81f1-eed48a6d4835', 'ho', 'hmo', 'Hiri Motu', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('4c87a6a5-faa5-5ca1-b550-8da9d152ca96', 'hr', 'Croatian')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('4c87a6a5-faa5-5ca1-b550-8da9d152ca96', 'hr', 'hrv', 'Croatian', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('0ed1cbdf-0f08-589f-8651-7c0ed6300354', 'ht', 'Haitian')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('0ed1cbdf-0f08-589f-8651-7c0ed6300354', 'ht', 'hat', 'Haitian', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('63f5774b-ffc1-503b-b3a8-fb2d22c867b9', 'hu', 'Hungarian')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('63f5774b-ffc1-503b-b3a8-fb2d22c867b9', 'hu', 'hun', 'Hungarian', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('ca77beb1-c35a-5f57-8e86-3e3e2e92a778', 'hy', 'Armenian')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('ca77beb1-c35a-5f57-8e86-3e3e2e92a778', 'hy', 'hye', 'Armenian', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('fd2bacc6-2f35-5b3f-a420-2c7960f601e8', 'hz', 'Herero')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('fd2bacc6-2f35-5b3f-a420-2c7960f601e8', 'hz', 'her', 'Herero', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('42ecda89-e809-5405-a49b-a99925fb3839', 'ia', 'Interlingua (International Auxiliary Language Association)')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('42ecda89-e809-5405-a49b-a99925fb3839', 'ia', 'ina', 'Interlingua (International Auxiliary Language Association)', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('b13c4e4e-c064-5451-8808-e70d08f54060', 'id', 'Indonesian')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('b13c4e4e-c064-5451-8808-e70d08f54060', 'id', 'ind', 'Indonesian', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('0b8ca128-c0d4-5b87-bd12-f3ae323c7f71', 'ie', 'Interlingue')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('0b8ca128-c0d4-5b87-bd12-f3ae323c7f71', 'ie', 'ile', 'Interlingue', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('79f560ec-c566-5578-b3ec-c9dd248f9496', 'ig', 'Igbo')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('79f560ec-c566-5578-b3ec-c9dd248f9496', 'ig', 'ibo', 'Igbo', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('779103f3-d4d5-5751-9127-1988c525fd9f', 'ii', 'Sichuan Yi')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('779103f3-d4d5-5751-9127-1988c525fd9f', 'ii', 'iii', 'Sichuan Yi', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('240a6e2a-7d0e-5736-a4f1-c9dd262901f3', 'ik', 'Inupiaq')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('240a6e2a-7d0e-5736-a4f1-c9dd262901f3', 'ik', 'ipk', 'Inupiaq', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('1fa6f036-d745-5281-80a1-76885e310f78', 'io', 'Ido')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('1fa6f036-d745-5281-80a1-76885e310f78', 'io', 'ido', 'Ido', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('ece7a1b9-86d7-5de5-8b5a-4003e4181276', 'is', 'Icelandic')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('ece7a1b9-86d7-5de5-8b5a-4003e4181276', 'is', 'isl', 'Icelandic', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('282fa938-f110-5a21-932f-0e0f04157163', 'it', 'Italian')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('282fa938-f110-5a21-932f-0e0f04157163', 'it', 'ita', 'Italian', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('afc14df5-3d85-52a1-bf2b-0396c41273dc', 'iu', 'Inuktitut')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('afc14df5-3d85-52a1-bf2b-0396c41273dc', 'iu', 'iku', 'Inuktitut', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('3f0eaa68-89c1-5693-8676-eb0349beb508', 'ja', 'Japanese')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('3f0eaa68-89c1-5693-8676-eb0349beb508', 'ja', 'jpn', 'Japanese', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('3c19e097-82cd-54e9-8abd-a6c885febbae', 'jv', 'Javanese')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('3c19e097-82cd-54e9-8abd-a6c885febbae', 'jv', 'jav', 'Javanese', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('34e2882b-8216-5018-8d7b-f949677ea051', 'ka', 'Georgian')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('34e2882b-8216-5018-8d7b-f949677ea051', 'ka', 'kat', 'Georgian', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('1c24e1c3-6735-5544-8d58-835dc9e616df', 'kg', 'Kongo')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('1c24e1c3-6735-5544-8d58-835dc9e616df', 'kg', 'kon', 'Kongo', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('5ab7d5ed-7f08-585a-a043-7840bc2335c8', 'ki', 'Kikuyu')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('5ab7d5ed-7f08-585a-a043-7840bc2335c8', 'ki', 'kik', 'Kikuyu', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('37d78791-4a95-526b-8889-bcbacd818b03', 'kj', 'Kuanyama')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('37d78791-4a95-526b-8889-bcbacd818b03', 'kj', 'kua', 'Kuanyama', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('b7cedcb0-63ea-5e03-b655-036dc95a053f', 'kk', 'Kazakh')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('b7cedcb0-63ea-5e03-b655-036dc95a053f', 'kk', 'kaz', 'Kazakh', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('fd4dc7f3-b698-5067-824b-dfeba962bc18', 'kl', 'Kalaallisut')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('fd4dc7f3-b698-5067-824b-dfeba962bc18', 'kl', 'kal', 'Kalaallisut', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('7fcaa047-0e67-5bf2-b8da-2d057f75d6bb', 'km', 'Khmer')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('7fcaa047-0e67-5bf2-b8da-2d057f75d6bb', 'km', 'khm', 'Khmer', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('91911873-a0a4-5a8d-90ea-ea4881aa641e', 'kn', 'Kannada')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('91911873-a0a4-5a8d-90ea-ea4881aa641e', 'kn', 'kan', 'Kannada', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('905f0f00-b89f-523d-b983-abce6c156a4e', 'ko', 'Korean')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('905f0f00-b89f-523d-b983-abce6c156a4e', 'ko', 'kor', 'Korean', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('aeef3986-5162-5ebd-98c5-4f473ec12f87', 'kr', 'Kanuri')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('aeef3986-5162-5ebd-98c5-4f473ec12f87', 'kr', 'kau', 'Kanuri', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('8583cd71-2339-5570-9901-057c9972c740', 'ks', 'Kashmiri')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('8583cd71-2339-5570-9901-057c9972c740', 'ks', 'kas', 'Kashmiri', 'RTL')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('c2001e05-c5f4-5013-941e-f389d055307f', 'ku', 'Kurdish')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('c2001e05-c5f4-5013-941e-f389d055307f', 'ku', 'kur', 'Kurdish', 'RTL')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('5b78136c-91ab-5c46-8a2e-964883008c3d', 'kv', 'Komi')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('5b78136c-91ab-5c46-8a2e-964883008c3d', 'kv', 'kom', 'Komi', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('a4bfd97d-64dd-5c9e-9936-81d249d2ee31', 'kw', 'Cornish')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('a4bfd97d-64dd-5c9e-9936-81d249d2ee31', 'kw', 'cor', 'Cornish', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('7cae8757-d175-5731-8bae-5f22f5e324d8', 'ky', 'Kirghiz')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('7cae8757-d175-5731-8bae-5f22f5e324d8', 'ky', 'kir', 'Kirghiz', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('281cac24-f3fa-54de-a1ba-a2bf8f62724c', 'la', 'Latin')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('281cac24-f3fa-54de-a1ba-a2bf8f62724c', 'la', 'lat', 'Latin', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('b137038b-d1bc-50b6-bfcc-64a9d4d9e3db', 'lb', 'Luxembourgish')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('b137038b-d1bc-50b6-bfcc-64a9d4d9e3db', 'lb', 'ltz', 'Luxembourgish', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('0068d57a-3eb2-5531-a9bb-72220c9890cb', 'lg', 'Ganda')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('0068d57a-3eb2-5531-a9bb-72220c9890cb', 'lg', 'lug', 'Ganda', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('daaf5a4f-4971-5d2c-8f16-2ea32086e1eb', 'li', 'Limburgan')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('daaf5a4f-4971-5d2c-8f16-2ea32086e1eb', 'li', 'lim', 'Limburgan', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('4e67b249-06d2-5109-8801-321acd217e62', 'ln', 'Lingala')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('4e67b249-06d2-5109-8801-321acd217e62', 'ln', 'lin', 'Lingala', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('f1721c78-44a4-5c06-a43d-c97a47b3ffb8', 'lo', 'Lao')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('f1721c78-44a4-5c06-a43d-c97a47b3ffb8', 'lo', 'lao', 'Lao', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('73f53ec0-4fe1-5302-a88e-6990d098d9c8', 'lt', 'Lithuanian')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('73f53ec0-4fe1-5302-a88e-6990d098d9c8', 'lt', 'lit', 'Lithuanian', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('0f9c4053-a357-5c11-8bda-8e59bb91ef5e', 'lu', 'Luba-Katanga')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('0f9c4053-a357-5c11-8bda-8e59bb91ef5e', 'lu', 'lub', 'Luba-Katanga', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('7d1a5acd-5973-57f2-8126-c8b728d734ed', 'lv', 'Latvian')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('7d1a5acd-5973-57f2-8126-c8b728d734ed', 'lv', 'lav', 'Latvian', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('2ec69705-0c20-55b4-853e-e8b6f9dd4b49', 'mg', 'Malagasy')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('2ec69705-0c20-55b4-853e-e8b6f9dd4b49', 'mg', 'mlg', 'Malagasy', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('450e645a-ee37-5895-9790-7fa7adc1119f', 'mh', 'Marshallese')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('450e645a-ee37-5895-9790-7fa7adc1119f', 'mh', 'mah', 'Marshallese', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('ef8dd733-b89b-59f1-990f-f50a5da2c34d', 'mi', 'Maori')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('ef8dd733-b89b-59f1-990f-f50a5da2c34d', 'mi', 'mri', 'Maori', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('bb28b712-72cf-5f83-a435-e4c976179b72', 'mk', 'Macedonian')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('bb28b712-72cf-5f83-a435-e4c976179b72', 'mk', 'mkd', 'Macedonian', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('9be57063-2d78-535e-a437-93cf3fe29188', 'ml', 'Malayalam')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('9be57063-2d78-535e-a437-93cf3fe29188', 'ml', 'mal', 'Malayalam', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('9ac37038-f846-5222-8932-edb8835f60f6', 'mn', 'Mongolian')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('9ac37038-f846-5222-8932-edb8835f60f6', 'mn', 'mon', 'Mongolian', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('a6935aaf-ad4a-5495-8ab4-bdb936814327', 'mr', 'Marathi')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('a6935aaf-ad4a-5495-8ab4-bdb936814327', 'mr', 'mar', 'Marathi', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('c8da5396-59e8-506e-9107-42ecf909a2c9', 'ms', 'Malay (macrolanguage)')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('c8da5396-59e8-506e-9107-42ecf909a2c9', 'ms', 'msa', 'Malay (macrolanguage)', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('1fd74d67-76ec-538f-9731-3f4a8a3606d9', 'mt', 'Maltese')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('1fd74d67-76ec-538f-9731-3f4a8a3606d9', 'mt', 'mlt', 'Maltese', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('3404fd68-892a-58a3-93d6-405fac5d880d', 'my', 'Burmese')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('3404fd68-892a-58a3-93d6-405fac5d880d', 'my', 'mya', 'Burmese', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('0da9130d-72e7-51e9-ae31-510a33288a45', 'na', 'Nauru')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('0da9130d-72e7-51e9-ae31-510a33288a45', 'na', 'nau', 'Nauru', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('5f164415-027f-57ea-b8f5-2c59eb77bfc9', 'nb', 'Norwegian Bokmål')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('5f164415-027f-57ea-b8f5-2c59eb77bfc9', 'nb', 'nob', 'Norwegian Bokmål', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('66b8f75a-33f4-5ee2-a28b-368aa9716c75', 'nd', 'North Ndebele')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('66b8f75a-33f4-5ee2-a28b-368aa9716c75', 'nd', 'nde', 'North Ndebele', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('009e7879-1b38-5042-bbb4-4da1e4c4856a', 'ne', 'Nepali (macrolanguage)')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('009e7879-1b38-5042-bbb4-4da1e4c4856a', 'ne', 'nep', 'Nepali (macrolanguage)', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('2b88a811-27ed-5d8a-8048-fdcbbc7accf1', 'ng', 'Ndonga')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('2b88a811-27ed-5d8a-8048-fdcbbc7accf1', 'ng', 'ndo', 'Ndonga', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('2ba78e27-7527-5c69-88b9-29329f41ac56', 'nl', 'Dutch')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('2ba78e27-7527-5c69-88b9-29329f41ac56', 'nl', 'nld', 'Dutch', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('7b7aecaa-041e-53dd-8944-cf868d541d06', 'nn', 'Norwegian Nynorsk')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('7b7aecaa-041e-53dd-8944-cf868d541d06', 'nn', 'nno', 'Norwegian Nynorsk', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('243ee863-3d31-5929-8fdd-790e21b71bfb', 'no', 'Norwegian')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('243ee863-3d31-5929-8fdd-790e21b71bfb', 'no', 'nor', 'Norwegian', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('80dce1d7-4b25-5025-80ae-bb2815d54f79', 'nr', 'South Ndebele')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('80dce1d7-4b25-5025-80ae-bb2815d54f79', 'nr', 'nbl', 'South Ndebele', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('953ef201-f486-50df-ae70-80047d4473f8', 'nv', 'Navajo')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('953ef201-f486-50df-ae70-80047d4473f8', 'nv', 'nav', 'Navajo', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('07e3b10a-19c1-5388-8c3f-8e8b4eae8e9b', 'ny', 'Chichewa')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('07e3b10a-19c1-5388-8c3f-8e8b4eae8e9b', 'ny', 'nya', 'Chichewa', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('a6113d12-478b-5000-8bd2-9fdc66072c34', 'oc', 'Occitan (post 1500)')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('a6113d12-478b-5000-8bd2-9fdc66072c34', 'oc', 'oci', 'Occitan (post 1500)', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('80621d18-18a1-55d1-87da-dace06c32be1', 'oj', 'Ojibwa')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('80621d18-18a1-55d1-87da-dace06c32be1', 'oj', 'oji', 'Ojibwa', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('3cbf380c-d1c0-5e54-9e14-bb6e46d05229', 'om', 'Oromo')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('3cbf380c-d1c0-5e54-9e14-bb6e46d05229', 'om', 'orm', 'Oromo', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('1b4c5f4a-c5e4-5d33-9ae7-e6a865b7f843', 'or', 'Oriya (macrolanguage)')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('1b4c5f4a-c5e4-5d33-9ae7-e6a865b7f843', 'or', 'ori', 'Oriya (macrolanguage)', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('ed6c87cc-95a9-5629-9ac3-1eed708d9134', 'os', 'Ossetian')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('ed6c87cc-95a9-5629-9ac3-1eed708d9134', 'os', 'oss', 'Ossetian', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('8020fde6-c0f5-56ae-be48-2ef861d38ff8', 'pa', 'Panjabi')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('8020fde6-c0f5-56ae-be48-2ef861d38ff8', 'pa', 'pan', 'Panjabi', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('e58c9c2b-a604-5d6d-871a-3a58ca08f57e', 'pi', 'Pali')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('e58c9c2b-a604-5d6d-871a-3a58ca08f57e', 'pi', 'pli', 'Pali', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('4e3bcbfd-29aa-50f7-a6e6-4c0f89f1061c', 'pl', 'Polish')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('4e3bcbfd-29aa-50f7-a6e6-4c0f89f1061c', 'pl', 'pol', 'Polish', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('6805bb33-f0a6-5784-9258-c2fd68bab113', 'ps', 'Pushto')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('6805bb33-f0a6-5784-9258-c2fd68bab113', 'ps', 'pus', 'Pushto', 'RTL')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('5ad2a615-d933-5d93-9665-567f341c88af', 'pt', 'Portuguese')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('5ad2a615-d933-5d93-9665-567f341c88af', 'pt', 'por', 'Portuguese', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('d64197fe-2af1-5983-9ccf-9b8bf557c732', 'qu', 'Quechua')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('d64197fe-2af1-5983-9ccf-9b8bf557c732', 'qu', 'que', 'Quechua', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('6551fbde-f223-576e-99ce-c4ca73b32f31', 'rm', 'Romansh')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('6551fbde-f223-576e-99ce-c4ca73b32f31', 'rm', 'roh', 'Romansh', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('0df374b1-58c7-52ee-9c2d-9d3e512588bd', 'rn', 'Rundi')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('0df374b1-58c7-52ee-9c2d-9d3e512588bd', 'rn', 'run', 'Rundi', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('5aa392c2-0553-5fcd-9aae-b7b0a956df55', 'ro', 'Romanian')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('5aa392c2-0553-5fcd-9aae-b7b0a956df55', 'ro', 'ron', 'Romanian', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('140141a4-a131-5913-8cc5-3a62f78299a6', 'ru', 'Russian')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('140141a4-a131-5913-8cc5-3a62f78299a6', 'ru', 'rus', 'Russian', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('f610339c-1325-5fd0-ad49-34f20005ae89', 'rw', 'Kinyarwanda')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('f610339c-1325-5fd0-ad49-34f20005ae89', 'rw', 'kin', 'Kinyarwanda', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('cf7d6c9b-1781-5f37-b4ff-c8156e8faf1a', 'sa', 'Sanskrit')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('cf7d6c9b-1781-5f37-b4ff-c8156e8faf1a', 'sa', 'san', 'Sanskrit', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('136c9db0-5b4f-53ac-924d-624fbccf96f0', 'sc', 'Sardinian')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('136c9db0-5b4f-53ac-924d-624fbccf96f0', 'sc', 'srd', 'Sardinian', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('d1c84245-2621-561d-82ea-3b366666bc24', 'sd', 'Sindhi')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('d1c84245-2621-561d-82ea-3b366666bc24', 'sd', 'snd', 'Sindhi', 'RTL')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('641b0822-fb15-5200-b96f-680b0a727f87', 'se', 'Northern Sami')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('641b0822-fb15-5200-b96f-680b0a727f87', 'se', 'sme', 'Northern Sami', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('f1d8d695-4080-50eb-8f82-f5116f767d46', 'sg', 'Sango')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('f1d8d695-4080-50eb-8f82-f5116f767d46', 'sg', 'sag', 'Sango', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('9ffd42f1-1c66-56fd-aa95-b5b2ec55ec23', 'sh', 'Serbo-Croatian')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('9ffd42f1-1c66-56fd-aa95-b5b2ec55ec23', 'sh', 'hbs', 'Serbo-Croatian', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('d56e0e97-51d3-5bf9-af68-9e764a840011', 'si', 'Sinhala')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('d56e0e97-51d3-5bf9-af68-9e764a840011', 'si', 'sin', 'Sinhala', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('8843cc73-6de6-565b-a6a1-007ddd5520de', 'sk', 'Slovak')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('8843cc73-6de6-565b-a6a1-007ddd5520de', 'sk', 'slk', 'Slovak', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('f3a0b5db-8cb4-5dd5-9efc-fe0dfba02365', 'sl', 'Slovenian')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('f3a0b5db-8cb4-5dd5-9efc-fe0dfba02365', 'sl', 'slv', 'Slovenian', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('27efa751-eedb-57dc-a559-cdb3fa1b49d4', 'sm', 'Samoan')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('27efa751-eedb-57dc-a559-cdb3fa1b49d4', 'sm', 'smo', 'Samoan', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('a3365db6-5c9c-5b21-9bc0-e1920a648671', 'sn', 'Shona')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('a3365db6-5c9c-5b21-9bc0-e1920a648671', 'sn', 'sna', 'Shona', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('b45eed79-3b46-5ba2-8e6a-c41345526668', 'so', 'Somali')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('b45eed79-3b46-5ba2-8e6a-c41345526668', 'so', 'som', 'Somali', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('801af7c5-de3b-5020-90cd-9b1053367273', 'sq', 'Albanian')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('801af7c5-de3b-5020-90cd-9b1053367273', 'sq', 'sqi', 'Albanian', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('36e20f83-f852-5f4b-b504-3a22bb6d322d', 'sr', 'Serbian')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('36e20f83-f852-5f4b-b504-3a22bb6d322d', 'sr', 'srp', 'Serbian', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('28585482-1fdc-58f7-a000-4f9afac19a74', 'ss', 'Swati')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('28585482-1fdc-58f7-a000-4f9afac19a74', 'ss', 'ssw', 'Swati', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('1786e46e-bd9e-5317-9c34-93ab220aec78', 'st', 'Southern Sotho')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('1786e46e-bd9e-5317-9c34-93ab220aec78', 'st', 'sot', 'Southern Sotho', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('a42e84ef-c0c5-5bc3-8f29-d7dd84e0ab07', 'su', 'Sundanese')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('a42e84ef-c0c5-5bc3-8f29-d7dd84e0ab07', 'su', 'sun', 'Sundanese', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('846dd1b6-d538-5ad7-a09c-fdef27e0d9c2', 'sv', 'Swedish')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('846dd1b6-d538-5ad7-a09c-fdef27e0d9c2', 'sv', 'swe', 'Swedish', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('a390a2b2-557c-5006-a664-151dbd346e89', 'sw', 'Swahili (macrolanguage)')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('a390a2b2-557c-5006-a664-151dbd346e89', 'sw', 'swa', 'Swahili (macrolanguage)', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('c258e739-fce3-5d78-b9c4-6e25264b8dea', 'ta', 'Tamil')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('c258e739-fce3-5d78-b9c4-6e25264b8dea', 'ta', 'tam', 'Tamil', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('5a4c099b-916e-5b24-970f-8c779bdee36c', 'te', 'Telugu')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('5a4c099b-916e-5b24-970f-8c779bdee36c', 'te', 'tel', 'Telugu', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('3043c4cc-b1d2-5c02-9595-b10aa949d182', 'tg', 'Tajik')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('3043c4cc-b1d2-5c02-9595-b10aa949d182', 'tg', 'tgk', 'Tajik', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('fed9a60e-df83-508c-a5b1-31f60c556c2e', 'th', 'Thai')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('fed9a60e-df83-508c-a5b1-31f60c556c2e', 'th', 'tha', 'Thai', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('0b00408e-e9f0-51e5-adf5-b1d0f88bd58e', 'ti', 'Tigrinya')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('0b00408e-e9f0-51e5-adf5-b1d0f88bd58e', 'ti', 'tir', 'Tigrinya', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('e510db72-346d-5505-874c-81efb0082839', 'tk', 'Turkmen')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('e510db72-346d-5505-874c-81efb0082839', 'tk', 'tuk', 'Turkmen', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('17113f66-12c0-5cb5-8479-d32445995196', 'tl', 'Tagalog')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('17113f66-12c0-5cb5-8479-d32445995196', 'tl', 'tgl', 'Tagalog', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('84c08d1d-a3c7-520d-84eb-53252d1fb3b5', 'tn', 'Tswana')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('84c08d1d-a3c7-520d-84eb-53252d1fb3b5', 'tn', 'tsn', 'Tswana', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('290a3ab4-ca86-5173-bcb4-01ddb55caa0c', 'to', 'Tonga (Tonga Islands)')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('290a3ab4-ca86-5173-bcb4-01ddb55caa0c', 'to', 'ton', 'Tonga (Tonga Islands)', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('525f5e80-9a5f-556d-9bc3-a0db04d80a95', 'tr', 'Turkish')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('525f5e80-9a5f-556d-9bc3-a0db04d80a95', 'tr', 'tur', 'Turkish', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('aaf409a9-59c7-566e-afd6-5f32bb6f0d72', 'ts', 'Tsonga')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('aaf409a9-59c7-566e-afd6-5f32bb6f0d72', 'ts', 'tso', 'Tsonga', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('c7936c7c-2cd3-5182-a7dd-1679373d8af9', 'tt', 'Tatar')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('c7936c7c-2cd3-5182-a7dd-1679373d8af9', 'tt', 'tat', 'Tatar', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('7ad278a2-d4ba-5a6f-89e1-f608d2ff1ca9', 'tw', 'Twi')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('7ad278a2-d4ba-5a6f-89e1-f608d2ff1ca9', 'tw', 'twi', 'Twi', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('dea6bf74-6eb0-5aea-a12b-eb007b2aef36', 'ty', 'Tahitian')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('dea6bf74-6eb0-5aea-a12b-eb007b2aef36', 'ty', 'tah', 'Tahitian', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('d6d7bbf0-8f38-532e-a7fd-d06debf3b765', 'ug', 'Uighur')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('d6d7bbf0-8f38-532e-a7fd-d06debf3b765', 'ug', 'uig', 'Uighur', 'RTL')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('a3d68e82-0f36-5a9e-a74e-164e29a25951', 'uk', 'Ukrainian')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('a3d68e82-0f36-5a9e-a74e-164e29a25951', 'uk', 'ukr', 'Ukrainian', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('f9fc3f6d-d162-5961-9eb6-8e8ae29fff8f', 'ur', 'Urdu')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('f9fc3f6d-d162-5961-9eb6-8e8ae29fff8f', 'ur', 'urd', 'Urdu', 'RTL')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('bd312664-2a3a-5839-ba58-e75d1899968b', 'uz', 'Uzbek')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('bd312664-2a3a-5839-ba58-e75d1899968b', 'uz', 'uzb', 'Uzbek', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('3fa7d022-dfdd-5dc1-9429-881ed64e3109', 've', 'Venda')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('3fa7d022-dfdd-5dc1-9429-881ed64e3109', 've', 'ven', 'Venda', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('ad64326d-e3e8-5ee2-8ed3-7c614ee6b5fb', 'vi', 'Vietnamese')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('ad64326d-e3e8-5ee2-8ed3-7c614ee6b5fb', 'vi', 'vie', 'Vietnamese', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('be5859ed-f618-5eac-a5c2-82397aead96c', 'vo', 'Volapük')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('be5859ed-f618-5eac-a5c2-82397aead96c', 'vo', 'vol', 'Volapük', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('569c82bc-0698-5ebe-ace1-c235e3b9e822', 'wa', 'Walloon')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('569c82bc-0698-5ebe-ace1-c235e3b9e822', 'wa', 'wln', 'Walloon', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('83605c83-4ce3-50ac-bab8-22bee50ee8a1', 'wo', 'Wolof')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('83605c83-4ce3-50ac-bab8-22bee50ee8a1', 'wo', 'wol', 'Wolof', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('462ba667-b873-509a-a36a-b00776413d2a', 'xh', 'Xhosa')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('462ba667-b873-509a-a36a-b00776413d2a', 'xh', 'xho', 'Xhosa', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('338fa15e-35a2-56c0-aca9-fd8069c89412', 'yi', 'Yiddish')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('338fa15e-35a2-56c0-aca9-fd8069c89412', 'yi', 'yid', 'Yiddish', 'RTL')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('433a970b-f5f1-535d-86a1-49c55bf93335', 'yo', 'Yoruba')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('433a970b-f5f1-535d-86a1-49c55bf93335', 'yo', 'yor', 'Yoruba', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('3b1b999e-27db-5826-b078-568a6bc0b79e', 'za', 'Zhuang')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('3b1b999e-27db-5826-b078-568a6bc0b79e', 'za', 'zha', 'Zhuang', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('cd115538-a01e-5ec3-b013-2663a474db31', 'zh', 'Chinese')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('cd115538-a01e-5ec3-b013-2663a474db31', 'zh', 'zho', 'Chinese', 'LTR')
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name)
-VALUES ('75ec1a84-2cf3-51da-86fb-92ced74d386b', 'zu', 'Zulu')
+INSERT INTO bus_language (id, code, alpha3, name, direction)
+VALUES ('75ec1a84-2cf3-51da-86fb-92ced74d386b', 'zu', 'zul', 'Zulu', 'LTR')
 ON CONFLICT DO NOTHING;
 
 -- --------------------------------------------------------------------------
@@ -13442,6 +15397,99 @@ ON CONFLICT DO NOTHING;
 INSERT INTO sys_ref_table (sys_ref_table_id, sys_reference_id, sys_table_id, key_column_id, display_column_id, is_value_displayed, order_by_clause, where_clause, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('562a2f5c-f5c2-57d7-956e-7c6bd0e58d0a', 1001, '560c5567-384f-54cc-8deb-22803ebb1e6c', 'aa69f415-947f-51b9-a9b0-dec35c5d50d1', '416236b0-9228-5796-af65-5f4834a61958', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
+INSERT INTO bus_attachment_status (id, code, name, description, sequence, is_active)
+VALUES ('ab7dd4f9-7e45-5d53-93ea-51b9ef91c951', 'ACTIVE', 'Active', 'Attached and part of the record''s evidence.', 10, TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_attachment_status (id, code, name, description, sequence, is_active)
+VALUES ('7f07f7dc-bf3c-54ad-963d-a7f754731672', 'WITHDRAWN', 'Withdrawn', 'Removed from the record''s evidence, but kept for the history.', 20, TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_ref_table (sys_ref_table_id, sys_reference_id, sys_table_id, key_column_id, display_column_id, is_value_displayed, order_by_clause, where_clause, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('34213c1a-1d7e-5ca4-95f9-9abd8c6955d6', 1002, 'b30ae7a6-f729-5b87-9c08-596f0e366a7a', 'ec9bf680-3312-56aa-a2db-68ba4156a9f6', '92d358b2-4976-588d-9413-27c265afbdfa', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_business_unit_status (id, code, name, description, sequence, is_active)
+VALUES ('3c94a317-cd13-50e1-96d1-c7727eb62b74', 'ACTIVE', 'Active', 'Operating and available for new assignments.', 10, TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_business_unit_status (id, code, name, description, sequence, is_active)
+VALUES ('a18ccccb-3da7-5540-ac21-58055c8c2590', 'INACTIVE', 'Inactive', 'No longer operating after a closure or merger.', 20, TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_ref_table (sys_ref_table_id, sys_reference_id, sys_table_id, key_column_id, display_column_id, is_value_displayed, order_by_clause, where_clause, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('72de5cab-2a86-5a71-8a37-f4bb55151f32', 1003, 'c85fe77a-661a-5257-ba06-0ad03aaf2229', '22661e80-29c1-5220-a03b-aa8f6bbbdda4', '414c19c2-56ae-5834-890d-1bc321e0a106', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_calendar_exception_exception_type (id, code, name, description, sequence, is_active)
+VALUES ('3d2acc4c-916c-5892-928e-5c812b28a967', 'PUBLIC_HOLIDAY', 'Public Holiday', 'A public holiday on which work does not happen.', 10, TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_calendar_exception_exception_type (id, code, name, description, sequence, is_active)
+VALUES ('a5a76b77-752b-56b2-91d0-2c8150e0f72d', 'COMPANY_CLOSURE', 'Company Closure', 'A day the company or site is closed.', 20, TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_calendar_exception_exception_type (id, code, name, description, sequence, is_active)
+VALUES ('fa7d9b47-366b-57f5-b97f-2286bc2187ec', 'EXTRA_WORKING_DAY', 'Extra Working Day', 'A normally free day that is worked.', 30, TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_ref_table (sys_ref_table_id, sys_reference_id, sys_table_id, key_column_id, display_column_id, is_value_displayed, order_by_clause, where_clause, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('7efe73b6-a6a3-556f-b1ce-80c50c3ce645', 1004, '97fafa18-4373-5bef-b94d-5c103fc34f9c', '22d7a762-7da3-5cb4-aeea-1ce68b5271f1', '527e42ac-baee-5421-8256-ae5c26429b65', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_calendar_status (id, code, name, description, sequence, is_active)
+VALUES ('1573e3b3-9f0b-535d-bf63-9f4fe3c3b594', 'ACTIVE', 'Active', 'In use and available to planners.', 10, TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_calendar_status (id, code, name, description, sequence, is_active)
+VALUES ('cf04e8e2-94bb-5e59-97e4-fa36ba3b3b59', 'INACTIVE', 'Inactive', 'Retired and no longer offered.', 20, TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_ref_table (sys_ref_table_id, sys_reference_id, sys_table_id, key_column_id, display_column_id, is_value_displayed, order_by_clause, where_clause, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('5bfdc930-5f31-5729-9c46-bc92990b76f5', 1005, '166ef60e-3cfa-5601-b5c8-241d6caa0a6d', '3385e247-ce81-551d-9b0e-a39354dc52c5', 'c88724cd-9441-5a99-87d3-f1dd04482b2f', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_contact_point_channel (id, code, name, description, sequence, is_active)
+VALUES ('6ee06809-32dc-5601-997b-101b55fea284', 'EMAIL', 'Email', 'An email address used for written messages.', 10, TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_contact_point_channel (id, code, name, description, sequence, is_active)
+VALUES ('8d7da9c5-91d1-5044-bce0-4e8a634100c4', 'PHONE', 'Phone', 'A landline telephone number.', 20, TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_contact_point_channel (id, code, name, description, sequence, is_active)
+VALUES ('8a5f86f3-1957-5d4c-8853-505954f2b53d', 'MOBILE', 'Mobile', 'A mobile telephone number.', 30, TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_contact_point_channel (id, code, name, description, sequence, is_active)
+VALUES ('e330bf0b-8c35-5c98-9a7d-2d0f5af6d6f6', 'FAX', 'Fax', 'A fax number, kept for partners who still use it.', 40, TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_contact_point_channel (id, code, name, description, sequence, is_active)
+VALUES ('175d2f11-e433-568a-8792-bd80914cb1fe', 'WEBSITE', 'Website', 'A web address of the party''s site or page.', 50, TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_contact_point_channel (id, code, name, description, sequence, is_active)
+VALUES ('1d6c27d7-fd91-5a8f-82f7-fb69559402c8', 'MESSAGING', 'Messaging', 'A handle on a messaging app.', 60, TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_ref_table (sys_ref_table_id, sys_reference_id, sys_table_id, key_column_id, display_column_id, is_value_displayed, order_by_clause, where_clause, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('15289e7a-0614-52be-9174-3976acbe6036', 1006, 'fc869f52-f7d9-560e-8bba-4568ce7bc3a4', '0d64a969-d976-5f2f-91c9-8b0176cd8291', '4a21f053-882d-5d03-b07e-bbe2e934e59e', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_contact_point_purpose (id, code, name, description, sequence, is_active)
+VALUES ('d6533292-f217-5a98-ab4c-491880f99557', 'GENERAL', 'General', 'Any purpose, when nothing more specific applies.', 10, TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_contact_point_purpose (id, code, name, description, sequence, is_active)
+VALUES ('d51c2fd8-f033-518e-80d7-5d1cce395f2b', 'BILLING', 'Billing', 'Invoices and statements sent to accounts payable.', 20, TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_contact_point_purpose (id, code, name, description, sequence, is_active)
+VALUES ('de451582-94de-59e3-b6e1-50e2a265acff', 'ORDERS', 'Orders', 'Order confirmations and purchase orders.', 30, TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_contact_point_purpose (id, code, name, description, sequence, is_active)
+VALUES ('bbeba0cf-0456-5de9-8120-973f17ead7fd', 'DELIVERY', 'Delivery', 'Delivery notices and arrival updates.', 40, TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_contact_point_purpose (id, code, name, description, sequence, is_active)
+VALUES ('f7077a6c-ec35-5b0d-9885-e651feab38bb', 'SUPPORT', 'Support', 'Service and support enquiries.', 50, TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_contact_point_purpose (id, code, name, description, sequence, is_active)
+VALUES ('30f5bcb7-7066-595a-b042-a9363a41084c', 'MARKETING', 'Marketing', 'Marketing communication, where consent allows.', 60, TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_ref_table (sys_ref_table_id, sys_reference_id, sys_table_id, key_column_id, display_column_id, is_value_displayed, order_by_clause, where_clause, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('39ec000b-395a-58fb-a3ad-8feb24c62a79', 1007, '92dfffb2-5a7b-58ba-9640-cb04b38e2972', '65095772-e3d6-57a1-81a9-5e7876c2e452', 'd5c24f27-cd91-55f9-8dd8-0b43003e62fc', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_contact_point_status (id, code, name, description, sequence, is_active)
+VALUES ('c174c72f-df99-5e0b-ba82-dbe0d62171c8', 'ACTIVE', 'Active', 'In use and offered for contact.', 10, TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_contact_point_status (id, code, name, description, sequence, is_active)
+VALUES ('fa73c392-9f8a-5cfa-895d-c63cb7b5c307', 'INACTIVE', 'Inactive', 'No longer used and kept for history.', 20, TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_contact_point_status (id, code, name, description, sequence, is_active)
+VALUES ('273c72cb-a45a-5d75-a795-81d3a2af8578', 'INVALID', 'Invalid', 'Known not to work, such as a bouncing address.', 30, TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_ref_table (sys_ref_table_id, sys_reference_id, sys_table_id, key_column_id, display_column_id, is_value_displayed, order_by_clause, where_clause, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('e9d07bc9-56ca-5591-8c39-9cff0d376715', 1008, '975561d3-2966-519f-ad41-ea5a6f450179', '3774c8ce-72af-5439-b0a5-9a6e753a480e', '54acfe62-4df7-547a-8ce0-761d4bdb8171', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
 INSERT INTO bus_currency_status (id, code, name, description, sequence, is_active)
 VALUES ('d1e74769-def8-5d63-9c52-86775aee96a8', 'ACTIVE', 'Active', 'Available for use on new prices, documents and payments.', 10, TRUE)
 ON CONFLICT DO NOTHING;
@@ -13452,7 +15500,16 @@ INSERT INTO bus_currency_status (id, code, name, description, sequence, is_activ
 VALUES ('c65467ae-a0fa-5437-9bc7-77fdea6281ec', 'RETIRED', 'Retired', 'No longer in use, such as a replaced national currency; historical amounts keep it.', 30, TRUE)
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_ref_table (sys_ref_table_id, sys_reference_id, sys_table_id, key_column_id, display_column_id, is_value_displayed, order_by_clause, where_clause, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('34213c1a-1d7e-5ca4-95f9-9abd8c6955d6', 1002, '035f67c4-c17a-564c-96c9-4c1b5b8f28e3', 'c8fb5c11-9ae6-5f85-ae65-3be889582165', '51b70485-5e67-5409-99f8-70019d54ef44', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('d4ad897d-7c43-5f8d-bfcc-4e25fcddaa7e', 1009, '035f67c4-c17a-564c-96c9-4c1b5b8f28e3', 'c8fb5c11-9ae6-5f85-ae65-3be889582165', '51b70485-5e67-5409-99f8-70019d54ef44', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_department_status (id, code, name, description, sequence, is_active)
+VALUES ('f2fd3f38-6e13-5776-bb5b-606c9f6d982e', 'ACTIVE', 'Active', 'The department exists and can receive people, positions and work.', 10, TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_department_status (id, code, name, description, sequence, is_active)
+VALUES ('556c943c-92d9-53ba-8bfb-9bca76a489e6', 'INACTIVE', 'Inactive', 'The department has been closed or merged away; it stays on record for history.', 20, TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_ref_table (sys_ref_table_id, sys_reference_id, sys_table_id, key_column_id, display_column_id, is_value_displayed, order_by_clause, where_clause, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('2174428b-1723-5053-b50d-8397eee8f3de', 1010, 'e1aec55b-0512-5896-8f21-11192b7134c2', '9656afff-75ee-55c0-9e89-2aa804cd4534', '4334692b-847e-53d1-ac22-4efdf21e6453', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_dock_dock_type (id, code, name, description, sequence, is_active)
 VALUES ('a0855adb-c18b-5fde-9c66-467c70a72da6', 'INBOUND', 'Inbound', 'Receiving goods from suppliers or transfers.', 10, TRUE)
@@ -13467,7 +15524,16 @@ INSERT INTO bus_dock_dock_type (id, code, name, description, sequence, is_active
 VALUES ('70389914-8eb3-5188-9cb8-034e3ca071ed', 'CROSS_DOCK', 'Cross Dock', 'Goods move straight from inbound to outbound without being stored.', 40, TRUE)
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_ref_table (sys_ref_table_id, sys_reference_id, sys_table_id, key_column_id, display_column_id, is_value_displayed, order_by_clause, where_clause, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('72de5cab-2a86-5a71-8a37-f4bb55151f32', 1003, '20078cd7-37f4-5d77-ab5c-470454cc1a90', '7a775e01-3929-5fc9-93ef-220c41ab419c', 'f8f21811-c90b-5833-98d1-0f506f25da2a', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('b6c38b0f-a05a-5dbf-ba14-d2e8f4834d12', 1011, '20078cd7-37f4-5d77-ab5c-470454cc1a90', '7a775e01-3929-5fc9-93ef-220c41ab419c', 'f8f21811-c90b-5833-98d1-0f506f25da2a', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_dock_status (id, code, name, description, sequence, is_active)
+VALUES ('a7270ceb-bb79-580e-87da-f3f052baf751', 'AVAILABLE', 'Available', 'In service and offered when appointments and loads are scheduled.', 10, TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_dock_status (id, code, name, description, sequence, is_active)
+VALUES ('1bdbbf4d-56ea-5b37-bfba-d2fd0ea19ff1', 'OUT_OF_SERVICE', 'Out Of Service', 'Not usable, for example during repair, and left out of scheduling.', 20, TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_ref_table (sys_ref_table_id, sys_reference_id, sys_table_id, key_column_id, display_column_id, is_value_displayed, order_by_clause, where_clause, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('ec4c6769-915b-5ba4-a921-27547ce265d4', 1012, 'a9a4247b-255e-5e59-a81e-af954bc3fa62', '03068127-f182-52e2-aac7-8e38510e2ae5', '2d4fdf10-0953-5b32-9f9b-d3499c478b15', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_exchange_rate_rate_type (id, code, name, description, sequence, is_active)
 VALUES ('4ec9c297-c97c-50fe-a161-703392e9e0ce', 'SPOT', 'Spot', 'The market rate at a moment in time.', 10, TRUE)
@@ -13488,7 +15554,7 @@ INSERT INTO bus_exchange_rate_rate_type (id, code, name, description, sequence, 
 VALUES ('450768fb-e4ba-5b00-8a60-583f0888e7b7', 'CUSTOM', 'Custom', 'Any other rate defined by policy.', 60, TRUE)
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_ref_table (sys_ref_table_id, sys_reference_id, sys_table_id, key_column_id, display_column_id, is_value_displayed, order_by_clause, where_clause, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('7efe73b6-a6a3-556f-b1ce-80c50c3ce645', 1004, '2cb727e1-1b51-502d-abdd-8d033f2f6f9c', 'fce84532-28dc-5242-8291-9aeb7d5d4309', 'ad000830-3569-5644-ad5d-c53762d93638', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('b6e6f5f1-4124-5cf2-abe9-3b7c35a42c4a', 1013, '2cb727e1-1b51-502d-abdd-8d033f2f6f9c', 'fce84532-28dc-5242-8291-9aeb7d5d4309', 'ad000830-3569-5644-ad5d-c53762d93638', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_exchange_rate_status (id, code, name, description, sequence, is_active)
 VALUES ('3b8765ca-8545-5480-ab1b-8514a3e5685d', 'DRAFT', 'Draft', 'Being prepared; not yet used.', 10, TRUE)
@@ -13503,7 +15569,25 @@ INSERT INTO bus_exchange_rate_status (id, code, name, description, sequence, is_
 VALUES ('8690d53f-3b30-57b1-8418-1d78358e5ad0', 'CANCELLED', 'Cancelled', 'Withdrawn; must not be used.', 40, TRUE)
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_ref_table (sys_ref_table_id, sys_reference_id, sys_table_id, key_column_id, display_column_id, is_value_displayed, order_by_clause, where_clause, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('5bfdc930-5f31-5729-9c46-bc92990b76f5', 1005, '8a4c28d1-cd87-5f98-b757-5f5d86664159', '04d69717-2e22-5304-9257-0d30fc38ded9', 'd4b8e0e9-fa90-5298-8612-f82e7e26df3c', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('e8d9685f-5ce2-5045-9b3b-5e619f8daecf', 1014, '8a4c28d1-cd87-5f98-b757-5f5d86664159', '04d69717-2e22-5304-9257-0d30fc38ded9', 'd4b8e0e9-fa90-5298-8612-f82e7e26df3c', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_handling_unit_status (id, code, name, description, sequence, is_active)
+VALUES ('a1a22d2b-2e87-58a3-b74f-cd0e03105336', 'OPEN', 'Open', 'Still being filled; goods can be added.', 10, TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_handling_unit_status (id, code, name, description, sequence, is_active)
+VALUES ('fb7db79a-94c2-59fb-a956-e664e74f278f', 'CLOSED', 'Closed', 'Packed and labelled, and not to be reopened without unpacking.', 20, TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_handling_unit_status (id, code, name, description, sequence, is_active)
+VALUES ('e2051fbb-1dd2-503f-8987-20f876bebbaf', 'SHIPPED', 'Shipped', 'Has left the warehouse on its way to the destination.', 30, TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_handling_unit_status (id, code, name, description, sequence, is_active)
+VALUES ('a89b30ce-8421-5964-9193-848cb2d97bb9', 'RECEIVED', 'Received', 'Arrived at its destination and was booked in.', 40, TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_handling_unit_status (id, code, name, description, sequence, is_active)
+VALUES ('77ada1bd-d330-5fa2-bbeb-f37c74ba06ee', 'DISMANTLED', 'Dismantled', 'Unpacked, so its contents are loose again.', 50, TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_ref_table (sys_ref_table_id, sys_reference_id, sys_table_id, key_column_id, display_column_id, is_value_displayed, order_by_clause, where_clause, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('9fc479d8-0453-5b59-bd03-5c0d624dfa10', 1015, 'fd1464e4-ea29-51ae-922f-7e28447f15aa', 'b0e2d6c9-7726-5b24-984b-a9a29f818e9f', '5526f6c9-88ac-5466-a903-2666feb33ee7', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_handling_unit_type (id, code, name, description, sequence, is_active)
 VALUES ('060c000b-2591-51b0-987c-d874ec556156', 'PALLET', 'Pallet', 'A palletised load moved by forklift or pallet truck.', 10, TRUE)
@@ -13527,7 +15611,49 @@ INSERT INTO bus_handling_unit_type (id, code, name, description, sequence, is_ac
 VALUES ('f672cd7d-b072-5e81-8b6e-cbf6c22aa621', 'OTHER', 'Other', 'A governed unit type not covered by the listed forms.', 70, TRUE)
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_ref_table (sys_ref_table_id, sys_reference_id, sys_table_id, key_column_id, display_column_id, is_value_displayed, order_by_clause, where_clause, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('15289e7a-0614-52be-9174-3976acbe6036', 1006, '32a31408-eb76-5054-a7b5-13fb0c8fc791', '7bdbc496-f2c6-5023-b1ac-aeae009ac5ab', 'e84c20de-e78e-5fce-a419-fccfa8edca3d', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('3258e87e-f1bb-5442-95fd-e19f8e7736b7', 1016, '32a31408-eb76-5054-a7b5-13fb0c8fc791', '7bdbc496-f2c6-5023-b1ac-aeae009ac5ab', 'e84c20de-e78e-5fce-a419-fccfa8edca3d', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_inventory_adjustment_status (id, code, name, description, sequence, is_active)
+VALUES ('9a0a8532-f21e-52b8-b10a-474a6b5d94a7', 'REQUESTED', 'Requested', 'Asked for and waiting for approval.', 10, TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_inventory_adjustment_status (id, code, name, description, sequence, is_active)
+VALUES ('30d6b8ca-ce7f-5734-bba8-7df4546665d0', 'APPROVED', 'Approved', 'Approved and waiting to be posted.', 20, TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_inventory_adjustment_status (id, code, name, description, sequence, is_active)
+VALUES ('db6dafc8-775a-5e1d-9388-520a59cfbdf6', 'POSTED', 'Posted', 'Applied, so stock and accounts are updated.', 30, TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_inventory_adjustment_status (id, code, name, description, sequence, is_active)
+VALUES ('b41221bd-4ad0-5f93-8f97-04af03be0337', 'REJECTED', 'Rejected', 'Refused by the approver, so stock stays as it was.', 40, TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_ref_table (sys_ref_table_id, sys_reference_id, sys_table_id, key_column_id, display_column_id, is_value_displayed, order_by_clause, where_clause, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('25e037da-605b-554b-8fc1-30143e472d09', 1017, 'ef94b600-70d3-503a-933f-2d3a760352ec', '8c2e79ec-1ff3-5826-91ea-a16d8d62bdcf', '98612037-9756-54a5-82dd-9a4cfe86872c', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_inventory_count_count_type (id, code, name, description, sequence, is_active)
+VALUES ('d537e3ae-cef3-584a-9769-1f5d539100bd', 'CYCLE', 'Cycle', 'A routine count of some locations on a rolling schedule.', 10, TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_inventory_count_count_type (id, code, name, description, sequence, is_active)
+VALUES ('1cf1dfe2-3308-5913-9db6-c4a579fddd44', 'ANNUAL', 'Annual', 'The full year-end count of all stock.', 20, TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_inventory_count_count_type (id, code, name, description, sequence, is_active)
+VALUES ('e7ca0a19-5755-5f8b-9463-d38595c8eaf9', 'SPOT', 'Spot', 'An unplanned count made after a problem was suspected.', 30, TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_ref_table (sys_ref_table_id, sys_reference_id, sys_table_id, key_column_id, display_column_id, is_value_displayed, order_by_clause, where_clause, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('a70c739f-5ad9-52d9-bf05-60c0f73de06d', 1018, 'be84d136-6fac-59dd-86d5-18cb88286de8', 'f189208d-3347-5376-b2ca-85e6e7afafce', '43d4cbe8-4a31-588f-9185-09e7650de7e0', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_inventory_count_status (id, code, name, description, sequence, is_active)
+VALUES ('5690054c-86b3-5a33-a8bc-722193774f71', 'PLANNED', 'Planned', 'Scheduled, but not yet counted.', 10, TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_inventory_count_status (id, code, name, description, sequence, is_active)
+VALUES ('fabdff28-ef7a-5ee5-a03b-2586de1fbf90', 'COUNTED', 'Counted', 'Counted, with a difference to review.', 20, TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_inventory_count_status (id, code, name, description, sequence, is_active)
+VALUES ('90d731df-8e83-5d8d-a875-b24418d10e32', 'RECOUNT', 'Recount', 'A recount was ordered because the difference looked wrong.', 30, TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_inventory_count_status (id, code, name, description, sequence, is_active)
+VALUES ('cdcd8118-d37d-58f7-8680-ec488a87cab8', 'APPROVED', 'Approved', 'Accepted by the supervisor, so any difference is adjusted.', 40, TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_ref_table (sys_ref_table_id, sys_reference_id, sys_table_id, key_column_id, display_column_id, is_value_displayed, order_by_clause, where_clause, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('fad9ba6e-a6d2-590b-921f-25ddaa375054', 1019, '5d9c5178-55c9-54e9-88c5-b7d2f7f8f3a9', 'fd269846-b39d-5c2a-ac15-977834617c1f', 'f28a9d19-17d5-52cd-a95d-197924c9fe94', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_inventory_item_status (id, code, name, description, sequence, is_active)
 VALUES ('8dcce26f-50e8-59ef-9011-852577c548d1', 'DRAFT', 'Draft', 'Being set up; not yet stocked.', 10, TRUE)
@@ -13542,7 +15668,7 @@ INSERT INTO bus_inventory_item_status (id, code, name, description, sequence, is
 VALUES ('48d0fd75-1b69-57fb-975f-d785da899c85', 'DISCONTINUED', 'Discontinued', 'No longer stocked; the item is kept for history. A final state.', 40, TRUE)
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_ref_table (sys_ref_table_id, sys_reference_id, sys_table_id, key_column_id, display_column_id, is_value_displayed, order_by_clause, where_clause, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('39ec000b-395a-58fb-a3ad-8feb24c62a79', 1007, '289c967b-a567-5913-965e-14b142003b7c', '14988224-81d6-5376-b997-894819ca6f25', 'eafabdb9-3baf-5805-a3ae-2d05e1647f59', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('fd99bd0b-e67b-5143-bd4b-95f6bee5e3c0', 1020, '289c967b-a567-5913-965e-14b142003b7c', '14988224-81d6-5376-b997-894819ca6f25', 'eafabdb9-3baf-5805-a3ae-2d05e1647f59', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_inventory_location_location_type (id, code, name, description, sequence, is_active)
 VALUES ('133932f6-2855-59ba-a02f-d22df8cf486f', 'RECEIVING', 'Receiving', 'Where goods wait after arrival, before they are checked and put away.', 10, TRUE)
@@ -13575,7 +15701,7 @@ INSERT INTO bus_inventory_location_location_type (id, code, name, description, s
 VALUES ('12cae1d0-c7e8-5c4d-b5fe-af30457dfed2', 'OTHER', 'Other', 'Any other kind of stock-holding position.', 100, TRUE)
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_ref_table (sys_ref_table_id, sys_reference_id, sys_table_id, key_column_id, display_column_id, is_value_displayed, order_by_clause, where_clause, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('e9d07bc9-56ca-5591-8c39-9cff0d376715', 1008, 'f133221c-1648-5466-a90d-d60da9a3204e', '437896c1-45cc-5cb4-9091-b5d2b2774fc3', '19fbf7dd-107f-5e67-a51f-bbdf0eb1d385', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('cafbc20e-460b-52b7-a345-f0357b6f3c54', 1021, 'f133221c-1648-5466-a90d-d60da9a3204e', '437896c1-45cc-5cb4-9091-b5d2b2774fc3', '19fbf7dd-107f-5e67-a51f-bbdf0eb1d385', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_inventory_location_status (id, code, name, description, sequence, is_active)
 VALUES ('dd3a3304-3e4a-5f7c-a781-e263ebeb226e', 'ACTIVE', 'Active', 'Open for receiving, storing and picking.', 10, TRUE)
@@ -13587,7 +15713,7 @@ INSERT INTO bus_inventory_location_status (id, code, name, description, sequence
 VALUES ('e2b5650b-a290-51ee-bb5a-1bf39db18938', 'INACTIVE', 'Inactive', 'Not in use; no stock should be placed there, though it can be reactivated.', 30, TRUE)
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_ref_table (sys_ref_table_id, sys_reference_id, sys_table_id, key_column_id, display_column_id, is_value_displayed, order_by_clause, where_clause, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('d4ad897d-7c43-5f8d-bfcc-4e25fcddaa7e', 1009, '8f63ffc6-2e64-53d8-80e7-20ef0b3692a8', '703a7199-f2cb-5f59-bb89-9111351ae754', 'f7c53506-cd31-5349-b112-b2aeab8cb066', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('4d1081af-d386-5ffa-8397-61b13b9e0e70', 1022, '8f63ffc6-2e64-53d8-80e7-20ef0b3692a8', '703a7199-f2cb-5f59-bb89-9111351ae754', 'f7c53506-cd31-5349-b112-b2aeab8cb066', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_inventory_movement_movement_type (id, code, name, description, sequence, is_active)
 VALUES ('07c269e3-c98e-5595-808e-6747f2f908ff', 'RECEIPT', 'Receipt', 'Stock arrives, for example from a supplier or production.', 10, TRUE)
@@ -13611,7 +15737,7 @@ INSERT INTO bus_inventory_movement_movement_type (id, code, name, description, s
 VALUES ('6334be5a-25bd-5e5b-823a-1483700236d6', 'RELEASE', 'Release', 'A reservation is withdrawn and the stock becomes available again.', 70, TRUE)
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_ref_table (sys_ref_table_id, sys_reference_id, sys_table_id, key_column_id, display_column_id, is_value_displayed, order_by_clause, where_clause, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('2174428b-1723-5053-b50d-8397eee8f3de', 1010, '4ff2e778-5ecd-57a3-b736-0d04fff566ce', 'abb5f53b-8692-552d-9e29-75caf45b92e8', '32722c6b-0cb6-5c4c-b109-69df8d229984', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('a89ab594-f079-5fbd-9d2b-79323a9b6e4e', 1023, '4ff2e778-5ecd-57a3-b736-0d04fff566ce', 'abb5f53b-8692-552d-9e29-75caf45b92e8', '32722c6b-0cb6-5c4c-b109-69df8d229984', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_inventory_reservation_status (id, code, name, description, sequence, is_active)
 VALUES ('5a670178-c5f6-54be-8666-34c0f5676ee2', 'PENDING', 'Pending', 'Requested but not yet holding stock.', 10, TRUE)
@@ -13635,7 +15761,7 @@ INSERT INTO bus_inventory_reservation_status (id, code, name, description, seque
 VALUES ('5a062ba3-c48f-5134-82d3-31a863c2a210', 'EXPIRED', 'Expired', 'Lapsed because the demand was not fulfilled in time. A final state.', 70, TRUE)
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_ref_table (sys_ref_table_id, sys_reference_id, sys_table_id, key_column_id, display_column_id, is_value_displayed, order_by_clause, where_clause, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('b6c38b0f-a05a-5dbf-ba14-d2e8f4834d12', 1011, 'a4f86f41-cafb-5fcf-b637-b6c9a6452405', '09513d7d-616f-58a2-82b9-6ebbf0b9da7e', '59f652b3-9a41-5c21-a6ec-a46a299b1822', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('bf7e30b7-5ee3-5160-b0c1-54c99d6f7f55', 1024, 'a4f86f41-cafb-5fcf-b637-b6c9a6452405', '09513d7d-616f-58a2-82b9-6ebbf0b9da7e', '59f652b3-9a41-5c21-a6ec-a46a299b1822', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_inventory_transfer_status (id, code, name, description, sequence, is_active)
 VALUES ('9e17171b-4f4a-58e4-a87d-762e057ef7c2', 'PLANNED', 'Planned', 'Requested but not yet released, so no warehouse work has been assigned.', 10, TRUE)
@@ -13653,7 +15779,31 @@ INSERT INTO bus_inventory_transfer_status (id, code, name, description, sequence
 VALUES ('abfccb07-ed95-56ff-85c5-2c4b5589412c', 'CANCELLED', 'Cancelled', 'Withdrawn before completion, with no further stock change. A final state.', 50, TRUE)
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_ref_table (sys_ref_table_id, sys_reference_id, sys_table_id, key_column_id, display_column_id, is_value_displayed, order_by_clause, where_clause, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('ec4c6769-915b-5ba4-a921-27547ce265d4', 1012, 'b1b54382-fc57-5bf6-8b27-5e89fafcc219', '96103b1b-405e-5b50-bd18-cae5e3218014', 'a68a7e84-f484-5d5d-9019-15f26a7e80e1', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('3547f9b8-7076-5188-a528-0422107966dc', 1025, 'b1b54382-fc57-5bf6-8b27-5e89fafcc219', '96103b1b-405e-5b50-bd18-cae5e3218014', 'a68a7e84-f484-5d5d-9019-15f26a7e80e1', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language_direction (id, code, name, description, sequence, is_active)
+VALUES ('875bdf07-23d9-52f1-8ba8-de15ab8fdf55', 'LTR', 'Ltr', 'Written left to right.', 10, TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language_direction (id, code, name, description, sequence, is_active)
+VALUES ('bea6d064-6768-5ed4-948d-cab9f6b80be5', 'RTL', 'Rtl', 'Written right to left.', 20, TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_ref_table (sys_ref_table_id, sys_reference_id, sys_table_id, key_column_id, display_column_id, is_value_displayed, order_by_clause, where_clause, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('16777fff-df1c-5621-a15e-54ef1dd67da9', 1026, '3bd5031a-380e-523d-9f6f-dce3d088ddf9', '1b87e5a1-5788-544b-b608-9a3cfc2c9f64', '68c40230-e4fa-544c-95f4-c15d950db71c', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_legal_entity_status (id, code, name, description, sequence, is_active)
+VALUES ('b4296feb-6144-591a-96a7-7de99e188c04', 'ACTIVE', 'Active', 'Registered, in good standing and free to trade, sign contracts and issue invoices.', 10, TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_legal_entity_status (id, code, name, description, sequence, is_active)
+VALUES ('f1b9682c-1eb4-5dd0-a74b-c75bfd1ce822', 'DORMANT', 'Dormant', 'Still registered but not trading, so it holds no live business activity.', 20, TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_legal_entity_status (id, code, name, description, sequence, is_active)
+VALUES ('5527b324-847b-5342-8feb-7c031613bdad', 'IN_LIQUIDATION', 'In Liquidation', 'Being wound up by a liquidator; no new business should be started in its name.', 30, TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_legal_entity_status (id, code, name, description, sequence, is_active)
+VALUES ('97abecd9-cb38-504d-83e4-7d4e29984dbf', 'DISSOLVED', 'Dissolved', 'Struck off the register and gone for good; no new contracts or invoices may use it.', 40, TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_ref_table (sys_ref_table_id, sys_reference_id, sys_table_id, key_column_id, display_column_id, is_value_displayed, order_by_clause, where_clause, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('1cdfea41-6e5d-5638-8cc7-29f713bf0724', 1027, '20e4d3f9-c90f-54c9-a9db-63393151374b', '8432b0ed-1aef-5dc7-a6da-fd5aafb8e262', 'fe2cc346-02b5-5f98-b6e5-a47914f50fcb', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_location_location_type (id, code, name, description, sequence, is_active)
 VALUES ('d2c1c9d6-7146-56dc-921c-4e1b7ed1e482', 'SITE', 'Site', 'A geographic site that may contain several buildings.', 10, TRUE)
@@ -13686,7 +15836,7 @@ INSERT INTO bus_location_location_type (id, code, name, description, sequence, i
 VALUES ('9498a156-ec71-5aee-8c24-3178add237f2', 'OTHER', 'Other', 'Any other kind of place.', 100, TRUE)
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_ref_table (sys_ref_table_id, sys_reference_id, sys_table_id, key_column_id, display_column_id, is_value_displayed, order_by_clause, where_clause, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('b6e6f5f1-4124-5cf2-abe9-3b7c35a42c4a', 1013, '4db30220-7ccf-504a-bf99-f17e3e16d991', 'fe6db07f-6e9b-521c-a0fb-808b26af5d99', '7cf0b065-f6f3-5b63-8127-36cca0d91858', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('7a181ce0-46a7-51cf-80c2-27272641b729', 1028, '4db30220-7ccf-504a-bf99-f17e3e16d991', 'fe6db07f-6e9b-521c-a0fb-808b26af5d99', '7cf0b065-f6f3-5b63-8127-36cca0d91858', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_location_status (id, code, name, description, sequence, is_active)
 VALUES ('e719f529-5285-5f8e-b487-50baf2ea4873', 'PLANNED', 'Planned', 'Expected but not yet in use.', 10, TRUE)
@@ -13704,7 +15854,7 @@ INSERT INTO bus_location_status (id, code, name, description, sequence, is_activ
 VALUES ('f035bac4-fd07-5553-8649-dce875486da0', 'RETIRED', 'Retired', 'Removed from use altogether. A final state.', 50, TRUE)
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_ref_table (sys_ref_table_id, sys_reference_id, sys_table_id, key_column_id, display_column_id, is_value_displayed, order_by_clause, where_clause, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('e8d9685f-5ce2-5045-9b3b-5e619f8daecf', 1014, 'c690045e-d6fc-5d79-b95d-ff4b7d83394e', 'fb6948a3-24dc-5e79-a488-969f26e6324e', '7e25daa0-b92c-51ab-87ae-277d307848b2', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('83cd437a-9285-5359-9f34-75a74de402eb', 1029, 'c690045e-d6fc-5d79-b95d-ff4b7d83394e', 'fb6948a3-24dc-5e79-a488-969f26e6324e', '7e25daa0-b92c-51ab-87ae-277d307848b2', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_lot_status (id, code, name, description, sequence, is_active)
 VALUES ('982d136c-0bc8-5055-9e43-396810043c30', 'ACTIVE', 'Active', 'In stock and usable under normal rules.', 10, TRUE)
@@ -13731,7 +15881,7 @@ INSERT INTO bus_lot_status (id, code, name, description, sequence, is_active)
 VALUES ('cc9b6765-d48d-5436-8048-9926b2f41035', 'CLOSED', 'Closed', 'Closed administratively with nothing left to track. A final state.', 80, TRUE)
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_ref_table (sys_ref_table_id, sys_reference_id, sys_table_id, key_column_id, display_column_id, is_value_displayed, order_by_clause, where_clause, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('9fc479d8-0453-5b59-bd03-5c0d624dfa10', 1015, 'd7520fad-2e75-5a0e-a0c8-eb11329df03e', '6d343afb-ae30-52c1-ac54-27a3701d25fb', '1e2ffcd8-f21b-56a5-a1c2-15c4b37b88d5', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('356656ed-744c-5898-b409-583d3b702447', 1030, 'd7520fad-2e75-5a0e-a0c8-eb11329df03e', '6d343afb-ae30-52c1-ac54-27a3701d25fb', '1e2ffcd8-f21b-56a5-a1c2-15c4b37b88d5', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_organization_organization_type (id, code, name, description, sequence, is_active)
 VALUES ('139c62aa-3589-512d-8a25-56afa4fb5b73', 'ENTERPRISE', 'Enterprise', 'The top-level group or enterprise that owns every other organizational unit beneath it.', 10, TRUE)
@@ -13758,7 +15908,7 @@ INSERT INTO bus_organization_organization_type (id, code, name, description, seq
 VALUES ('6d707fce-11de-581e-b459-20b577f60fbc', 'OTHER', 'Other', 'A structure that fits none of the other types and is explained in its name or description.', 80, TRUE)
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_ref_table (sys_ref_table_id, sys_reference_id, sys_table_id, key_column_id, display_column_id, is_value_displayed, order_by_clause, where_clause, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('3258e87e-f1bb-5442-95fd-e19f8e7736b7', 1016, '221e978e-b8d7-5d05-9a23-d8aef323b228', 'e0bbac81-1918-5cde-8894-3b361ab521fc', '77c5ae0f-ef83-588c-86f5-e6594bc6f7aa', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('b6bd9336-fa05-54dd-ba97-dfc4cca97d51', 1031, '221e978e-b8d7-5d05-9a23-d8aef323b228', 'e0bbac81-1918-5cde-8894-3b361ab521fc', '77c5ae0f-ef83-588c-86f5-e6594bc6f7aa', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_organization_party_type (id, code, name, description, sequence, is_active)
 VALUES ('82d78979-8398-53e8-957a-24236bbcdce8', 'PERSON', 'Person', 'The party represents an individual human being.', 10, TRUE)
@@ -13767,7 +15917,7 @@ INSERT INTO bus_organization_party_type (id, code, name, description, sequence, 
 VALUES ('2d09ddae-e4fe-5b01-9f69-16cc65663c16', 'ORGANIZATION', 'Organization', 'The party represents a legal, commercial, governmental, nonprofit, or other organized body.', 20, TRUE)
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_ref_table (sys_ref_table_id, sys_reference_id, sys_table_id, key_column_id, display_column_id, is_value_displayed, order_by_clause, where_clause, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('25e037da-605b-554b-8fc1-30143e472d09', 1017, '21b64dfe-45c5-5aba-946f-390b74dc5769', '1248dbbf-13d7-5c44-83ae-7fb79c03c119', 'f7dc40cc-ae77-5061-be66-64bafda9068c', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('96689360-12ce-5da8-a7d1-087c791bf65e', 1032, '21b64dfe-45c5-5aba-946f-390b74dc5769', '1248dbbf-13d7-5c44-83ae-7fb79c03c119', 'f7dc40cc-ae77-5061-be66-64bafda9068c', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_organization_status (id, code, name, description, sequence, is_active)
 VALUES ('a07ae0de-7102-59e0-87d7-78e0755abcde', 'DRAFT', 'Draft', 'The organization is being set up and is not yet available for use in transactions.', 10, TRUE)
@@ -13782,7 +15932,22 @@ INSERT INTO bus_organization_status (id, code, name, description, sequence, is_a
 VALUES ('25d0251f-80fc-52bf-866e-11d380c68e51', 'RETIRED', 'Retired', 'The organization has been permanently closed or merged away and cannot be selected again. A final state.', 40, TRUE)
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_ref_table (sys_ref_table_id, sys_reference_id, sys_table_id, key_column_id, display_column_id, is_value_displayed, order_by_clause, where_clause, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('a70c739f-5ad9-52d9-bf05-60c0f73de06d', 1018, 'd9e90dd6-f237-5196-858f-219066d98ec0', '64946c21-021a-50c0-94b9-be8ecf9212f4', '230ed561-0c93-541b-9cfa-2c0f95c55db7', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('6db97187-70a2-524f-91d0-caff39e89913', 1033, 'd9e90dd6-f237-5196-858f-219066d98ec0', '64946c21-021a-50c0-94b9-be8ecf9212f4', '230ed561-0c93-541b-9cfa-2c0f95c55db7', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_packaging_packaging_level (id, code, name, description, sequence, is_active)
+VALUES ('67a7a39f-3f53-53ed-9ad1-75521eb8eed8', 'EACH', 'Each', 'The single sellable unit as a customer buys it.', 10, TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_packaging_packaging_level (id, code, name, description, sequence, is_active)
+VALUES ('e317e0ad-d9c0-5973-a7ed-c6a40efb1202', 'INNER', 'Inner', 'A smaller inner pack grouped inside a case.', 20, TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_packaging_packaging_level (id, code, name, description, sequence, is_active)
+VALUES ('9a437fdd-3108-5fba-a78c-4bedf2c073c7', 'CASE', 'Case', 'A shipping case or carton holding several units.', 30, TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_packaging_packaging_level (id, code, name, description, sequence, is_active)
+VALUES ('117f20a9-4c83-5c0f-af23-e2243972743d', 'PALLET', 'Pallet', 'A full pallet of cases ready to be moved by forklift.', 40, TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_ref_table (sys_ref_table_id, sys_reference_id, sys_table_id, key_column_id, display_column_id, is_value_displayed, order_by_clause, where_clause, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('3adcb9d9-9603-532b-bb0f-b373d084b073', 1034, 'ba48e56f-ab0a-509f-8056-19d8b13325c2', '71b18c0f-3757-58a8-802d-ac589d60b509', 'f20be924-212f-5640-a1ef-ae34dac07832', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_packing_status (id, code, name, description, sequence, is_active)
 VALUES ('1ffdff4b-0ed1-51b5-b213-ed008c3d24e1', 'PLANNED', 'Planned', 'Created, not yet started.', 10, TRUE)
@@ -13800,7 +15965,7 @@ INSERT INTO bus_packing_status (id, code, name, description, sequence, is_active
 VALUES ('4a9ee8b3-934e-5212-adf2-c453036f5689', 'EXCEPTION', 'Exception', 'Held because something is wrong, such as a shortage or damage.', 50, TRUE)
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_ref_table (sys_ref_table_id, sys_reference_id, sys_table_id, key_column_id, display_column_id, is_value_displayed, order_by_clause, where_clause, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('fad9ba6e-a6d2-590b-921f-25ddaa375054', 1019, '0f2762be-ac0f-5a8c-83a5-11d27de94c19', 'fcd84efc-7042-55d0-be55-1ac95ed6b5de', 'a398ba46-a129-5822-aa09-d21daf59fb21', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('dc6f31e3-1ecf-56e4-87a5-ed6ccd25840c', 1035, '0f2762be-ac0f-5a8c-83a5-11d27de94c19', 'fcd84efc-7042-55d0-be55-1ac95ed6b5de', 'a398ba46-a129-5822-aa09-d21daf59fb21', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_party_party_type (id, code, name, description, sequence, is_active)
 VALUES ('913fec2b-64f0-58fc-b1fe-5d9712828ad1', 'PERSON', 'Person', 'The party represents an individual human being.', 10, TRUE)
@@ -13809,7 +15974,43 @@ INSERT INTO bus_party_party_type (id, code, name, description, sequence, is_acti
 VALUES ('5734070e-2ca7-5d09-b5c2-09bb2efe8cc5', 'ORGANIZATION', 'Organization', 'The party represents a legal, commercial, governmental, nonprofit, or other organized body.', 20, TRUE)
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_ref_table (sys_ref_table_id, sys_reference_id, sys_table_id, key_column_id, display_column_id, is_value_displayed, order_by_clause, where_clause, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('fd99bd0b-e67b-5143-bd4b-95f6bee5e3c0', 1020, 'c771056f-2058-5833-b4d1-ad80ae9e860c', '0e72badb-51d3-5a0c-80af-bb860cfd8be2', '77247e41-17d4-5711-80d3-8744e69a82ca', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('47c822f6-9b7d-59bb-9b77-600ff174ac29', 1036, 'c771056f-2058-5833-b4d1-ad80ae9e860c', '0e72badb-51d3-5a0c-80af-bb860cfd8be2', '77247e41-17d4-5711-80d3-8744e69a82ca', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_party_relationship_relationship_type (id, code, name, description, sequence, is_active)
+VALUES ('8da0a6c5-5588-5765-8f38-3a3a5f5a6302', 'SUBSIDIARY_OF', 'Subsidiary Of', 'The first party is a subsidiary owned by the second.', 10, TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_party_relationship_relationship_type (id, code, name, description, sequence, is_active)
+VALUES ('2161b664-ec15-5e22-9fd4-fdf8e1646604', 'BRANCH_OF', 'Branch Of', 'The first party is a branch operating as part of the second.', 20, TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_party_relationship_relationship_type (id, code, name, description, sequence, is_active)
+VALUES ('b69cf225-fc3b-5e9a-af9a-2264a8106883', 'EMPLOYEE_OF', 'Employee Of', 'The first party works for the second as an employee.', 30, TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_party_relationship_relationship_type (id, code, name, description, sequence, is_active)
+VALUES ('3eacda83-5645-55c2-9d0a-974787d31e34', 'AGENT_OF', 'Agent Of', 'The first party acts as an agent on behalf of the second.', 40, TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_party_relationship_relationship_type (id, code, name, description, sequence, is_active)
+VALUES ('a1771ede-da3f-5466-97fa-a4c3a1234306', 'GUARANTOR_FOR', 'Guarantor For', 'The first party guarantees the second party''s obligations.', 50, TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_party_relationship_relationship_type (id, code, name, description, sequence, is_active)
+VALUES ('791b2e48-5c5f-5c5d-bfd8-8a6fe49b1393', 'BENEFICIAL_OWNER_OF', 'Beneficial Owner Of', 'The first party ultimately owns or controls the second.', 60, TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_party_relationship_relationship_type (id, code, name, description, sequence, is_active)
+VALUES ('b8abc65d-b7b1-5a11-a4ed-1d0175f7b79d', 'HOUSEHOLD_MEMBER_OF', 'Household Member Of', 'The first party lives in the same household as the second.', 70, TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_party_relationship_relationship_type (id, code, name, description, sequence, is_active)
+VALUES ('a7e7ef44-3a8b-59ca-87a9-ac87f8f09e33', 'OTHER', 'Other', 'Any other kind of link, explained in the relationship name.', 80, TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_ref_table (sys_ref_table_id, sys_reference_id, sys_table_id, key_column_id, display_column_id, is_value_displayed, order_by_clause, where_clause, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('aa7a8344-28fc-57c0-a673-62086e8c7307', 1037, '74e6a607-c9ae-5fc1-8b11-7ce69fac12b2', 'c77ac27b-15db-55a0-a6dd-0fff07dbd47d', 'fd6e2118-3604-5f48-95cc-b1c528dd337f', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_party_relationship_status (id, code, name, description, sequence, is_active)
+VALUES ('90386156-3bbf-5169-86e7-0875f57ee630', 'ACTIVE', 'Active', 'The relationship is in force today.', 10, TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_party_relationship_status (id, code, name, description, sequence, is_active)
+VALUES ('900e4ab6-f9b1-520a-892b-4184598902fa', 'ENDED', 'Ended', 'The relationship has stopped but is kept for history.', 20, TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_ref_table (sys_ref_table_id, sys_reference_id, sys_table_id, key_column_id, display_column_id, is_value_displayed, order_by_clause, where_clause, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('a3d56b93-8072-5587-8587-772b73003340', 1038, '6e5dd8f7-d9c5-5995-a9e0-9afe2d673134', 'acf13328-7f24-550d-ab59-27b04edf478b', '70701355-a1a4-5d70-b87c-139d70669c4e', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_party_role_role_type (id, code, name, description, sequence, is_active)
 VALUES ('8a393b7a-3753-5f90-87bb-9e865f90e7ec', 'CUSTOMER', 'Customer', 'The party buys goods or services from the organization and is handled in sales and receivables.', 10, TRUE)
@@ -13842,7 +16043,7 @@ INSERT INTO bus_party_role_role_type (id, code, name, description, sequence, is_
 VALUES ('f97c799d-65db-52cd-90dd-d3162f033858', 'OTHER', 'Other', 'A role that fits none of the listed kinds and is explained in the role code or description.', 100, TRUE)
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_ref_table (sys_ref_table_id, sys_reference_id, sys_table_id, key_column_id, display_column_id, is_value_displayed, order_by_clause, where_clause, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('cafbc20e-460b-52b7-a345-f0357b6f3c54', 1021, '64fb4562-efe7-5eb4-9e01-68b74763ebcc', 'f745e209-91bc-5e08-85d2-4cf3825f202a', '4c7d7a15-3846-5501-9d47-89cc56f0dc1b', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('ef365d18-fad4-5c09-a924-0a8015968470', 1039, '64fb4562-efe7-5eb4-9e01-68b74763ebcc', 'f745e209-91bc-5e08-85d2-4cf3825f202a', '4c7d7a15-3846-5501-9d47-89cc56f0dc1b', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_party_role_status (id, code, name, description, sequence, is_active)
 VALUES ('29548ba2-3838-5c4d-a1b0-fb72d5b60e32', 'ACTIVE', 'Active', 'The party currently holds the role.', 10, TRUE)
@@ -13854,7 +16055,7 @@ INSERT INTO bus_party_role_status (id, code, name, description, sequence, is_act
 VALUES ('e57102fa-5b79-52e1-86af-209c898a8161', 'EXPIRED', 'Expired', 'Ended; kept for history. A final state.', 30, TRUE)
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_ref_table (sys_ref_table_id, sys_reference_id, sys_table_id, key_column_id, display_column_id, is_value_displayed, order_by_clause, where_clause, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('4d1081af-d386-5ffa-8397-61b13b9e0e70', 1022, 'aa8442c8-1291-53d0-a0d8-9f5bf050b93a', 'a163c900-dd1e-5940-998c-ba5bb9613e63', '23a40486-8fea-5024-9eac-f4ad2707527f', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('9ea9c985-5aef-579b-8a89-be56c0fd797b', 1040, 'aa8442c8-1291-53d0-a0d8-9f5bf050b93a', 'a163c900-dd1e-5940-998c-ba5bb9613e63', '23a40486-8fea-5024-9eac-f4ad2707527f', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_party_status (id, code, name, description, sequence, is_active)
 VALUES ('bd010e8a-2078-5a60-bffb-1f4100ebcdd7', 'ACTIVE', 'Active', 'The party is available for normal business participation.', 10, TRUE)
@@ -13869,7 +16070,7 @@ INSERT INTO bus_party_status (id, code, name, description, sequence, is_active)
 VALUES ('5a25d200-068c-5f41-83ec-a474a806e5a3', 'RETIRED', 'Retired', 'The party relationship is permanently ended for normal operational use while historical references remain valid.', 40, TRUE)
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_ref_table (sys_ref_table_id, sys_reference_id, sys_table_id, key_column_id, display_column_id, is_value_displayed, order_by_clause, where_clause, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('a89ab594-f079-5fbd-9d2b-79323a9b6e4e', 1023, '0a3a5eb3-81f8-54f8-ba0d-56fd52a152c7', '5429a360-edfb-52e8-851c-55e7c0fd7329', 'ab518fd1-516e-55b8-9fbe-4a311fb4d7e5', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('baccb80c-289d-5e90-94d3-a058d96ac4e5', 1041, '0a3a5eb3-81f8-54f8-ba0d-56fd52a152c7', '5429a360-edfb-52e8-851c-55e7c0fd7329', 'ab518fd1-516e-55b8-9fbe-4a311fb4d7e5', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_person_gender (id, code, name, description, sequence, is_active)
 VALUES ('182b6bdc-48d6-5b8b-8439-812ff28d7ffc', 'FEMALE', 'Female', 'The person identifies and is recorded as female.', 10, TRUE)
@@ -13887,7 +16088,7 @@ INSERT INTO bus_person_gender (id, code, name, description, sequence, is_active)
 VALUES ('6cccedab-42f2-5af5-b9ca-4953708ff53b', 'UNSPECIFIED', 'Unspecified', 'The gender is not recorded, because it was not needed or the person chose not to say.', 50, TRUE)
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_ref_table (sys_ref_table_id, sys_reference_id, sys_table_id, key_column_id, display_column_id, is_value_displayed, order_by_clause, where_clause, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('bf7e30b7-5ee3-5160-b0c1-54c99d6f7f55', 1024, 'dd19400c-e75c-5a4a-8fe8-118d3383e3a8', '0cef99de-8690-5512-a210-a840c52331e7', '4c0ca574-c0d3-52c9-aabb-a90e57834e59', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('f42a4945-7124-52be-9064-5049b2f7836d', 1042, 'dd19400c-e75c-5a4a-8fe8-118d3383e3a8', '0cef99de-8690-5512-a210-a840c52331e7', '4c0ca574-c0d3-52c9-aabb-a90e57834e59', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_person_party_type (id, code, name, description, sequence, is_active)
 VALUES ('ef092c43-e664-505e-9375-731c94fb9980', 'PERSON', 'Person', 'The party represents an individual human being.', 10, TRUE)
@@ -13896,7 +16097,7 @@ INSERT INTO bus_person_party_type (id, code, name, description, sequence, is_act
 VALUES ('1bebced3-d2d2-513d-9fb1-b5cbc2230ace', 'ORGANIZATION', 'Organization', 'The party represents a legal, commercial, governmental, nonprofit, or other organized body.', 20, TRUE)
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_ref_table (sys_ref_table_id, sys_reference_id, sys_table_id, key_column_id, display_column_id, is_value_displayed, order_by_clause, where_clause, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('3547f9b8-7076-5188-a528-0422107966dc', 1025, '393e82df-16af-5ae0-9c00-685d1838d38f', 'b7c4c1fa-00bc-54ff-88fd-9f03425a37eb', 'f6c612a8-85fd-54e8-8612-a81fff6cf71a', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('14d4f8b2-d206-510a-81bd-6225bfade57e', 1043, '393e82df-16af-5ae0-9c00-685d1838d38f', 'b7c4c1fa-00bc-54ff-88fd-9f03425a37eb', 'f6c612a8-85fd-54e8-8612-a81fff6cf71a', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_person_status (id, code, name, description, sequence, is_active)
 VALUES ('4f7278be-28c4-5e6d-b0cd-a9bc67b7b698', 'ACTIVE', 'Active', 'The party is available for normal business participation.', 10, TRUE)
@@ -13911,7 +16112,7 @@ INSERT INTO bus_person_status (id, code, name, description, sequence, is_active)
 VALUES ('75058b1b-e548-5c72-9f1f-e3490ee185b8', 'RETIRED', 'Retired', 'The party relationship is permanently ended for normal operational use while historical references remain valid.', 40, TRUE)
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_ref_table (sys_ref_table_id, sys_reference_id, sys_table_id, key_column_id, display_column_id, is_value_displayed, order_by_clause, where_clause, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('16777fff-df1c-5621-a15e-54ef1dd67da9', 1026, '0cfd0987-5ed0-5b58-8822-590e5a7acbdf', '0bbad2c3-4b92-546e-98f7-8f18feb415b0', 'f07171ed-7958-541c-a33f-c74b1f6dd94f', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('37953a00-a3e9-57df-a4e7-5f2222a6207c', 1044, '0cfd0987-5ed0-5b58-8822-590e5a7acbdf', '0bbad2c3-4b92-546e-98f7-8f18feb415b0', 'f07171ed-7958-541c-a33f-c74b1f6dd94f', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_picking_status (id, code, name, description, sequence, is_active)
 VALUES ('e4bda727-af49-590c-9223-9e7208fc070b', 'PLANNED', 'Planned', 'The pick is created but not yet released to the floor, so nobody is working on it.', 10, TRUE)
@@ -13935,7 +16136,7 @@ INSERT INTO bus_picking_status (id, code, name, description, sequence, is_active
 VALUES ('2bd6eff7-b6c7-5a08-9ef7-4d234d35d731', 'EXCEPTION', 'Exception', 'Something prevented picking, such as damaged stock or a blocked location, and the task needs investigation.', 70, TRUE)
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_ref_table (sys_ref_table_id, sys_reference_id, sys_table_id, key_column_id, display_column_id, is_value_displayed, order_by_clause, where_clause, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('1cdfea41-6e5d-5638-8cc7-29f713bf0724', 1027, '616e1cc9-3000-53ca-8104-63e362d5cc20', 'c3434e0e-c250-5da7-b246-f11f4d0e8a68', '448cd14f-d83f-529d-8301-aeb243b20d0f', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('03dc44e8-836f-54ad-80bb-1d79645dd016', 1045, '616e1cc9-3000-53ca-8104-63e362d5cc20', 'c3434e0e-c250-5da7-b246-f11f4d0e8a68', '448cd14f-d83f-529d-8301-aeb243b20d0f', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_product_product_type (id, code, name, description, sequence, is_active)
 VALUES ('d97cb4e6-463a-5e16-80fd-e822eb9077dd', 'GOOD', 'Good', 'A finished physical item that is bought or sold and held in stock.', 10, TRUE)
@@ -13959,7 +16160,7 @@ INSERT INTO bus_product_product_type (id, code, name, description, sequence, is_
 VALUES ('eacdf0f2-4766-590a-9e9a-6af28aac6629', 'OTHER', 'Other', 'Anything else that is traded.', 70, TRUE)
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_ref_table (sys_ref_table_id, sys_reference_id, sys_table_id, key_column_id, display_column_id, is_value_displayed, order_by_clause, where_clause, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('7a181ce0-46a7-51cf-80c2-27272641b729', 1028, '7a5f05cb-24e3-50fe-9cab-0485f66abb1d', '458a0167-c002-54c3-bc37-c938c5f3d432', '0889b44f-f734-5a96-af4d-fbcf3024e4d9', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('e33e7209-2594-5052-9152-abccc177c9db', 1046, '7a5f05cb-24e3-50fe-9cab-0485f66abb1d', '458a0167-c002-54c3-bc37-c938c5f3d432', '0889b44f-f734-5a96-af4d-fbcf3024e4d9', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_product_status (id, code, name, description, sequence, is_active)
 VALUES ('988d60c7-f792-5fcc-814a-44e26e7ca19b', 'DRAFT', 'Draft', 'Being set up; not yet tradable.', 10, TRUE)
@@ -13977,7 +16178,7 @@ INSERT INTO bus_product_status (id, code, name, description, sequence, is_active
 VALUES ('9dfa0f92-5632-5028-8ee3-935e65c9beb7', 'RETIRED', 'Retired', 'Removed from the catalogue; kept for history. A final state.', 50, TRUE)
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_ref_table (sys_ref_table_id, sys_reference_id, sys_table_id, key_column_id, display_column_id, is_value_displayed, order_by_clause, where_clause, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('83cd437a-9285-5359-9f34-75a74de402eb', 1029, '54a71309-f7db-52fd-907c-ba99d2fde5d9', '16667e97-8caf-5f24-a90e-57a77ca5ad5e', '0a4b0e6c-24c4-530e-a6a4-f41ac84e6a4b', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('e85c6989-7bf9-5ae5-8a85-3dd0a3a9ac33', 1047, '54a71309-f7db-52fd-907c-ba99d2fde5d9', '16667e97-8caf-5f24-a90e-57a77ca5ad5e', '0a4b0e6c-24c4-530e-a6a4-f41ac84e6a4b', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_putaway_status (id, code, name, description, sequence, is_active)
 VALUES ('a6fc9281-2d2f-5b2b-8704-ff7d179dd927', 'PLANNED', 'Planned', 'Proposed by the system but not yet released to the floor.', 10, TRUE)
@@ -13998,7 +16199,7 @@ INSERT INTO bus_putaway_status (id, code, name, description, sequence, is_active
 VALUES ('04f7bb77-fb3e-56aa-b525-d9336a6ef74e', 'EXCEPTION', 'Exception', 'Could not be completed as planned, for example the target was full; needs a decision.', 60, TRUE)
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_ref_table (sys_ref_table_id, sys_reference_id, sys_table_id, key_column_id, display_column_id, is_value_displayed, order_by_clause, where_clause, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('356656ed-744c-5898-b409-583d3b702447', 1030, 'f224998c-8c44-53d8-97fe-a11fe027f527', 'c092deca-013d-523f-8930-48c8f6b3e457', '86c03ee0-68b6-5e87-9350-4fcd1c201809', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('5939aff1-19f1-5b2c-a78f-7f72f1793e73', 1048, 'f224998c-8c44-53d8-97fe-a11fe027f527', 'c092deca-013d-523f-8930-48c8f6b3e457', '86c03ee0-68b6-5e87-9350-4fcd1c201809', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_serial_number_status (id, code, name, description, sequence, is_active)
 VALUES ('6c5cb589-08d5-58cd-a0b1-c191990a13db', 'EXPECTED', 'Expected', 'Announced on an inbound order but not yet received.', 10, TRUE)
@@ -14031,7 +16232,7 @@ INSERT INTO bus_serial_number_status (id, code, name, description, sequence, is_
 VALUES ('d8b5e937-e9d0-5879-84a0-37832e2925dd', 'RETIRED', 'Retired', 'Taken out of service for good. A final state.', 100, TRUE)
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_ref_table (sys_ref_table_id, sys_reference_id, sys_table_id, key_column_id, display_column_id, is_value_displayed, order_by_clause, where_clause, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('b6bd9336-fa05-54dd-ba97-dfc4cca97d51', 1031, '07b7ac2f-a93a-5279-92fd-93ba2295df4e', '2c93a31a-9fe6-5024-82df-0a56acbdf7b0', '14045ed5-d765-5f5e-89a0-d7dc6f2e496c', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('d1262ed0-10c9-5e34-a0f9-cfcad6119877', 1049, '07b7ac2f-a93a-5279-92fd-93ba2295df4e', '2c93a31a-9fe6-5024-82df-0a56acbdf7b0', '14045ed5-d765-5f5e-89a0-d7dc6f2e496c', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_task_priority (id, code, name, description, sequence, is_active)
 VALUES ('4586eff9-372c-570a-acef-d8fdbf4a1270', 'LOW', 'Low', 'Can wait behind other work without business impact.', 10, TRUE)
@@ -14046,7 +16247,7 @@ INSERT INTO bus_task_priority (id, code, name, description, sequence, is_active)
 VALUES ('aae32c9c-9011-5744-855a-b9f7a4ace456', 'CRITICAL', 'Critical', 'Needs immediate action because delay causes serious business impact.', 40, TRUE)
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_ref_table (sys_ref_table_id, sys_reference_id, sys_table_id, key_column_id, display_column_id, is_value_displayed, order_by_clause, where_clause, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('96689360-12ce-5da8-a7d1-087c791bf65e', 1032, '0b8f1094-617d-513f-8e60-8b3bef2c9ff4', '4de5a524-60e4-5bae-a7b2-45b1c3d2542a', '9fd72240-47df-5706-88a4-3c0c762ac979', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('dfcde5c2-3f52-5b46-a568-5e94ab49f85f', 1050, '0b8f1094-617d-513f-8e60-8b3bef2c9ff4', '4de5a524-60e4-5bae-a7b2-45b1c3d2542a', '9fd72240-47df-5706-88a4-3c0c762ac979', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_task_status (id, code, name, description, sequence, is_active)
 VALUES ('3705a40a-3b58-5b2a-8e7b-84a2d72f92b1', 'CREATED', 'Created', 'The task exists but is not yet ready to be picked up.', 10, TRUE)
@@ -14073,7 +16274,7 @@ INSERT INTO bus_task_status (id, code, name, description, sequence, is_active)
 VALUES ('e251721e-f6b0-5914-8328-7820ae0dc531', 'FAILED', 'Failed', 'The task ended without achieving its result and needs follow-up elsewhere. A final state.', 80, TRUE)
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_ref_table (sys_ref_table_id, sys_reference_id, sys_table_id, key_column_id, display_column_id, is_value_displayed, order_by_clause, where_clause, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('6db97187-70a2-524f-91d0-caff39e89913', 1033, '61a497bb-d24a-5e6b-a3aa-f4ca39b38e05', 'fc87b636-24fa-5b2f-9543-efed2121a0f2', 'acd3b038-a2de-55ff-b066-488f305f1fdd', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('32c535fe-d2b8-5bd7-a8d5-b4e35f9b5677', 1051, '61a497bb-d24a-5e6b-a3aa-f4ca39b38e05', 'fc87b636-24fa-5b2f-9543-efed2121a0f2', 'acd3b038-a2de-55ff-b066-488f305f1fdd', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_task_task_type (id, code, name, description, sequence, is_active)
 VALUES ('f5a38a0b-10bc-5b30-9259-478db3749632', 'USER', 'User', 'Work done by a person.', 10, TRUE)
@@ -14097,7 +16298,7 @@ INSERT INTO bus_task_task_type (id, code, name, description, sequence, is_active
 VALUES ('5f53176e-17f5-5ef5-b43a-077e15eb27aa', 'OTHER', 'Other', 'Work that fits no other type.', 70, TRUE)
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_ref_table (sys_ref_table_id, sys_reference_id, sys_table_id, key_column_id, display_column_id, is_value_displayed, order_by_clause, where_clause, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('3adcb9d9-9603-532b-bb0f-b373d084b073', 1034, '2dcf0603-d585-5c88-800c-d0a4a29ae9b8', '2385902e-6405-55cc-b0ca-909a81ac720b', 'a61eed6b-5999-5374-a40a-5980f75d720c', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('647f50c7-fd98-5c38-ac7e-ac230a228b80', 1052, '2dcf0603-d585-5c88-800c-d0a4a29ae9b8', '2385902e-6405-55cc-b0ca-909a81ac720b', 'a61eed6b-5999-5374-a40a-5980f75d720c', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_unit_of_measure_category (id, code, name, description, sequence, is_active)
 VALUES ('b6541637-b4a9-559b-87be-1e5b7f270cdf', 'QUANTITY', 'Quantity', 'A general count or quantity of items.', 10, TRUE)
@@ -14127,7 +16328,7 @@ INSERT INTO bus_unit_of_measure_category (id, code, name, description, sequence,
 VALUES ('f15cb2e1-6332-5424-882a-48dbd1196cbd', 'OTHER', 'Other', 'A unit that fits no other category.', 90, TRUE)
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_ref_table (sys_ref_table_id, sys_reference_id, sys_table_id, key_column_id, display_column_id, is_value_displayed, order_by_clause, where_clause, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('dc6f31e3-1ecf-56e4-87a5-ed6ccd25840c', 1035, 'c2755ced-b382-5f2f-b5a6-7af9fd79b0c5', 'e424bf34-d2b8-57a9-a29f-2def6866a061', '67334fd3-8fcb-503c-94d6-348d2efd885b', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('dbcbab3a-7136-5937-8631-ff73c7faa1de', 1053, 'c2755ced-b382-5f2f-b5a6-7af9fd79b0c5', 'e424bf34-d2b8-57a9-a29f-2def6866a061', '67334fd3-8fcb-503c-94d6-348d2efd885b', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_unit_of_measure_status (id, code, name, description, sequence, is_active)
 VALUES ('ee121654-e993-5569-929e-083c16166f97', 'ACTIVE', 'Active', 'Available for use on products and documents.', 10, TRUE)
@@ -14139,7 +16340,7 @@ INSERT INTO bus_unit_of_measure_status (id, code, name, description, sequence, i
 VALUES ('0d645265-435b-52a0-a32e-a9cc4cc5e5ae', 'RETIRED', 'Retired', 'No longer used; kept for history. A final state.', 30, TRUE)
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_ref_table (sys_ref_table_id, sys_reference_id, sys_table_id, key_column_id, display_column_id, is_value_displayed, order_by_clause, where_clause, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('47c822f6-9b7d-59bb-9b77-600ff174ac29', 1036, '73e16f24-dc02-50a7-97e7-b67ca3f4c414', '62a5b5f8-e801-51c2-b684-ca806b8b1157', '54482dc6-addd-5506-bdac-0b57ce2f8dda', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('99a3e5ed-4e12-5394-b395-94acccbcacb8', 1054, '73e16f24-dc02-50a7-97e7-b67ca3f4c414', '62a5b5f8-e801-51c2-b684-ca806b8b1157', '54482dc6-addd-5506-bdac-0b57ce2f8dda', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_warehouse_location_type (id, code, name, description, sequence, is_active)
 VALUES ('157f81b1-3e32-5128-bb3a-235771251bfe', 'SITE', 'Site', 'A geographic site that may contain several buildings.', 10, TRUE)
@@ -14172,7 +16373,7 @@ INSERT INTO bus_warehouse_location_type (id, code, name, description, sequence, 
 VALUES ('196b5495-d53c-5534-9bbb-ad59382601dd', 'OTHER', 'Other', 'Any other kind of place.', 100, TRUE)
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_ref_table (sys_ref_table_id, sys_reference_id, sys_table_id, key_column_id, display_column_id, is_value_displayed, order_by_clause, where_clause, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('aa7a8344-28fc-57c0-a673-62086e8c7307', 1037, '962d923a-cd9b-5ba1-b0f3-9020d674805c', '64b49fbd-df01-5037-b932-dbf376e01aa5', 'd6c7e755-803f-57a3-bb8e-f1a1defe94ec', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('81dddbfe-534b-573f-82a9-6c85eba67682', 1055, '962d923a-cd9b-5ba1-b0f3-9020d674805c', '64b49fbd-df01-5037-b932-dbf376e01aa5', 'd6c7e755-803f-57a3-bb8e-f1a1defe94ec', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_warehouse_status (id, code, name, description, sequence, is_active)
 VALUES ('4b174aac-231a-5f19-adb9-f0a71a91e773', 'PLANNED', 'Planned', 'The facility is being prepared and is not yet available for normal warehouse operations.', 10, TRUE)
@@ -14187,7 +16388,7 @@ INSERT INTO bus_warehouse_status (id, code, name, description, sequence, is_acti
 VALUES ('c8d8b7a7-6abb-5532-bdcd-a0b1f30d60c9', 'CLOSED', 'Closed', 'The warehouse has ceased normal operations and should not receive new inventory transactions except controlled closure activities.', 40, TRUE)
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_ref_table (sys_ref_table_id, sys_reference_id, sys_table_id, key_column_id, display_column_id, is_value_displayed, order_by_clause, where_clause, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('a3d56b93-8072-5587-8587-772b73003340', 1038, '832e8ac8-6843-5507-bbff-bc964c028d71', '67d6c060-2883-5ae8-b614-7b4ebcc35a33', '0471fe2d-f17f-5ae9-933b-9d82d03e3299', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('3c2a1879-73ac-551d-be34-4124eccc53e8', 1056, '832e8ac8-6843-5507-bbff-bc964c028d71', '67d6c060-2883-5ae8-b614-7b4ebcc35a33', '0471fe2d-f17f-5ae9-933b-9d82d03e3299', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_warehouse_warehouse_type (id, code, name, description, sequence, is_active)
 VALUES ('5f8fe62c-ae49-5fd0-b0b7-5d8f5dd09528', 'GENERAL', 'General', 'A warehouse supporting ordinary storage and handling requirements without a specialized operating classification.', 10, TRUE)
@@ -14208,7 +16409,16 @@ INSERT INTO bus_warehouse_warehouse_type (id, code, name, description, sequence,
 VALUES ('aa61fa4d-76b7-5e5e-be78-5e485a4ae085', 'OTHER', 'Other', 'A warehouse whose operating model is not adequately represented by the standard classifications.', 60, TRUE)
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_ref_table (sys_ref_table_id, sys_reference_id, sys_table_id, key_column_id, display_column_id, is_value_displayed, order_by_clause, where_clause, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('ef365d18-fad4-5c09-a924-0a8015968470', 1039, 'ee282ab7-574f-5af9-b74d-e0a1467afe5c', 'ec2ef407-08a5-5ce6-ad89-e8c7af0bf6b6', '93c26363-ee00-5f25-b82e-d24df122996d', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('2adcd3d0-ab12-56ec-9e4b-cb35e12b9dd5', 1057, 'ee282ab7-574f-5af9-b74d-e0a1467afe5c', 'ec2ef407-08a5-5ce6-ad89-e8c7af0bf6b6', '93c26363-ee00-5f25-b82e-d24df122996d', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_warehouse_zone_status (id, code, name, description, sequence, is_active)
+VALUES ('d80e492b-ab57-5502-a848-f7808e92d9f7', 'ACTIVE', 'Active', 'The zone is open and can receive and release stock.', 10, TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_warehouse_zone_status (id, code, name, description, sequence, is_active)
+VALUES ('f11e44b0-86e0-5ef2-b64f-bb894d676431', 'INACTIVE', 'Inactive', 'The zone is closed or being refitted and takes no new stock.', 20, TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_ref_table (sys_ref_table_id, sys_reference_id, sys_table_id, key_column_id, display_column_id, is_value_displayed, order_by_clause, where_clause, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('ade93b5b-021f-5d02-8166-ad870e7cb2b1', 1058, '18e123c3-8d40-5050-a9fa-7573b9136e6d', '2251558a-7a0d-568c-ac0e-d16551551f06', '0070cc47-7a7a-527e-ae64-a3a88cf465f0', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_warehouse_zone_zone_type (id, code, name, description, sequence, is_active)
 VALUES ('ebc409c2-c0a0-56e0-8a2a-902cd4e8cd33', 'RECEIVING', 'Receiving', 'Where inbound goods are unloaded and checked before putaway.', 10, TRUE)
@@ -14241,7 +16451,7 @@ INSERT INTO bus_warehouse_zone_zone_type (id, code, name, description, sequence,
 VALUES ('1abde24e-9dda-5b72-a5dd-0a21f72c9277', 'GENERAL', 'General', 'Ordinary storage with no special handling or purpose.', 100, TRUE)
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_ref_table (sys_ref_table_id, sys_reference_id, sys_table_id, key_column_id, display_column_id, is_value_displayed, order_by_clause, where_clause, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('9ea9c985-5aef-579b-8a89-be56c0fd797b', 1040, '8bb6bfa7-d6b0-5930-8d18-fe416810ffb1', 'ee197939-2585-569d-ab79-df5fcfe05ff3', '33327310-36fc-547b-ab6c-33b17f6886dc', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('ce5ab472-641d-5535-9c70-da6e0f4cc7e6', 1059, '8bb6bfa7-d6b0-5930-8d18-fe416810ffb1', 'ee197939-2585-569d-ab79-df5fcfe05ff3', '33327310-36fc-547b-ab6c-33b17f6886dc', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_wave_status (id, code, name, description, sequence, is_active)
 VALUES ('bc6adaaf-b792-5514-b888-76dcc3c589ed', 'PLANNED', 'Planned', 'Orders and tasks are grouped but not yet released to the floor.', 10, TRUE)
@@ -14259,7 +16469,19 @@ INSERT INTO bus_wave_status (id, code, name, description, sequence, is_active)
 VALUES ('8e123492-4b1a-5653-9d94-13aa4adb9e09', 'CANCELLED', 'Cancelled', 'The wave was abandoned and its tasks released for other planning. A final state.', 50, TRUE)
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_ref_table (sys_ref_table_id, sys_reference_id, sys_table_id, key_column_id, display_column_id, is_value_displayed, order_by_clause, where_clause, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('baccb80c-289d-5e90-94d3-a058d96ac4e5', 1041, 'ad9603f0-b1cc-56be-a574-cd95068fee42', 'e658c716-f4f3-59bd-8691-8a27788967d0', 'b74737ca-c617-53ab-9418-4fc8706ac63b', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('c6df2c79-eb87-58e7-adcc-4217ff7db962', 1060, 'ad9603f0-b1cc-56be-a574-cd95068fee42', 'e658c716-f4f3-59bd-8691-8a27788967d0', 'b74737ca-c617-53ab-9418-4fc8706ac63b', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_wave_wave_type (id, code, name, description, sequence, is_active)
+VALUES ('1aa5a6c4-7e20-555b-8c5c-149bc8b58d31', 'PICKING', 'Picking', 'Picking for outbound orders.', 10, TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_wave_wave_type (id, code, name, description, sequence, is_active)
+VALUES ('6fd58e20-6d01-52a3-96d9-71d52d063e75', 'PUTAWAY', 'Putaway', 'Putting away received goods.', 20, TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_wave_wave_type (id, code, name, description, sequence, is_active)
+VALUES ('7f099a03-3887-5454-8b7f-d8152e38a7b2', 'REPLENISHMENT', 'Replenishment', 'Moving stock from reserve to picking locations.', 30, TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_ref_table (sys_ref_table_id, sys_reference_id, sys_table_id, key_column_id, display_column_id, is_value_displayed, order_by_clause, where_clause, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('3f7f51e7-6231-5802-93cc-8e1ce2ca786c', 1061, '85a0d490-674d-57f4-a559-4498ebcc5244', '43fea218-10db-5297-ba77-c1f5898c69e4', '749a4f7f-c027-547c-8802-548bcd81a8d4', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
 -- --------------------------------------------------------------------------
@@ -14334,8 +16556,8 @@ INSERT INTO sys_category (sys_category_id, name, code, description, icon, color,
 VALUES ('dca3a877-350a-517f-813c-ce633300c1fd', 'Reference Data', 'reference-data', NULL, 'list', NULL, 3, FALSE, TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 UPDATE sys_category SET name = 'Reference Data', description = NULL, icon = 'list', color = NULL, seq_no = 3, is_default = FALSE, updated_at = NOW(), updated_by = 'system' WHERE code = 'reference-data';
-UPDATE sys_table SET sys_category_id = (SELECT sys_category_id FROM sys_category WHERE code = 'foundation') WHERE table_name IN ('bus_party', 'bus_person', 'bus_organization', 'bus_party_role', 'bus_party_relationship', 'bus_legal_entity', 'bus_business_unit', 'bus_department', 'bus_address', 'bus_contact_point', 'bus_location', 'bus_country', 'bus_state_province', 'bus_city', 'bus_language', 'bus_currency', 'bus_exchange_rate', 'bus_unit_of_measure', 'bus_calendar', 'bus_attachment', 'bus_task', 'bus_inventory_balance', 'bus_inventory_location', 'bus_warehouse_zone', 'bus_dock', 'bus_packaging');
+UPDATE sys_table SET sys_category_id = (SELECT sys_category_id FROM sys_category WHERE code = 'foundation') WHERE table_name IN ('bus_party', 'bus_person', 'bus_organization', 'bus_party_role', 'bus_party_relationship', 'bus_legal_entity', 'bus_business_unit', 'bus_department', 'bus_address', 'bus_contact_point', 'bus_location', 'bus_country', 'bus_state_province', 'bus_city', 'bus_language', 'bus_currency', 'bus_exchange_rate', 'bus_unit_of_measure', 'bus_calendar', 'bus_attachment', 'bus_task', 'bus_calendar_exception', 'bus_inventory_balance', 'bus_inventory_location', 'bus_warehouse_zone', 'bus_dock', 'bus_packaging');
 UPDATE sys_table SET sys_category_id = (SELECT sys_category_id FROM sys_category WHERE code = 'inventory-management') WHERE table_name IN ('bus_inventory_item', 'bus_inventory_movement', 'bus_inventory_reservation', 'bus_inventory_transfer', 'bus_inventory_count', 'bus_inventory_adjustment', 'bus_lot', 'bus_serial_number', 'bus_product');
 UPDATE sys_table SET sys_category_id = (SELECT sys_category_id FROM sys_category WHERE code = 'warehouse-management') WHERE table_name IN ('bus_warehouse', 'bus_handling_unit', 'bus_putaway', 'bus_picking', 'bus_packing', 'bus_wave');
-UPDATE sys_table SET sys_category_id = (SELECT sys_category_id FROM sys_category WHERE code = 'reference-data') WHERE table_name IN ('bus_party_party_type', 'bus_party_status', 'bus_person_gender', 'bus_person_party_type', 'bus_person_status', 'bus_organization_organization_type', 'bus_organization_status', 'bus_organization_party_type', 'bus_party_role_role_type', 'bus_party_role_status', 'bus_address_address_type', 'bus_address_status', 'bus_location_location_type', 'bus_location_status', 'bus_currency_status', 'bus_exchange_rate_rate_type', 'bus_exchange_rate_status', 'bus_unit_of_measure_category', 'bus_unit_of_measure_status', 'bus_task_task_type', 'bus_task_status', 'bus_task_priority', 'bus_inventory_item_status', 'bus_inventory_movement_movement_type', 'bus_inventory_reservation_status', 'bus_inventory_transfer_status', 'bus_lot_status', 'bus_serial_number_status', 'bus_product_product_type', 'bus_product_status', 'bus_inventory_location_location_type', 'bus_inventory_location_status', 'bus_warehouse_warehouse_type', 'bus_warehouse_status', 'bus_warehouse_location_type', 'bus_warehouse_zone_zone_type', 'bus_dock_dock_type', 'bus_handling_unit_type', 'bus_putaway_status', 'bus_picking_status', 'bus_packing_status', 'bus_wave_status');
+UPDATE sys_table SET sys_category_id = (SELECT sys_category_id FROM sys_category WHERE code = 'reference-data') WHERE table_name IN ('bus_party_party_type', 'bus_party_status', 'bus_person_gender', 'bus_person_party_type', 'bus_person_status', 'bus_organization_organization_type', 'bus_organization_status', 'bus_organization_party_type', 'bus_party_role_role_type', 'bus_party_role_status', 'bus_party_relationship_relationship_type', 'bus_party_relationship_status', 'bus_legal_entity_status', 'bus_business_unit_status', 'bus_department_status', 'bus_address_address_type', 'bus_address_status', 'bus_contact_point_channel', 'bus_contact_point_purpose', 'bus_contact_point_status', 'bus_location_location_type', 'bus_location_status', 'bus_language_direction', 'bus_currency_status', 'bus_exchange_rate_rate_type', 'bus_exchange_rate_status', 'bus_unit_of_measure_category', 'bus_unit_of_measure_status', 'bus_calendar_status', 'bus_calendar_exception_exception_type', 'bus_attachment_status', 'bus_task_task_type', 'bus_task_status', 'bus_task_priority', 'bus_inventory_item_status', 'bus_inventory_movement_movement_type', 'bus_inventory_reservation_status', 'bus_inventory_transfer_status', 'bus_inventory_count_count_type', 'bus_inventory_count_status', 'bus_inventory_adjustment_status', 'bus_lot_status', 'bus_serial_number_status', 'bus_product_product_type', 'bus_product_status', 'bus_inventory_location_location_type', 'bus_inventory_location_status', 'bus_warehouse_warehouse_type', 'bus_warehouse_status', 'bus_warehouse_location_type', 'bus_warehouse_zone_zone_type', 'bus_warehouse_zone_status', 'bus_dock_dock_type', 'bus_dock_status', 'bus_handling_unit_type', 'bus_handling_unit_status', 'bus_putaway_status', 'bus_picking_status', 'bus_packing_status', 'bus_wave_status', 'bus_wave_wave_type', 'bus_packaging_packaging_level');
 UPDATE sys_table SET sys_category_id = (SELECT sys_category_id FROM sys_category WHERE code = 'foundation') WHERE sys_category_id IS NULL AND table_name LIKE 'bus\_%';

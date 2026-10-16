@@ -63,10 +63,104 @@ entity:
         summary: The actual amount minus the planned amount; a positive figure is above plan.
         usage: Calculated when the variance is produced; read by budget owners to see where spend or revenue departs from plan.
         relationshipContext: The difference between the actual and planned amounts.
+    - name: measure
+      type: string
+      required: true
+      maxLength: 150
+      help:
+        summary: What is being compared, such as travel expenses or revenue.
+        usage: Set by the calculation, usually an account or account group, so the owner knows which line departs from plan.
+        relationshipContext: Usually an account or account group.
+    - name: comparisonType
+      type: enum
+      required: true
+      default: ACTUAL_VS_BUDGET
+      values:
+        - ACTUAL_VS_BUDGET
+        - ACTUAL_VS_FORECAST
+        - FORECAST_VS_BUDGET
+        - FORECAST_VS_PRIOR
+      help:
+        summary: Which two figures are being set against each other.
+        usage: Chosen by the calculation and decides which figure acts as the plan.
+        valueSemantics:
+          ACTUAL_VS_BUDGET: Posted actual results are compared with the approved budget.
+          ACTUAL_VS_FORECAST: Posted actual results are compared with the current forecast.
+          FORECAST_VS_BUDGET: The latest forecast is compared with the approved budget to show expected overruns.
+          FORECAST_VS_PRIOR: This forecast is compared with the previous forecast to show how expectations moved.
+        relationshipContext: Decides which figure is the plan.
+    - name: variancePercent
+      type: decimal
+      required: false
+      precision: 9
+      scale: 2
+      help:
+        summary: The variance as a percentage of the planned figure.
+        usage: Used to decide whether it needs explaining.
+        relationshipContext: Empty when the planned figure is zero.
+    - name: isFavourable
+      type: boolean
+      required: false
+      help:
+        summary: Whether the difference is good for the business — more revenue or less cost.
+        usage: Computed from the measure's nature.
+        relationshipContext: Read with the amount.
+    - name: explanation
+      type: text
+      required: false
+      help:
+        summary: Why the figures differ, in the owner's words.
+        usage: Written by the owner; required above the threshold.
+        relationshipContext: Read by management.
+    - name: status
+      type: enum
+      required: true
+      default: CALCULATED
+      values:
+        - CALCULATED
+        - EXPLAINED
+        - REVIEWED
+        - ACCEPTED
+      help:
+        summary: How far the variance has progressed through explanation and review.
+        usage: Moved on by the owner and by controlling; only reviewed variances are reported as explained.
+        valueSemantics:
+          CALCULATED: Computed and waiting for the owner to explain it.
+          EXPLAINED: The owner has written an explanation for the difference.
+          REVIEWED: Controlling has examined and accepted the explanation.
+          ACCEPTED: The difference is under the threshold, so no explanation is needed.
+        relationshipContext: Only reviewed variances are reported as explained.
   relationships:
     - {name: organization, target: Organization, cardinality: '1', ownership: reference, help: {summary: The organisation the comparison is for., usage: Chosen when created., cardinalityMeaning: Exactly one organisation., workflowRole: Decides whose budget is measured.}}
     - {name: budget, target: Budget, cardinality: 0..1, ownership: reference, help: {summary: The budget used as the plan., usage: Chosen when comparing with budget., cardinalityMeaning: At most one budget., workflowRole: Provides the planned figure., businessMeaning: Supplies planned value source.}}
     - {name: forecast, target: Forecast, cardinality: 0..1, ownership: reference, help: {summary: The forecast used as the expectation., usage: Chosen when comparing with forecast., cardinalityMeaning: At most one forecast; empty if only a budget is used., workflowRole: Provides the expected figure., businessMeaning: Supplies projected value source.}}
+    - name: costCenter
+      target: CostCenter
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The cost centre compared, when the variance is by cost centre.
+        usage: Set by the calculation.
+        cardinalityMeaning: At most one.
+        context: Its manager explains the variance.
+    - name: owner
+      target: Person
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The person who must explain the variance.
+        usage: Usually the cost-centre or budget owner.
+        cardinalityMeaning: One per variance.
+        context: Receives variances above the threshold.
+    - name: currency
+      target: Currency
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The currency of the amounts.
+        usage: The organization's reporting currency.
+        cardinalityMeaning: One per variance.
+        context: All amounts use it.
   invariants:
     - {id: VARIANCE-001, rule: The record must not directly create or rewrite actual JournalEntry evidence.}
     - id: VARIANCE-002
@@ -79,4 +173,29 @@ entity:
     relationshipContext: A variance belongs to an organisation and compares a budget or a forecast with actuals.
     lifecycle: A variance is calculated for a period and recalculated as actuals arrive. It never changes the entries it compares.
     example: Marketing spend is 12 percent over budget for March.
+  lifecycle:
+    title: Variance Lifecycle
+    attribute: status
+    states:
+      - CALCULATED
+      - EXPLAINED
+      - REVIEWED
+      - ACCEPTED
+    initial: CALCULATED
+    terminal:
+      - REVIEWED
+      - ACCEPTED
+    transitions:
+      - from: CALCULATED
+        to: EXPLAINED
+        action: explain
+      - from: EXPLAINED
+        to: REVIEWED
+        action: review
+      - from: EXPLAINED
+        to: CALCULATED
+        action: return
+      - from: CALCULATED
+        to: ACCEPTED
+        action: accept
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-VARIANCE}

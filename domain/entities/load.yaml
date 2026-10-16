@@ -9,9 +9,175 @@ entity:
   attributes:
     - {name: loadId, type: uuid, required: true, immutable: true, help: {summary: The identity of the load., usage: Generated on creation; the shipments and the carrier refer to it.}}
     - {name: code, type: string, required: false, maxLength: 120, help: {summary: The load number printed on the loading list., usage: Allocated by transport planning; used by drivers and the dock.}}
-  relationships: []
+    - name: vehicleType
+      type: string
+      required: false
+      maxLength: 100
+      help:
+        summary: The type of vehicle or container the load is planned for, such as "13.6 m curtainsider" or "40ft high cube".
+        usage: Chosen when planning; it sets the capacity the load must fit.
+        relationshipContext: The carrier provides a vehicle of this type.
+    - name: maxWeightKg
+      type: decimal
+      required: false
+      precision: 12
+      scale: 3
+      help:
+        summary: The most weight the vehicle can carry, in kilograms.
+        usage: Taken from the vehicle type; the load must not exceed it.
+        relationshipContext: Legal limits apply as well as the vehicle's.
+    - name: maxVolumeM3
+      type: decimal
+      required: false
+      precision: 12
+      scale: 3
+      help:
+        summary: The most volume the vehicle can hold, in cubic metres.
+        usage: Taken from the vehicle type.
+        relationshipContext: Pallet footprint often limits before volume does.
+    - name: plannedWeightKg
+      type: decimal
+      required: false
+      precision: 12
+      scale: 3
+      help:
+        summary: The total weight of what is assigned to the load.
+        usage: Summed from the consignments and handling units.
+        relationshipContext: Must not exceed the maximum weight.
+    - name: plannedVolumeM3
+      type: decimal
+      required: false
+      precision: 12
+      scale: 3
+      help:
+        summary: The total volume of what is assigned to the load.
+        usage: Summed from the consignments and handling units.
+        relationshipContext: Should not exceed the maximum volume.
+    - name: palletCount
+      type: integer
+      required: false
+      help:
+        summary: How many pallets or handling units are on the load.
+        usage: Counted at loading; printed on the loading list.
+        relationshipContext: Checked on unloading.
+    - name: sealNumber
+      type: string
+      required: false
+      maxLength: 40
+      help:
+        summary: The number of the seal fixed on the vehicle or container after loading.
+        usage: Recorded at dispatch and checked on arrival.
+        relationshipContext: A broken or different seal is reported as an exception.
+    - name: plannedLoadingAt
+      type: datetime
+      required: false
+      help:
+        summary: The date and time the dock team expects to start loading the vehicle.
+        usage: Booked in the dock schedule when the load is planned; yard staff use it to assign doors and labour.
+        relationshipContext: It cannot be later than the planned departure.
+    - name: dispatchedAt
+      type: datetime
+      required: false
+      help:
+        summary: The date and time the vehicle carrying the load actually left the site.
+        usage: Recorded by gate staff or the driver check-out; carriers and customers use it to judge on-time delivery.
+        relationshipContext: Filled only once the load has been dispatched.
+    - name: unloadedAt
+      type: datetime
+      required: false
+      help:
+        summary: The date and time the receiving site finished unloading the load at its destination.
+        usage: Confirmed by the receiving site on arrival; it closes the transport leg and starts goods receipt checks.
+        relationshipContext: Filled only after the load is unloaded.
+    - name: status
+      type: enum
+      required: true
+      default: PLANNED
+      values:
+        - PLANNED
+        - LOADING
+        - DISPATCHED
+        - UNLOADED
+        - CANCELLED
+      help:
+        summary: Tells dock and transport teams where the load is in its journey, from planning to unloading.
+        usage: Moved forward by the dock as loading starts and the vehicle leaves, then by the receiving site on unloading.
+        relationshipContext: Only planned loads may still be changed; once loading begins, changes need the dock supervisor.
+        valueSemantics:
+          PLANNED: Shipments are still being assigned and the load can be freely changed.
+          LOADING: The vehicle is at the dock and goods are being put on board.
+          DISPATCHED: The vehicle has left the site and the load is in transit.
+          UNLOADED: The receiving site has taken the goods off the vehicle and the transport is complete.
+          CANCELLED: The load was called off before dispatch and its shipments return to planning.
+  relationships:
+    - name: carrier
+      target: Carrier
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The carrier that moves the load.
+        usage: Chosen when booking the vehicle.
+        cardinalityMeaning: One per load.
+        context: The carrier is paid per load or per trip.
+    - name: trip
+      target: Trip
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The trip the load travels on.
+        usage: Linked when the load is put on a planned trip.
+        cardinalityMeaning: One trip per load; a trip may carry several loads.
+        context: The trip's route sets the sequence of stops.
+    - name: origin
+      target: Location
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The place the load starts from, where the vehicle is loaded and departs.
+        usage: Chosen when the load is planned, usually a warehouse or distribution site, and used for route and dock planning.
+        cardinalityMeaning: At most one origin per load, though many loads may start from the same location.
+        workflowRole: Fixes the start of the transport leg so carriers, dock schedules and distance calculations know where to begin.
+        context: Usually a warehouse.
+    - name: destination
+      target: Location
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: Where the load is unloaded.
+        usage: Set when planning.
+        cardinalityMeaning: One per load; multi-drop loads take their final stop.
+        context: Intermediate drops are in the trip's segments.
+    - name: dock
+      target: Dock
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The dock door the load is loaded at.
+        usage: Assigned in the dock schedule.
+        cardinalityMeaning: One per load.
+        context: The dock is booked for the loading time.
   invariants:
     - {id: LOAD-001, rule: "Lifecycle changes, corrections and retries must preserve historical evidence and must not duplicate downstream commercial, physical or financial effects."}
+    - {id: LOAD-EXE-001, rule: "Pallet Count cannot be negative.", violatedWhen: "pallet_count != null and pallet_count < 0", message: "Pallet Count cannot be negative."}
+  workflows:
+    - name: FollowUpRequired
+      title: "Follow up when a load is ended"
+      description: "When a load is cancelled, a task asks someone to settle what depended on it."
+      when: "status == \"CANCELLED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "LOAD-FOLLOW-UP-{{id}}"
+              name: "Follow up on load {{code}}"
+              description: "Load {{code}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
   help:
     summary: A grouping of shipments, consignments, handling units or containers that are assigned together to one transport execution.
     businessMeaning: Freight moves in loads, not in single orders. Grouping what travels together lets the carrier, the dock and the customer see one planned movement and track it as such.
@@ -19,4 +185,33 @@ entity:
     relationshipContext: A load groups Shipments and Consignments under one carrier movement.
     lifecycle: Changes and retries preserve history and do not duplicate commercial, physical or financial effects.
     example: A full trailer carrying eight pallets for four customers from the central warehouse to a regional depot.
+  lifecycle:
+    title: Load Lifecycle
+    attribute: status
+    states:
+      - PLANNED
+      - LOADING
+      - DISPATCHED
+      - UNLOADED
+      - CANCELLED
+    initial: PLANNED
+    terminal:
+      - UNLOADED
+      - CANCELLED
+    transitions:
+      - from: PLANNED
+        to: LOADING
+        action: start_loading
+      - from: LOADING
+        to: DISPATCHED
+        action: dispatch
+      - from: DISPATCHED
+        to: UNLOADED
+        action: unload
+      - from: LOADING
+        to: PLANNED
+        action: stop_loading
+      - from: PLANNED
+        to: CANCELLED
+        action: cancel
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-LOAD}

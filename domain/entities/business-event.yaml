@@ -9,9 +9,109 @@ entity:
   attributes:
     - {name: businessEventId, type: uuid, required: true, immutable: true, help: {summary: 'The identity of the event, also used by consumers to ignore a delivery they have already processed.', usage: 'Generated when the event is written; consumers store it to make processing idempotent, and audit queries use it to find the event.'}}
     - {name: occurredAt, type: datetime, required: false, help: {summary: 'When the business fact happened, as opposed to when it was published.', usage: Set from the source transaction's time; consumers order and window events by it.}}
+    - name: eventName
+      type: string
+      required: true
+      maxLength: 100
+      help:
+        summary: The name of the fact, written in the past tense, such as "OrderPlaced" or "PaymentReceived".
+        usage: Set by the process that raises the event; subscribers choose events by name.
+        relationshipContext: One name per kind of fact, used consistently by every process.
+    - name: sourceArea
+      type: string
+      required: false
+      maxLength: 100
+      help:
+        summary: The part of the business or system the fact comes from, such as "Sales" or "Warehouse".
+        usage: Lets subscribers and operators tell where an event originated.
+        relationshipContext: Set by the raising process.
+    - name: recordType
+      type: string
+      required: false
+      maxLength: 100
+      help:
+        summary: The kind of record the event is about, such as "Shipment".
+        usage: Read with the record identifier to open the record.
+        relationshipContext: The record remains the authoritative statement of the facts.
+    - name: recordId
+      type: string
+      required: false
+      maxLength: 64
+      help:
+        summary: The identifier of the record the event is about.
+        usage: Lets a subscriber fetch the current record if it needs more than the payload.
+        relationshipContext: Together with the record type it identifies the record.
+    - name: correlationReference
+      type: string
+      required: false
+      maxLength: 100
+      help:
+        summary: A reference shared by all events of one business transaction, such as the sales order number.
+        usage: Lets the events of one order or case be followed end to end.
+        relationshipContext: Empty for events that stand alone.
+    - name: payload
+      type: text
+      required: false
+      help:
+        summary: The facts of the event, as structured data.
+        usage: Read by subscribers so that most of them need not look the record up.
+        relationshipContext: Copies facts as they were when the event happened; it is not updated later.
+    - name: publicationStatus
+      type: enum
+      required: true
+      default: RECORDED
+      values:
+        - RECORDED
+        - PUBLISHED
+        - FAILED
+        - ABANDONED
+      help:
+        summary: Whether the event has reached its subscribers.
+        usage: Moved on by the publishing service; operators watch failed events.
+        relationshipContext: The fact itself is valid whatever the publication status.
+        valueSemantics:
+          RECORDED: Written down, not yet published.
+          PUBLISHED: Delivered to every subscriber.
+          FAILED: Delivery failed and will be retried.
+          ABANDONED: Delivery was given up after repeated failures; an operator has to act.
+    - name: publishedAt
+      type: datetime
+      required: false
+      help:
+        summary: The date and time the event was handed to every subscriber that wanted it.
+        usage: Stamped by the publishing service and used to check delivery delays.
+        relationshipContext: Present once the event is published.
+    - name: attemptCount
+      type: integer
+      required: true
+      default: 0
+      help:
+        summary: How many times delivery has been attempted.
+        usage: Increased by each delivery attempt; operators look at events with many attempts.
+        relationshipContext: Delivery is abandoned after the configured maximum.
   relationships: []
   invariants:
     - {id: BUSINESS-EVENT-001, rule: Delivery retries and corrections must preserve auditable evidence and must not duplicate downstream business effects.}
+    - {id: BUSINESS-EVENT-EXE-001, rule: "Attempt Count cannot be negative.", violatedWhen: "attempt_count != null and attempt_count < 0", message: "Attempt Count cannot be negative."}
+  workflows:
+    - name: ExceptionRaised
+      title: "Raise a task when a business event is stopped"
+      description: "When a business event is failed, a high-priority task asks someone to resolve it."
+      when: "publication_status == \"FAILED\" and publication_status != _previous_publication_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: resolve"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "BUSINESS-EVENT-EXCEPTION-{{id}}"
+              name: "Resolve business event {{id}}"
+              description: "Business event {{id}} is now {{publication_status}}. Find out why it stopped and move it on or close it."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "HIGH"
   help:
     summary: An immutable record that a meaningful business fact occurred, published for other domains without replacing the original transaction.
     businessMeaning: Business events let one part of the organisation tell the rest that something happened, such as an order shipped or a payment settled, without those parts sharing databases. The event is a stable, auditable announcement of the fact.
@@ -20,4 +120,29 @@ entity:
     lifecycle: An event is final when written. A correction is a new event, and delivery retries must not create duplicate effects downstream.
     example: Event "OrderShipped" for order SO-20413, published when the carrier confirmed pick-up, consumed by invoicing and customer notification.
     whenUsed: Used for event publication, message exchange, delivery, retry, reconciliation, integration operations, and audit.
+  lifecycle:
+    title: Business Event Lifecycle
+    attribute: publicationStatus
+    states:
+      - RECORDED
+      - PUBLISHED
+      - FAILED
+      - ABANDONED
+    initial: RECORDED
+    terminal:
+      - PUBLISHED
+      - ABANDONED
+    transitions:
+      - from: RECORDED
+        to: PUBLISHED
+        action: publish
+      - from: RECORDED
+        to: FAILED
+        action: fail
+      - from: FAILED
+        to: PUBLISHED
+        action: publish
+      - from: FAILED
+        to: ABANDONED
+        action: abandon
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-BUSINESS-EVENT}

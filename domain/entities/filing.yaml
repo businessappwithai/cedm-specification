@@ -9,9 +9,197 @@ entity:
   attributes:
     - {name: filingId, type: uuid, required: true, immutable: true, help: {summary: 'The permanent identity of the filing, unchanged by later corrections or supersession.', usage: 'Generated when the submission is recorded; documents, receipts and follow-up filings refer to it as evidence.'}}
     - {name: occurredAt, type: datetime, required: false, help: {summary: When the filing was submitted., usage: Taken from the receipt; deadlines are checked against it.}}
-  relationships: []
+    - name: filingNumber
+      type: string
+      required: true
+      unique: true
+      maxLength: 40
+      help:
+        summary: The company's own internal reference for this filing, quoted in deadline calendars and correspondence.
+        usage: Unique; assigned when the filing is first recorded, before the authority has issued any reference of its own.
+        relationshipContext: The authority's reference is kept separately as the acknowledgement reference once the filing is lodged.
+    - name: title
+      type: string
+      required: true
+      maxLength: 200
+      help:
+        summary: A short description of what is being filed, such as "Annual accounts 2023" or "Change of registered office".
+        usage: Written by the person preparing the filing and shown in deadline calendars, so that compliance staff can recognise it without opening the record.
+        relationshipContext: Identifies the filing for people, with the number.
+    - name: filingType
+      type: enum
+      required: true
+      values:
+        - COURT
+        - REGULATORY
+        - CORPORATE_REGISTRY
+        - TAX
+        - INTELLECTUAL_PROPERTY
+        - OTHER
+      help:
+        summary: What kind of filing it is.
+        usage: Chosen when recording it; deadlines and responsible teams differ by type.
+        relationshipContext: Read with the authority.
+        valueSemantics:
+          COURT: A pleading or other submission to a court.
+          REGULATORY: A report or notification to a regulator.
+          CORPORATE_REGISTRY: An annual return, accounts or a change notified to a company registry.
+          TAX: A tax return or declaration.
+          INTELLECTUAL_PROPERTY: A patent, trademark or design application or renewal.
+          OTHER: Any other submission to an authority.
+    - name: dueDate
+      type: date
+      required: true
+      help:
+        summary: The last day the filing may be lodged.
+        usage: Taken from the law, the court's order or the authority's notice; calendars warn before it.
+        relationshipContext: A filing submitted after it is late.
+    - name: submittedAt
+      type: datetime
+      required: false
+      help:
+        summary: When the filing was lodged.
+        usage: Recorded on submission; it is the proof of meeting the deadline.
+        relationshipContext: Present once submitted.
+    - name: submissionChannel
+      type: string
+      required: false
+      maxLength: 100
+      help:
+        summary: How the filing was lodged, such as the authority's portal, post or in person.
+        usage: Recorded on submission.
+        relationshipContext: Some authorities accept only their own portal.
+    - name: acknowledgementReference
+      type: string
+      required: false
+      maxLength: 100
+      help:
+        summary: The reference the authority gave on receipt.
+        usage: Entered from the acknowledgement; quoted in any later correspondence.
+        relationshipContext: The evidence that the authority received the filing.
+    - name: feeAmount
+      type: Money
+      required: false
+      help:
+        summary: The fee the authority charged for accepting the filing, in the currency it was paid in.
+        usage: Entered once the fee is paid and used for expense tracking and budgeting of regulatory costs. Many filings carry no fee and leave it blank.
+        relationshipContext: Many filings carry no fee.
+    - name: rejectionReason
+      type: text
+      required: false
+      help:
+        summary: Why the authority rejected the filing.
+        usage: Recorded when it is rejected, so the corrected filing addresses it.
+        relationshipContext: Present only on rejected filings.
+    - name: status
+      type: enum
+      required: true
+      default: REQUIRED
+      values:
+        - REQUIRED
+        - IN_PREPARATION
+        - SUBMITTED
+        - ACCEPTED
+        - REJECTED
+        - WITHDRAWN
+      help:
+        summary: Shows how far the filing has progressed, from being identified as required to the authority's answer.
+        usage: Moved on by the compliance team as the papers are prepared, lodged and answered.
+        relationshipContext: A required filing that is still unsubmitted after its due date is treated as overdue.
+        valueSemantics:
+          REQUIRED: Known to be needed, but nobody has started preparing it.
+          IN_PREPARATION: The papers are being drawn up and have not yet been lodged with the authority.
+          SUBMITTED: Lodged with the authority, which has not yet answered.
+          ACCEPTED: The authority has accepted the filing; the obligation is met.
+          REJECTED: Refused by the authority, so a corrected filing is needed.
+          WITHDRAWN: Found not to be needed, or withdrawn after it was lodged.
+  relationships:
+    - name: authority
+      target: Organization
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The court, regulator, registry or tax authority the filing is made with.
+        usage: Chosen when recording it.
+        cardinalityMeaning: One authority per filing.
+        context: Its rules decide the format and the deadline.
+    - name: legalEntity
+      target: LegalEntity
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The company the filing is made for.
+        usage: Chosen when recording it; each company's filing calendar is drawn from these.
+        cardinalityMeaning: One company per filing.
+        context: Group companies each have their own filings.
+    - name: legalCase
+      target: LegalCase
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The court case the filing belongs to.
+        usage: Linked for court filings.
+        cardinalityMeaning: At most one case per filing.
+        context: The case lists its filings in date order.
+    - name: document
+      target: Document
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The document as filed.
+        usage: Linked on submission.
+        cardinalityMeaning: One filed document; supporting papers are attachments.
+        context: The filed version is kept unchanged.
+    - name: preparedBy
+      target: Person
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The person responsible for preparing and lodging the filing.
+        usage: Receives deadline reminders.
+        cardinalityMeaning: One per filing.
+        context: Should be reassigned when they are absent near the deadline.
   invariants:
     - {id: FILING-001, rule: "Finalized evidence and effective history must be preserved; correction, reassessment, settlement or supersession must be explicit."}
+    - {id: FILING-EXE-001, rule: "Fee Amount cannot be negative.", violatedWhen: "fee_amount != null and fee_amount < 0", message: "Fee Amount cannot be negative."}
+    - {id: FILING-EXE-002, rule: "A filing that is rejected states rejection reason.", violatedWhen: "status == \"REJECTED\" and rejection_reason == null", message: "Give the rejection reason before the filing is rejected."}
+  workflows:
+    - name: ApprovalRequested
+      title: "Ask for a decision when a filing is put forward"
+      description: "When a filing is submitted, a task asks someone to decide on it."
+      when: "status == \"SUBMITTED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: decide on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "FILING-APPROVAL-{{id}}"
+              name: "Decide on filing {{title}}"
+              description: "Filing {{title}} is now {{status}}. Approve it, return it for change or reject it; the move you make is recorded on the record."
+              task_type: "APPROVAL"
+              status: "CREATED"
+              priority: "NORMAL"
+    - name: FollowUpRequired
+      title: "Follow up when a filing is ended"
+      description: "When a filing is rejected, a task asks someone to settle what depended on it."
+      when: "status == \"REJECTED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "FILING-FOLLOW-UP-{{id}}"
+              name: "Follow up on filing {{title}}"
+              description: "Filing {{title}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
   help:
     summary: A submission made to a court, regulator, registry or authority, with immutable evidence of what was submitted.
     businessMeaning: Legal and regulatory duties are met by filing. The record shows what was filed, with whom and when, which is the proof that a duty was met on time.
@@ -20,4 +208,44 @@ entity:
     lifecycle: Finalised evidence is preserved; corrections or supersession are explicit filings.
     example: Annual accounts filed with the company registry on 28 June.
     commonProcesses: Risk assessment, incident management, legal matter management, compliance, remediation, filing and audit.
+  lifecycle:
+    title: Filing Lifecycle
+    attribute: status
+    states:
+      - REQUIRED
+      - IN_PREPARATION
+      - SUBMITTED
+      - ACCEPTED
+      - REJECTED
+      - WITHDRAWN
+    initial: REQUIRED
+    terminal:
+      - ACCEPTED
+      - REJECTED
+      - WITHDRAWN
+    transitions:
+      - from: REQUIRED
+        to: IN_PREPARATION
+        action: start
+      - from: IN_PREPARATION
+        to: SUBMITTED
+        action: submit
+      - from: REQUIRED
+        to: SUBMITTED
+        action: submit
+      - from: SUBMITTED
+        to: ACCEPTED
+        action: accept
+      - from: SUBMITTED
+        to: REJECTED
+        action: reject
+      - from: REQUIRED
+        to: WITHDRAWN
+        action: withdraw
+      - from: IN_PREPARATION
+        to: WITHDRAWN
+        action: withdraw
+      - from: SUBMITTED
+        to: WITHDRAWN
+        action: withdraw
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-FILING}

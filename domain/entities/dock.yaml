@@ -23,6 +23,53 @@ entity:
           CROSS_DOCK: Goods move straight from inbound to outbound without being stored.
         businessMeaning: Controls eligible receiving/shipping work.
         relationshipContext: Warehouse policy may add constraints.
+    - name: name
+      type: string
+      required: false
+      maxLength: 100
+      help:
+        summary: A descriptive name for the dock, such as "North yard door 7".
+        usage: Shown in dock schedules and to drivers directed to the door.
+        relationshipContext: Optional, since the code already identifies the door.
+    - name: maxVehicleLengthM
+      type: decimal
+      required: false
+      precision: 5
+      scale: 2
+      help:
+        summary: The longest vehicle the dock can take, in metres.
+        usage: Checked when a vehicle is scheduled at the dock.
+        relationshipContext: Read with the leveller and height.
+    - name: hasLeveller
+      type: boolean
+      required: true
+      default: true
+      help:
+        summary: Whether the dock has a dock leveller for loading at truck height.
+        usage: Vehicles without a tail lift need one.
+        relationshipContext: Read when assigning vehicles.
+    - name: isTemperatureControlled
+      type: boolean
+      required: true
+      default: false
+      help:
+        summary: Whether the dock is sealed and temperature-controlled for chilled or frozen goods.
+        usage: Cold-chain loads are scheduled only at such docks.
+        relationshipContext: Read with the warehouse zone it serves.
+    - name: status
+      type: enum
+      required: true
+      default: AVAILABLE
+      values:
+        - AVAILABLE
+        - OUT_OF_SERVICE
+      help:
+        valueSemantics:
+          AVAILABLE: In service and offered when appointments and loads are scheduled.
+          OUT_OF_SERVICE: Not usable, for example during repair, and left out of scheduling.
+        summary: Whether the dock can be used.
+        usage: Changed when the dock is out of service.
+        relationshipContext: Unavailable docks are not offered in scheduling.
   relationships:
     - {name: warehouse, target: Warehouse, cardinality: '1', ownership: reference, help: {summary: The warehouse the dock belongs to., usage: Set when the dock is created., cardinalityMeaning: 'Exactly one warehouse: a dock is a physical door of a single building.', workflowRole: Places the dock in the site's capacity., businessMeaning: Supplies facility context.}}
     - {name: stagingLocation, target: InventoryLocation, cardinality: 0..1, ownership: reference, help: {summary: The area in which goods wait next to the dock., usage: Chosen to link dock activity with inventory location records., cardinalityMeaning: At most one staging location; some docks load directly from trailers., workflowRole: Lets receiving and picking hand goods over at a known spot., businessMeaning: Connects loading resource to stock-control location.}}
@@ -36,4 +83,19 @@ entity:
     relationshipContext: A dock belongs to a Warehouse and may name a staging InventoryLocation where goods wait before loading or after unloading.
     lifecycle: Docks are in service or out of service according to maintenance; the dock code is stable.
     example: Dock D-07, a bidirectional door used for outbound parcels in the morning and returns in the afternoon.
+  lifecycle:
+    title: Dock Lifecycle
+    attribute: status
+    states:
+      - AVAILABLE
+      - OUT_OF_SERVICE
+    initial: AVAILABLE
+    terminal: []
+    transitions:
+      - from: AVAILABLE
+        to: OUT_OF_SERVICE
+        action: take_out_of_service
+      - from: OUT_OF_SERVICE
+        to: AVAILABLE
+        action: return_to_service
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-DOCK}

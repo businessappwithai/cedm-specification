@@ -26,6 +26,30 @@ entity:
           CANCELLED: Withdrawn before completion, with no further stock change. A final state.
         businessMeaning: Controls warehouse execution eligibility.
         relationshipContext: Posted movements remain immutable regardless of header state.
+    - name: movedQuantity
+      type: decimal
+      required: false
+      precision: 18
+      scale: 4
+      help:
+        summary: The quantity that was actually moved between the two locations.
+        usage: Confirmed by the warehouse when the transfer is completed; a figure below the requested quantity means a partial transfer.
+        relationshipContext: Less than requested means a partial transfer.
+    - name: reason
+      type: string
+      required: false
+      maxLength: 300
+      help:
+        summary: Why the stock is moved, such as replenishment or consolidation.
+        usage: Recorded when requesting the transfer.
+        relationshipContext: Free text.
+    - name: completedAt
+      type: datetime
+      required: false
+      help:
+        summary: The date and time the stock arrived at its destination location.
+        usage: Recorded by the warehouse when the transfer is completed; empty while it is still in progress.
+        relationshipContext: Present once completed.
   relationships:
     - {name: product, target: Product, cardinality: '1', ownership: reference, help: {summary: The product that is moved., usage: Set when planned., cardinalityMeaning: Exactly one product per transfer., workflowRole: Identifies the stock to move., businessMeaning: Defines inventory item affected.}}
     - {name: sourceLocation, target: InventoryLocation, cardinality: '1', ownership: reference, help: {cardinalityMeaning: 'Exactly one source: a transfer takes stock from a single location, and a multi-source move is several transfers.', summary: The location the stock leaves., usage: Set when planned., workflowRole: Determines where stock is picked., businessMeaning: Defines transfer origin.}}

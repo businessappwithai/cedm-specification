@@ -50,6 +50,65 @@ entity:
           ACTIVE: The store is open and trading, and can take sales and hold stock.
           CLOSED: The store has stopped trading, temporarily or for good, and takes no new sales. A final state.
           RETIRED: The store has been permanently withdrawn from the network and kept only for history. A final state.
+    - name: storeFormat
+      type: enum
+      required: true
+      default: STANDARD
+      values:
+        - FLAGSHIP
+        - STANDARD
+        - EXPRESS
+        - OUTLET
+        - POP_UP
+      help:
+        summary: The type of outlet the store is, which shapes its range and size.
+        usage: Chosen when the store is set up; it decides the product range and staffing model.
+        relationshipContext: Read with its floor area.
+        valueSemantics:
+          FLAGSHIP: A large showcase store.
+          STANDARD: A regular store with the normal range.
+          EXPRESS: A small convenience store.
+          OUTLET: A store selling discounted stock.
+          POP_UP: A temporary store open for a short period.
+    - name: openingDate
+      type: date
+      required: false
+      help:
+        summary: The day the store first opened its doors to customers.
+        usage: Used to compare like-for-like sales between stores of similar age.
+        relationshipContext: Not later than the closing date.
+    - name: closingDate
+      type: date
+      required: false
+      help:
+        summary: The day the store stopped trading.
+        usage: Recorded when the store closes, so later sales and stock are no longer expected there.
+        relationshipContext: Present only for closed stores.
+    - name: floorAreaM2
+      type: decimal
+      required: false
+      precision: 10
+      scale: 2
+      help:
+        summary: The area of the store open to customers, in square metres.
+        usage: Used to report sales per square metre and to compare store productivity.
+        relationshipContext: Excludes stockrooms and staff areas.
+    - name: openingHours
+      type: string
+      required: false
+      maxLength: 300
+      help:
+        summary: The days and times at which customers can visit the store.
+        usage: Typed in by store administration and shown to shoppers on the store locator.
+        relationshipContext: Written in plain text, such as Mon-Sat 09:30-19:30.
+    - name: phone
+      type: string
+      required: false
+      maxLength: 40
+      help:
+        summary: The telephone number customers can call to reach the store directly.
+        usage: Entered by store administration and shown on the store locator and receipts.
+        relationshipContext: Written in international format.
   relationships:
     - name: location
       target: Location
@@ -78,6 +137,16 @@ entity:
         usage: Maintained as the range changes.
         cardinalityMeaning: Any number of products.
         context: Decides what can be sold there.
+    - name: manager
+      target: Person
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The person responsible for running the store day to day.
+        usage: Chosen when the store is set up and changed when management changes.
+        cardinalityMeaning: At most one manager at a time.
+        workflowRole: Receives the store's reports and is accountable for its results.
+        context: Accountable for its results.
   lifecycle:
     title: Store Lifecycle
     attribute: status

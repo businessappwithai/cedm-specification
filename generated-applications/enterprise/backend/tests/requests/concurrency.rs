@@ -1,6 +1,6 @@
 //! Two people, one record: optimistic locking and closed transactions.
 //!
-//! Generated: 2026-10-10T12:30:35.079Z
+//! Generated: 2026-10-16T07:46:21.842Z
 //! Project: enterprise
 //!
 //! Every entity is optimistic unless the model says `concurrency:
@@ -39,16 +39,22 @@ const FINAL_STATES: &[(&str, &str, &str)] = &[
     ("Party", "status", "RETIRED"),
     ("Organization", "status", "RETIRED"),
     ("PartyRole", "status", "EXPIRED"),
+    ("PartyRelationship", "status", "ENDED"),
+    ("LegalEntity", "status", "DISSOLVED"),
     ("Address", "status", "RETIRED"),
     ("Location", "status", "CLOSED"),
     ("Currency", "status", "RETIRED"),
     ("ExchangeRate", "status", "EXPIRED"),
     ("UnitOfMeasure", "status", "RETIRED"),
+    ("Attachment", "status", "WITHDRAWN"),
     ("Task", "status", "COMPLETED"),
     ("ERP", "status", "RETIRED"),
     ("OrganizationMembership", "status", "COMPLETED"),
+    ("Classification", "status", "RETIRED"),
     ("Approval", "status", "COMPLETED"),
     ("Assignment", "status", "COMPLETED"),
+    ("Activity", "status", "COMPLETED"),
+    ("BusinessEvent", "workflow_status", "PUBLISHED"),
     ("BusinessTransaction", "status", "CANCELLED"),
 ];
 
@@ -62,7 +68,17 @@ const FIRST_MOVES: &[(&str, &str, &str, &[&str])] = &[
     ),
     ("Organization", "status", "DRAFT", &["ACTIVE", "RETIRED"]),
     ("PartyRole", "status", "ACTIVE", &["INACTIVE", "EXPIRED"]),
+    ("PartyRelationship", "status", "ACTIVE", &["ENDED"]),
+    (
+        "LegalEntity",
+        "status",
+        "ACTIVE",
+        &["DORMANT", "IN_LIQUIDATION"],
+    ),
+    ("BusinessUnit", "status", "ACTIVE", &["INACTIVE"]),
+    ("Department", "status", "ACTIVE", &["INACTIVE"]),
     ("Address", "status", "ACTIVE", &["INACTIVE", "RETIRED"]),
+    ("ContactPoint", "status", "ACTIVE", &["INACTIVE", "INVALID"]),
     ("Location", "status", "PLANNED", &["ACTIVE", "RETIRED"]),
     ("Currency", "status", "ACTIVE", &["INACTIVE", "RETIRED"]),
     ("ExchangeRate", "status", "DRAFT", &["ACTIVE", "CANCELLED"]),
@@ -72,16 +88,32 @@ const FIRST_MOVES: &[(&str, &str, &str, &[&str])] = &[
         "ACTIVE",
         &["INACTIVE", "RETIRED"],
     ),
+    ("Calendar", "status", "ACTIVE", &["INACTIVE"]),
+    ("Attachment", "status", "ACTIVE", &["WITHDRAWN"]),
     ("Task", "status", "CREATED", &["READY", "CANCELLED"]),
     ("ERP", "status", "DRAFT", &["ACTIVE"]),
+    ("Team", "status", "ACTIVE", &["INACTIVE"]),
     (
         "OrganizationMembership",
         "status",
         "PENDING",
         &["ACTIVE", "CANCELLED"],
     ),
+    ("Classification", "status", "ACTIVE", &["RETIRED"]),
     ("Approval", "status", "PENDING", &["ACTIVE", "CANCELLED"]),
     ("Assignment", "status", "PENDING", &["ACTIVE", "CANCELLED"]),
+    (
+        "Activity",
+        "status",
+        "PLANNED",
+        &["IN_PROGRESS", "COMPLETED", "CANCELLED"],
+    ),
+    (
+        "BusinessEvent",
+        "workflow_status",
+        "RECORDED",
+        &["PUBLISHED", "FAILED"],
+    ),
     (
         "BusinessTransaction",
         "status",

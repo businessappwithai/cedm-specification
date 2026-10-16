@@ -82,6 +82,36 @@ entity:
       help:
         summary: The organisation that owns and answers for the dataset.
         usage: Set at registration; its owner approves access and quality remediation.
+    - name: description
+      type: text
+      required: false
+      help:
+        summary: What the data contains and where it comes from.
+        usage: Read by people deciding whether it suits their purpose.
+        relationshipContext: Free text.
+    - name: recordCount
+      type: integer
+      required: false
+      help:
+        summary: How many records the dataset currently holds.
+        usage: Refreshed whenever the dataset is reloaded, and shown in the catalogue so users can judge its size.
+        relationshipContext: Only approximate for very large or streaming datasets.
+    - name: refreshFrequency
+      type: string
+      required: false
+      maxLength: 50
+      help:
+        summary: How often the data is refreshed, such as daily or monthly.
+        usage: Tells consumers how current it is.
+        relationshipContext: Free text.
+    - name: containsPersonalData
+      type: boolean
+      required: true
+      default: false
+      help:
+        summary: Whether the dataset holds personal data about identifiable people.
+        usage: Answered by the data owner; a yes brings data-protection duties such as access limits and retention rules.
+        relationshipContext: Set by the data owner and reviewed when the contents change.
   relationships:
     - name: ownerOrganization
       target: Organization
@@ -121,6 +151,8 @@ entity:
       - {from: ACTIVE, to: ARCHIVED, action: archive}
       - {from: DRAFT, to: RETIRED, action: retire}
       - {from: ACTIVE, to: RETIRED, action: retire}
+  invariants:
+    - {id: DATASET-EXE-001, rule: "Record Count cannot be negative.", violatedWhen: "record_count != null and record_count < 0", message: "Record Count cannot be negative."}
   help:
     summary: A governed collection of structured or unstructured data used for operations, analytics, reporting, research or AI.
     businessMeaning: Organisations rely on many collections of data. Registering each as a dataset, with an owner, a sensitivity class and a quality record, is how they know what data they hold, who answers for it and who may use it.

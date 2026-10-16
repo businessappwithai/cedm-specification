@@ -22,10 +22,83 @@ entity:
           ACTIVE: Taxes are calculated and reported under it.
           COMPLETED: No longer applies to new transactions. A final state.
           CANCELLED: Withdrawn before use. A final state.
+    - name: code
+      type: string
+      required: true
+      unique: true
+      maxLength: 30
+      help:
+        summary: The code of the jurisdiction, such as FR or US-CA-LA.
+        usage: Used in tax codes, rates and reports.
+        relationshipContext: Unique.
+    - name: name
+      type: string
+      required: true
+      maxLength: 150
+      help:
+        summary: The name of the taxing authority's area, such as France, California or Cook County.
+        usage: Entered by tax administrators and shown wherever a jurisdiction is picked, on tax reports and on registrations.
+        relationshipContext: Identifies it for people.
+    - name: level
+      type: enum
+      required: true
+      default: COUNTRY
+      values:
+        - COUNTRY
+        - STATE
+        - COUNTY
+        - CITY
+        - SPECIAL_DISTRICT
+      help:
+        valueSemantics:
+          COUNTRY: A national tax authority covering a whole country.
+          STATE: A state, province or region that levies its own tax.
+          COUNTY: A county or district authority below the state.
+          CITY: A city or municipality that adds its own local tax.
+          SPECIAL_DISTRICT: A special taxing district, such as a transit or stadium district, with its own levy.
+        summary: The level of government that imposes the tax.
+        usage: Decides how rates combine — a US address may owe state, county and city tax together.
+        relationshipContext: Read with the parent jurisdiction.
+    - name: filingFrequency
+      type: enum
+      required: false
+      default: MONTHLY
+      values:
+        - MONTHLY
+        - QUARTERLY
+        - ANNUAL
+      help:
+        summary: How often returns must normally be filed with this jurisdiction's authority.
+        usage: Used to build the filing calendar and reminders for tax staff.
+        relationshipContext: It may depend on the size of the business, so the registration states the frequency actually applicable to each company.
+        valueSemantics:
+          MONTHLY: A return is due every month.
+          QUARTERLY: A return is due every quarter.
+          ANNUAL: A single return is due once a year.
   relationships:
     - {name: organization, target: Organization, cardinality: 0..1, ownership: reference, help: {summary: The organisation that is registered or reports in the jurisdiction., usage: Chosen when the jurisdiction is company specific., cardinalityMeaning: At most one organisation., workflowRole: Decides whose returns go to the authority.}}
+    - name: country
+      target: Country
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The country the jurisdiction is in.
+        usage: Set when the jurisdiction is created.
+        cardinalityMeaning: One per jurisdiction.
+        context: Country-level jurisdictions name their own country.
+    - name: parentJurisdiction
+      target: TaxJurisdiction
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The larger jurisdiction this one lies within.
+        usage: Builds the hierarchy used to combine rates.
+        cardinalityMeaning: At most one parent.
+        context: Cannot be itself.
   invariants:
     - {id: TAX-JURISDICTION-001, rule: "This record must not silently duplicate or rewrite authoritative cash, accounting, tax, usage, entitlement, or billing evidence in another CEDM entity."}
+    - id: TAX-JURISDICTION-002
+      rule: A Tax Jurisdiction must not be its own ancestor through parentJurisdiction; the parentJurisdiction chain is acyclic.
   lifecycle:
     title: Tax Jurisdiction Lifecycle
     attribute: status

@@ -75,6 +75,14 @@ entity:
         summary: The currency in which this account is denominated, when it is held in something other than the organisation's base currency.
         usage: Set for foreign-currency accounts such as a euro bank account so that postings and balances are held in that currency; left empty for ordinary base-currency accounts.
         relationshipContext: Points to Currency so foreign-currency balances can be revalued into the reporting currency.
+    - name: isPostingAccount
+      type: boolean
+      required: true
+      default: true
+      help:
+        summary: Whether journal lines may post directly to the account, or it only sums its children.
+        usage: Summary accounts in the hierarchy are not posting accounts.
+        relationshipContext: A posting account has no children.
   relationships:
     - name: parentAccount
       target: Account

@@ -1,6 +1,6 @@
 //! The rules the *model* declared, and whether they reached the application.
 //!
-//! Generated: 2026-10-10T02:40:00.590Z
+//! Generated: 2026-10-16T07:46:28.814Z
 //! Project: finance
 //!
 //! Every other rules suite creates a rule through the API and then checks that
@@ -33,6 +33,16 @@ const MODEL_RULES: &[(&str, &str, &str)] = &[
         "bus_party_role",
         "UPDATE",
     ),
+    (
+        "partyRelationshipInvariantsBeforeCreate",
+        "bus_party_relationship",
+        "CREATE",
+    ),
+    (
+        "partyRelationshipInvariantsBeforeUpdate",
+        "bus_party_relationship",
+        "UPDATE",
+    ),
     ("addressInvariantsBeforeCreate", "bus_address", "CREATE"),
     ("addressInvariantsBeforeUpdate", "bus_address", "UPDATE"),
     (
@@ -43,6 +53,18 @@ const MODEL_RULES: &[(&str, &str, &str)] = &[
     (
         "exchangeRateInvariantsBeforeUpdate",
         "bus_exchange_rate",
+        "UPDATE",
+    ),
+    ("calendarInvariantsBeforeCreate", "bus_calendar", "CREATE"),
+    ("calendarInvariantsBeforeUpdate", "bus_calendar", "UPDATE"),
+    (
+        "calendarExceptionInvariantsBeforeCreate",
+        "bus_calendar_exception",
+        "CREATE",
+    ),
+    (
+        "calendarExceptionInvariantsBeforeUpdate",
+        "bus_calendar_exception",
         "UPDATE",
     ),
     ("taskInvariantsBeforeCreate", "bus_task", "CREATE"),
@@ -71,6 +93,8 @@ const MODEL_RULES: &[(&str, &str, &str)] = &[
         "bus_sales_order",
         "UPDATE",
     ),
+    ("budgetInvariantsBeforeCreate", "bus_budget", "CREATE"),
+    ("budgetInvariantsBeforeUpdate", "bus_budget", "UPDATE"),
     (
         "budgetLineInvariantsBeforeCreate",
         "bus_budget_line",
@@ -79,6 +103,28 @@ const MODEL_RULES: &[(&str, &str, &str)] = &[
     (
         "budgetLineInvariantsBeforeUpdate",
         "bus_budget_line",
+        "UPDATE",
+    ),
+    ("forecastInvariantsBeforeCreate", "bus_forecast", "CREATE"),
+    ("forecastInvariantsBeforeUpdate", "bus_forecast", "UPDATE"),
+    (
+        "costCenterInvariantsBeforeCreate",
+        "bus_cost_center",
+        "CREATE",
+    ),
+    (
+        "costCenterInvariantsBeforeUpdate",
+        "bus_cost_center",
+        "UPDATE",
+    ),
+    (
+        "profitCenterInvariantsBeforeCreate",
+        "bus_profit_center",
+        "CREATE",
+    ),
+    (
+        "profitCenterInvariantsBeforeUpdate",
+        "bus_profit_center",
         "UPDATE",
     ),
     ("varianceInvariantsBeforeCreate", "bus_variance", "CREATE"),
@@ -114,6 +160,16 @@ const MODEL_RULES: &[(&str, &str, &str)] = &[
         "UPDATE",
     ),
     (
+        "paymentInstructionInvariantsBeforeCreate",
+        "bus_payment_instruction",
+        "CREATE",
+    ),
+    (
+        "paymentInstructionInvariantsBeforeUpdate",
+        "bus_payment_instruction",
+        "UPDATE",
+    ),
+    (
         "creditNoteInvariantsBeforeCreate",
         "bus_credit_note",
         "CREATE",
@@ -145,10 +201,90 @@ const MODEL_RULES: &[(&str, &str, &str)] = &[
     ),
     ("taxRateInvariantsBeforeCreate", "bus_tax_rate", "CREATE"),
     ("taxRateInvariantsBeforeUpdate", "bus_tax_rate", "UPDATE"),
+    (
+        "taxRegistrationInvariantsBeforeCreate",
+        "bus_tax_registration",
+        "CREATE",
+    ),
+    (
+        "taxRegistrationInvariantsBeforeUpdate",
+        "bus_tax_registration",
+        "UPDATE",
+    ),
     ("taxRuleInvariantsBeforeCreate", "bus_tax_rule", "CREATE"),
     ("taxRuleInvariantsBeforeUpdate", "bus_tax_rule", "UPDATE"),
+    (
+        "taxTransactionInvariantsBeforeCreate",
+        "bus_tax_transaction",
+        "CREATE",
+    ),
+    (
+        "taxTransactionInvariantsBeforeUpdate",
+        "bus_tax_transaction",
+        "UPDATE",
+    ),
+    (
+        "billingCycleInvariantsBeforeCreate",
+        "bus_billing_cycle",
+        "CREATE",
+    ),
+    (
+        "billingCycleInvariantsBeforeUpdate",
+        "bus_billing_cycle",
+        "UPDATE",
+    ),
     ("chargeInvariantsBeforeCreate", "bus_charge", "CREATE"),
     ("chargeInvariantsBeforeUpdate", "bus_charge", "UPDATE"),
+    (
+        "subscriptionInvariantsBeforeCreate",
+        "bus_subscription",
+        "CREATE",
+    ),
+    (
+        "subscriptionInvariantsBeforeUpdate",
+        "bus_subscription",
+        "UPDATE",
+    ),
+    (
+        "subscriptionPlanInvariantsBeforeCreate",
+        "bus_subscription_plan",
+        "CREATE",
+    ),
+    (
+        "subscriptionPlanInvariantsBeforeUpdate",
+        "bus_subscription_plan",
+        "UPDATE",
+    ),
+    (
+        "usageRecordInvariantsBeforeCreate",
+        "bus_usage_record",
+        "CREATE",
+    ),
+    (
+        "usageRecordInvariantsBeforeUpdate",
+        "bus_usage_record",
+        "UPDATE",
+    ),
+    (
+        "assetClassInvariantsBeforeCreate",
+        "bus_asset_class",
+        "CREATE",
+    ),
+    (
+        "assetClassInvariantsBeforeUpdate",
+        "bus_asset_class",
+        "UPDATE",
+    ),
+    (
+        "assetAcquisitionInvariantsBeforeCreate",
+        "bus_asset_acquisition",
+        "CREATE",
+    ),
+    (
+        "assetAcquisitionInvariantsBeforeUpdate",
+        "bus_asset_acquisition",
+        "UPDATE",
+    ),
     (
         "assetDepreciationInvariantsBeforeCreate",
         "bus_asset_depreciation",
@@ -159,6 +295,28 @@ const MODEL_RULES: &[(&str, &str, &str)] = &[
         "bus_asset_depreciation",
         "UPDATE",
     ),
+    (
+        "assetDisposalInvariantsBeforeCreate",
+        "bus_asset_disposal",
+        "CREATE",
+    ),
+    (
+        "assetDisposalInvariantsBeforeUpdate",
+        "bus_asset_disposal",
+        "UPDATE",
+    ),
+    (
+        "foreignExchangeTransactionInvariantsBeforeCreate",
+        "bus_foreign_exchange_transaction",
+        "CREATE",
+    ),
+    (
+        "foreignExchangeTransactionInvariantsBeforeUpdate",
+        "bus_foreign_exchange_transaction",
+        "UPDATE",
+    ),
+    ("interestInvariantsBeforeCreate", "bus_interest", "CREATE"),
+    ("interestInvariantsBeforeUpdate", "bus_interest", "UPDATE"),
     (
         "purchaseOrderLineInvariantsBeforeCreate",
         "bus_purchase_order_line",
@@ -209,6 +367,12 @@ const MODEL_RULES: &[(&str, &str, &str)] = &[
         "UPDATE",
     ),
     ("budgetWorkflowsAfterUpdate", "bus_budget", "UPDATE"),
+    ("forecastWorkflowsAfterUpdate", "bus_forecast", "UPDATE"),
+    (
+        "costCenterWorkflowsAfterUpdate",
+        "bus_cost_center",
+        "UPDATE",
+    ),
     ("ledgerWorkflowsAfterUpdate", "bus_ledger", "UPDATE"),
     (
         "paymentAllocationWorkflowsAfterUpdate",
@@ -268,6 +432,27 @@ const MODEL_RULES: &[(&str, &str, &str)] = &[
         "bus_usage_record",
         "UPDATE",
     ),
+    (
+        "assetAcquisitionWorkflowsAfterUpdate",
+        "bus_asset_acquisition",
+        "UPDATE",
+    ),
+    (
+        "assetDisposalWorkflowsAfterUpdate",
+        "bus_asset_disposal",
+        "UPDATE",
+    ),
+    (
+        "assetTransferWorkflowsAfterUpdate",
+        "bus_asset_transfer",
+        "UPDATE",
+    ),
+    (
+        "foreignExchangeTransactionWorkflowsAfterUpdate",
+        "bus_foreign_exchange_transaction",
+        "UPDATE",
+    ),
+    ("interestWorkflowsAfterUpdate", "bus_interest", "UPDATE"),
     (
         "bankAccountWorkflowsAfterUpdate",
         "bus_bank_account",

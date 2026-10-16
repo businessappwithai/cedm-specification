@@ -128,6 +128,24 @@ entity:
         cardinalityMeaning: Any number.
         workflowRole: Obligations are monitored while the contract is active.
     - {name: serviceContracts, target: ServiceContract, cardinality: "0..*", ownership: aggregate, help: {cardinalityMeaning: 'Any number, each one covering a service the contract provides.', summary: Operational service-coverage specializations of this Contract., businessMeaning: Keeps legal/commercial agreement semantics in Contract while allowing service-specific administration., usage: "Service entitlement, SLA, renewals and audit.", workflowRole: ServiceContract terms must remain compatible with Contract lifecycle and amendments.}}
+    - name: lines
+      target: ContractLine
+      cardinality: 0..*
+      ownership: aggregate
+      help:
+        summary: The products, services and prices the contract covers, one per line.
+        usage: Entered when the contract is drafted and changed only through amendments once it is signed.
+        cardinalityMeaning: A contract may have any number of lines; a framework contract may have none.
+        context: Orders placed under the contract take their prices from its lines.
+    - name: clauses
+      target: ContractClause
+      cardinality: 0..*
+      ownership: aggregate
+      help:
+        summary: The individual terms of the contract, such as liability, termination or confidentiality.
+        usage: Recorded so that particular terms can be found and compared across contracts.
+        cardinalityMeaning: A contract may have any number of clauses recorded.
+        context: The signed document remains the authoritative text.
 
   invariants:
     - id: CONTRACT-001

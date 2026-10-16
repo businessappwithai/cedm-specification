@@ -1,6 +1,6 @@
 //! The rules the *model* declared, and whether they reached the application.
 //!
-//! Generated: 2026-10-09T15:28:18.874Z
+//! Generated: 2026-10-16T07:45:58.253Z
 //! Project: document-management
 //!
 //! Every other rules suite creates a rule through the API and then checks that
@@ -33,6 +33,16 @@ const MODEL_RULES: &[(&str, &str, &str)] = &[
         "bus_party_role",
         "UPDATE",
     ),
+    (
+        "partyRelationshipInvariantsBeforeCreate",
+        "bus_party_relationship",
+        "CREATE",
+    ),
+    (
+        "partyRelationshipInvariantsBeforeUpdate",
+        "bus_party_relationship",
+        "UPDATE",
+    ),
     ("addressInvariantsBeforeCreate", "bus_address", "CREATE"),
     ("addressInvariantsBeforeUpdate", "bus_address", "UPDATE"),
     (
@@ -45,6 +55,18 @@ const MODEL_RULES: &[(&str, &str, &str)] = &[
         "bus_exchange_rate",
         "UPDATE",
     ),
+    ("calendarInvariantsBeforeCreate", "bus_calendar", "CREATE"),
+    ("calendarInvariantsBeforeUpdate", "bus_calendar", "UPDATE"),
+    (
+        "calendarExceptionInvariantsBeforeCreate",
+        "bus_calendar_exception",
+        "CREATE",
+    ),
+    (
+        "calendarExceptionInvariantsBeforeUpdate",
+        "bus_calendar_exception",
+        "UPDATE",
+    ),
     ("taskInvariantsBeforeCreate", "bus_task", "CREATE"),
     ("taskInvariantsBeforeUpdate", "bus_task", "UPDATE"),
     ("partyWorkflowsAfterUpdate", "bus_party", "UPDATE"),
@@ -54,6 +76,7 @@ const MODEL_RULES: &[(&str, &str, &str)] = &[
         "UPDATE",
     ),
     ("documentWorkflowsAfterUpdate", "bus_document", "UPDATE"),
+    ("signatureWorkflowsAfterUpdate", "bus_signature", "UPDATE"),
 ];
 
 /// Every rule reached `sys_rule_definitions`, bound to the physical

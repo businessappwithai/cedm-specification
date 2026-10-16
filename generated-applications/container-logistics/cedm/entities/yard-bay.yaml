@@ -52,6 +52,21 @@ entity:
           ACTIVE: The bay may participate in normal operations subject to tier, slot, container, equipment, safety, and yard rules.
           BLOCKED: The bay is temporarily unavailable for normal placement or movement, for example because of maintenance, safety, congestion, inspection, or an incident.
           CLOSED: The bay is administratively or physically unavailable for normal operations until an explicit reopening or reconfiguration process occurs.
+    - name: maxTiers
+      type: integer
+      required: false
+      help:
+        summary: How many containers may be stacked in the bay.
+        usage: Limits the stack height the planners use.
+        relationshipContext: Set by ground strength and equipment reach.
+    - name: reeferPlugs
+      type: integer
+      required: true
+      default: 0
+      help:
+        summary: How many refrigerated-container power points the bay has.
+        usage: Reefer containers are placed only where a plug is free.
+        relationshipContext: Zero for bays without power.
   relationships:
     - name: block
       target: YardBlock

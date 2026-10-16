@@ -21,7 +21,7 @@
 //! If that migration changes, this changes with it, or the mismatch surfaces as
 //! a runtime `DbErr` on the first query rather than as a compile error here.
 //!
-//! Generated: 2026-10-10T06:26:57.292Z
+//! Generated: 2026-10-16T07:47:08.941Z
 //! Project: inventory
 
 use sea_orm::entity::prelude::*;
@@ -36,6 +36,11 @@ pub struct Model {
     pub id: Uuid,
     pub handling_unit_number: String,
     pub r#type: String,
+    pub gross_weight_kg: Option<Decimal>,
+    pub length_cm: Option<Decimal>,
+    pub width_cm: Option<Decimal>,
+    pub height_cm: Option<Decimal>,
+    pub status: String,
     pub inventory_location_id: Option<Uuid>,
     pub parent_handling_unit_id: Option<Uuid>,
     /// `TIMESTAMPTZ DEFAULT NOW()` — defaulted, not `NOT NULL`, so it is an

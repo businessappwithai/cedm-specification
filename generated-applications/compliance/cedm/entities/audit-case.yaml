@@ -67,6 +67,78 @@ entity:
           REPORTED: Findings have been reported and actions are being followed up.
           CLOSED: All actions are done and the case is finished. A final state.
           CANCELLED: Called off before it was reported. A final state.
+    - name: auditType
+      type: enum
+      required: true
+      default: INTERNAL
+      values:
+        - INTERNAL
+        - EXTERNAL
+        - REGULATORY
+        - CERTIFICATION
+        - SUPPLIER
+      help:
+        summary: Who performs the audit and for whom.
+        usage: Chosen when the case is opened; it decides who receives the report and how findings are followed up.
+        relationshipContext: External and regulatory findings usually carry deadlines set by the auditor.
+        valueSemantics:
+          INTERNAL: Performed by the company's own internal audit function.
+          EXTERNAL: Performed by the statutory or another independent auditor.
+          REGULATORY: Performed or required by a regulator.
+          CERTIFICATION: Performed by a certification body against a standard such as ISO 9001.
+          SUPPLIER: Performed by the company at a supplier's premises.
+    - name: periodFrom
+      type: date
+      required: false
+      help:
+        summary: The first day of the period whose records are examined.
+        usage: Agreed in the scope; samples are drawn from this period.
+        relationshipContext: Must not be later than the end of the period.
+    - name: periodTo
+      type: date
+      required: false
+      help:
+        summary: The last day of the period whose records are examined.
+        usage: Agreed in the scope.
+        relationshipContext: Usually before the fieldwork starts.
+    - name: fieldworkStart
+      type: date
+      required: false
+      help:
+        summary: When the auditors start gathering evidence.
+        usage: Planned in the audit plan and confirmed with the audited unit.
+        relationshipContext: Must not be later than the fieldwork end.
+    - name: fieldworkEnd
+      type: date
+      required: false
+      help:
+        summary: When evidence gathering is planned to finish.
+        usage: Planned in the audit plan; reporting starts after it.
+        relationshipContext: Delays beyond it are reported to the audit committee.
+    - name: reportIssuedDate
+      type: date
+      required: false
+      help:
+        summary: The day the final report was issued.
+        usage: Recorded when the report is sent; the case can then be closed.
+        relationshipContext: A closed case has one.
+    - name: opinion
+      type: enum
+      required: false
+      values:
+        - SATISFACTORY
+        - NEEDS_IMPROVEMENT
+        - UNSATISFACTORY
+        - NOT_RATED
+      help:
+        summary: The auditors' overall conclusion.
+        usage: Given in the final report; summarizes how well the audited area is controlled.
+        relationshipContext: Read with the findings, whose severities support it.
+        valueSemantics:
+          SATISFACTORY: Controls are well designed and work as intended.
+          NEEDS_IMPROVEMENT: Controls mostly work, with weaknesses to correct.
+          UNSATISFACTORY: Significant weaknesses put the area's objectives at risk.
+          NOT_RATED: The engagement did not give an overall opinion, such as a consulting review.
   relationships:
     - name: leadAuditor
       target: Party
@@ -77,6 +149,24 @@ entity:
         usage: Chosen when the case is planned.
         cardinalityMeaning: At most one lead auditor; empty until one is appointed.
         workflowRole: Owns the conclusions and the report.
+    - name: auditedOrganization
+      target: Organization
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The company, unit or supplier audited.
+        usage: Chosen when the case is opened; the unit's audit history is listed from it.
+        cardinalityMeaning: One audited organization per case; a multi-unit review is split into cases.
+        context: Its management receives the report and owns the responses.
+    - name: complianceRequirement
+      target: ComplianceRequirement
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The law, regulation or standard the audit tests against, where there is one.
+        usage: Chosen for regulatory and certification audits.
+        cardinalityMeaning: At most one per case.
+        context: Findings are then nonconformities against that requirement.
   invariants:
     - {id: AUDIT-CASE-001, rule: Finalized historical evidence must not be silently rewritten; corrections or supersession require explicit governed records.}
     - id: AUDIT-CASE-002

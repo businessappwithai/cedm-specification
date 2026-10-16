@@ -9,9 +9,171 @@ entity:
   attributes:
     - {name: fulfillmentId, type: uuid, required: true, immutable: true, help: {summary: The identity of the fulfilment record., usage: Generated when fulfilment starts; the steps refer to it.}}
     - {name: code, type: string, required: false, maxLength: 120, help: {summary: 'The reference by which the fulfilment is tracked, often derived from the order number.', usage: Used by customer service when answering "where is my order".}}
-  relationships: []
+    - name: status
+      type: enum
+      required: true
+      default: RELEASED
+      values:
+        - RELEASED
+        - PICKING
+        - PACKED
+        - SHIPPED
+        - DELIVERED
+        - ON_HOLD
+        - CANCELLED
+      help:
+        valueSemantics:
+          RELEASED: Released to the warehouse with stock reserved, but work has not yet started.
+          PICKING: Being picked from stock by warehouse staff.
+          PACKED: Picked and packed, and waiting for the carrier to collect it.
+          SHIPPED: Handed over to the carrier for delivery.
+          DELIVERED: Received by the customer.
+          ON_HOLD: Stopped by a problem that someone must resolve before work continues.
+          CANCELLED: Withdrawn because the order is no longer needed; no further work is done.
+        summary: Which step the fulfillment has reached.
+        usage: Moved on by the warehouse and transport steps as they are done.
+        relationshipContext: Late fulfillments are found by comparing the status with the promised date.
+    - name: priority
+      type: enum
+      required: true
+      default: NORMAL
+      values:
+        - LOW
+        - NORMAL
+        - HIGH
+        - URGENT
+      help:
+        summary: How urgently the fulfillment is to be worked.
+        usage: Decides the order in which the warehouse picks.
+        relationshipContext: Taken from the order's delivery terms, such as express delivery.
+        valueSemantics:
+          LOW: Can wait for the next regular wave.
+          NORMAL: Worked in the normal order.
+          HIGH: Worked ahead of normal fulfillments.
+          URGENT: Worked at once, for example a same-day order.
+    - name: releasedAt
+      type: datetime
+      required: true
+      help:
+        summary: When the order was released to the warehouse.
+        usage: Set on release; fulfillment lead time is measured from it.
+        relationshipContext: Precedes every other step.
+    - name: promisedDate
+      type: date
+      required: false
+      help:
+        summary: The delivery date promised to the customer.
+        usage: Copied from the order; the fulfillment is late if it is not delivered by then.
+        relationshipContext: Customer service quotes it.
+    - name: shippedAt
+      type: datetime
+      required: false
+      help:
+        summary: The time the goods were handed over to the carrier.
+        usage: Recorded on dispatch and used for customer notifications and for judging whether the promised date will be met.
+        relationshipContext: Present once shipped.
+    - name: deliveredAt
+      type: datetime
+      required: false
+      help:
+        summary: The time the customer received the goods.
+        usage: Taken from the carrier's proof of delivery; it is empty until delivery and closes the fulfillment.
+        relationshipContext: Present once delivered.
+    - name: holdReason
+      type: string
+      required: false
+      maxLength: 300
+      help:
+        summary: Why the fulfillment is on hold.
+        usage: Written when putting it on hold, so whoever resolves it knows what to fix.
+        relationshipContext: Present only while on hold.
+    - name: shipToName
+      type: string
+      required: false
+      maxLength: 200
+      help:
+        summary: The name the goods are addressed to.
+        usage: Copied from the order; printed on the shipping label.
+        relationshipContext: The full address is on the delivery location.
+  relationships:
+    - name: salesOrder
+      target: SalesOrder
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The order being fulfilled.
+        usage: Set on release.
+        cardinalityMeaning: One order per fulfillment; an order may need several fulfillments.
+        context: The order's delivery status is derived from its fulfillments.
+    - name: warehouse
+      target: Warehouse
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The warehouse the goods are shipped from.
+        usage: Chosen on release by the sourcing rules.
+        cardinalityMeaning: One warehouse per fulfillment.
+        context: Orders split across warehouses get one fulfillment per warehouse.
+    - name: shipment
+      target: Shipment
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The shipment that carries the goods.
+        usage: Linked when the goods are shipped.
+        cardinalityMeaning: One shipment per fulfillment.
+        context: The shipment's tracking feeds the fulfillment's delivery.
+    - name: deliveryLocation
+      target: Location
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: Where the goods are delivered.
+        usage: Copied from the order.
+        cardinalityMeaning: One delivery location per fulfillment.
+        context: A change of address after release puts the fulfillment on hold.
   invariants:
     - {id: FULFILLMENT-001, rule: "Lifecycle changes, corrections and retries must preserve historical evidence and must not duplicate downstream commercial, physical or financial effects."}
+    - {id: FULFILLMENT-EXE-001, rule: "A fulfillment that is on hold states hold reason.", violatedWhen: "status == \"ON_HOLD\" and hold_reason == null", message: "Give the hold reason before the fulfillment is on hold."}
+    - {id: FULFILLMENT-EXE-002, rule: "A fulfillment that is shipped states when (shipped at).", violatedWhen: "status == \"SHIPPED\" and shipped_at == null", message: "Record shipped at when the fulfillment is shipped."}
+    - {id: FULFILLMENT-EXE-003, rule: "A fulfillment that is delivered states when (delivered at).", violatedWhen: "status == \"DELIVERED\" and delivered_at == null", message: "Record delivered at when the fulfillment is delivered."}
+  workflows:
+    - name: ExceptionRaised
+      title: "Raise a task when a fulfillment is stopped"
+      description: "When a fulfillment is on hold, a high-priority task asks someone to resolve it."
+      when: "status == \"ON_HOLD\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: resolve"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "FULFILLMENT-EXCEPTION-{{id}}"
+              name: "Resolve fulfillment {{code}}"
+              description: "Fulfillment {{code}} is now {{status}}. Find out why it stopped and move it on or close it."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "HIGH"
+    - name: FollowUpRequired
+      title: "Follow up when a fulfillment is ended"
+      description: "When a fulfillment is cancelled, a task asks someone to settle what depended on it."
+      when: "status == \"CANCELLED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "FULFILLMENT-FOLLOW-UP-{{id}}"
+              name: "Follow up on fulfillment {{code}}"
+              description: "Fulfillment {{code}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
   help:
     summary: 'A record that connects sales demand to the steps that satisfy it: reservation, picking, packing, shipping, delivery and completion.'
     businessMeaning: A customer order is only done when the goods arrive. Fulfilment ties together the warehouse and transport steps that happen between the order and the delivery, so progress can be seen in one place.
@@ -21,4 +183,50 @@ entity:
     example: 'Fulfilment F-20413 for order SO-20413: reserved, picked and packed on Tuesday, shipped Wednesday and delivered Thursday.'
     whenUsed: Used in CRM, sales, fulfillment, logistics, reporting, integration, or audit processes where this concept applies.
     commonProcesses: Commercial management, fulfillment, logistics execution, reconciliation, reporting, and audit.
+  lifecycle:
+    title: Fulfillment Lifecycle
+    attribute: status
+    states:
+      - RELEASED
+      - PICKING
+      - PACKED
+      - SHIPPED
+      - DELIVERED
+      - ON_HOLD
+      - CANCELLED
+    initial: RELEASED
+    terminal:
+      - DELIVERED
+      - CANCELLED
+    transitions:
+      - from: RELEASED
+        to: PICKING
+        action: start_picking
+      - from: PICKING
+        to: PACKED
+        action: pack
+      - from: PACKED
+        to: SHIPPED
+        action: ship
+      - from: SHIPPED
+        to: DELIVERED
+        action: deliver
+      - from: RELEASED
+        to: ON_HOLD
+        action: hold
+      - from: PICKING
+        to: ON_HOLD
+        action: hold
+      - from: PACKED
+        to: ON_HOLD
+        action: hold
+      - from: ON_HOLD
+        to: RELEASED
+        action: release
+      - from: RELEASED
+        to: CANCELLED
+        action: cancel
+      - from: ON_HOLD
+        to: CANCELLED
+        action: cancel
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-FULFILLMENT}

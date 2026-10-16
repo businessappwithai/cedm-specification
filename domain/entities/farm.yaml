@@ -68,6 +68,30 @@ entity:
           ACTIVE: In production, with fields being worked or animals kept.
           INACTIVE: Temporarily not producing, for example in a fallow period.
           RETIRED: The operation has ended. A final state.
+    - name: totalAreaHa
+      type: decimal
+      required: false
+      precision: 12
+      scale: 2
+      help:
+        summary: The total area of the farm, in hectares.
+        usage: Used for subsidies and yield reporting.
+        relationshipContext: Sum of its fields plus other land.
+    - name: isOrganicCertified
+      type: boolean
+      required: true
+      default: false
+      help:
+        summary: Says whether the farm currently holds an organic certification from a recognised certifying body.
+        usage: Ticked by the farm manager once certification is granted and cleared if it lapses; it decides whether produce may be sold and labelled as organic.
+        relationshipContext: Read together with the certification date, which shows when the status was granted.
+    - name: certificationDate
+      type: date
+      required: false
+      help:
+        summary: The date the farm's current organic or quality certification was granted by the certifying body.
+        usage: Entered from the certificate; auditors use it to trace produce back to a certified period and to plan renewal. It stays empty for uncertified farms.
+        relationshipContext: Empty for uncertified farms.
   relationships:
     - name: location
       target: Location

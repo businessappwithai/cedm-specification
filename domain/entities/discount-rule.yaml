@@ -90,6 +90,15 @@ entity:
         usage: Used by pricing and transaction validation.
         relationshipContext: Retiring a rule must not change discounts already recorded on historical transactions.
         workflowRole: Controls future applicability while preserving historical pricing evidence.
+    - name: currency
+      type: reference
+      target: Currency
+      required: false
+      help:
+        summary: Currency applicable when the discount method is FIXED_AMOUNT.
+        usage: Defines the denomination of a fixed discount.
+        relationshipContext: Not required for percentage discounts.
+        workflowRole: Enables fixed discounts to be compared with the transaction's monetary base under valid currency rules.
   relationships: []
   invariants:
     - id: DISCOUNT-RULE-001

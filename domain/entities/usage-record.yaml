@@ -22,10 +22,94 @@ entity:
           ACTIVE: Confirmed and waiting to be billed.
           COMPLETED: Billed. A final state.
           CANCELLED: Discarded as recorded in error. A final state.
+    - name: usageNumber
+      type: string
+      required: true
+      unique: true
+      maxLength: 60
+      help:
+        summary: The reference number of this usage record, used when billing questions arise.
+        usage: Assigned when the record is received and unique across all records.
+        relationshipContext: Unique.
+    - name: sourceReference
+      type: string
+      required: false
+      maxLength: 100
+      help:
+        summary: The metering system's own identifier for the measurement.
+        usage: Used to refuse duplicates when a feed is resent.
+        relationshipContext: Unique per source.
+    - name: source
+      type: string
+      required: false
+      maxLength: 100
+      help:
+        summary: The metering system that reported the measurement, such as an API gateway.
+        usage: Recorded on receipt and combined with the source reference to refuse duplicates when a feed is resent.
+        relationshipContext: Such as "api-gateway-eu".
+    - name: metric
+      type: string
+      required: true
+      maxLength: 100
+      help:
+        summary: What was measured, such as "API calls" or "Storage GB".
+        usage: Must match a usage unit of the subscription's plan.
+        relationshipContext: Unmatched metrics are rejected.
+    - name: quantity
+      type: decimal
+      required: true
+      precision: 18
+      scale: 4
+      help:
+        summary: How much of the metric was consumed in the measured period.
+        usage: Expressed in the metric's own unit and rated against the subscription's plan to produce a charge.
+        relationshipContext: In the metric's unit.
+    - name: periodStart
+      type: datetime
+      required: true
+      help:
+        summary: The start of the period measured.
+        usage: Usage is billed in the billing period it falls in.
+        relationshipContext: Not later than the period end.
+    - name: periodEnd
+      type: datetime
+      required: true
+      help:
+        summary: The end of the period measured.
+        usage: Usage is billed in the billing period it falls in.
+        relationshipContext: Not earlier than the period start.
+    - name: rejectionReason
+      type: string
+      required: false
+      maxLength: 300
+      help:
+        summary: Why the record could not be rated.
+        usage: Read by billing operations to correct it.
+        relationshipContext: Present only on rejected records.
   relationships:
     - {name: customer, target: Customer, cardinality: 0..1, ownership: reference, help: {summary: The customer whose usage it is., usage: Chosen from the metered account., cardinalityMeaning: At most one customer; empty until matched., workflowRole: Decides whom to charge.}}
+    - name: subscription
+      target: Subscription
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The subscription the usage belongs to.
+        usage: Matched from the metering identifier.
+        cardinalityMeaning: One per record.
+        context: Its plan decides the price.
+    - name: charge
+      target: Charge
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The charge the usage was rated into.
+        usage: Set by rating.
+        cardinalityMeaning: At most one.
+        context: Present once rated.
   invariants:
     - {id: USAGE-RECORD-001, rule: "This record must not silently duplicate or rewrite authoritative cash, accounting, tax, usage, entitlement, or billing evidence in another CEDM entity."}
+    - {id: USAGE-RECORD-EXE-001, rule: "Period End must not be earlier than period start.", violatedWhen: "period_start != null and period_end != null and period_end < period_start", message: "Period End cannot be earlier than period start."}
+    - {id: USAGE-RECORD-EXE-002, rule: "Quantity cannot be negative.", violatedWhen: "quantity != null and quantity < 0", message: "Quantity cannot be negative."}
   lifecycle:
     title: Usage Record Lifecycle
     attribute: status

@@ -25,6 +25,50 @@ entity:
           CANCELLED: The wave was abandoned and its tasks released for other planning. A final state.
         businessMeaning: Controls grouped task release and closure.
         relationshipContext: Wave completion cannot substitute for task or inventory evidence.
+    - name: waveType
+      type: enum
+      required: true
+      default: PICKING
+      values:
+        - PICKING
+        - PUTAWAY
+        - REPLENISHMENT
+      help:
+        summary: The kind of work the wave releases to the floor.
+        usage: Chosen when the wave is planned and decides which tasks it groups; most waves are picking waves.
+        relationshipContext: Most waves are picking waves.
+        valueSemantics:
+          PICKING: Picking for outbound orders.
+          PUTAWAY: Putting away received goods.
+          REPLENISHMENT: Moving stock from reserve to picking locations.
+    - name: releasedAt
+      type: datetime
+      required: false
+      help:
+        summary: The date and time the wave was released to workers on the floor.
+        usage: Recorded automatically at release and empty while the wave is still planned.
+        relationshipContext: Present once released.
+    - name: plannedCompletionAt
+      type: datetime
+      required: false
+      help:
+        summary: When the wave should be finished, usually to meet a carrier cut-off.
+        usage: Set when planning the wave.
+        relationshipContext: Late waves are flagged.
+    - name: completedAt
+      type: datetime
+      required: false
+      help:
+        summary: The date and time the last task in the wave was finished.
+        usage: Recorded when the wave completes and compared with the planned completion to measure lateness.
+        relationshipContext: Present once completed.
+    - name: taskCount
+      type: integer
+      required: false
+      help:
+        summary: How many tasks, picks and putaways together, the wave contains.
+        usage: Calculated by the system and shown on the wave monitor so supervisors can size labour.
+        relationshipContext: Summed from its picks and putaways.
   relationships:
     - {name: warehouse, target: Warehouse, cardinality: '1', ownership: reference, help: {cardinalityMeaning: Each wave is run in one warehouse., summary: Warehouse executing wave., businessMeaning: Defines operating facility., usage: Labor/task orchestration., workflowRole: Included tasks must be compatible with warehouse.}}
     - {name: picks, target: Picking, cardinality: 0..*, ownership: reference, help: {cardinalityMeaning: Any number of picking tasks are released with a wave., summary: Pick tasks grouped in wave., businessMeaning: Coordinates inventory-selection work., usage: Batch/zone/order picking., workflowRole: Each pick retains independent execution evidence.}}
@@ -33,6 +77,8 @@ entity:
     - {id: WAVE-001, rule: RELEASED wave must contain at least one executable task.}
     - {id: WAVE-002, rule: Cancelling a wave cannot erase or reverse already posted task or inventory effects.}
     - {id: WAVE-003, rule: COMPLETED requires included released tasks to be terminal or explicitly excepted.}
+    - {id: WAVE-EXE-001, rule: "Task Count cannot be negative.", violatedWhen: "task_count != null and task_count < 0", message: "Task Count cannot be negative."}
+    - {id: WAVE-EXE-002, rule: "A wave that is completed states when (completed at).", violatedWhen: "status == \"COMPLETED\" and completed_at == null", message: "Record completed at when the wave is completed."}
   lifecycle:
     title: Wave Lifecycle
     attribute: status

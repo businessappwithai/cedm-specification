@@ -20,11 +20,127 @@ entity:
           ACTIVE: Released to the bank and awaiting execution.
           COMPLETED: Executed by the bank. A final state.
           CANCELLED: Withdrawn before execution. A final state.
+    - name: instructionNumber
+      type: string
+      required: true
+      unique: true
+      maxLength: 40
+      help:
+        summary: The reference of the instruction.
+        usage: Assigned when it is created; carried in the payment file.
+        relationshipContext: Unique; the bank refuses duplicates.
+    - name: amount
+      type: Money
+      required: true
+      help:
+        summary: The sum the bank is being told to pay to the payee.
+        usage: Taken from the approved invoices or entered by hand when the instruction is created, and checked at approval.
+        relationshipContext: In the paying account's currency unless a foreign payment is ordered.
+    - name: valueDate
+      type: date
+      required: true
+      help:
+        summary: The day the payee should receive the money.
+        usage: Set by the payment run from due dates.
+        relationshipContext: Must be a business day for the currency.
+    - name: payeeName
+      type: string
+      required: true
+      maxLength: 200
+      help:
+        summary: The name of the payee as it is sent to the bank.
+        usage: Copied from the payee's record.
+        relationshipContext: Some banks check it against the account holder.
+    - name: payeeAccount
+      type: string
+      required: true
+      maxLength: 60
+      help:
+        summary: The payee's bank account number or IBAN to which the money will be sent.
+        usage: Copied from the payee's verified bank details; a change must be verified before it is used.
+        relationshipContext: Wrong details send money to the wrong place.
+    - name: payeeBankCode
+      type: string
+      required: false
+      maxLength: 20
+      help:
+        summary: The payee bank's identifier, such as a BIC or routing number.
+        usage: Copied from the payee's bank details.
+        relationshipContext: Required for some payment methods.
+    - name: paymentMethod
+      type: enum
+      required: true
+      default: CREDIT_TRANSFER
+      values:
+        - CREDIT_TRANSFER
+        - URGENT_TRANSFER
+        - CROSS_BORDER
+        - CHEQUE
+        - DIRECT_DEBIT
+      help:
+        summary: The way the bank is asked to move the money, from standard transfer to cheque.
+        usage: Chosen by treasury when creating the instruction; it decides the bank file format, the fee and the speed.
+        relationshipContext: Urgent and cross-border payments cost more.
+        valueSemantics:
+          CREDIT_TRANSFER: A standard bank transfer settled in the normal cycle.
+          URGENT_TRANSFER: A same-day, high-value transfer that carries a higher fee.
+          CROSS_BORDER: An international transfer to an account abroad, possibly with currency conversion.
+          CHEQUE: A cheque printed and issued by the bank.
+          DIRECT_DEBIT: A debit collected from the payer's account under an existing mandate.
+    - name: remittanceReference
+      type: string
+      required: false
+      maxLength: 140
+      help:
+        summary: The reference the payee sees on their statement, such as the invoice numbers paid.
+        usage: Lets the payee match the payment.
+        relationshipContext: Length limited by the payment scheme.
+    - name: approvedAt
+      type: datetime
+      required: false
+      help:
+        summary: The date and time the final approver authorised the instruction for release to the bank.
+        usage: Stamped on the last approval; treasury cannot send the instruction without it.
+        relationshipContext: Required before sending.
+    - name: sentAt
+      type: datetime
+      required: false
+      help:
+        summary: The date and time the instruction was transmitted to the bank.
+        usage: Stamped by the bank interface on transmission and used when reconciling with the bank statement.
+        relationshipContext: Filled only after sending.
+    - name: bankStatusMessage
+      type: string
+      required: false
+      maxLength: 500
+      help:
+        summary: The status or rejection text the bank returned for this instruction.
+        usage: Copied from the bank's status report so treasury can see why a payment failed or was held.
+        relationshipContext: Explains rejections and holds.
   relationships:
     - {name: bankAccount, target: BankAccount, cardinality: '1', ownership: reference, help: {summary: The bank account from which the payment is to be made., usage: Chosen when the instruction is created., cardinalityMeaning: 'Exactly one account: an instruction debits one account.', workflowRole: 'Determines the bank channel, balances and approval limits.', businessMeaning: Supplies treasury settlement account.}}
     - {name: payment, target: Payment, cardinality: 0..1, ownership: reference, help: {summary: The payment that results from the instruction., usage: Linked when the instruction has been executed., cardinalityMeaning: At most one payment; a draft or cancelled instruction produces none., workflowRole: Connects what was authorised to what was paid., businessMeaning: Connects intent to settlement transaction.}}
+    - name: payee
+      target: Party
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The party paid.
+        usage: Chosen when the instruction is created.
+        cardinalityMeaning: One per instruction.
+        context: Their verified bank details are used.
+    - name: approvedBy
+      target: Person
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: Who gave the final approval.
+        usage: Recorded on approval.
+        cardinalityMeaning: One per instruction; dual approval records the second approver here.
+        context: Must hold payment authority for the amount.
   invariants:
     - {id: PAYMENT-INSTRUCTION-001, rule: "This record must not silently duplicate or rewrite authoritative cash, accounting, tax, usage, entitlement, or billing evidence in another CEDM entity."}
+    - {id: PAYMENT-INSTRUCTION-EXE-001, rule: "Amount cannot be negative.", violatedWhen: "amount != null and amount < 0", message: "Amount cannot be negative."}
   lifecycle:
     title: Payment Instruction Lifecycle
     attribute: status

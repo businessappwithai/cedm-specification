@@ -24,9 +24,41 @@ entity:
           RETIRED: No longer used; kept so historical sales and catalogue records remain accurate. A final state.
         businessMeaning: Controls future assignment/use.
         relationshipContext: Historical product/transaction references remain valid.
+    - name: description
+      type: text
+      required: false
+      help:
+        summary: A short account of what the brand stands for and the products it covers.
+        usage: Written by the product or marketing team and shown in catalogues and brand pages.
+        relationshipContext: Free text.
+    - name: isOwnBrand
+      type: boolean
+      required: true
+      default: false
+      help:
+        summary: Whether the brand belongs to the business (a private label).
+        usage: Own brands carry different margins and sourcing rules.
+        relationshipContext: Third-party brands are supplied by their owners.
+    - name: websiteUrl
+      type: string
+      required: false
+      maxLength: 300
+      help:
+        summary: The web address of the brand's own official site.
+        usage: Linked from product pages so shoppers can read more about the brand.
+        relationshipContext: Should be a full address beginning with https.
   relationships:
     - {name: products, target: Product, cardinality: 0..*, ownership: reference, help: {cardinalityMeaning: Any number of products; a new brand may have none yet., summary: Products marketed/manufactured under brand., businessMeaning: Connects product portfolio to market identity., usage: Catalog and reporting., workflowRole: Brand lifecycle affects future assignments but not historical evidence.}}
     - {name: variants, target: ProductVariant, cardinality: 0..*, ownership: reference, help: {cardinalityMeaning: 'Any number of variants, one for each branded variation of a product.', summary: Variants explicitly associated with brand., businessMeaning: Supports variant-specific brand assignment., usage: Catalog and commerce., workflowRole: Variant may inherit brand from parent Product when policy allows.}}
+    - name: owner
+      target: Organization
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The company that owns the brand.
+        usage: Recorded for licensing and sourcing.
+        cardinalityMeaning: One owner per brand.
+        context: Our own company for own brands.
   invariants:
     - {id: BRAND-001, rule: code must be unique.}
     - {id: BRAND-002, rule: RETIRED brand must not be newly assigned without governed reinstatement or migration.}

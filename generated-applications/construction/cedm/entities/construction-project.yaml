@@ -78,6 +78,28 @@ entity:
           CANCELLED: Stopped before completion, with work abandoned or the contract ended. A final state.
         summary: The construction stage the project has reached.
         usage: Advanced by the project manager as each stage completes.
+    - name: permitNumber
+      type: string
+      required: false
+      maxLength: 100
+      help:
+        summary: The number of the building permit.
+        usage: Shown on the site board and in inspections.
+        relationshipContext: Required before construction starts.
+    - name: contractValue
+      type: Money
+      required: false
+      help:
+        summary: The total value of the construction contracts awarded for the project.
+        usage: Summed from the signed contracts and used by project controls and finance.
+        relationshipContext: Compared with the project budget.
+    - name: plannedCompletionDate
+      type: date
+      required: false
+      help:
+        summary: The day the finished works are due to be handed over to the client.
+        usage: Agreed in the main contract; delays are measured against it.
+        relationshipContext: Moves only through an approved change.
   relationships:
     - name: project
       target: Project

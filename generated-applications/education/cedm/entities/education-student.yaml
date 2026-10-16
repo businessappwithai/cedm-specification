@@ -55,6 +55,13 @@ entity:
           GRADUATED: Has completed the requirements of a program.
           WITHDRAWN: Left the institution before graduating. A final state.
           ALUMNI: A former student who graduated and keeps a relationship as alumnus. A final state.
+    - name: dateOfAdmission
+      type: date
+      required: false
+      help:
+        summary: The date the student was formally admitted to the institution.
+        usage: Recorded by admissions when an offer is accepted, and used for cohort and intake reporting.
+        relationshipContext: Not later than any of the student's enrolments.
   relationships:
     - name: party
       target: Party

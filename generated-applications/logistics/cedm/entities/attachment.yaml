@@ -9,7 +9,108 @@ entity:
   attributes:
     - {name: attachmentId, type: uuid, required: true, immutable: true, help: {summary: The identity of the attachment record., usage: Generated on creation; links to the supported record and audit entries use it.}}
     - {name: effectiveAt, type: datetime, required: false, help: {summary: When the attachment became part of the record., usage: Set when the file is attached; used to show what evidence existed at a given moment.}}
-  relationships: []
+    - name: fileName
+      type: string
+      required: true
+      maxLength: 255
+      help:
+        summary: The name of the file as uploaded.
+        usage: Shown in the record's list of attachments and used as the name when the file is downloaded.
+        relationshipContext: Not unique; the same name may be attached to many records.
+    - name: mediaType
+      type: string
+      required: false
+      maxLength: 100
+      help:
+        summary: The type of the file's content, such as application/pdf or image/jpeg.
+        usage: Detected on upload; it decides whether the file can be previewed.
+        relationshipContext: Taken from the file, not typed by the user.
+    - name: sizeBytes
+      type: integer
+      required: false
+      help:
+        summary: The size of the file in bytes.
+        usage: Recorded on upload; used to enforce upload limits and to report storage use.
+        relationshipContext: Zero-size files are refused.
+    - name: storageLocation
+      type: string
+      required: true
+      maxLength: 500
+      help:
+        summary: Where the file's content is stored.
+        usage: Set by the system on upload; users never type it.
+        relationshipContext: Moving files between stores updates it without changing the attachment.
+    - name: checksum
+      type: string
+      required: false
+      maxLength: 128
+      help:
+        summary: A fingerprint of the file's content (SHA-256).
+        usage: Computed on upload; recomputing it later shows whether the file has been changed.
+        relationshipContext: Two attachments with the same checksum hold the same content.
+    - name: recordType
+      type: string
+      required: true
+      maxLength: 100
+      help:
+        summary: The kind of record the file is attached to, such as "Goods receipt".
+        usage: Set by the screen the file was attached from.
+        relationshipContext: Read with the record identifier to find the record.
+    - name: recordId
+      type: string
+      required: true
+      maxLength: 64
+      help:
+        summary: The identifier of the record the file is attached to.
+        usage: Set by the screen the file was attached from; the record's attachments are found by it.
+        relationshipContext: Together with the record type it identifies exactly one record.
+    - name: category
+      type: string
+      required: false
+      maxLength: 100
+      help:
+        summary: What the file is, such as "Delivery note", "Certificate" or "Photograph".
+        usage: Chosen on upload so that the record's attachments can be told apart without opening them.
+        relationshipContext: Free choice of words, though each business usually agrees a short list.
+    - name: description
+      type: string
+      required: false
+      maxLength: 500
+      help:
+        summary: A note about the file's content.
+        usage: Optional; useful when the file name does not say what the file shows.
+        relationshipContext: Free text.
+    - name: uploadedAt
+      type: datetime
+      required: true
+      help:
+        summary: When the file was attached.
+        usage: Recorded by the system; the record's evidence is listed in this order.
+        relationshipContext: Not editable.
+    - name: status
+      type: enum
+      required: true
+      default: ACTIVE
+      values:
+        - ACTIVE
+        - WITHDRAWN
+      help:
+        summary: Whether the file still counts as evidence for the record.
+        usage: An attachment added by mistake is withdrawn; it stays visible in the history.
+        relationshipContext: Withdrawn attachments are not shown in the normal list.
+        valueSemantics:
+          ACTIVE: Attached and part of the record's evidence.
+          WITHDRAWN: Removed from the record's evidence, but kept for the history.
+  relationships:
+    - name: uploadedBy
+      target: Person
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The person who attached the file.
+        usage: Recorded on upload.
+        cardinalityMeaning: One per attachment.
+        context: Shown with the file so that reviewers know where it came from.
   invariants:
     - {id: ATTACHMENT-001, rule: Finalized historical evidence must not be silently rewritten; corrections or supersession require explicit governed records.}
   help:
@@ -19,4 +120,17 @@ entity:
     relationshipContext: An attachment is linked to the record it supports; the same file may be attached to more than one.
     lifecycle: Once attached, the content is evidence and is not silently replaced; a corrected file is attached as a new record.
     example: A signed delivery note PDF is attached to a shipment record by the driver's handheld at delivery.
+  lifecycle:
+    title: Attachment Lifecycle
+    attribute: status
+    states:
+      - ACTIVE
+      - WITHDRAWN
+    initial: ACTIVE
+    terminal:
+      - WITHDRAWN
+    transitions:
+      - from: ACTIVE
+        to: WITHDRAWN
+        action: withdraw
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-ATTACHMENT}

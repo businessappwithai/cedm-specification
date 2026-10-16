@@ -9,9 +9,138 @@ entity:
   attributes:
     - {name: documentClassificationId, type: uuid, required: true, immutable: true, help: {summary: 'The stable identity of one classification, such as Confidential or Contract Record.', usage: Generated when the classification is created; documents point to it so retention and access controls follow the label.}}
     - {name: effectiveAt, type: datetime, required: false, help: {summary: When the classification and its controls take effect., usage: Set when it is defined or revised.}}
-  relationships: []
+    - name: code
+      type: string
+      required: true
+      unique: true
+      maxLength: 30
+      help:
+        summary: The code of the class in the classification scheme, such as FIN-AP-INV.
+        usage: Used when filing documents and in retention reports.
+        relationshipContext: Unique.
+    - name: name
+      type: string
+      required: true
+      maxLength: 150
+      help:
+        summary: The name of the class, such as "Supplier invoice".
+        usage: Shown when a user chooses a class for a document.
+        relationshipContext: Identifies the class for people, with the code.
+    - name: description
+      type: text
+      required: false
+      help:
+        summary: Which documents belong in the class.
+        usage: Read by whoever files a document and must choose its class.
+        relationshipContext: Should give examples of what belongs and what does not.
+    - name: sensitivity
+      type: enum
+      required: true
+      default: INTERNAL
+      values:
+        - PUBLIC
+        - INTERNAL
+        - CONFIDENTIAL
+        - RESTRICTED
+      help:
+        valueSemantics:
+          PUBLIC: May be shared outside the company.
+          INTERNAL: For staff only and not to be shared outside the company.
+          CONFIDENTIAL: For the people who need the documents for their work.
+          RESTRICTED: For named people only, because disclosure would do serious harm.
+        summary: How carefully documents in the class must be protected.
+        usage: Decides who may read the documents and whether they may leave the company.
+        relationshipContext: Documents containing personal data are confidential or above.
+    - name: retentionYears
+      type: integer
+      required: false
+      help:
+        summary: How many years documents in the class must be kept.
+        usage: Taken from the retention schedule; disposal is not allowed before the period has run.
+        relationshipContext: Counted from the retention trigger.
+    - name: retentionTrigger
+      type: enum
+      required: true
+      default: CREATION
+      values:
+        - CREATION
+        - FISCAL_YEAR_END
+        - CONTRACT_END
+        - EMPLOYMENT_END
+        - CASE_CLOSURE
+      help:
+        summary: The event from which the retention period is counted.
+        usage: Taken from the retention schedule, and read together with the number of years to work out the disposal date.
+        relationshipContext: A document is kept until this event plus the retention years.
+        valueSemantics:
+          CREATION: The day the document was created.
+          FISCAL_YEAR_END: The end of the fiscal year the document belongs to.
+          CONTRACT_END: The end of the contract the document belongs to.
+          EMPLOYMENT_END: The day the employee the document concerns left.
+          CASE_CLOSURE: The closing of the case the document belongs to.
+    - name: disposalAction
+      type: enum
+      required: true
+      default: DESTROY
+      values:
+        - DESTROY
+        - ARCHIVE
+        - REVIEW
+      help:
+        valueSemantics:
+          DESTROY: Destroyed securely once the retention period has run.
+          ARCHIVE: Moved to a permanent archive.
+          REVIEW: Reviewed by a person who decides what happens next.
+        summary: What happens to a document when its retention period has run.
+        usage: Applied by the retention run.
+        relationshipContext: Legal hold stops it whatever the class says.
+    - name: legalBasis
+      type: string
+      required: false
+      maxLength: 300
+      help:
+        summary: The law or rule that sets the retention period.
+        usage: Recorded so that the period can be justified to an auditor or regulator.
+        relationshipContext: Often a commercial or tax code article.
+    - name: status
+      type: enum
+      required: true
+      default: DRAFT
+      values:
+        - DRAFT
+        - ACTIVE
+        - RETIRED
+      help:
+        valueSemantics:
+          DRAFT: Being prepared and not yet offered for filing.
+          ACTIVE: In use and offered when documents are filed.
+          RETIRED: No longer used for new documents.
+        summary: Whether documents may be filed under the class.
+        usage: Retired classes are not offered for new documents.
+        relationshipContext: Documents already filed keep their class.
+  relationships:
+    - name: parentClass
+      target: DocumentClassification
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The broader class this one sits under.
+        usage: Builds the scheme's hierarchy, such as Finance → Accounts payable → Supplier invoice.
+        cardinalityMeaning: At most one parent.
+        context: A class without its own rules is read under its parent's.
+    - name: complianceRequirement
+      target: ComplianceRequirement
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The requirement that sets the class's retention or protection.
+        usage: Linked so that a change in the requirement shows which classes it affects.
+        cardinalityMeaning: At most one per class.
+        context: The legal basis text summarises it.
   invariants:
     - {id: DOCUMENT-CLASSIFICATION-001, rule: Finalized historical evidence must not be silently rewritten; corrections or supersession require explicit governed records.}
+    - id: DOCUMENT-CLASSIFICATION-002
+      rule: A Document Classification must not be its own ancestor through parentClass; the parentClass chain is acyclic.
   help:
     summary: A classification assigned to documents for retention, sensitivity, access, regulatory or business-purpose controls.
     businessMeaning: What a document may be done with depends on what it is. A classification such as Confidential or Contract Record decides who can see it and how long it must be kept.
@@ -19,4 +148,24 @@ entity:
     relationshipContext: Documents carry a classification, and the classification drives their controls.
     lifecycle: Changes are recorded explicitly so that the control that applied on a given date can be shown.
     example: Classification "Financial record – 7 years", which sets the retention period of invoices.
+  lifecycle:
+    title: Document Classification Lifecycle
+    attribute: status
+    states:
+      - DRAFT
+      - ACTIVE
+      - RETIRED
+    initial: DRAFT
+    terminal:
+      - RETIRED
+    transitions:
+      - from: DRAFT
+        to: ACTIVE
+        action: activate
+      - from: ACTIVE
+        to: RETIRED
+        action: retire
+      - from: DRAFT
+        to: RETIRED
+        action: retire
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-DOCUMENT-CLASSIFICATION}

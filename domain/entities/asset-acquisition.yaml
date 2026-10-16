@@ -9,10 +9,156 @@ entity:
   attributes:
     - {name: assetAcquisitionId, type: uuid, required: true, immutable: true, help: {summary: 'The identity of this acquisition event, so corrections and postings can refer to it.', usage: Generated on creation; journal entries and audit records point back to it.}}
     - {name: effectiveAt, type: datetime, required: false, help: {summary: The date and time from which the organisation treats itself as holding the asset., usage: 'Entered from the delivery or transfer document; it starts depreciation and ageing, so it is the date finance relies on.'}}
+    - name: acquisitionNumber
+      type: string
+      required: true
+      unique: true
+      maxLength: 40
+      help:
+        summary: The reference number that identifies this acquisition on screens, invoices and audit reports.
+        usage: Assigned by the system when the acquisition is first recorded and never changed afterwards.
+        relationshipContext: Unique across all acquisitions.
+    - name: acquisitionType
+      type: enum
+      required: true
+      default: PURCHASE
+      values:
+        - PURCHASE
+        - CONSTRUCTION
+        - LEASE
+        - TRANSFER_IN
+        - DONATION
+      help:
+        summary: How the asset was acquired.
+        usage: Decides the accounting treatment and which evidence is needed.
+        relationshipContext: Leased assets follow the lease accounting rules.
+        valueSemantics:
+          PURCHASE: Bought from a supplier.
+          CONSTRUCTION: Built in-house or by contractors.
+          LEASE: Taken on under a lease recognised on the balance sheet.
+          TRANSFER_IN: Received from another group company.
+          DONATION: Received free of charge.
+    - name: acquisitionDate
+      type: date
+      required: true
+      help:
+        summary: The day the business obtained the asset.
+        usage: Taken from the delivery or the contract.
+        relationshipContext: Not later than the in-service date.
+    - name: inServiceDate
+      type: date
+      required: false
+      help:
+        summary: The day the asset was first installed and ready to be used in operations.
+        usage: Entered by the asset accountant; depreciation of the asset begins from this date.
+        relationshipContext: Required before the acquisition can be capitalised.
+    - name: acquisitionCost
+      type: Money
+      required: true
+      help:
+        summary: The purchase price of the asset.
+        usage: Taken from the invoice, net of recoverable taxes and discounts.
+        relationshipContext: In the acquisition's currency.
+    - name: additionalCosts
+      type: Money
+      required: false
+      help:
+        summary: Costs needed to bring the asset into use, such as delivery, installation and testing.
+        usage: Added to the capitalised cost.
+        relationshipContext: Training and running costs are expenses, not capitalised.
+    - name: capitalizedAmount
+      type: Money
+      required: false
+      help:
+        summary: The total amount recognised as the asset's cost.
+        usage: Acquisition cost plus additional costs; depreciation is computed on it.
+        relationshipContext: Fixed once capitalised.
+    - name: capitalizedAt
+      type: datetime
+      required: false
+      help:
+        summary: The date and time the acquisition was posted to the accounts as a fixed asset.
+        usage: Stamped automatically when the accountant capitalises the acquisition.
+        relationshipContext: Empty until the acquisition has been capitalised.
+    - name: status
+      type: enum
+      required: true
+      default: RECORDED
+      values:
+        - RECORDED
+        - CAPITALIZED
+        - CANCELLED
+        - REVERSED
+      help:
+        summary: Whether the acquisition has been posted to the accounts, cancelled or reversed.
+        usage: Moves on as the accountant capitalises the acquisition or corrects it.
+        relationshipContext: Only capitalised acquisitions are depreciated.
+        valueSemantics:
+          RECORDED: Entered and waiting to be capitalised.
+          CAPITALIZED: Posted to the accounts, so the asset is now depreciating.
+          CANCELLED: Entered in error and withdrawn before capitalisation.
+          REVERSED: Capitalised earlier and then reversed by a correcting entry.
   relationships:
     - {name: asset, target: Asset, cardinality: '1', ownership: reference, help: {summary: The asset that was acquired., usage: Chosen when the acquisition is recorded; one asset is normally acquired once., cardinalityMeaning: Exactly one asset per acquisition event., workflowRole: Links the capitalisation event to the register entry it created.}}
+    - name: supplier
+      target: Supplier
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The supplier the asset was bought from.
+        usage: Set for purchases.
+        cardinalityMeaning: At most one.
+        context: Read with the invoice.
+    - name: invoice
+      target: Invoice
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The supplier invoice the cost rests on.
+        usage: Linked for purchases.
+        cardinalityMeaning: At most one invoice; further costs are listed in the notes.
+        context: The invoice is the evidence of cost.
+    - name: purchaseOrder
+      target: PurchaseOrder
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The order the asset was bought on.
+        usage: Linked when the purchase was ordered.
+        cardinalityMeaning: At most one.
+        context: Capital orders are approved against the capex budget.
+    - name: currency
+      target: Currency
+      cardinality: "1"
+      ownership: reference
+      help:
+        summary: The currency of the costs.
+        usage: Taken from the invoice.
+        cardinalityMeaning: One per acquisition.
+        context: Converted to the company currency on posting.
   invariants:
     - {id: ASSET-ACQUISITION-001, rule: Finalized lifecycle or financial evidence must be corrected by explicit compensating or superseding records rather than silent history rewrite.}
+    - {id: ASSET-ACQUISITION-EXE-001, rule: "Acquisition Cost cannot be negative.", violatedWhen: "acquisition_cost != null and acquisition_cost < 0", message: "Acquisition Cost cannot be negative."}
+    - {id: ASSET-ACQUISITION-EXE-002, rule: "Capitalized Amount cannot be negative.", violatedWhen: "capitalized_amount != null and capitalized_amount < 0", message: "Capitalized Amount cannot be negative."}
+  workflows:
+    - name: FollowUpRequired
+      title: "Follow up when a asset acquisition is ended"
+      description: "When a asset acquisition is cancelled or reversed, a task asks someone to settle what depended on it."
+      when: "(status == \"CANCELLED\" or status == \"REVERSED\") and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "ASSET-ACQUISITION-FOLLOW-UP-{{id}}"
+              name: "Follow up on asset acquisition {{acquisition_number}}"
+              description: "Asset acquisition {{acquisition_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
   help:
     summary: The event by which an organisation takes on an asset, with the context needed to capitalise it, while the accounting entry itself stays in the journal.
     businessMeaning: Acquiring an asset is a business event with its own date, source and cost. Recording it separately keeps the asset register and the ledger consistent without mixing the story of how the asset arrived into the asset itself.
@@ -20,4 +166,26 @@ entity:
     relationshipContext: Each acquisition refers to the Asset it brought into the register; the related JournalEntry holds the accounting posting.
     lifecycle: The event is recorded once and is then evidence. Errors are corrected by a compensating or superseding record rather than by editing the original.
     example: A forklift purchased on 3 March for 28,000 is recorded as an acquisition of that asset effective on delivery, from which depreciation starts.
+  lifecycle:
+    title: Asset Acquisition Lifecycle
+    attribute: status
+    states:
+      - RECORDED
+      - CAPITALIZED
+      - CANCELLED
+      - REVERSED
+    initial: RECORDED
+    terminal:
+      - CANCELLED
+      - REVERSED
+    transitions:
+      - from: RECORDED
+        to: CAPITALIZED
+        action: capitalize
+      - from: RECORDED
+        to: CANCELLED
+        action: cancel
+      - from: CAPITALIZED
+        to: REVERSED
+        action: reverse
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-ASSET-ACQUISITION}

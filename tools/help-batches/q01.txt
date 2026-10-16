@@ -1,0 +1,334 @@
+@ AIEvaluation
+a evaluationType
+s: Which quality dimension this evaluation tests: accuracy, fairness, robustness, safety or drift.
+u: Chosen by the model risk team when the evaluation is planned.
+c: Several types are usually needed before a model is approved for use.
+v PERFORMANCE: Measures accuracy and other quality metrics against a labelled test set.
+v FAIRNESS: Compares outcomes between groups of people to expose unequal treatment.
+v ROBUSTNESS: Tests behaviour on unusual, noisy or adversarial inputs.
+v SAFETY: Looks for harmful, offensive or otherwise unacceptable outputs.
+v DRIFT: Checks how far performance has moved since the model was deployed.
+a results
+s: The full set of metrics and observations the tests produced, in the evaluator's own words and figures.
+u: Recorded once the tests finish, so reviewers can read the evidence behind the headline metric.
+c: Read against the acceptance criteria that the evaluation was planned to meet.
+a primaryMetric
+s: The headline measure chosen to judge this evaluation, such as AUC, F1 score or error rate.
+u: Named by the evaluator and shown in model lists so users can compare evaluations.
+c: Always read together with the value recorded beside it.
+a primaryMetricValue
+s: The number the model achieved on the headline metric during this evaluation.
+u: Entered when results are recorded; shown in model lists and trend charts across successive evaluations.
+c: Expressed in the scale of the named metric, for example a fraction between zero and one.
+a evaluatedAt
+s: The date and time at which the evaluation finished and its results were final.
+u: Stamped on completion by the evaluator and used to order evaluations and judge how recent the evidence is.
+c: Empty until the evaluation has completed.
+r reviewedBy
+s: The person who independently examined the evaluation and its results.
+u: Recorded when the reviewer accepts or challenges the findings, ahead of any model approval.
+n: At most one reviewer is named per evaluation; it stays empty until review happens.
+w: Gives the model approval step a named, accountable sign-off on the evidence, independent of the model's developers.
+
+@ AIPolicy
+a name
+s: The title by which the policy is known to governance staff and model owners, for example Customer Data Use Policy.
+u: Shown wherever a policy is chosen or attached to a model, so it should be distinctive.
+a effectiveFrom
+s: The first day on which the policy is binding on the models it covers.
+u: Set when the policy is approved, so teams know from which date to comply.
+c: Never later than the date the policy stops applying.
+a effectiveTo
+s: The last day on which the policy still applies to the models it covers.
+u: Filled in when a newer policy replaces it or it is withdrawn.
+c: Left empty for as long as the policy remains in force.
+
+@ AIPrediction
+a overrideReason
+s: The explanation a human reviewer gives for rejecting or changing the model's prediction.
+u: Written at the moment of overriding and analysed during model monitoring to find systematic weaknesses.
+c: Present only on predictions that a person has overridden.
+
+@ Agreement
+a status
+v DRAFT: Still being written and not yet sent to the other party.
+v IN_NEGOTIATION: Shared with the other party and under discussion.
+v SIGNED: Signed by every party but not yet effective.
+v IN_FORCE: Effective and legally binding on the parties.
+v EXPIRED: Reached the end of its term without being renewed.
+v TERMINATED: Ended early by one or both parties.
+v CANCELLED: Abandoned before anyone signed it.
+
+@ Aircraft
+a yearOfManufacture
+s: The calendar year in which the manufacturer completed building the aircraft.
+u: Copied from the certificate of airworthiness and used in fleet planning, retirement forecasts and insurance premiums.
+c: A four-digit year.
+a maxTakeoffWeightKg
+s: The heaviest weight in kilograms at which the aircraft is certified to begin its take-off roll.
+u: Taken from the certificate and used in performance calculations, payload planning and landing-fee charges.
+c: Must be greater than zero.
+
+@ Allergy
+a category
+s: The broad class of substance that triggers the reaction.
+u: Chosen by the clinician when recording the allergy; it decides which safety checks the system applies.
+c: Medication allergies are checked against every prescription written for the patient.
+v MEDICATION: A medicine or one of its ingredients.
+v FOOD: A food item or food ingredient.
+v ENVIRONMENT: Pollen, dust, animals or other substances in the surroundings.
+v BIOLOGIC: A vaccine, blood product or other biological preparation.
+a allergyType
+v ALLERGY: A true immune-system reaction to the substance.
+v INTOLERANCE: A non-immune reaction, such as stomach upset.
+a severity
+s: How serious the patient's reaction to the substance has been or is expected to be.
+u: Set by the clinician and used to decide how strongly the system warns at ordering time.
+c: Severe reactions block an order unless a clinician explicitly overrides the warning.
+v MILD: Uncomfortable but not dangerous to the patient.
+v MODERATE: A reaction that needs treatment but is not life-threatening.
+v SEVERE: A life-threatening reaction that must always be avoided.
+a onsetDate
+s: The date the patient first showed this reaction.
+u: Entered by the clinician when it is known; it helps judge how long the allergy has existed.
+c: An approximate date is acceptable when the exact day is unknown.
+a recordedDate
+s: The date the allergy was entered into the patient's record.
+u: Set automatically when the clinician records it and kept for the clinical audit trail.
+c: Cannot be in the future.
+
+@ AssetAcquisition
+a acquisitionNumber
+s: The reference number that identifies this acquisition on screens, invoices and audit reports.
+u: Assigned by the system when the acquisition is first recorded and never changed afterwards.
+c: Unique across all acquisitions.
+a inServiceDate
+s: The day the asset was first installed and ready to be used in operations.
+u: Entered by the asset accountant; depreciation of the asset begins from this date.
+c: Required before the acquisition can be capitalised.
+a capitalizedAt
+s: The date and time the acquisition was posted to the accounts as a fixed asset.
+u: Stamped automatically when the accountant capitalises the acquisition.
+c: Empty until the acquisition has been capitalised.
+a status
+s: Whether the acquisition has been posted to the accounts, cancelled or reversed.
+u: Moves on as the accountant capitalises the acquisition or corrects it.
+c: Only capitalised acquisitions are depreciated.
+v RECORDED: Entered and waiting to be capitalised.
+v CAPITALIZED: Posted to the accounts, so the asset is now depreciating.
+v CANCELLED: Entered in error and withdrawn before capitalisation.
+v REVERSED: Capitalised earlier and then reversed by a correcting entry.
+
+@ AssetDisposal
+a disposalNumber
+s: The reference number that identifies this disposal on screens, approvals and audit reports.
+u: Assigned by the system when the disposal is requested and never changed afterwards.
+c: Unique across all disposals.
+a disposalMethod
+v SALE: Sold to an outside buyer for a price.
+v SCRAP: Scrapped or recycled with no resale.
+v DONATION: Given away free to another party or charity.
+v TRADE_IN: Handed in as part payment for a replacement.
+v LOSS_OR_THEFT: Lost, stolen or destroyed and written off.
+v TRANSFER_OUT: Transferred to another company in the group.
+a disposalDate
+s: The day the asset actually left the business.
+u: Entered when the disposal is completed; depreciation of the asset stops on this date.
+c: Required before the disposal can be completed.
+a reason
+s: A short business justification for retiring the asset, for example replaced by a newer model.
+u: Written by the requester and read by the approver when deciding whether to authorise.
+c: Free text.
+a proceeds
+s: The amount of money the business received in return for the asset.
+u: Recorded for sales and trade-ins, and used to calculate the gain or loss on disposal.
+c: Zero for scrapping, donations and losses.
+a approvedAt
+s: The date and time the approver authorised the disposal.
+u: Stamped automatically when the approver accepts the request.
+c: Required before the disposal can be completed.
+a status
+s: Where the disposal stands between request, approval and completion.
+u: Moves on as the approver decides and the asset is physically removed.
+c: Only completed disposals take the asset off the register.
+v REQUESTED: Asked for and waiting for an approver.
+v APPROVED: Approved, so the asset may now be removed.
+v COMPLETED: The asset has gone and the disposal is posted.
+v REJECTED: Refused by the approver, so the asset stays.
+v CANCELLED: Withdrawn by the requester before completion.
+r approvedBy
+s: The person who authorised the asset to be disposed of.
+u: Recorded when the approver accepts the request.
+n: At most one approver is named per disposal; it stays empty until approval.
+w: Provides the sign-off that lets a disposal move on to completion, and must come from someone with authority for the asset's value.
+
+@ AssetTransfer
+a transferNumber
+s: The reference number that identifies this transfer on screens, shipping documents and audit reports.
+u: Assigned by the system when the transfer is requested and never changed afterwards.
+c: Unique across all transfers.
+a reason
+s: A short explanation of why the asset is changing location, owner or custodian.
+u: Written by the requester and read by the approver and the receiving site.
+c: Free text, for example site closure or staff relocation.
+a shippedAt
+s: The date and time the asset left its previous location.
+u: Recorded by the sending site for physical moves.
+c: Present once the asset is in transit.
+a receivedAt
+s: The date and time the receiving site confirmed the asset had arrived.
+u: Recorded when the receiver acknowledges delivery.
+c: Present once the transfer is completed.
+a status
+s: Where the transfer stands between request, shipment and confirmation of arrival.
+u: Moves on as the sender ships the asset and the receiver confirms it.
+c: The asset register changes only when the transfer completes.
+v REQUESTED: Asked for, but the asset has not moved yet.
+v IN_TRANSIT: The asset has left and has not yet arrived.
+v COMPLETED: The receiver confirmed arrival and the register is updated.
+v CANCELLED: Called off before the move was completed.
+
+@ Assignment
+a assignmentNumber
+s: The reference number that identifies this allocation of work to an assignee.
+u: Assigned by the system when the work is allocated and quoted in task lists and audit reports.
+c: Unique across all assignments.
+a startDate
+s: The day from which the assignee becomes responsible for the work.
+u: Set by whoever assigns the work, so the assignee knows when to start.
+c: Must not be later than the end date.
+a notes
+s: Instructions, background or caveats the assignee needs in order to carry out the work.
+u: Written by whoever assigns the work and read by the assignee when opening the task.
+c: Free text.
+
+@ BankLoan
+a repaymentFrequency
+s: How often the borrower must pay instalments back to the bank.
+u: Chosen when the loan is set up; the repayment schedule is built from it.
+c: Bullet loans are repaid in one payment at maturity.
+v MONTHLY: An instalment falls due every month.
+v QUARTERLY: An instalment falls due every three months.
+v SEMI_ANNUAL: An instalment falls due every six months.
+v ANNUAL: An instalment falls due once a year.
+v BULLET: The whole balance is repaid in one payment at maturity.
+
+@ BankReconciliation
+a reconciliationNumber
+s: The reference number that identifies this reconciliation in the finance team's records.
+u: Assigned by the system when the reconciliation is opened and cited in month-end checklists.
+c: Unique across all reconciliations.
+a periodStart
+s: The first day of the statement period being matched against the books.
+u: Set by the preparer when opening the reconciliation, alongside the period end.
+c: Not later than the period end.
+a statementBalance
+s: The closing balance printed on the bank's statement for the period.
+u: Copied by the preparer from the statement and compared with the book balance to find differences.
+c: Held in the bank account's currency.
+a reconciledAt
+s: The date and time the reviewer signed off that the books agree with the bank.
+u: Stamped automatically at sign-off.
+c: Present once the reconciliation is reconciled.
+a status
+s: Whether the matching is in progress, awaiting review or signed off.
+u: Moves on as the preparer submits the work and the reviewer signs it off.
+c: Reconciled periods are locked against further change.
+v OPEN: Matching of transactions is still in progress.
+v IN_REVIEW: Submitted to the reviewer for sign-off.
+v RECONCILED: Signed off, so the books agree with the bank.
+r preparedBy
+s: The finance person who did the matching and compiled the reconciliation.
+u: Recorded when the reconciliation is submitted for review.
+n: Exactly one preparer is named; it stays empty until submission.
+w: Names who did the work, so segregation of duties can require a different person to review it.
+r reviewedBy
+s: The finance person who checked the reconciliation and signed it off.
+u: Recorded at sign-off, when the status becomes reconciled.
+n: At most one reviewer is named; it stays empty until sign-off.
+w: Supplies the independent approval that closes the reconciliation and locks the period.
+
+@ BillingCycle
+a frequency
+v WEEKLY: Each billing period lasts one week.
+v MONTHLY: Each billing period lasts one calendar month.
+v QUARTERLY: Each billing period lasts three calendar months.
+v SEMI_ANNUAL: Each billing period lasts six calendar months.
+v ANNUAL: Each billing period lasts one year.
+
+@ Brand
+a description
+s: A short account of what the brand stands for and the products it covers.
+u: Written by the product or marketing team and shown in catalogues and brand pages.
+c: Free text.
+a websiteUrl
+s: The web address of the brand's own official site.
+u: Linked from product pages so shoppers can read more about the brand.
+c: Should be a full address beginning with https.
+
+@ Budget
+a name
+s: The title by which finance staff know the budget, for example Operating Budget FY2027.
+u: Chosen by the budget owner and shown in reports and in budget pickers.
+c: Should be distinctive within its fiscal year.
+a budgetType
+s: Which kind of spending or income the budget plans.
+u: Chosen when the budget is created; it decides which accounts its lines may use.
+c: Capital budgets plan investment rather than running costs.
+v OPERATING: Plans revenue and day-to-day running costs.
+v CAPITAL: Plans investment in long-lived assets.
+v CASH: Plans cash receipts and payments over time.
+v PROJECT: Plans the cost of one specific project.
+a totalAmount
+s: The overall sum of all the budget's lines, in a single figure.
+u: Calculated automatically from the lines and shown to approvers.
+c: Held in the budget's currency.
+a approvedAt
+s: The date and time an approver signed the budget off as the plan to follow.
+u: Stamped automatically when the approver accepts the budget.
+c: Present once the budget is approved.
+
+@ BudgetLine
+a description
+s: A short statement of what the budgeted amount is intended to pay for.
+u: Written by the budget owner and shown in budget reports and variance reviews.
+c: Should be specific enough for an approver to judge the amount.
+
+@ BusinessEvent
+a publishedAt
+s: The date and time the event was handed to every subscriber that wanted it.
+u: Stamped by the publishing service and used to check delivery delays.
+c: Present once the event is published.
+
+@ BusinessUnit
+a status
+s: Whether the business unit is still operating.
+u: Set to inactive by an administrator after a reorganisation or closure.
+c: Inactive units are not offered for new assignments.
+v ACTIVE: Operating and available for new assignments.
+v INACTIVE: No longer operating after a closure or merger.
+
+@ Calendar
+a validFrom
+s: The first day on which the calendar's working days and holidays apply.
+u: Set when the calendar is created.
+c: Not later than the valid-to date.
+a validTo
+s: The last day on which the calendar's working days and holidays apply.
+u: Filled in when a newer calendar replaces this one.
+c: Left empty while the calendar is still in use.
+a status
+s: Whether planners may use this calendar.
+u: Made inactive by an administrator once a newer calendar replaces it.
+c: Inactive calendars are not offered when choosing one.
+v ACTIVE: In use and available to planners.
+v INACTIVE: Retired and no longer offered.
+
+@ CalendarException
+a exceptionType
+s: What kind of departure from the normal working pattern this entry records.
+u: Chosen by the calendar owner when the entry is added.
+c: Extra working days turn a normally free day into a working day.
+v PUBLIC_HOLIDAY: A public holiday on which work does not happen.
+v COMPANY_CLOSURE: A day the company or site is closed.
+v EXTRA_WORKING_DAY: A normally free day that is worked.

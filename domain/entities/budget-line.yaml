@@ -9,6 +9,51 @@ entity:
   attributes:
     - {name: budgetLineId, type: uuid, required: true, immutable: true, help: {summary: The permanent system identity of one allocation within a budget., usage: Generated on creation; variance reports and revisions refer to the line through it., businessMeaning: Identifies one dimensional allocation., relationshipContext: Belongs to Budget.}}
     - {name: amount, type: Money, required: true, help: {summary: 'The money planned for this combination of account, cost centre and profit centre in the budget period.', usage: 'Entered by the budget owner; never negative, and compared with actual postings to show overspend or underspend.', businessMeaning: Financial target/limit for dimensions., relationshipContext: Not an actual ledger balance.}}
+    - name: lineNumber
+      type: integer
+      required: true
+      help:
+        summary: The number of the line within the budget.
+        usage: Assigned in order as lines are added.
+        relationshipContext: Unique within the budget.
+    - name: description
+      type: string
+      required: false
+      maxLength: 300
+      help:
+        summary: A short statement of what the budgeted amount is intended to pay for.
+        usage: Written by the budget owner and shown in budget reports and variance reviews.
+        relationshipContext: Should be specific enough for an approver to judge the amount.
+    - name: periodStart
+      type: date
+      required: false
+      help:
+        summary: The first day the amount covers.
+        usage: Usually the start of the budget year or a month in it.
+        relationshipContext: Within the budget's period.
+    - name: periodEnd
+      type: date
+      required: false
+      help:
+        summary: The last day the amount covers.
+        usage: Usually the end of the budget year or of a month.
+        relationshipContext: Not earlier than the period start.
+    - name: quantity
+      type: decimal
+      required: false
+      precision: 18
+      scale: 4
+      help:
+        summary: A quantity the amount is based on, such as trips, hours or units.
+        usage: Entered when the amount is built up from a quantity and a rate.
+        relationshipContext: Optional; explains the amount.
+    - name: basisOfEstimate
+      type: text
+      required: false
+      help:
+        summary: How the amount was arrived at.
+        usage: Written by the budget owner; read by reviewers.
+        relationshipContext: Free text.
   relationships:
     - {name: budget, target: Budget, cardinality: '1', ownership: reference, inverse: lines, help: {cardinalityMeaning: Exactly one budget; a line cannot exist outside the plan that contains it., summary: Parent financial plan., businessMeaning: Supplies governance/version context., usage: Planning., workflowRole: Line lifecycle follows budget governance.}}
     - {name: account, target: Account, cardinality: 0..1, ownership: reference, help: {summary: Financial account dimension., businessMeaning: Classifies planned amount., usage: Budget-vs-actual., cardinalityMeaning: Optional under non-account planning., workflowRole: Actuals derive from accounting not line mutation.}}

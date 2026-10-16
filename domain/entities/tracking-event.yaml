@@ -9,8 +9,82 @@ entity:
   attributes:
     - {name: trackingEventId, type: uuid, required: true, immutable: true, help: {summary: 'The permanent identifier of one tracking observation, never reused or altered after the event is recorded.', usage: "Generated on creation; a correcting event cites it, and the shipment's history is assembled from these identifiers.", businessMeaning: Lets a correction refer to the event it corrects., relationshipContext: Referenced by the shipment's history.}}
     - {name: code, type: string, required: false, maxLength: 120, help: {summary: 'The code of the event type, such as DEPARTED or DELIVERED.', businessMeaning: Gives events a consistent vocabulary across carriers., usage: Entered by the source system; reports group by it., relationshipContext: Read with the time and place.}}
+    - name: eventCode
+      type: enum
+      required: true
+      default: IN_TRANSIT
+      values:
+        - PICKED_UP
+        - DEPARTED
+        - ARRIVED
+        - IN_TRANSIT
+        - CUSTOMS
+        - OUT_FOR_DELIVERY
+        - DELIVERED
+        - EXCEPTION
+      help:
+        valueSemantics:
+          PICKED_UP: The goods were collected from the shipper.
+          DEPARTED: The shipment left a hub, port or terminal.
+          ARRIVED: The shipment reached a hub, port or terminal.
+          IN_TRANSIT: The shipment is moving between two points.
+          CUSTOMS: The shipment was held for inspection or released by customs.
+          OUT_FOR_DELIVERY: The shipment is on the final vehicle heading to the consignee.
+          DELIVERED: The shipment was handed over to the consignee, ending its journey.
+          EXCEPTION: Something went wrong, such as damage, delay or a failed delivery attempt, and needs attention.
+        summary: Which milestone the event reports.
+        usage: Mapped from the carrier's code; exception codes raise alerts.
+        relationshipContext: Carriers' own codes are mapped to these.
+    - name: eventTime
+      type: datetime
+      required: true
+      help:
+        summary: When the event happened, in the place's local time converted to UTC.
+        usage: The timeline is sorted by it.
+        relationshipContext: Not the time the feed arrived.
+    - name: description
+      type: string
+      required: false
+      maxLength: 500
+      help:
+        summary: The carrier's own wording of what happened, such as "Departed Novara hub".
+        usage: Shown on the shipment timeline exactly as received, beside the standard milestone.
+        relationshipContext: As received.
+    - name: placeName
+      type: string
+      required: false
+      maxLength: 200
+      help:
+        summary: The name of the place reported, such as "Fercam hub Novara".
+        usage: Shown on the timeline when no location record matches.
+        relationshipContext: Matched to a location where possible.
+    - name: source
+      type: enum
+      required: true
+      default: CARRIER_FEED
+      values:
+        - CARRIER_FEED
+        - TELEMATICS
+        - MANUAL
+      help:
+        summary: "Which channel supplied the event: a carrier feed, a vehicle device or a person."
+        usage: Set when the event is recorded; manual events are checked before they change a delivery promise.
+        relationshipContext: Manual events are checked before they change a promise.
+        valueSemantics:
+          CARRIER_FEED: The carrier's tracking feed or API.
+          TELEMATICS: A device on the vehicle or container.
+          MANUAL: Entered by a person.
   relationships:
     - {name: shipment, target: Shipment, cardinality: '1', ownership: reference, help: {cardinalityMeaning: 'Each event is about exactly one shipment, whose trail it extends.', summary: Shipment observed by this event., businessMeaning: Connects logistics evidence to transport transaction., usage: Tracking and delivery proof., workflowRole: Event must not silently rewrite prior shipment evidence.}}
+    - name: location
+      target: Location
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The known location where the event happened.
+        usage: Matched from the place name where possible.
+        cardinalityMeaning: At most one.
+        context: Empty when the place is not one of ours.
   invariants:
     - {id: TRACKING-EVENT-001, rule: "Lifecycle changes, corrections and retries must preserve historical evidence and must not duplicate downstream commercial, physical or financial effects."}
   help:

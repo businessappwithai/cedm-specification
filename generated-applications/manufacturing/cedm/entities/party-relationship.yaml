@@ -10,10 +10,84 @@ entity:
     - {name: partyRelationshipId, type: uuid, required: true, immutable: true, help: {summary: The identity of the relationship., usage: Generated on creation; documents and reports refer to it.}}
     - {name: code, type: string, required: true, maxLength: 100, help: {summary: 'The code of the relationship type or instance, such as SUBSIDIARY_OF.', usage: Chosen from the relationship list; used in queries and rules.}}
     - {name: name, type: string, required: true, maxLength: 300, help: {summary: 'A readable description of the relationship, such as Acme Ltd is subsidiary of Acme Group.', usage: Entered when the relationship is created; shown in party views and lists so users can understand the link at a glance.}}
+    - name: relationshipType
+      type: enum
+      required: true
+      default: OTHER
+      values:
+        - SUBSIDIARY_OF
+        - BRANCH_OF
+        - EMPLOYEE_OF
+        - AGENT_OF
+        - GUARANTOR_FOR
+        - BENEFICIAL_OWNER_OF
+        - HOUSEHOLD_MEMBER_OF
+        - OTHER
+      help:
+        summary: Describes how the first party stands towards the second, such as subsidiary, employee or guarantor.
+        usage: Chosen when the link is recorded; credit, compliance and group reporting use it to interpret the connection.
+        relationshipContext: Read from the first party to the second.
+        valueSemantics:
+          SUBSIDIARY_OF: The first party is a subsidiary owned by the second.
+          BRANCH_OF: The first party is a branch operating as part of the second.
+          EMPLOYEE_OF: The first party works for the second as an employee.
+          AGENT_OF: The first party acts as an agent on behalf of the second.
+          GUARANTOR_FOR: The first party guarantees the second party's obligations.
+          BENEFICIAL_OWNER_OF: The first party ultimately owns or controls the second.
+          HOUSEHOLD_MEMBER_OF: The first party lives in the same household as the second.
+          OTHER: Any other kind of link, explained in the relationship name.
+    - name: ownershipPercent
+      type: decimal
+      required: false
+      precision: 5
+      scale: 2
+      help:
+        summary: The share the parent or owner holds, for ownership relationships.
+        usage: Used in consolidation and beneficial-ownership checks.
+        relationshipContext: Between 0 and 100.
+    - name: validFrom
+      type: date
+      required: false
+      help:
+        summary: The first day on which the relationship between the two parties holds.
+        usage: Recorded when it is known, for example from a contract or register entry.
+        relationshipContext: It cannot be later than the valid-to date.
+    - name: validTo
+      type: date
+      required: false
+      help:
+        summary: The last day on which the relationship between the two parties holds.
+        usage: Recorded when the relationship ends, for example on resignation or sale; empty while it still applies.
+        relationshipContext: Empty while the relationship continues.
+    - name: status
+      type: enum
+      required: true
+      default: ACTIVE
+      values:
+        - ACTIVE
+        - ENDED
+      help:
+        summary: Says whether the relationship between the two parties is still in force today.
+        usage: Set to ended by the person maintaining the record when the relationship stops.
+        relationshipContext: Ended relationships stay for history.
+        valueSemantics:
+          ACTIVE: The relationship is in force today.
+          ENDED: The relationship has stopped but is kept for history.
   relationships:
     - {name: fromParty, target: Party, cardinality: "1", ownership: reference, help: {summary: The party at the origin of the relationship., usage: Chosen when the relationship is created., cardinalityMeaning: 'Exactly one origin party: a relationship always starts at a particular party.', workflowRole: Together with the other party it identifies the relationship.}}
+    - name: toParty
+      target: Party
+      cardinality: "1"
+      ownership: reference
+      help:
+        summary: The second party — the parent, employer, principal or borrower.
+        usage: Chosen when recording the relationship.
+        cardinalityMeaning: Every relationship has exactly one second party.
+        context: Different from the first party.
   invariants:
     - {id: PARTY-RELATIONSHIP-001, rule: Code and identity semantics must remain stable within the governing context and historical references must not be silently repointed.}
+    - {id: PARTY-RELATIONSHIP-EXE-001, rule: "Valid To must not be earlier than valid from.", violatedWhen: "valid_from != null and valid_to != null and valid_to < valid_from", message: "Valid To cannot be earlier than valid from."}
+    - {id: PARTY-RELATIONSHIP-EXE-002, rule: "Ownership Percent is a percentage between 0 and 100.", violatedWhen: "ownership_percent != null and (ownership_percent < 0 or ownership_percent > 100)", message: "Ownership Percent must be between 0 and 100."}
   help:
     summary: A time-bound relationship between two parties that describes how they stand to each other in business, legal, household, employment or another way.
     businessMeaning: 'Parties are connected to each other: a company to its subsidiary, a person to their employer, one household member to another. Recording the relationship, with its dates, lets the organisation see who is connected to whom and since when.'
@@ -21,4 +95,17 @@ entity:
     relationshipContext: A relationship runs from one Party to another.
     lifecycle: Code and identity stay stable, and the relationship's history is kept when it ends or changes.
     example: '"Subsidiary of": Acme Ltd is a subsidiary of Acme Holdings from 1 January 2019.'
+  lifecycle:
+    title: Party Relationship Lifecycle
+    attribute: status
+    states:
+      - ACTIVE
+      - ENDED
+    initial: ACTIVE
+    terminal:
+      - ENDED
+    transitions:
+      - from: ACTIVE
+        to: ENDED
+        action: end
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-PARTY-RELATIONSHIP}

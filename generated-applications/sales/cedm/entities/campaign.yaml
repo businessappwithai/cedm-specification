@@ -9,9 +9,167 @@ entity:
   attributes:
     - {name: campaignId, type: uuid, required: true, immutable: true, help: {summary: The identity of the campaign., usage: Generated on creation; responses and results refer to the campaign through it.}}
     - {name: code, type: string, required: false, maxLength: 120, help: {summary: 'A short reference for the campaign, such as SPRING26-WINBACK.', usage: 'Assigned by marketing and used in tracking links, reports and attribution.'}}
-  relationships: []
+    - name: name
+      type: string
+      required: true
+      maxLength: 200
+      help:
+        summary: The name of the campaign.
+        usage: Shown in campaign lists and on leads that came from it.
+        relationshipContext: Identifies the campaign for people, with the code.
+    - name: campaignType
+      type: enum
+      required: true
+      default: EMAIL
+      values:
+        - EMAIL
+        - EVENT
+        - WEBINAR
+        - ADVERTISING
+        - SOCIAL
+        - DIRECT_MAIL
+        - TELEMARKETING
+        - PARTNER
+      help:
+        valueSemantics:
+          EMAIL: Email messages sent to a mailing list.
+          EVENT: A trade show, conference or customer event.
+          WEBINAR: An online seminar or live presentation, where registrations and attendance count as responses.
+          ADVERTISING: Paid advertising online or in print.
+          SOCIAL: Social media posts and promotions.
+          DIRECT_MAIL: Letters or brochures sent by post.
+          TELEMARKETING: Outbound calls to a list.
+          PARTNER: Run with or by a partner.
+        summary: The main channel the campaign uses.
+        usage: Chosen when planning; campaign performance is compared by type.
+        relationshipContext: A campaign using several channels takes the main one; sub-campaigns can cover the others.
+    - name: objective
+      type: text
+      required: false
+      help:
+        summary: What the campaign is meant to achieve.
+        usage: Written when planning, such as "generate 100 qualified leads in logistics".
+        relationshipContext: Results are judged against it.
+    - name: targetAudience
+      type: string
+      required: false
+      maxLength: 500
+      help:
+        summary: Who the campaign is aimed at.
+        usage: Describes the segment, such as "logistics managers in mid-sized EU distributors".
+        relationshipContext: The audience list itself is held in the marketing tool.
+    - name: startDate
+      type: date
+      required: true
+      help:
+        summary: The day the campaign starts.
+        usage: Planned in advance; leads are attributed to the campaign from this day.
+        relationshipContext: Must not be later than the end date.
+    - name: endDate
+      type: date
+      required: false
+      help:
+        summary: The day the campaign ends.
+        usage: Planned in advance; the campaign is completed after it.
+        relationshipContext: Results may still arrive after the end date.
+    - name: budgetedCost
+      type: Money
+      required: false
+      help:
+        summary: The amount marketing has approved to spend on the campaign, in the campaign's currency.
+        usage: Entered and approved when the campaign is planned, and rarely changed once it is running.
+        relationshipContext: Compared with the actual cost to show whether the campaign is on budget.
+    - name: actualCost
+      type: Money
+      required: false
+      help:
+        summary: The amount actually spent so far.
+        usage: Updated from marketing invoices during and after the campaign.
+        relationshipContext: Return on spend uses it.
+    - name: expectedResponses
+      type: integer
+      required: false
+      help:
+        summary: How many responses the campaign is expected to produce.
+        usage: Planned figure for comparison with the result.
+        relationshipContext: What counts as a response depends on the type, such as a registration or a reply.
+    - name: actualResponses
+      type: integer
+      required: false
+      help:
+        summary: How many responses the campaign has produced so far, counted the way its type defines a response.
+        usage: Updated by marketing as registrations, replies or enquiries come in, during and after the campaign.
+        relationshipContext: Compared with the expected responses; the ones worth following up become leads.
+    - name: status
+      type: enum
+      required: true
+      default: PLANNED
+      values:
+        - PLANNED
+        - ACTIVE
+        - COMPLETED
+        - CANCELLED
+      help:
+        summary: Where the campaign stands between planning and completion.
+        usage: Moved on by the campaign owner as the campaign starts, finishes or is called off.
+        relationshipContext: Only active campaigns are offered as a lead source when someone enters a new lead.
+        valueSemantics:
+          PLANNED: Being prepared and not yet running.
+          ACTIVE: Running now; leads can be attributed to it.
+          COMPLETED: Finished, with its results recorded.
+          CANCELLED: Called off before it finished.
+  relationships:
+    - name: owner
+      target: Person
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The marketer responsible for the campaign.
+        usage: Answers for its budget and results.
+        cardinalityMeaning: One owner per campaign.
+        context: Receives the campaign's leads for routing if no other rule applies.
+    - name: parentCampaign
+      target: Campaign
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The larger campaign this one is part of.
+        usage: Set for sub-campaigns, such as one email wave within a quarterly programme.
+        cardinalityMeaning: At most one parent; a parent may have many sub-campaigns.
+        context: Results of sub-campaigns roll up into the parent.
+    - name: currency
+      target: Currency
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The currency the budget and costs are stated in.
+        usage: Set when the campaign is planned.
+        cardinalityMeaning: One currency per campaign.
+        context: Both budgeted and actual cost use it.
   invariants:
     - {id: CAMPAIGN-001, rule: "Lifecycle changes, corrections and retries must preserve historical evidence and must not duplicate downstream commercial, physical or financial effects."}
+    - {id: CAMPAIGN-EXE-001, rule: "End Date must not be earlier than start date.", violatedWhen: "start_date != null and end_date != null and end_date < start_date", message: "End Date cannot be earlier than start date."}
+    - {id: CAMPAIGN-EXE-002, rule: "Budgeted Cost cannot be negative.", violatedWhen: "budgeted_cost != null and budgeted_cost < 0", message: "Budgeted Cost cannot be negative."}
+    - {id: CAMPAIGN-EXE-003, rule: "Actual Cost cannot be negative.", violatedWhen: "actual_cost != null and actual_cost < 0", message: "Actual Cost cannot be negative."}
+  workflows:
+    - name: FollowUpRequired
+      title: "Follow up when a campaign is ended"
+      description: "When a campaign is cancelled, a task asks someone to settle what depended on it."
+      when: "status == \"CANCELLED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "CAMPAIGN-FOLLOW-UP-{{id}}"
+              name: "Follow up on campaign {{name}}"
+              description: "Campaign {{name}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
   help:
     summary: A marketing or outreach initiative aimed at an audience over a defined period, with its responses and outcomes measured.
     businessMeaning: Campaigns are how an organisation deliberately reaches out to win or retain customers. Recording them lets the business see what was done, who was targeted and what it achieved.
@@ -19,4 +177,29 @@ entity:
     relationshipContext: A campaign connects to the parties it targets, the activities carried out and the opportunities it generates.
     lifecycle: Campaigns are planned, run and closed. History is preserved so results can be compared and nothing is counted twice downstream.
     example: A spring promotion email series to lapsed customers, which produced 120 reactivations.
+  lifecycle:
+    title: Campaign Lifecycle
+    attribute: status
+    states:
+      - PLANNED
+      - ACTIVE
+      - COMPLETED
+      - CANCELLED
+    initial: PLANNED
+    terminal:
+      - COMPLETED
+      - CANCELLED
+    transitions:
+      - from: PLANNED
+        to: ACTIVE
+        action: launch
+      - from: ACTIVE
+        to: COMPLETED
+        action: complete
+      - from: PLANNED
+        to: CANCELLED
+        action: cancel
+      - from: ACTIVE
+        to: CANCELLED
+        action: cancel
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-CAMPAIGN}

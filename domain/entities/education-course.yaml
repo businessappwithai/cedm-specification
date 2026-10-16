@@ -58,6 +58,28 @@ entity:
           ACTIVE: Offered and open to scheduling.
           INACTIVE: Not currently offered but may return.
           RETIRED: Withdrawn permanently; kept for transcripts.
+    - name: level
+      type: integer
+      required: false
+      help:
+        summary: The level of study the course is taught at, such as 1 for first year.
+        usage: Used to check prerequisites and programme structure.
+        relationshipContext: From the institution's level scheme.
+    - name: description
+      type: text
+      required: false
+      help:
+        summary: What the course covers and the learning outcomes students should reach.
+        usage: Published in the course catalogue and read by students choosing what to enrol in.
+        relationshipContext: Free text written by the academic department.
+    - name: prerequisites
+      type: string
+      required: false
+      maxLength: 300
+      help:
+        summary: The courses a student must have passed before taking this one.
+        usage: Checked when a student enrols, so people without the background are stopped or warned.
+        relationshipContext: Listed by course code.
   relationships:
     - name: program
       target: EducationProgram

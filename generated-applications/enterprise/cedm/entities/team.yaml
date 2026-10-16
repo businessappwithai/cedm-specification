@@ -10,8 +10,73 @@ entity:
     - {name: teamId, type: uuid, required: true, immutable: true, help: {summary: 'The permanent system identity of the team, unchanged when its name or code is edited.', usage: 'Generated on creation and never changed; assignments, memberships and ownership records refer to the team through it.', businessMeaning: Lets assignments and ownership point at the team rather than its name., relationshipContext: Referenced by tasks and records owned by the team.}}
     - {name: code, type: string, required: true, maxLength: 100, help: {summary: 'The short code of the team, such as WH-LDS.', businessMeaning: Gives a stable way to refer to the team in imports and rules., usage: Unique; used in imports and rules., relationshipContext: Read with the name.}}
     - {name: name, type: string, required: true, maxLength: 300, help: {summary: 'The descriptive name of the team, such as Customer Support Tier 2.', usage: "Entered by the organization administrator; shown in assignment pickers and reports, and may change without affecting the team's identity.", businessMeaning: What people look for when assigning work., relationshipContext: Read with the organisation.}}
+    - name: purpose
+      type: string
+      required: false
+      maxLength: 300
+      help:
+        summary: A short description of what the team does and what work it should receive.
+        usage: Free text entered by the administrator and read by people deciding where to route work.
+        relationshipContext: Free text.
+    - name: teamType
+      type: enum
+      required: true
+      default: OPERATIONAL
+      values:
+        - OPERATIONAL
+        - PROJECT
+        - SUPPORT
+        - SALES
+      help:
+        summary: What kind of team it is.
+        usage: Decides how long it is expected to exist.
+        relationshipContext: Project teams are disbanded when the project ends.
+        valueSemantics:
+          OPERATIONAL: A standing team doing ongoing work.
+          PROJECT: A team formed for one project.
+          SUPPORT: A team working a support or service queue.
+          SALES: A sales team or territory.
+    - name: emailAddress
+      type: email
+      required: false
+      help:
+        summary: The shared mailbox that reaches the whole team.
+        usage: Notifications addressed to the team are sent here instead of to each individual member.
+        relationshipContext: Notifications to the team go here instead of to each member.
+    - name: status
+      type: enum
+      required: true
+      default: ACTIVE
+      values:
+        - ACTIVE
+        - INACTIVE
+      help:
+        summary: Whether the team is still operating and can be given work.
+        usage: Set to inactive when the team is disbanded; inactive teams receive no new assignments.
+        valueSemantics:
+          ACTIVE: The team is working and can be assigned work.
+          INACTIVE: The team has been disbanded and receives no new work.
+        relationshipContext: Inactive teams receive no work.
   relationships:
     - {name: organization, target: Organization, cardinality: "1", ownership: reference, help: {summary: The organisation the team belongs to., usage: Chosen when the team is created., cardinalityMeaning: Exactly one organisation., workflowRole: Decides whose structure the team is part of.}}
+    - name: department
+      target: Department
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The department the team is part of.
+        usage: Set where teams sit inside departments.
+        cardinalityMeaning: At most one.
+        context: Used in departmental reporting.
+    - name: lead
+      target: Person
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The person who leads the team.
+        usage: Receives escalations and reports.
+        cardinalityMeaning: One per team.
+        context: Usually a team member.
   invariants:
     - {id: TEAM-001, rule: Code and identity semantics must remain stable within the governing context and historical references must not be silently repointed.}
   help:
@@ -21,4 +86,19 @@ entity:
     relationshipContext: A team belongs to one organisation.
     lifecycle: A team is created, used while it works together, and left unused when disbanded. History keeps its name.
     example: The "Warehouse Leeds" team is responsible for stock counts at the Leeds site.
+  lifecycle:
+    title: Team Lifecycle
+    attribute: status
+    states:
+      - ACTIVE
+      - INACTIVE
+    initial: ACTIVE
+    terminal: []
+    transitions:
+      - from: ACTIVE
+        to: INACTIVE
+        action: disband
+      - from: INACTIVE
+        to: ACTIVE
+        action: reactivate
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-TEAM}
