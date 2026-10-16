@@ -99,6 +99,14 @@ entity:
       help:
         summary: The date and time the document record was last changed.
         usage: Set by the system on every change, never typed in; reviewers use it to tell whether they hold the latest version.
+    - name: revisionNumber
+      type: integer
+      required: true
+      default: 1
+      help:
+        summary: The revision of the document — 1 for the first issue.
+        usage: Increased with each new version.
+        relationshipContext: Each revision's content is kept as a document version.
   relationships:
     - name: owner
       target: Organization

@@ -22,10 +22,87 @@ entity:
           ACTIVE: Valid and in use.
           COMPLETED: Ended, for example after deregistration. A final state.
           CANCELLED: Withdrawn before use. A final state.
+    - name: registrationNumber
+      type: string
+      required: true
+      maxLength: 60
+      help:
+        summary: The number the authority issued, such as a VAT number.
+        usage: Printed on invoices; validated for cross-border trade.
+        relationshipContext: Unique within its jurisdiction and tax.
+    - name: taxType
+      type: enum
+      required: true
+      default: VAT
+      values:
+        - VAT
+        - GST
+        - SALES_TAX
+        - PAYROLL
+        - CORPORATE_INCOME
+        - EXCISE
+      help:
+        summary: The kind of tax this registration number was issued for, such as VAT or excise.
+        usage: Chosen when the registration is recorded; it decides which returns the registration drives.
+        relationshipContext: A company can hold several registrations in one country for different taxes.
+        valueSemantics:
+          VAT: Registration for value-added tax.
+          GST: Registration for goods and services tax.
+          SALES_TAX: Registration to collect and remit sales and use tax.
+          PAYROLL: Registration for payroll or employment taxes withheld from staff.
+          CORPORATE_INCOME: Registration for tax on the company's profits.
+          EXCISE: Registration to handle goods subject to excise duty.
+    - name: validFrom
+      type: date
+      required: true
+      help:
+        summary: The day the registration takes effect.
+        usage: Tax may be charged under the number from this day.
+        relationshipContext: Not later than the valid-to date.
+    - name: validTo
+      type: date
+      required: false
+      help:
+        summary: The last day on which the registration is valid.
+        usage: Set when the company deregisters or the authority withdraws the number; left empty while the registration is in force.
+        relationshipContext: Empty while it is in force.
+    - name: filingFrequency
+      type: enum
+      required: false
+      default: MONTHLY
+      values:
+        - MONTHLY
+        - QUARTERLY
+        - ANNUAL
+      help:
+        summary: How often returns are due under this registration, as set by the tax authority.
+        usage: Drives the company's filing calendar and the reminders sent to tax staff.
+        valueSemantics:
+          MONTHLY: Returns under this registration are due every month.
+          QUARTERLY: Returns under this registration are due every quarter.
+          ANNUAL: Returns under this registration are due once a year.
+        relationshipContext: Set by the authority.
+    - name: lastValidatedDate
+      type: date
+      required: false
+      help:
+        summary: When the number was last checked with the authority's register.
+        usage: Recorded by validation; numbers are rechecked periodically.
+        relationshipContext: Required for exempt cross-border sales in many jurisdictions.
   relationships:
     - {name: organization, target: Organization, cardinality: 0..1, ownership: reference, help: {summary: The organisation that holds the registration., usage: Chosen when recorded., cardinalityMeaning: At most one organisation., workflowRole: Decides which company files returns.}}
+    - name: jurisdiction
+      target: TaxJurisdiction
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The jurisdiction of the registration.
+        usage: Chosen when recording it.
+        cardinalityMeaning: One per registration.
+        context: Its authority issued the number.
   invariants:
     - {id: TAX-REGISTRATION-001, rule: "This record must not silently duplicate or rewrite authoritative cash, accounting, tax, usage, entitlement, or billing evidence in another CEDM entity."}
+    - {id: TAX-REGISTRATION-EXE-001, rule: "Valid To must not be earlier than valid from.", violatedWhen: "valid_from != null and valid_to != null and valid_to < valid_from", message: "Valid To cannot be earlier than valid from."}
   lifecycle:
     title: Tax Registration Lifecycle
     attribute: status

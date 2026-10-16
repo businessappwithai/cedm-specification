@@ -357,6 +357,180 @@ ON CONFLICT (name) DO UPDATE SET
 
 INSERT INTO sys_workflow_definitions
   (name, entity_name, operation, trigger_type, bpmn_xml, description, is_active, is_model_managed, created_at, updated_at)
+VALUES ('InventoryAdjustmentApprovalRequested', 'bus_inventory_adjustment', 'UPDATE',
+        'rule', '<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+  xmlns:appwithai="http://appwithai.io/schema/1.0"
+  id="Definitions_InventoryAdjustmentApprovalRequested"
+  targetNamespace="http://appwithai.io/bpmn">
+  <bpmn:process id="Process_InventoryAdjustmentApprovalRequested" isExecutable="true">
+    <bpmn:startEvent id="Process_InventoryAdjustmentApprovalRequested_start"/>
+    <bpmn:serviceTask id="Process_InventoryAdjustmentApprovalRequested_S1" name="Raise a task: decide on">
+      <bpmn:extensionElements>
+        <appwithai:properties>
+        <appwithai:property name="nodeType" value="CreateEntity"/>
+        <appwithai:property name="entity" value="bus_task"/>
+        <appwithai:property name="as" value="taskId"/>
+        <appwithai:property name="fields" value="{&quot;code&quot;:&quot;INVENTORY-ADJUSTMENT-APPROVAL-{{id}}&quot;,&quot;name&quot;:&quot;Decide on inventory adjustment {{adjustment_number}}&quot;,&quot;description&quot;:&quot;Inventory adjustment {{adjustment_number}} is now {{status}}. Approve it, return it for change or reject it; the move you make is recorded on the record.&quot;,&quot;task_type&quot;:&quot;APPROVAL&quot;,&quot;status&quot;:&quot;CREATED&quot;,&quot;priority&quot;:&quot;NORMAL&quot;}"/>
+        </appwithai:properties>
+      </bpmn:extensionElements>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="Process_InventoryAdjustmentApprovalRequested_end"/>
+    <bpmn:sequenceFlow id="Process_InventoryAdjustmentApprovalRequested_flow_0" sourceRef="Process_InventoryAdjustmentApprovalRequested_start" targetRef="Process_InventoryAdjustmentApprovalRequested_S1"/>
+    <bpmn:sequenceFlow id="Process_InventoryAdjustmentApprovalRequested_flow_1" sourceRef="Process_InventoryAdjustmentApprovalRequested_S1" targetRef="Process_InventoryAdjustmentApprovalRequested_end"/>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Process_InventoryAdjustmentApprovalRequested">
+    <bpmndi:BPMNPlane id="BPMNPlane_Process_InventoryAdjustmentApprovalRequested" bpmnElement="Process_InventoryAdjustmentApprovalRequested">
+      <bpmndi:BPMNShape id="Process_InventoryAdjustmentApprovalRequested_start_di" bpmnElement="Process_InventoryAdjustmentApprovalRequested_start">
+        <dc:Bounds x="160" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_InventoryAdjustmentApprovalRequested_S1_di" bpmnElement="Process_InventoryAdjustmentApprovalRequested_S1">
+        <dc:Bounds x="256" y="100" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_InventoryAdjustmentApprovalRequested_end_di" bpmnElement="Process_InventoryAdjustmentApprovalRequested_end">
+        <dc:Bounds x="456" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Process_InventoryAdjustmentApprovalRequested_flow_0_di" bpmnElement="Process_InventoryAdjustmentApprovalRequested_flow_0">
+        <di:waypoint x="196" y="140"/>
+        <di:waypoint x="256" y="140"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Process_InventoryAdjustmentApprovalRequested_flow_1_di" bpmnElement="Process_InventoryAdjustmentApprovalRequested_flow_1">
+        <di:waypoint x="396" y="140"/>
+        <di:waypoint x="456" y="140"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>', 'When a inventory adjustment is requested, a task asks someone to decide on it.', TRUE, TRUE, NOW(), NOW())
+ON CONFLICT (name) DO UPDATE SET
+  entity_name      = EXCLUDED.entity_name,
+  operation        = EXCLUDED.operation,
+  trigger_type     = EXCLUDED.trigger_type,
+  bpmn_xml         = EXCLUDED.bpmn_xml,
+  description      = EXCLUDED.description,
+  is_model_managed = TRUE,
+  updated_at       = NOW();
+
+INSERT INTO sys_workflow_definitions
+  (name, entity_name, operation, trigger_type, bpmn_xml, description, is_active, is_model_managed, created_at, updated_at)
+VALUES ('InventoryAdjustmentFollowUpRequired', 'bus_inventory_adjustment', 'UPDATE',
+        'rule', '<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+  xmlns:appwithai="http://appwithai.io/schema/1.0"
+  id="Definitions_InventoryAdjustmentFollowUpRequired"
+  targetNamespace="http://appwithai.io/bpmn">
+  <bpmn:process id="Process_InventoryAdjustmentFollowUpRequired" isExecutable="true">
+    <bpmn:startEvent id="Process_InventoryAdjustmentFollowUpRequired_start"/>
+    <bpmn:serviceTask id="Process_InventoryAdjustmentFollowUpRequired_S1" name="Raise a task: follow up on">
+      <bpmn:extensionElements>
+        <appwithai:properties>
+        <appwithai:property name="nodeType" value="CreateEntity"/>
+        <appwithai:property name="entity" value="bus_task"/>
+        <appwithai:property name="as" value="taskId"/>
+        <appwithai:property name="fields" value="{&quot;code&quot;:&quot;INVENTORY-ADJUSTMENT-FOLLOW-UP-{{id}}&quot;,&quot;name&quot;:&quot;Follow up on inventory adjustment {{adjustment_number}}&quot;,&quot;description&quot;:&quot;Inventory adjustment {{adjustment_number}} is now {{status}}. Check the records that depended on it and tell the people affected.&quot;,&quot;task_type&quot;:&quot;USER&quot;,&quot;status&quot;:&quot;CREATED&quot;,&quot;priority&quot;:&quot;NORMAL&quot;}"/>
+        </appwithai:properties>
+      </bpmn:extensionElements>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="Process_InventoryAdjustmentFollowUpRequired_end"/>
+    <bpmn:sequenceFlow id="Process_InventoryAdjustmentFollowUpRequired_flow_0" sourceRef="Process_InventoryAdjustmentFollowUpRequired_start" targetRef="Process_InventoryAdjustmentFollowUpRequired_S1"/>
+    <bpmn:sequenceFlow id="Process_InventoryAdjustmentFollowUpRequired_flow_1" sourceRef="Process_InventoryAdjustmentFollowUpRequired_S1" targetRef="Process_InventoryAdjustmentFollowUpRequired_end"/>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Process_InventoryAdjustmentFollowUpRequired">
+    <bpmndi:BPMNPlane id="BPMNPlane_Process_InventoryAdjustmentFollowUpRequired" bpmnElement="Process_InventoryAdjustmentFollowUpRequired">
+      <bpmndi:BPMNShape id="Process_InventoryAdjustmentFollowUpRequired_start_di" bpmnElement="Process_InventoryAdjustmentFollowUpRequired_start">
+        <dc:Bounds x="160" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_InventoryAdjustmentFollowUpRequired_S1_di" bpmnElement="Process_InventoryAdjustmentFollowUpRequired_S1">
+        <dc:Bounds x="256" y="100" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_InventoryAdjustmentFollowUpRequired_end_di" bpmnElement="Process_InventoryAdjustmentFollowUpRequired_end">
+        <dc:Bounds x="456" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Process_InventoryAdjustmentFollowUpRequired_flow_0_di" bpmnElement="Process_InventoryAdjustmentFollowUpRequired_flow_0">
+        <di:waypoint x="196" y="140"/>
+        <di:waypoint x="256" y="140"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Process_InventoryAdjustmentFollowUpRequired_flow_1_di" bpmnElement="Process_InventoryAdjustmentFollowUpRequired_flow_1">
+        <di:waypoint x="396" y="140"/>
+        <di:waypoint x="456" y="140"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>', 'When a inventory adjustment is rejected, a task asks someone to settle what depended on it.', TRUE, TRUE, NOW(), NOW())
+ON CONFLICT (name) DO UPDATE SET
+  entity_name      = EXCLUDED.entity_name,
+  operation        = EXCLUDED.operation,
+  trigger_type     = EXCLUDED.trigger_type,
+  bpmn_xml         = EXCLUDED.bpmn_xml,
+  description      = EXCLUDED.description,
+  is_model_managed = TRUE,
+  updated_at       = NOW();
+
+INSERT INTO sys_workflow_definitions
+  (name, entity_name, operation, trigger_type, bpmn_xml, description, is_active, is_model_managed, created_at, updated_at)
+VALUES ('InventoryAdjustmentCompletionConfirmed', 'bus_inventory_adjustment', 'UPDATE',
+        'rule', '<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+  xmlns:appwithai="http://appwithai.io/schema/1.0"
+  id="Definitions_InventoryAdjustmentCompletionConfirmed"
+  targetNamespace="http://appwithai.io/bpmn">
+  <bpmn:process id="Process_InventoryAdjustmentCompletionConfirmed" isExecutable="true">
+    <bpmn:startEvent id="Process_InventoryAdjustmentCompletionConfirmed_start"/>
+    <bpmn:serviceTask id="Process_InventoryAdjustmentCompletionConfirmed_S1" name="Raise a task: confirm">
+      <bpmn:extensionElements>
+        <appwithai:properties>
+        <appwithai:property name="nodeType" value="CreateEntity"/>
+        <appwithai:property name="entity" value="bus_task"/>
+        <appwithai:property name="as" value="taskId"/>
+        <appwithai:property name="fields" value="{&quot;code&quot;:&quot;INVENTORY-ADJUSTMENT-COMPLETED-{{id}}&quot;,&quot;name&quot;:&quot;Confirm inventory adjustment {{adjustment_number}}&quot;,&quot;description&quot;:&quot;Inventory adjustment {{adjustment_number}} is now {{status}}. Check the outcome is what was agreed and close any open items.&quot;,&quot;task_type&quot;:&quot;USER&quot;,&quot;status&quot;:&quot;CREATED&quot;,&quot;priority&quot;:&quot;LOW&quot;}"/>
+        </appwithai:properties>
+      </bpmn:extensionElements>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="Process_InventoryAdjustmentCompletionConfirmed_end"/>
+    <bpmn:sequenceFlow id="Process_InventoryAdjustmentCompletionConfirmed_flow_0" sourceRef="Process_InventoryAdjustmentCompletionConfirmed_start" targetRef="Process_InventoryAdjustmentCompletionConfirmed_S1"/>
+    <bpmn:sequenceFlow id="Process_InventoryAdjustmentCompletionConfirmed_flow_1" sourceRef="Process_InventoryAdjustmentCompletionConfirmed_S1" targetRef="Process_InventoryAdjustmentCompletionConfirmed_end"/>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Process_InventoryAdjustmentCompletionConfirmed">
+    <bpmndi:BPMNPlane id="BPMNPlane_Process_InventoryAdjustmentCompletionConfirmed" bpmnElement="Process_InventoryAdjustmentCompletionConfirmed">
+      <bpmndi:BPMNShape id="Process_InventoryAdjustmentCompletionConfirmed_start_di" bpmnElement="Process_InventoryAdjustmentCompletionConfirmed_start">
+        <dc:Bounds x="160" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_InventoryAdjustmentCompletionConfirmed_S1_di" bpmnElement="Process_InventoryAdjustmentCompletionConfirmed_S1">
+        <dc:Bounds x="256" y="100" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_InventoryAdjustmentCompletionConfirmed_end_di" bpmnElement="Process_InventoryAdjustmentCompletionConfirmed_end">
+        <dc:Bounds x="456" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Process_InventoryAdjustmentCompletionConfirmed_flow_0_di" bpmnElement="Process_InventoryAdjustmentCompletionConfirmed_flow_0">
+        <di:waypoint x="196" y="140"/>
+        <di:waypoint x="256" y="140"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Process_InventoryAdjustmentCompletionConfirmed_flow_1_di" bpmnElement="Process_InventoryAdjustmentCompletionConfirmed_flow_1">
+        <di:waypoint x="396" y="140"/>
+        <di:waypoint x="456" y="140"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>', 'When a inventory adjustment is posted, a task asks someone to confirm the outcome.', TRUE, TRUE, NOW(), NOW())
+ON CONFLICT (name) DO UPDATE SET
+  entity_name      = EXCLUDED.entity_name,
+  operation        = EXCLUDED.operation,
+  trigger_type     = EXCLUDED.trigger_type,
+  bpmn_xml         = EXCLUDED.bpmn_xml,
+  description      = EXCLUDED.description,
+  is_model_managed = TRUE,
+  updated_at       = NOW();
+
+INSERT INTO sys_workflow_definitions
+  (name, entity_name, operation, trigger_type, bpmn_xml, description, is_active, is_model_managed, created_at, updated_at)
 VALUES ('LotExceptionRaised', 'bus_lot', 'UPDATE',
         'rule', '<?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"

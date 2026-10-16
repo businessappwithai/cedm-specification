@@ -9,10 +9,193 @@ entity:
   attributes:
     - {name: assetTransferId, type: uuid, required: true, immutable: true, help: {summary: The identity of this transfer event., usage: Generated on creation; history and audit queries refer to it.}}
     - {name: effectiveAt, type: datetime, required: false, help: {summary: When the move took effect., usage: Taken from the hand-over document; the asset's current assignment is the latest transfer whose effective date has passed.}}
+    - name: transferNumber
+      type: string
+      required: true
+      unique: true
+      maxLength: 40
+      help:
+        summary: The reference number that identifies this transfer on screens, shipping documents and audit reports.
+        usage: Assigned by the system when the transfer is requested and never changed afterwards.
+        relationshipContext: Unique across all transfers.
+    - name: transferType
+      type: enum
+      required: true
+      default: LOCATION
+      values:
+        - LOCATION
+        - COST_CENTER
+        - CUSTODIAN
+        - INTERCOMPANY
+      help:
+        summary: What changes with the transfer.
+        usage: Chosen when requesting it; decides who must confirm and whether accounting is posted.
+        relationshipContext: Several changes at once are one transfer of the main type.
+        valueSemantics:
+          LOCATION: The asset moves to another place.
+          COST_CENTER: Another unit bears the asset's cost.
+          CUSTODIAN: Another person becomes responsible for the asset.
+          INTERCOMPANY: The asset moves to another group company.
+    - name: effectiveDate
+      type: date
+      required: true
+      help:
+        summary: The day the change takes effect for the register and depreciation.
+        usage: Set by finance; depreciation before it stays with the old unit.
+        relationshipContext: Usually the first day of a period.
+    - name: reason
+      type: string
+      required: false
+      maxLength: 500
+      help:
+        summary: A short explanation of why the asset is changing location, owner or custodian.
+        usage: Written by the requester and read by the approver and the receiving site.
+        relationshipContext: Free text, for example site closure or staff relocation.
+    - name: shippedAt
+      type: datetime
+      required: false
+      help:
+        summary: The date and time the asset left its previous location.
+        usage: Recorded by the sending site for physical moves.
+        relationshipContext: Present once the asset is in transit.
+    - name: receivedAt
+      type: datetime
+      required: false
+      help:
+        summary: The date and time the receiving site confirmed the asset had arrived.
+        usage: Recorded when the receiver acknowledges delivery.
+        relationshipContext: Present once the transfer is completed.
+    - name: status
+      type: enum
+      required: true
+      default: REQUESTED
+      values:
+        - REQUESTED
+        - IN_TRANSIT
+        - COMPLETED
+        - CANCELLED
+      help:
+        summary: Where the transfer stands between request, shipment and confirmation of arrival.
+        usage: Moves on as the sender ships the asset and the receiver confirms it.
+        relationshipContext: The asset register changes only when the transfer completes.
+        valueSemantics:
+          REQUESTED: Asked for, but the asset has not moved yet.
+          IN_TRANSIT: The asset has left and has not yet arrived.
+          COMPLETED: The receiver confirmed arrival and the register is updated.
+          CANCELLED: Called off before the move was completed.
   relationships:
     - {name: asset, target: Asset, cardinality: '1', ownership: reference, help: {summary: The asset being moved., usage: Chosen when the transfer is recorded., cardinalityMeaning: Exactly one asset per transfer; moving several assets means several transfers., workflowRole: Keeps custody history for each asset separate from its acquisition.}}
+    - name: fromLocation
+      target: Location
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: Where the asset was.
+        usage: Copied from the asset when the transfer is requested.
+        cardinalityMeaning: One per transfer.
+        context: Should match the asset's location.
+    - name: toLocation
+      target: Location
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: Where the asset goes.
+        usage: Chosen when requesting a location transfer.
+        cardinalityMeaning: One per transfer.
+        context: Becomes the asset's location on completion.
+    - name: fromCostCenter
+      target: CostCenter
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The cost centre that bore the asset's cost.
+        usage: Copied from the asset.
+        cardinalityMeaning: One per transfer.
+        context: Bears depreciation up to the effective date.
+    - name: toCostCenter
+      target: CostCenter
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The cost centre that will bear the asset's cost.
+        usage: Chosen for cost-centre transfers.
+        cardinalityMeaning: One per transfer.
+        context: Bears depreciation from the effective date.
+    - name: fromCustodian
+      target: Person
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The person who was responsible for the asset.
+        usage: Copied from the asset.
+        cardinalityMeaning: One per transfer.
+        context: Hands the asset over.
+    - name: toCustodian
+      target: Person
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The person who becomes responsible for the asset.
+        usage: Chosen for custodian transfers; confirms receipt.
+        cardinalityMeaning: One per transfer.
+        context: Answers for the asset from completion.
   invariants:
     - {id: ASSET-TRANSFER-001, rule: Finalized lifecycle or financial evidence must be corrected by explicit compensating or superseding records rather than silent history rewrite.}
+  workflows:
+    - name: ApprovalRequested
+      title: "Ask for a decision when a asset transfer is put forward"
+      description: "When a asset transfer is requested, a task asks someone to decide on it."
+      when: "status == \"REQUESTED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: decide on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "ASSET-TRANSFER-APPROVAL-{{id}}"
+              name: "Decide on asset transfer {{transfer_number}}"
+              description: "Asset transfer {{transfer_number}} is now {{status}}. Approve it, return it for change or reject it; the move you make is recorded on the record."
+              task_type: "APPROVAL"
+              status: "CREATED"
+              priority: "NORMAL"
+    - name: FollowUpRequired
+      title: "Follow up when a asset transfer is ended"
+      description: "When a asset transfer is cancelled, a task asks someone to settle what depended on it."
+      when: "status == \"CANCELLED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "ASSET-TRANSFER-FOLLOW-UP-{{id}}"
+              name: "Follow up on asset transfer {{transfer_number}}"
+              description: "Asset transfer {{transfer_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
+    - name: CompletionConfirmed
+      title: "Confirm when a asset transfer is done"
+      description: "When a asset transfer is completed, a task asks someone to confirm the outcome."
+      when: "status == \"COMPLETED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: confirm"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "ASSET-TRANSFER-COMPLETED-{{id}}"
+              name: "Confirm asset transfer {{transfer_number}}"
+              description: "Asset transfer {{transfer_number}} is now {{status}}. Check the outcome is what was agreed and close any open items."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "LOW"
   help:
     summary: The event by which responsibility for an asset, its location, organisational assignment or custody moves, without rewriting how the asset was acquired.
     businessMeaning: Assets move between departments, sites and custodians during their life. A transfer records that move as an event, so the asset's current owner and place are right while its earlier history stays intact.
@@ -20,4 +203,32 @@ entity:
     relationshipContext: Each transfer points to the Asset that moved; the register reflects the latest effective transfer.
     lifecycle: A transfer is recorded once and is then evidence. A wrong transfer is corrected by a further transfer rather than an edit.
     example: A laptop moves from the Sales department in Berlin to Support in Madrid on 1 September.
+  lifecycle:
+    title: Asset Transfer Lifecycle
+    attribute: status
+    states:
+      - REQUESTED
+      - IN_TRANSIT
+      - COMPLETED
+      - CANCELLED
+    initial: REQUESTED
+    terminal:
+      - COMPLETED
+      - CANCELLED
+    transitions:
+      - from: REQUESTED
+        to: IN_TRANSIT
+        action: ship
+      - from: IN_TRANSIT
+        to: COMPLETED
+        action: receive
+      - from: REQUESTED
+        to: COMPLETED
+        action: complete
+      - from: REQUESTED
+        to: CANCELLED
+        action: cancel
+      - from: IN_TRANSIT
+        to: CANCELLED
+        action: cancel
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-ASSET-TRANSFER}

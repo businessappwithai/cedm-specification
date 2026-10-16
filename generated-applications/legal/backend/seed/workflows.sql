@@ -299,6 +299,180 @@ ON CONFLICT (name) DO UPDATE SET
 
 INSERT INTO sys_workflow_definitions
   (name, entity_name, operation, trigger_type, bpmn_xml, description, is_active, is_model_managed, created_at, updated_at)
+VALUES ('AgreementFollowUpRequired', 'bus_agreement', 'UPDATE',
+        'rule', '<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+  xmlns:appwithai="http://appwithai.io/schema/1.0"
+  id="Definitions_AgreementFollowUpRequired"
+  targetNamespace="http://appwithai.io/bpmn">
+  <bpmn:process id="Process_AgreementFollowUpRequired" isExecutable="true">
+    <bpmn:startEvent id="Process_AgreementFollowUpRequired_start"/>
+    <bpmn:serviceTask id="Process_AgreementFollowUpRequired_S1" name="Raise a task: follow up on">
+      <bpmn:extensionElements>
+        <appwithai:properties>
+        <appwithai:property name="nodeType" value="CreateEntity"/>
+        <appwithai:property name="entity" value="bus_task"/>
+        <appwithai:property name="as" value="taskId"/>
+        <appwithai:property name="fields" value="{&quot;code&quot;:&quot;AGREEMENT-FOLLOW-UP-{{id}}&quot;,&quot;name&quot;:&quot;Follow up on agreement {{title}}&quot;,&quot;description&quot;:&quot;Agreement {{title}} is now {{status}}. Check the records that depended on it and tell the people affected.&quot;,&quot;task_type&quot;:&quot;USER&quot;,&quot;status&quot;:&quot;CREATED&quot;,&quot;priority&quot;:&quot;NORMAL&quot;}"/>
+        </appwithai:properties>
+      </bpmn:extensionElements>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="Process_AgreementFollowUpRequired_end"/>
+    <bpmn:sequenceFlow id="Process_AgreementFollowUpRequired_flow_0" sourceRef="Process_AgreementFollowUpRequired_start" targetRef="Process_AgreementFollowUpRequired_S1"/>
+    <bpmn:sequenceFlow id="Process_AgreementFollowUpRequired_flow_1" sourceRef="Process_AgreementFollowUpRequired_S1" targetRef="Process_AgreementFollowUpRequired_end"/>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Process_AgreementFollowUpRequired">
+    <bpmndi:BPMNPlane id="BPMNPlane_Process_AgreementFollowUpRequired" bpmnElement="Process_AgreementFollowUpRequired">
+      <bpmndi:BPMNShape id="Process_AgreementFollowUpRequired_start_di" bpmnElement="Process_AgreementFollowUpRequired_start">
+        <dc:Bounds x="160" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_AgreementFollowUpRequired_S1_di" bpmnElement="Process_AgreementFollowUpRequired_S1">
+        <dc:Bounds x="256" y="100" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_AgreementFollowUpRequired_end_di" bpmnElement="Process_AgreementFollowUpRequired_end">
+        <dc:Bounds x="456" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Process_AgreementFollowUpRequired_flow_0_di" bpmnElement="Process_AgreementFollowUpRequired_flow_0">
+        <di:waypoint x="196" y="140"/>
+        <di:waypoint x="256" y="140"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Process_AgreementFollowUpRequired_flow_1_di" bpmnElement="Process_AgreementFollowUpRequired_flow_1">
+        <di:waypoint x="396" y="140"/>
+        <di:waypoint x="456" y="140"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>', 'When a agreement is cancelled, a task asks someone to settle what depended on it.', TRUE, TRUE, NOW(), NOW())
+ON CONFLICT (name) DO UPDATE SET
+  entity_name      = EXCLUDED.entity_name,
+  operation        = EXCLUDED.operation,
+  trigger_type     = EXCLUDED.trigger_type,
+  bpmn_xml         = EXCLUDED.bpmn_xml,
+  description      = EXCLUDED.description,
+  is_model_managed = TRUE,
+  updated_at       = NOW();
+
+INSERT INTO sys_workflow_definitions
+  (name, entity_name, operation, trigger_type, bpmn_xml, description, is_active, is_model_managed, created_at, updated_at)
+VALUES ('ContractAmendmentFollowUpRequired', 'bus_contract_amendment', 'UPDATE',
+        'rule', '<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+  xmlns:appwithai="http://appwithai.io/schema/1.0"
+  id="Definitions_ContractAmendmentFollowUpRequired"
+  targetNamespace="http://appwithai.io/bpmn">
+  <bpmn:process id="Process_ContractAmendmentFollowUpRequired" isExecutable="true">
+    <bpmn:startEvent id="Process_ContractAmendmentFollowUpRequired_start"/>
+    <bpmn:serviceTask id="Process_ContractAmendmentFollowUpRequired_S1" name="Raise a task: follow up on">
+      <bpmn:extensionElements>
+        <appwithai:properties>
+        <appwithai:property name="nodeType" value="CreateEntity"/>
+        <appwithai:property name="entity" value="bus_task"/>
+        <appwithai:property name="as" value="taskId"/>
+        <appwithai:property name="fields" value="{&quot;code&quot;:&quot;CONTRACT-AMENDMENT-FOLLOW-UP-{{id}}&quot;,&quot;name&quot;:&quot;Follow up on contract amendment {{title}}&quot;,&quot;description&quot;:&quot;Contract amendment {{title}} is now {{status}}. Check the records that depended on it and tell the people affected.&quot;,&quot;task_type&quot;:&quot;USER&quot;,&quot;status&quot;:&quot;CREATED&quot;,&quot;priority&quot;:&quot;NORMAL&quot;}"/>
+        </appwithai:properties>
+      </bpmn:extensionElements>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="Process_ContractAmendmentFollowUpRequired_end"/>
+    <bpmn:sequenceFlow id="Process_ContractAmendmentFollowUpRequired_flow_0" sourceRef="Process_ContractAmendmentFollowUpRequired_start" targetRef="Process_ContractAmendmentFollowUpRequired_S1"/>
+    <bpmn:sequenceFlow id="Process_ContractAmendmentFollowUpRequired_flow_1" sourceRef="Process_ContractAmendmentFollowUpRequired_S1" targetRef="Process_ContractAmendmentFollowUpRequired_end"/>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Process_ContractAmendmentFollowUpRequired">
+    <bpmndi:BPMNPlane id="BPMNPlane_Process_ContractAmendmentFollowUpRequired" bpmnElement="Process_ContractAmendmentFollowUpRequired">
+      <bpmndi:BPMNShape id="Process_ContractAmendmentFollowUpRequired_start_di" bpmnElement="Process_ContractAmendmentFollowUpRequired_start">
+        <dc:Bounds x="160" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_ContractAmendmentFollowUpRequired_S1_di" bpmnElement="Process_ContractAmendmentFollowUpRequired_S1">
+        <dc:Bounds x="256" y="100" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_ContractAmendmentFollowUpRequired_end_di" bpmnElement="Process_ContractAmendmentFollowUpRequired_end">
+        <dc:Bounds x="456" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Process_ContractAmendmentFollowUpRequired_flow_0_di" bpmnElement="Process_ContractAmendmentFollowUpRequired_flow_0">
+        <di:waypoint x="196" y="140"/>
+        <di:waypoint x="256" y="140"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Process_ContractAmendmentFollowUpRequired_flow_1_di" bpmnElement="Process_ContractAmendmentFollowUpRequired_flow_1">
+        <di:waypoint x="396" y="140"/>
+        <di:waypoint x="456" y="140"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>', 'When a contract amendment is rejected or cancelled, a task asks someone to settle what depended on it.', TRUE, TRUE, NOW(), NOW())
+ON CONFLICT (name) DO UPDATE SET
+  entity_name      = EXCLUDED.entity_name,
+  operation        = EXCLUDED.operation,
+  trigger_type     = EXCLUDED.trigger_type,
+  bpmn_xml         = EXCLUDED.bpmn_xml,
+  description      = EXCLUDED.description,
+  is_model_managed = TRUE,
+  updated_at       = NOW();
+
+INSERT INTO sys_workflow_definitions
+  (name, entity_name, operation, trigger_type, bpmn_xml, description, is_active, is_model_managed, created_at, updated_at)
+VALUES ('ContractRenewalApprovalRequested', 'bus_contract_renewal', 'UPDATE',
+        'rule', '<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+  xmlns:appwithai="http://appwithai.io/schema/1.0"
+  id="Definitions_ContractRenewalApprovalRequested"
+  targetNamespace="http://appwithai.io/bpmn">
+  <bpmn:process id="Process_ContractRenewalApprovalRequested" isExecutable="true">
+    <bpmn:startEvent id="Process_ContractRenewalApprovalRequested_start"/>
+    <bpmn:serviceTask id="Process_ContractRenewalApprovalRequested_S1" name="Raise a task: decide on">
+      <bpmn:extensionElements>
+        <appwithai:properties>
+        <appwithai:property name="nodeType" value="CreateEntity"/>
+        <appwithai:property name="entity" value="bus_task"/>
+        <appwithai:property name="as" value="taskId"/>
+        <appwithai:property name="fields" value="{&quot;code&quot;:&quot;CONTRACT-RENEWAL-APPROVAL-{{id}}&quot;,&quot;name&quot;:&quot;Decide on contract renewal {{renewal_number}}&quot;,&quot;description&quot;:&quot;Contract renewal {{renewal_number}} is now {{status}}. Approve it, return it for change or reject it; the move you make is recorded on the record.&quot;,&quot;task_type&quot;:&quot;APPROVAL&quot;,&quot;status&quot;:&quot;CREATED&quot;,&quot;priority&quot;:&quot;NORMAL&quot;}"/>
+        </appwithai:properties>
+      </bpmn:extensionElements>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="Process_ContractRenewalApprovalRequested_end"/>
+    <bpmn:sequenceFlow id="Process_ContractRenewalApprovalRequested_flow_0" sourceRef="Process_ContractRenewalApprovalRequested_start" targetRef="Process_ContractRenewalApprovalRequested_S1"/>
+    <bpmn:sequenceFlow id="Process_ContractRenewalApprovalRequested_flow_1" sourceRef="Process_ContractRenewalApprovalRequested_S1" targetRef="Process_ContractRenewalApprovalRequested_end"/>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Process_ContractRenewalApprovalRequested">
+    <bpmndi:BPMNPlane id="BPMNPlane_Process_ContractRenewalApprovalRequested" bpmnElement="Process_ContractRenewalApprovalRequested">
+      <bpmndi:BPMNShape id="Process_ContractRenewalApprovalRequested_start_di" bpmnElement="Process_ContractRenewalApprovalRequested_start">
+        <dc:Bounds x="160" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_ContractRenewalApprovalRequested_S1_di" bpmnElement="Process_ContractRenewalApprovalRequested_S1">
+        <dc:Bounds x="256" y="100" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_ContractRenewalApprovalRequested_end_di" bpmnElement="Process_ContractRenewalApprovalRequested_end">
+        <dc:Bounds x="456" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Process_ContractRenewalApprovalRequested_flow_0_di" bpmnElement="Process_ContractRenewalApprovalRequested_flow_0">
+        <di:waypoint x="196" y="140"/>
+        <di:waypoint x="256" y="140"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Process_ContractRenewalApprovalRequested_flow_1_di" bpmnElement="Process_ContractRenewalApprovalRequested_flow_1">
+        <di:waypoint x="396" y="140"/>
+        <di:waypoint x="456" y="140"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>', 'When a contract renewal is under review, a task asks someone to decide on it.', TRUE, TRUE, NOW(), NOW())
+ON CONFLICT (name) DO UPDATE SET
+  entity_name      = EXCLUDED.entity_name,
+  operation        = EXCLUDED.operation,
+  trigger_type     = EXCLUDED.trigger_type,
+  bpmn_xml         = EXCLUDED.bpmn_xml,
+  description      = EXCLUDED.description,
+  is_model_managed = TRUE,
+  updated_at       = NOW();
+
+INSERT INTO sys_workflow_definitions
+  (name, entity_name, operation, trigger_type, bpmn_xml, description, is_active, is_model_managed, created_at, updated_at)
 VALUES ('RenewalFollowUpRequired', 'bus_renewal', 'UPDATE',
         'rule', '<?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
@@ -346,6 +520,64 @@ VALUES ('RenewalFollowUpRequired', 'bus_renewal', 'UPDATE',
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
 </bpmn:definitions>', 'When a renewal is cancelled, a task asks someone to settle what depended on it.', TRUE, TRUE, NOW(), NOW())
+ON CONFLICT (name) DO UPDATE SET
+  entity_name      = EXCLUDED.entity_name,
+  operation        = EXCLUDED.operation,
+  trigger_type     = EXCLUDED.trigger_type,
+  bpmn_xml         = EXCLUDED.bpmn_xml,
+  description      = EXCLUDED.description,
+  is_model_managed = TRUE,
+  updated_at       = NOW();
+
+INSERT INTO sys_workflow_definitions
+  (name, entity_name, operation, trigger_type, bpmn_xml, description, is_active, is_model_managed, created_at, updated_at)
+VALUES ('LegalMatterExceptionRaised', 'bus_legal_matter', 'UPDATE',
+        'rule', '<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+  xmlns:appwithai="http://appwithai.io/schema/1.0"
+  id="Definitions_LegalMatterExceptionRaised"
+  targetNamespace="http://appwithai.io/bpmn">
+  <bpmn:process id="Process_LegalMatterExceptionRaised" isExecutable="true">
+    <bpmn:startEvent id="Process_LegalMatterExceptionRaised_start"/>
+    <bpmn:serviceTask id="Process_LegalMatterExceptionRaised_S1" name="Raise a task: resolve">
+      <bpmn:extensionElements>
+        <appwithai:properties>
+        <appwithai:property name="nodeType" value="CreateEntity"/>
+        <appwithai:property name="entity" value="bus_task"/>
+        <appwithai:property name="as" value="taskId"/>
+        <appwithai:property name="fields" value="{&quot;code&quot;:&quot;LEGAL-MATTER-EXCEPTION-{{id}}&quot;,&quot;name&quot;:&quot;Resolve legal matter {{title}}&quot;,&quot;description&quot;:&quot;Legal matter {{title}} is now {{status}}. Find out why it stopped and move it on or close it.&quot;,&quot;task_type&quot;:&quot;USER&quot;,&quot;status&quot;:&quot;CREATED&quot;,&quot;priority&quot;:&quot;HIGH&quot;}"/>
+        </appwithai:properties>
+      </bpmn:extensionElements>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="Process_LegalMatterExceptionRaised_end"/>
+    <bpmn:sequenceFlow id="Process_LegalMatterExceptionRaised_flow_0" sourceRef="Process_LegalMatterExceptionRaised_start" targetRef="Process_LegalMatterExceptionRaised_S1"/>
+    <bpmn:sequenceFlow id="Process_LegalMatterExceptionRaised_flow_1" sourceRef="Process_LegalMatterExceptionRaised_S1" targetRef="Process_LegalMatterExceptionRaised_end"/>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Process_LegalMatterExceptionRaised">
+    <bpmndi:BPMNPlane id="BPMNPlane_Process_LegalMatterExceptionRaised" bpmnElement="Process_LegalMatterExceptionRaised">
+      <bpmndi:BPMNShape id="Process_LegalMatterExceptionRaised_start_di" bpmnElement="Process_LegalMatterExceptionRaised_start">
+        <dc:Bounds x="160" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_LegalMatterExceptionRaised_S1_di" bpmnElement="Process_LegalMatterExceptionRaised_S1">
+        <dc:Bounds x="256" y="100" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_LegalMatterExceptionRaised_end_di" bpmnElement="Process_LegalMatterExceptionRaised_end">
+        <dc:Bounds x="456" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Process_LegalMatterExceptionRaised_flow_0_di" bpmnElement="Process_LegalMatterExceptionRaised_flow_0">
+        <di:waypoint x="196" y="140"/>
+        <di:waypoint x="256" y="140"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Process_LegalMatterExceptionRaised_flow_1_di" bpmnElement="Process_LegalMatterExceptionRaised_flow_1">
+        <di:waypoint x="396" y="140"/>
+        <di:waypoint x="456" y="140"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>', 'When a legal matter is on hold, a high-priority task asks someone to resolve it.', TRUE, TRUE, NOW(), NOW())
 ON CONFLICT (name) DO UPDATE SET
   entity_name      = EXCLUDED.entity_name,
   operation        = EXCLUDED.operation,

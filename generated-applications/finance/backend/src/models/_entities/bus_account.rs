@@ -21,7 +21,7 @@
 //! If that migration changes, this changes with it, or the mismatch surfaces as
 //! a runtime `DbErr` on the first query rather than as a compile error here.
 //!
-//! Generated: 2026-10-09T15:28:42.771Z
+//! Generated: 2026-10-16T07:46:29.057Z
 //! Project: finance
 
 use sea_orm::entity::prelude::*;
@@ -39,6 +39,7 @@ pub struct Model {
     pub account_type: String,
     pub status: String,
     pub currency_id: Option<Uuid>,
+    pub is_posting_account: bool,
     pub parent_account_id: Option<Uuid>,
     pub organization_id: Option<Uuid>,
     /// `TIMESTAMPTZ DEFAULT NOW()` — defaulted, not `NOT NULL`, so it is an

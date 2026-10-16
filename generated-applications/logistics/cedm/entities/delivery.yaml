@@ -9,8 +9,70 @@ entity:
   attributes:
     - {name: deliveryId, type: uuid, required: true, immutable: true, help: {summary: The identity of the delivery record., usage: Generated on creation; proof-of-delivery documents and invoices refer to it.}}
     - {name: code, type: string, required: false, maxLength: 120, help: {summary: "The reference of the delivery, often the carrier's proof-of-delivery number.", usage: Entered on confirmation of handover; used in customer queries.}}
+    - name: deliveredAt
+      type: datetime
+      required: true
+      help:
+        summary: The date and time the goods were actually handed over to the recipient.
+        usage: Taken from the signed proof of delivery rather than typed in by hand.
+        relationshipContext: The legal delivery time used for invoicing and claims.
+    - name: receivedBy
+      type: string
+      required: false
+      maxLength: 200
+      help:
+        summary: The name of the person who accepted the goods.
+        usage: Taken from the signature on the proof of delivery.
+        relationshipContext: Should be someone authorised at the destination.
+    - name: outcome
+      type: enum
+      required: true
+      default: DELIVERED
+      values:
+        - DELIVERED
+        - DELIVERED_WITH_EXCEPTION
+        - REFUSED
+      help:
+        summary: How the handover went, as recorded on the proof of delivery.
+        usage: Set from the proof of delivery by the carrier or driver, and read by customer service when something went wrong.
+        relationshipContext: Any outcome other than a clean delivery opens a claim or a follow-up with the customer.
+        valueSemantics:
+          DELIVERED: Handed over complete and in good condition.
+          DELIVERED_WITH_EXCEPTION: Handed over but short, over or damaged, so a claim or note is needed.
+          REFUSED: The recipient declined to accept the goods and they return to the sender.
+    - name: packagesDelivered
+      type: integer
+      required: false
+      help:
+        summary: The number of packages or pallets actually handed over at the destination.
+        usage: Counted by the driver at handover and compared with the shipment's expected count to spot shortages.
+        relationshipContext: A difference from the shipment count is treated as an exception.
+    - name: conditionNotes
+      type: text
+      required: false
+      help:
+        summary: Remarks on the goods' condition made at hand-over.
+        usage: Written by the driver or recipient; evidence for claims.
+        relationshipContext: Remarks not made at delivery are hard to claim later.
+    - name: proofReference
+      type: string
+      required: false
+      maxLength: 200
+      help:
+        summary: The reference of the proof of delivery — signed note, photo or electronic signature.
+        usage: Linked so the proof can be produced on request.
+        relationshipContext: Files are attached to the delivery.
   relationships:
     - {name: shipment, target: Shipment, cardinality: '1', ownership: reference, help: {cardinalityMeaning: 'Exactly one shipment: a delivery is the final handover of a single shipment.', summary: Shipment observed by this event., businessMeaning: Connects logistics evidence to transport transaction., usage: Tracking and delivery proof., workflowRole: Event must not silently rewrite prior shipment evidence.}}
+    - name: location
+      target: Location
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: Where the goods were delivered.
+        usage: Usually the shipment's destination.
+        cardinalityMeaning: One per delivery.
+        context: A different place is an exception to investigate.
   invariants:
     - {id: DELIVERY-001, rule: "Lifecycle changes, corrections and retries must preserve historical evidence and must not duplicate downstream commercial, physical or financial effects."}
   help:

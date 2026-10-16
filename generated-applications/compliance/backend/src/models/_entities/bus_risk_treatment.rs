@@ -21,7 +21,7 @@
 //! If that migration changes, this changes with it, or the mismatch surfaces as
 //! a runtime `DbErr` on the first query rather than as a compile error here.
 //!
-//! Generated: 2026-10-09T15:28:00.209Z
+//! Generated: 2026-10-16T07:45:31.967Z
 //! Project: compliance
 
 use sea_orm::entity::prelude::*;
@@ -36,7 +36,16 @@ pub struct Model {
     pub id: Uuid,
     pub risk_treatment_code: String,
     pub status: String,
-    pub context_id: Uuid,
+    pub title: String,
+    pub strategy: String,
+    pub action_plan: Option<String>,
+    pub due_date: Option<Date>,
+    pub estimated_cost: Option<Decimal>,
+    pub target_rating: Option<String>,
+    pub completed_date: Option<Date>,
+    pub risk_id: Uuid,
+    pub owner_id: Option<Uuid>,
+    pub control_id: Option<Uuid>,
     /// `TIMESTAMPTZ DEFAULT NOW()` — defaulted, not `NOT NULL`, so it is an
     /// `Option` here even though every row written by this application has one.
     pub created_at: Option<DateTimeWithTimeZone>,

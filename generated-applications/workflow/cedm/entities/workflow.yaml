@@ -103,6 +103,14 @@ entity:
         summary: 'The definition itself: its steps, rules and routing.'
         usage: Edited while a draft; fixed once active.
         relationshipContext: Must suit the declared format.
+    - name: definitionVersion
+      type: string
+      required: true
+      default: "1.0"
+      help:
+        summary: The version of the workflow definition.
+        usage: Running instances keep the version they started with.
+        relationshipContext: A new version is a new definition; an active one is never changed.
   relationships:
     - name: businessProcess
       target: BusinessProcess

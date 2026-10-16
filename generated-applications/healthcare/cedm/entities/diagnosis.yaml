@@ -63,6 +63,31 @@ entity:
       help:
         summary: The date the condition began, when known.
         usage: Entered by the clinician; used in the clinical timeline.
+    - name: clinicalStatus
+      type: enum
+      required: true
+      default: ACTIVE
+      values:
+        - ACTIVE
+        - REMISSION
+        - RESOLVED
+        - ENTERED_IN_ERROR
+      help:
+        summary: Whether the condition is currently affecting the patient.
+        usage: Updated by clinicians as the condition changes over time.
+        relationshipContext: Resolved conditions stay on the patient's history.
+        valueSemantics:
+          ACTIVE: The condition is present and being managed.
+          REMISSION: The condition is present but not currently causing problems.
+          RESOLVED: The condition is over and no longer treated.
+          ENTERED_IN_ERROR: Recorded by mistake, so it should be disregarded and not counted as a real condition.
+    - name: resolvedDate
+      type: date
+      required: false
+      help:
+        summary: The date on which the condition was judged to be over.
+        usage: Recorded by the clinician when the clinical status becomes resolved.
+        relationshipContext: Not earlier than the onset date.
   relationships:
     - name: encounter
       target: HealthcareEncounter

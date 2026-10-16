@@ -20,7 +20,149 @@ entity:
           ACTIVE: Being handled by the person or level it was escalated to.
           COMPLETED: Resolved, with the outcome recorded. A final state.
           CANCELLED: Withdrawn because it was no longer needed. A final state.
-  relationships: []
+    - name: escalationNumber
+      type: string
+      required: true
+      unique: true
+      maxLength: 40
+      help:
+        summary: The reference number by which the escalation is quoted.
+        usage: Assigned automatically when the escalation is raised and used in messages and reports.
+        relationshipContext: Unique across all escalations.
+    - name: level
+      type: integer
+      required: true
+      default: 1
+      help:
+        summary: How far up the matter has been raised — 1 for the first escalation, higher for further ones.
+        usage: Set by the escalation rule or by whoever raises it.
+        relationshipContext: Each further escalation of the same matter has a higher level.
+    - name: reason
+      type: enum
+      required: true
+      default: SLA_BREACH
+      values:
+        - SLA_BREACH
+        - DUE_DATE_PASSED
+        - CUSTOMER_REQUEST
+        - SEVERITY
+        - BLOCKED
+      help:
+        summary: Why the matter was escalated to a higher level.
+        usage: Chosen when raising the escalation; escalation analysis groups by it.
+        relationshipContext: Read together with the free-text description.
+        valueSemantics:
+          SLA_BREACH: A response or resolution target was missed.
+          DUE_DATE_PASSED: A due date passed without the work being done.
+          CUSTOMER_REQUEST: The customer asked for the matter to be escalated.
+          SEVERITY: The matter is serious enough to need senior attention at once.
+          BLOCKED: The handler cannot proceed without a decision from higher up.
+    - name: description
+      type: text
+      required: false
+      help:
+        summary: What the problem is and what is needed from the person escalated to.
+        usage: Written when raising, so the receiver can act without asking.
+        relationshipContext: Free text.
+    - name: raisedAt
+      type: datetime
+      required: true
+      help:
+        summary: When the escalation was raised.
+        usage: Set when it is raised; the time to acknowledge is measured from it.
+        relationshipContext: Precedes the acknowledgement.
+    - name: acknowledgedAt
+      type: datetime
+      required: false
+      help:
+        summary: When the person escalated to took the matter on.
+        usage: Recorded on acknowledgement and compared with the target response time.
+        relationshipContext: Present once the escalation has been acknowledged.
+    - name: resolvedAt
+      type: datetime
+      required: false
+      help:
+        summary: The date and time the escalation was resolved.
+        usage: Recorded together with the resolution, and used to measure how long escalations stay open.
+        relationshipContext: Present once the escalation has been resolved.
+    - name: resolution
+      type: text
+      required: false
+      help:
+        summary: What was done to get the matter back on track.
+        usage: Written when resolving; read in reviews of recurring escalations.
+        relationshipContext: Required to resolve.
+    - name: recordType
+      type: string
+      required: false
+      maxLength: 100
+      help:
+        summary: The kind of matter escalated when it is neither an incident, a service request nor a task.
+        usage: Given with the record reference for other matters.
+        relationshipContext: Empty when the matter is linked directly.
+    - name: recordReference
+      type: string
+      required: false
+      maxLength: 100
+      help:
+        summary: The reference of the matter escalated when it is of another kind.
+        usage: Lets the receiver open the matter.
+        relationshipContext: Read with the record type.
+  relationships:
+    - name: incident
+      target: Incident
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The incident escalated.
+        usage: Linked when the matter is an incident.
+        cardinalityMeaning: At most one incident per escalation.
+        context: The incident shows its escalations.
+    - name: serviceRequest
+      target: ServiceRequest
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The service request escalated.
+        usage: Linked when the matter is a service request.
+        cardinalityMeaning: At most one per escalation.
+        context: The request shows its escalations.
+    - name: task
+      target: Task
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The task escalated.
+        usage: Linked when the matter is a task.
+        cardinalityMeaning: At most one per escalation.
+        context: The task shows its escalations.
+    - name: serviceLevelAgreement
+      target: ServiceLevelAgreement
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The service-level agreement whose target was missed.
+        usage: Linked for service-level breaches.
+        cardinalityMeaning: At most one per escalation.
+        context: Breach reports count escalations per agreement.
+    - name: raisedBy
+      target: Person
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: Who raised the escalation; empty when it was raised automatically.
+        usage: Recorded when raised.
+        cardinalityMeaning: One per escalation.
+        context: Usually the handler or the customer's contact.
+    - name: escalatedTo
+      target: Person
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The person the matter was escalated to.
+        usage: Chosen by the escalation rule or by whoever raises it.
+        cardinalityMeaning: One per escalation.
+        context: Must have authority above the matter's handler.
   invariants:
     - {id: ESCALATION-001, rule: State changes and retries must preserve auditable history and must not duplicate downstream business effects.}
   lifecycle:

@@ -70,6 +70,31 @@ Readable by every signed-in person.
 
 Fields:
   - **Effective At** — When the attachment became part of the record. Set when the file is attached; used to show what evidence existed at a given moment.
+  - **File Name** (required) — The name of the file as uploaded. Shown in the record's list of attachments and used as the name when the file is downloaded. Not unique; the same name may be attached to many records.
+  - **Media Type** — The type of the file's content, such as application/pdf or image/jpeg. Detected on upload; it decides whether the file can be previewed. Taken from the file, not typed by the user.
+  - **Size Bytes** — The size of the file in bytes. Recorded on upload; used to enforce upload limits and to report storage use. Zero-size files are refused.
+  - **Storage Location** (required) — Where the file's content is stored. Set by the system on upload; users never type it. Moving files between stores updates it without changing the attachment.
+  - **Checksum** — A fingerprint of the file's content (SHA-256). Computed on upload; recomputing it later shows whether the file has been changed. Two attachments with the same checksum hold the same content.
+  - **Record Type** (required) — The kind of record the file is attached to, such as "Goods receipt". Set by the screen the file was attached from. Read with the record identifier to find the record.
+  - **Record** (required) — The identifier of the record the file is attached to. Set by the screen the file was attached from; the record's attachments are found by it. Together with the record type it identifies exactly one record.
+  - **Category** — What the file is, such as "Delivery note", "Certificate" or "Photograph". Chosen on upload so that the record's attachments can be told apart without opening them. Free choice of words, though each business usually agrees a short list.
+  - **Description** — A note about the file's content. Optional; useful when the file name does not say what the file shows. Free text.
+  - **Uploaded At** (required) — When the file was attached. Recorded by the system; the record's evidence is listed in this order. Not editable.
+  - **Status** (required, one of the Attachment Status values) — Whether the file still counts as evidence for the record. An attachment added by mistake is withdrawn; it stays visible in the history. Withdrawn attachments are not shown in the normal list. Attached and part of the record's evidence. Rem…
+  - **Uploaded By** (a Person) — The person who attached the file. Recorded on upload. One per attachment. Shown with the file so that reviewers know where it came from.
+
+### Attachment Status
+
+The values of attachment status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Bank Account
 
@@ -123,9 +148,39 @@ Fields:
   - **Start Date** (required) — The date from which the loan runs and interest begins to accrue. Normally the drawdown date; the repayment schedule is built from it.
   - **Maturity Date** (required) — The date by which the loan must be repaid in full. Agreed at approval; must be later than the start date. Collections treats balances outstanding after it as overdue.
   - **Status** (required, one of the Bank Loan Status values) — Where the loan stands in its life. Moved by credit, servicing and collections processes; repayment collection applies to ACTIVE and DELINQUENT loans. Requested by the borrower and under assessment; no funds have moved. Credit has been appr…
+  - **Interest Type** (required, one of the Bank Loan Interest Type values) — Whether the rate is fixed or follows a reference rate. Decides whether interest must be reset periodically. Floating loans state their reference rate and margin. The rate stays the same for the term. The rate follows a reference rate plus…
+  - **Repayment Frequency** (required, one of the Bank Loan Repayment Frequency values) — How often the borrower must pay instalments back to the bank. Chosen when the loan is set up; the repayment schedule is built from it. Bullet loans are repaid in one payment at maturity. An instalment falls due every month. An instalment f…
+  - **Outstanding Principal** — How much principal remains to be repaid. Updated with each repayment; shown in debt reports. Not more than the principal.
+  - **Covenants** — The financial and other conditions the borrower must keep. Monitored by treasury; a breach can make the loan repayable. Taken from the agreement.
   - **Borrower** (required, a Party) — The party that owes the loan. Chosen at application; statements and legal notices are addressed to this party. Exactly one borrower; joint borrowers would be modelled by a joint party. Identifies who is bound to repay.
   - **Lender** (required, a Organization) — The organisation that lends the money. Set at application; determines which bank entity books the loan and receives repayments. Exactly one lender: every loan is booked by a single lending entity. Identifies whose balance sheet carries the…
   - **Currency** (required, a Currency) — The currency in which the loan is denominated. Fixed at approval; principal, interest and repayments are all in this currency. Exactly one currency, so every amount on the loan is in the same money. Keeps amounts unambiguous across multi-c…
+
+### Bank Loan Interest Type
+
+The values of bank loan interest type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Bank Loan Repayment Frequency
+
+The values of bank loan repayment frequency, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Bank Loan Status
 
@@ -148,7 +203,31 @@ Readable by every signed-in person.
 
 Fields:
   - **Effective At** — The cut-off date and time up to which transactions are reconciled. Chosen when the reconciliation is started, usually the statement date; transactions after it belong to the next reconciliation.
+  - **Reconciliation Number** (required) — The reference number that identifies this reconciliation in the finance team's records. Assigned by the system when the reconciliation is opened and cited in month-end checklists. Unique across all reconciliations.
+  - **Period Start** (required) — The first day of the statement period being matched against the books. Set by the preparer when opening the reconciliation, alongside the period end. Not later than the period end.
+  - **Period End** (required) — The last day of the period reconciled, usually the statement date. Set when opening the reconciliation. Reconciliations of one account do not overlap.
+  - **Statement Balance** (required) — The closing balance printed on the bank's statement for the period. Copied by the preparer from the statement and compared with the book balance to find differences. Held in the bank account's currency.
+  - **Book Balance** (required) — The balance of the bank account in the company's books at the period end. Taken from the ledger. In the account's currency.
+  - **Difference** — Statement balance minus book balance. Must be explained by the unmatched items before sign-off. The one amount that may be negative.
+  - **Unmatched Count** — How many statement lines and book items are still unmatched. Falls as matching proceeds. Each must be explained before sign-off.
+  - **Explanation** — What explains the remaining difference. Written by the preparer, such as uncleared cheques and deposits in transit. Read by the reviewer.
+  - **Reconciled At** — The date and time the reviewer signed off that the books agree with the bank. Stamped automatically at sign-off. Present once the reconciliation is reconciled.
+  - **Status** (required, one of the Bank Reconciliation Status values) — Whether the matching is in progress, awaiting review or signed off. Moves on as the preparer submits the work and the reviewer signs it off. Reconciled periods are locked against further change. Matching of transactions is still in progres…
   - **Bank Account** (required, a Bank Account) — Exactly one account; a reconciliation never mixes accounts. Bank account reconciled. Defines reconciliation boundary. Treasury close and audit. Matched evidence remains traceable.
+  - **Prepared By** (a Person) — The finance person who did the matching and compiled the reconciliation. Recorded when the reconciliation is submitted for review. Exactly one preparer is named; it stays empty until submission. Names who did the work, so segregation of du…
+
+### Bank Reconciliation Status
+
+The values of bank reconciliation status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Bank Transaction
 
@@ -206,7 +285,25 @@ Readable by every signed-in person.
 Fields:
   - **Code** (required) — The short reference for the unit, such as CE or EMEA-RETAIL. Assigned by finance and used on reports and in postings; kept stable because history relies on it.
   - **Name** (required) — The full name of the business unit, as it appears in the organisation's structure and management accounts. Entered by management or finance when the unit is created; shown in organisation charts, selectors and segment reports.
+  - **Description** — What the business unit does. Read by people placing staff or costs in it. Free text.
+  - **Status** (required, one of the Business Unit Status values) — Whether the business unit is still operating. Set to inactive by an administrator after a reorganisation or closure. Inactive units are not offered for new assignments. Operating and available for new assignments. No longer operating after…
   - **Organization** (required, a Organization) — The organisation to which the unit belongs. Set when the unit is created. Exactly one organisation; a unit cannot stand alone. Rolls the unit's results up into its parent organisation.
+  - **Head** (a Person) — The executive responsible for the business unit. Receives its reports and approves its budgets. One per business unit. Accountable for its results.
+  - **Legal Entity** (a Legal Entity) — The company the business unit mainly trades through. Used for contracts and invoices made by the unit. At most one. A unit trading in several countries uses several entities; the main one is named.
+  - **Parent Unit** (a Business Unit) — The larger business unit this one is part of. Builds the hierarchy. At most one. Cannot be itself.
+
+### Business Unit Status
+
+The values of business unit status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Calendar
 
@@ -217,6 +314,41 @@ Readable by every signed-in person.
 Fields:
   - **Code** (required) — The short reference for the calendar, such as DE-NAT. Assigned by the administrator; used in configuration and reports; kept stable.
   - **Name** (required) — The descriptive name of the calendar, such as UK Working Days or Group Fiscal Calendar. Entered by the administrator who maintains it; shown wherever a schedule, service level or plan asks which calendar applies.
+  - **Working Days** (required) — The days of the normal working week, such as MON-FRI or MON-SAT. Days outside it are non-working unless an exception says otherwise. Exceptions override it for particular dates.
+  - **Time Zone** — The time zone of the calendar, such as Europe/Paris. Decides when a day starts and ends for deadlines. An IANA time-zone name.
+  - **Valid From** — The first day on which the calendar's working days and holidays apply. Set when the calendar is created. Not later than the valid-to date.
+  - **Valid To** — The last day on which the calendar's working days and holidays apply. Filled in when a newer calendar replaces this one. Left empty while the calendar is still in use.
+  - **Status** (required, one of the Calendar Status values) — Whether planners may use this calendar. Made inactive by an administrator once a newer calendar replaces it. Inactive calendars are not offered when choosing one. In use and available to planners. Retired and no longer offered.
+  - **Country** (a Country) — The country whose public holidays the calendar holds. Set for country calendars. At most one. Site calendars usually take their country's calendar as base.
+  - **Base Calendar** (a Calendar) — The calendar whose exceptions this one also follows. Set so a site calendar inherits the country's holidays. At most one base. Cannot be itself.
+
+Line items — **Calendar Exception**: kept inside each Calendar and reached by opening it, never on their own. One holiday, closure or extra working day in a calendar. Exceptions are what make a calendar accurate. Each records a date, what it is and whether work happens on it, so that working-day calculations skip holidays and closures and count extra working days. Entered each year for the coming year's ho…
+
+### Calendar Exception Exception Type
+
+The values of calendar exception exception type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Calendar Status
+
+The values of calendar status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### City
 
@@ -243,7 +375,46 @@ Readable by every signed-in person.
 
 Fields:
   - **Effective At** — When the pledge took effect. Set at registration; the loan is considered secured from this moment.
+  - **Collateral Number** (required) — The unique reference by which the pledged item is known to credit officers and legal staff. Assigned when the collateral is recorded during credit approval. Unique across all collateral items.
+  - **Collateral Type** (required, one of the Collateral Collateral Type values) — What kind of security is pledged, such as property, equipment, stock or a guarantee. Decides the valuation method and the haircut applied when lending value is calculated. Guarantees are promises by a third party, not assets. Land or build…
+  - **Description** (required) — What the collateral is, precisely enough to identify it. Copied into the security agreement. Such as an address and land register number, or a serial number.
+  - **Valuation Amount** (required) — The market value of the pledged item at its most recent valuation. Recorded from the valuation report and used to work out lending value after the haircut. Revalued periodically.
+  - **Valuation Date** (required) — The day the current value of the collateral was assessed. Old valuations prompt credit risk staff to order a revaluation. Not in the future.
+  - **Haircut Percent** (required) — The reduction the lender applies to the value for risk. Set by credit policy for the collateral type. Between 0 and 100.
+  - **Lending Value** — The value the lender counts: valuation less the haircut. Compared with the secured exposure. Recomputed on each revaluation.
+  - **Charge Rank** — The ranking of this lender's claim on the collateral — 1 for first-ranking. Recorded from the registration. Lower ranks are paid only after higher ones.
+  - **Registered Date** — The day the charge was registered with the competent registry. Recorded on registration; protects the lender against third parties. Not every collateral type is registered.
+  - **Released Date** — The day the lender gave up its claim on the collateral. Recorded by the credit team when the loan is repaid or the security is replaced. Present only once the collateral is released.
+  - **Status** (required, one of the Collateral Status values) — Offered during credit approval; no charge yet. Charged in favour of the lender. Freed after repayment, so it no longer secures any loan. Taken by the lender after default. Whether the collateral currently secures a loan. Moved on as the ch…
   - **Bank Loan** (a Bank Loan) — The loan the collateral secures. Set when the pledge is registered. At most one loan; collateral may secure another type of facility instead. Links the security to the exposure it covers. Connects pledged value to credit exposure.
+  - **Owner** (a Party) — Who owns the collateral. Recorded when it is pledged. One per item. May be a third party, such as a guarantor.
+  - **Currency** (required, a Currency) — The currency of the values. Set when recording it. One per item. Values are converted for coverage in the loan's currency.
+
+### Collateral Collateral Type
+
+The values of collateral collateral type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Collateral Status
+
+The values of collateral status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Contact Point
 
@@ -254,7 +425,52 @@ Readable by every signed-in person.
 Fields:
   - **Code** (required) — A short reference for the contact point. Assigned or imported; stays stable so integrations can match it.
   - **Name** (required) — A descriptive label for the endpoint, such as Head office switchboard. Shown wherever contact points are listed.
+  - **Channel** (required, one of the Contact Point Channel values) — An email address used for written messages. A landline telephone number. A mobile telephone number. A fax number, kept for partners who still use it. A web address of the party's site or page. A handle on a messaging app. What kind of chan…
+  - **Value** (required) — The address or number itself. Entered in its standard form — international format for phone numbers. Validated according to the channel.
+  - **Purpose** (required, one of the Contact Point Purpose values) — Any purpose, when nothing more specific applies. Invoices and statements sent to accounts payable. Order confirmations and purchase orders. Delivery notices and arrival updates. Service and support enquiries. Marketing communication, where…
+  - **Is Preferred** (required) — Whether this is the preferred channel for its purpose. Used first when several channels serve the same purpose. One preferred channel per party, channel and purpose.
+  - **Verified At** — When the channel was last confirmed to work. Recorded by a verification message or call. Unverified channels may be refused for sensitive messages.
+  - **Status** (required, one of the Contact Point Status values) — Whether the channel is still usable for reaching the party. Changed when the channel stops being used or a message to it bounces. Inactive and invalid channels are not offered for contact. In use and offered for contact. No longer used and…
   - **Party** (required, a Party) — The party the endpoint belongs to. Set when the endpoint is added. Exactly one party; each endpoint has one owner. Lets communications find the right channel for a party.
+
+### Contact Point Channel
+
+The values of contact point channel, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Contact Point Purpose
+
+The values of contact point purpose, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Contact Point Status
+
+The values of contact point status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Country
 
@@ -284,6 +500,11 @@ Fields:
   - **Remaining Amount** (required) — The part of the credit not yet applied to charges. Starts equal to the amount and falls as the credit is applied; never more than the amount. Compared with the amount to show how much is used.
   - **Currency** (required, a Currency) — The currency of the credit. Set from the customer or contract; credits apply only to charges in the same currency. Read with the amount.
   - **Issued On** (required) — The date the credit was issued. Set when issued; the credit may be applied from this date. Compared with charge dates.
+  - **Description** — What the credit is for, as the customer will see it. Printed on the invoice where it is applied. Should let the customer recognise it.
+  - **Applied Amount** — How much of the credit has been used. Increased each time it is applied to an invoice or charge. Not more than the amount.
+  - **Granted Date** (required) — The day the credit was granted to the customer or account. Recorded by whoever grants the credit; the expiry period and any approval limit are counted from this date. Not later than the expiry date.
+  - **Expiry Date** — The last day the credit can still be applied to a charge. Credit left unused after this day lapses and can no longer be applied to invoices or charges. Left empty when the credit never expires.
+  - **Granted By** (a Person) — The person who decided to grant the credit. Recorded when the credit is granted, so a reviewer can see who authorised it and why. At most one person is recorded as granting each credit. Credits above an approval limit are checked against t…
 
 ### Credit Reason
 
@@ -346,7 +567,26 @@ Readable by every signed-in person.
 Fields:
   - **Code** (required) — The short code of the department, such as FIN-AP. Used in postings and reports; kept stable.
   - **Name** (required) — The name of the department as the organisation calls it, such as Finance or Field Operations. Entered by an administrator; shown in organisation charts, on documents and in reports that group people and costs by department.
+  - **Description** — What the department is responsible for and what kind of work it does. Read by people placing staff, positions or work, so they choose the right department. Free text written by the organisation's administrators.
+  - **Status** (required, one of the Department Status values) — Whether the department currently exists as part of the organisation. Set to inactive after a reorganisation closes or merges the department. Inactive departments are not offered when assigning people or work. The department exists and can…
   - **Organization** (required, a Organization) — Chosen when the department is created; reporting lines, headcount and budgets roll up through the organisation it belongs to. The organisation the department belongs to. Exactly one organisation: a department is part of a single organisati…
+  - **Business Unit** (a Business Unit) — The business unit the department is part of. Set where the organization is divided into business units. At most one. Used in business-unit reporting.
+  - **Parent Department** (a Department) — The department this one reports to. Builds the hierarchy used for approvals. At most one. Cannot be itself.
+  - **Manager** (a Person) — The person who leads the department. Approves its requests and receives its reports. One per department. Approval routing goes to this person.
+  - **Location** (a Location) — Where the department is based. Used in directories and space planning. At most one. Staff may work elsewhere.
+
+### Department Status
+
+The values of department status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Deposit
 
@@ -356,6 +596,59 @@ Readable by every signed-in person.
 
 Fields:
   - **Effective At** — When the deposit took effect. Set when the funds are placed; interest runs from this moment.
+  - **Deposit Number** (required) — Our reference for the deposit. Assigned when the deposit is arranged; matched to the bank's confirmation. Unique; the bank's own reference is kept separately.
+  - **Bank Reference** — The bank's reference on its deposit confirmation. Entered from the confirmation; quoted when talking to the bank. Known once the bank confirms.
+  - **Deposit Type** (required, one of the Deposit Deposit Type values) — What kind of deposit it is. Chosen when arranging it; it decides whether the money can be called back early. Call deposits have no fixed maturity date. Placed for a fixed term at a fixed rate. Repayable on demand or at short notice, at a v…
+  - **Principal** (required) — The amount placed with the bank. Agreed when the deposit is arranged; leaves the funding account on the value date. Stated in the deposit's currency.
+  - **Interest Rate Percent** (required) — The annual interest rate, in percent. Agreed with the bank; used with the day-count basis to compute interest. A call deposit's rate may change; the current rate is recorded.
+  - **Day Count Basis** (required, one of the Deposit Day Count Basis values) — The convention used to count days when interest is calculated. Taken from the bank's terms when the deposit is arranged, so expected interest matches the bank's own figure. The same rate earns slightly more on actual/360 than on actual/365…
+  - **Value Date** (required) — The day the money is placed and starts to earn interest. Agreed with the bank; the funding account is debited on this day. Must not be later than the maturity date.
+  - **Maturity Date** — The day principal and interest are repaid. Agreed for time deposits; cash forecasts count the repayment on this day. Empty for call deposits.
+  - **Expected Interest** — The interest the deposit will earn if held to maturity. Computed from principal, rate, day count and term; accrued period by period. The amount actually received is recorded when the deposit matures.
+  - **Interest Received** — The interest the bank actually paid on the deposit. Recorded by treasury at maturity or when the deposit is broken early. Differences from the expected interest are investigated with the bank.
+  - **Status** (required, one of the Deposit Status values) — Where the deposit stands, from arrangement through to repayment. Moved on by treasury as the money is placed, matures or is withdrawn early. Only active deposits count against the limits set for each bank. Agreed with the bank but not yet…
+  - **Bank** (required, a Organization) — The bank the money is placed with. Chosen when arranging the deposit; counterparty exposure is summed per bank. Every deposit is with exactly one bank. Each bank has an exposure limit set by treasury policy.
+  - **Funding Account** (a Bank Account) — The company account the money comes from and returns to. Debited on the value date and credited at maturity. One account per deposit. Must be in the deposit's currency.
+  - **Currency** (required, a Currency) — The currency of the deposit. Chosen when arranging it. One currency per deposit. Principal and interest are both in it.
+
+### Deposit Day Count Basis
+
+The values of deposit day count basis, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Deposit Deposit Type
+
+The values of deposit deposit type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Deposit Status
+
+The values of deposit status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Exchange Rate
 
@@ -372,6 +665,8 @@ Fields:
   - **Expires At** — Optional end of the period during which the rate is valid. Used to prevent application of expired rates. When supplied, expiresAt must be later than effectiveAt. Defines the rate's validity window for transaction and reporting calculations.
   - **Source** (required) — Identifies the provider or business authority from which the rate was obtained. Used for audit, reconciliation, regulatory reporting, and rate governance. Source identifies provenance; it does not by itself determine which rate is applicab…
   - **Status** (required, one of the Exchange Rate Status values) — Being prepared; not yet used. In force and usable for conversion. Its validity period has ended; kept for past conversions. Withdrawn; must not be used. Lifecycle state of the exchange-rate record. Used by conversion services to determine…
+  - **From Currency** (required, a Currency) — Currency from which an amount is converted. Identifies the source denomination of the monetary amount being converted. Must differ from toCurrency for a meaningful exchange-rate conversion. Identifies the currency of the source Money value…
+  - **To Currency** (required, a Currency) — Currency into which an amount is converted. Identifies the target denomination of the converted monetary amount. Conversion direction is from fromCurrency to toCurrency; reversing the direction requires an appropriate inverse rate rather t…
 
 ### Exchange Rate Rate Type
 
@@ -408,6 +703,21 @@ Readable by every signed-in person.
 Fields:
   - **Code** (required) — The two-letter ISO 639-1 code of the language, such as en or de. Taken from the standard; unique; used in locale settings and APIs.
   - **Name** (required) — The English name of the language, such as French or Portuguese. Loaded from the language reference data; it is shown in language pick-lists and reports, while the code remains the identifier.
+  - **Alpha3** — The three-letter ISO 639-3 code, such as fra. Used by systems that require three-letter codes. From the standard.
+  - **Direction** (required, one of the Language Direction values) — Whether the language is written left to right or right to left. Tells screens and documents how to lay out text. From the Unicode CLDR. Written left to right. Written right to left.
+
+### Language Direction
+
+The values of language direction, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Legal Entity
 
@@ -417,6 +727,34 @@ Readable by every signed-in person.
 
 Fields:
   - **Occurred At** — When the entity was formed, or its record took effect. Set from the registration data.
+  - **Legal Name** (required) — The registered name, exactly as in the register. Printed on invoices, contracts and filings. A trading name may differ; this is the one the law recognises.
+  - **Registration Number** — The number under which the entity is registered, such as a company number or SIREN. Printed on documents where the law requires it; used in KYC checks. Unique within its jurisdiction.
+  - **Legal Form** — The legal form, such as "SAS", "GmbH", "Ltd" or "LLC". Printed after the name on documents. Each jurisdiction has its own forms.
+  - **Incorporation Date** — The day the company or organisation was legally formed, as shown on its certificate of incorporation. Copied from the official register when the entity is set up; used for age checks, filings and group structure charts. It can never fall a…
+  - **Dissolution Date** — The day the legal entity formally ceased to exist and was removed from the register. Entered by company secretarial when a dissolution is confirmed; it stays empty for entities that still exist. Only dissolved entities carry a date here.
+  - **Tax Identifier** — The entity's main tax number in its country. Printed on invoices and used in tax filings. Further registrations are recorded as tax registrations.
+  - **Vat Number** — The entity's VAT or sales-tax registration number. Printed on invoices; validated for cross-border trade. Empty for entities not registered for VAT.
+  - **Lei** — The Legal Entity Identifier, a 20-character global code. Required for financial transactions and regulatory reporting. Issued by an LEI operator and renewed every year.
+  - **Is Group Company** (required) — Whether the entity belongs to our own group. Separates the group's companies from customers' and suppliers' entities; intercompany transactions are between group companies. Group companies have their own accounts and filings.
+  - **Status** (required, one of the Legal Entity Status values) — Registered, in good standing and free to trade, sign contracts and issue invoices. Still registered but not trading, so it holds no live business activity. Being wound up by a liquidator; no new business should be started in its name. Stru…
+  - **Organization** (a Organization) — The organization this entity is the legal form of. Linked so that the organization's contracts and filings can be issued in the right name. At most one organization per entity. An organization may trade through several entities in differen…
+  - **Country** (a Country) — The country the entity is registered in. Decides which law, register and tax rules apply. One per entity. A branch abroad is not a separate entity.
+  - **Registered Address** (a Address) — The registered office. Printed on documents where the law requires it. One per entity. May differ from where the entity operates.
+  - **Functional Currency** (a Currency) — The currency the entity keeps its accounts in. Set by finance; translations to the group currency start from it. One per entity. Usually the currency of its country.
+  - **Parent Entity** (a Legal Entity) — The entity that owns this one in the group. Recorded for group companies; consolidation follows it. At most one parent. Minority holdings are not recorded here.
+
+### Legal Entity Status
+
+The values of legal entity status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Location
 
@@ -554,7 +892,38 @@ Readable by every signed-in person.
 Fields:
   - **Code** (required) — The code of the relationship type or instance, such as SUBSIDIARY_OF. Chosen from the relationship list; used in queries and rules.
   - **Name** (required) — A readable description of the relationship, such as Acme Ltd is subsidiary of Acme Group. Entered when the relationship is created; shown in party views and lists so users can understand the link at a glance.
+  - **Relationship Type** (required, one of the Party Relationship Relationship Type values) — Describes how the first party stands towards the second, such as subsidiary, employee or guarantor. Chosen when the link is recorded; credit, compliance and group reporting use it to interpret the connection. Read from the first party to t…
+  - **Ownership Percent** — The share the parent or owner holds, for ownership relationships. Used in consolidation and beneficial-ownership checks. Between 0 and 100.
+  - **Valid From** — The first day on which the relationship between the two parties holds. Recorded when it is known, for example from a contract or register entry. It cannot be later than the valid-to date.
+  - **Valid To** — The last day on which the relationship between the two parties holds. Recorded when the relationship ends, for example on resignation or sale; empty while it still applies. Empty while the relationship continues.
+  - **Status** (required, one of the Party Relationship Status values) — Says whether the relationship between the two parties is still in force today. Set to ended by the person maintaining the record when the relationship stops. Ended relationships stay for history. The relationship is in force today. The rel…
   - **From Party** (required, a Party) — The party at the origin of the relationship. Chosen when the relationship is created. Exactly one origin party: a relationship always starts at a particular party. Together with the other party it identifies the relationship.
+
+### Party Relationship Relationship Type
+
+The values of party relationship relationship type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Party Relationship Status
+
+The values of party relationship status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Party Role
 
@@ -800,6 +1169,11 @@ Fields:
 - **INACTIVE** — Temporarily not offered, for example while a move is being confirmed; it can be reactivated.
 - **RETIRED** — No longer valid; kept only as history and in past documents.
 
+### Attachment Status
+
+- **ACTIVE** — Attached and part of the record's evidence.
+- **WITHDRAWN** — Removed from the record's evidence, but kept for the history.
+
 ### Bank Account Account Type
 
 - **CURRENT** — A transaction account for everyday receipts and payments.
@@ -815,6 +1189,19 @@ Fields:
 - **BLOCKED** — Temporarily frozen, for example for compliance reasons; no new payments should be routed to it.
 - **CLOSED** — Permanently closed; history remains for reconciliation and audit.
 
+### Bank Loan Interest Type
+
+- **FIXED** — The rate stays the same for the term.
+- **FLOATING** — The rate follows a reference rate plus a margin.
+
+### Bank Loan Repayment Frequency
+
+- **MONTHLY** — An instalment falls due every month.
+- **QUARTERLY** — An instalment falls due every three months.
+- **SEMI ANNUAL** — An instalment falls due every six months.
+- **ANNUAL** — An instalment falls due once a year.
+- **BULLET** — The whole balance is repaid in one payment at maturity.
+
 ### Bank Loan Status
 
 - **APPLICATION** — Requested by the borrower and under assessment; no funds have moved.
@@ -824,6 +1211,12 @@ Fields:
 - **PAID OFF** — Fully repaid; a final state.
 - **DEFAULTED** — Delinquency was not resolved and the bank treats the loan as in default; a final state.
 - **CANCELLED** — Withdrawn or refused before any funds were advanced; a final state.
+
+### Bank Reconciliation Status
+
+- **OPEN** — Matching of transactions is still in progress.
+- **IN REVIEW** — Submitted to the reviewer for sign-off.
+- **RECONCILED** — Signed off, so the books agree with the bank.
 
 ### Bank Transaction Status
 
@@ -841,6 +1234,62 @@ Fields:
 - **INTEREST** — Interest credited or debited by the bank.
 - **REVERSAL** — A reversal of an earlier bank transaction, such as a returned payment.
 - **OTHER** — A bank-side adjustment that fits none of the above.
+
+### Business Unit Status
+
+- **ACTIVE** — Operating and available for new assignments.
+- **INACTIVE** — No longer operating after a closure or merger.
+
+### Calendar Exception Exception Type
+
+- **PUBLIC HOLIDAY** — A public holiday on which work does not happen.
+- **COMPANY CLOSURE** — A day the company or site is closed.
+- **EXTRA WORKING DAY** — A normally free day that is worked.
+
+### Calendar Status
+
+- **ACTIVE** — In use and available to planners.
+- **INACTIVE** — Retired and no longer offered.
+
+### Collateral Collateral Type
+
+- **REAL ESTATE** — Land or buildings, usually secured by a registered charge.
+- **EQUIPMENT** — Machinery, vehicles or other movable assets.
+- **INVENTORY** — Stock of goods held by the borrower, valued at cost or market and revalued often.
+- **RECEIVABLES** — Amounts owed to the borrower by its customers.
+- **CASH** — Cash deposits or securities.
+- **GUARANTEE** — A guarantee given by a third party.
+
+### Collateral Status
+
+- **PROPOSED** — Offered during credit approval; no charge yet.
+- **PLEDGED** — Charged in favour of the lender.
+- **RELEASED** — Freed after repayment, so it no longer secures any loan.
+- **ENFORCED** — Taken by the lender after default.
+
+### Contact Point Channel
+
+- **EMAIL** — An email address used for written messages.
+- **PHONE** — A landline telephone number.
+- **MOBILE** — A mobile telephone number.
+- **FAX** — A fax number, kept for partners who still use it.
+- **WEBSITE** — A web address of the party's site or page.
+- **MESSAGING** — A handle on a messaging app.
+
+### Contact Point Purpose
+
+- **GENERAL** — Any purpose, when nothing more specific applies.
+- **BILLING** — Invoices and statements sent to accounts payable.
+- **ORDERS** — Order confirmations and purchase orders.
+- **DELIVERY** — Delivery notices and arrival updates.
+- **SUPPORT** — Service and support enquiries.
+- **MARKETING** — Marketing communication, where consent allows.
+
+### Contact Point Status
+
+- **ACTIVE** — In use and offered for contact.
+- **INACTIVE** — No longer used and kept for history.
+- **INVALID** — Known not to work, such as a bouncing address.
 
 ### Credit Reason
 
@@ -863,6 +1312,31 @@ Fields:
 - **INACTIVE** — Temporarily not offered, for example while a market is closed; it can be reactivated.
 - **RETIRED** — No longer in use, such as a replaced national currency; historical amounts keep it.
 
+### Department Status
+
+- **ACTIVE** — The department exists and can receive people, positions and work.
+- **INACTIVE** — The department has been closed or merged away; it stays on record for history.
+
+### Deposit Day Count Basis
+
+- **ACT 360** — Actual days elapsed divided by a 360-day year.
+- **ACT 365** — Actual days elapsed divided by a 365-day year.
+- **THIRTY 360** — Every month counted as 30 days, divided by a 360-day year.
+
+### Deposit Deposit Type
+
+- **TIME** — Placed for a fixed term at a fixed rate.
+- **CALL** — Repayable on demand or at short notice, at a variable rate.
+- **CERTIFICATE** — A negotiable certificate of deposit.
+
+### Deposit Status
+
+- **ARRANGED** — Agreed with the bank but not yet placed.
+- **ACTIVE** — Placed and earning interest.
+- **MATURED** — Repaid at maturity together with its interest.
+- **BROKEN** — Repaid early, usually with reduced interest or a fee.
+- **CANCELLED** — Called off before the money was placed.
+
 ### Exchange Rate Rate Type
 
 - **SPOT** — The market rate at a moment in time.
@@ -878,6 +1352,18 @@ Fields:
 - **ACTIVE** — In force and usable for conversion.
 - **EXPIRED** — Its validity period has ended; kept for past conversions.
 - **CANCELLED** — Withdrawn; must not be used.
+
+### Language Direction
+
+- **LTR** — Written left to right.
+- **RTL** — Written right to left.
+
+### Legal Entity Status
+
+- **ACTIVE** — Registered, in good standing and free to trade, sign contracts and issue invoices.
+- **DORMANT** — Still registered but not trading, so it holds no live business activity.
+- **IN LIQUIDATION** — Being wound up by a liquidator; no new business should be started in its name.
+- **DISSOLVED** — Struck off the register and gone for good; no new contracts or invoices may use it.
 
 ### Location Location Type
 
@@ -927,6 +1413,22 @@ Fields:
 
 - **PERSON** — The party represents an individual human being.
 - **ORGANIZATION** — The party represents a legal, commercial, governmental, nonprofit, or other organized body.
+
+### Party Relationship Relationship Type
+
+- **SUBSIDIARY OF** — The first party is a subsidiary owned by the second.
+- **BRANCH OF** — The first party is a branch operating as part of the second.
+- **EMPLOYEE OF** — The first party works for the second as an employee.
+- **AGENT OF** — The first party acts as an agent on behalf of the second.
+- **GUARANTOR FOR** — The first party guarantees the second party's obligations.
+- **BENEFICIAL OWNER OF** — The first party ultimately owns or controls the second.
+- **HOUSEHOLD MEMBER OF** — The first party lives in the same household as the second.
+- **OTHER** — Any other kind of link, explained in the relationship name.
+
+### Party Relationship Status
+
+- **ACTIVE** — The relationship is in force today.
+- **ENDED** — The relationship has stopped but is kept for history.
 
 ### Party Role Role Type
 
@@ -1062,6 +1564,43 @@ Moves:
 - ACTIVE → EXPIRED (Expire)
 - INACTIVE → EXPIRED (Expire)
 
+### Party Relationship — Party Relationship Lifecycle
+
+Starts at **ACTIVE**.
+Final: **ENDED**.
+
+Moves:
+- ACTIVE → ENDED (End)
+
+### Legal Entity — Legal Entity Lifecycle
+
+Starts at **ACTIVE**.
+Final: **DISSOLVED**.
+
+Moves:
+- ACTIVE → DORMANT (Make Dormant)
+- DORMANT → ACTIVE (Resume Trading)
+- ACTIVE → IN LIQUIDATION (Liquidate)
+- DORMANT → IN LIQUIDATION (Liquidate)
+- IN LIQUIDATION → DISSOLVED (Dissolve)
+- DORMANT → DISSOLVED (Dissolve)
+
+### Business Unit — Business Unit Lifecycle
+
+Starts at **ACTIVE**.
+
+Moves:
+- ACTIVE → INACTIVE (Deactivate)
+- INACTIVE → ACTIVE (Reactivate)
+
+### Department — Department Lifecycle
+
+Starts at **ACTIVE**.
+
+Moves:
+- ACTIVE → INACTIVE (Deactivate)
+- INACTIVE → ACTIVE (Reactivate)
+
 ### Address — Address Lifecycle
 
 Starts at **ACTIVE**.
@@ -1072,6 +1611,16 @@ Moves:
 - INACTIVE → ACTIVE (Reactivate)
 - ACTIVE → RETIRED (Retire)
 - INACTIVE → RETIRED (Retire)
+
+### Contact Point — Contact Point Lifecycle
+
+Starts at **ACTIVE**.
+
+Moves:
+- ACTIVE → INACTIVE (Deactivate)
+- INACTIVE → ACTIVE (Reactivate)
+- ACTIVE → INVALID (Mark Invalid)
+- INVALID → ACTIVE (Reactivate)
 
 ### Location — Location Lifecycle
 
@@ -1120,6 +1669,22 @@ Moves:
 - ACTIVE → RETIRED (Retire)
 - INACTIVE → RETIRED (Retire)
 
+### Calendar — Calendar Lifecycle
+
+Starts at **ACTIVE**.
+
+Moves:
+- ACTIVE → INACTIVE (Deactivate)
+- INACTIVE → ACTIVE (Reactivate)
+
+### Attachment — Attachment Lifecycle
+
+Starts at **ACTIVE**.
+Final: **WITHDRAWN**.
+
+Moves:
+- ACTIVE → WITHDRAWN (Withdraw)
+
 ### Task — Task Lifecycle
 
 Starts at **CREATED**.
@@ -1167,6 +1732,16 @@ Moves:
 - POSTED → REVERSED (Reverse)
 - POSTED → FAILED (Fail)
 
+### Bank Reconciliation — Bank Reconciliation Lifecycle
+
+Starts at **OPEN**.
+
+Moves:
+- OPEN → IN REVIEW (Submit)
+- IN REVIEW → OPEN (Return)
+- IN REVIEW → RECONCILED (Sign Off)
+- RECONCILED → OPEN (Reopen)
+
 ### Bank Loan — Bank Loan Lifecycle
 
 Starts at **APPLICATION**.
@@ -1183,6 +1758,17 @@ Moves:
 - APPLICATION → CANCELLED (Cancel)
 - APPROVED → CANCELLED (Cancel)
 
+### Deposit — Deposit Lifecycle
+
+Starts at **ARRANGED**.
+Final: **MATURED**, **BROKEN**, **CANCELLED**.
+
+Moves:
+- ARRANGED → ACTIVE (Place)
+- ACTIVE → MATURED (Mature)
+- ACTIVE → BROKEN (Break)
+- ARRANGED → CANCELLED (Cancel)
+
 ### Credit — Credit Lifecycle
 
 Starts at **DRAFT**.
@@ -1194,9 +1780,20 @@ Moves:
 - DRAFT → CANCELLED (Cancel)
 - ACTIVE → CANCELLED (Cancel)
 
+### Collateral — Collateral Lifecycle
+
+Starts at **PROPOSED**.
+Final: **RELEASED**, **ENFORCED**.
+
+Moves:
+- PROPOSED → PLEDGED (Pledge)
+- PLEDGED → RELEASED (Release)
+- PLEDGED → ENFORCED (Enforce)
+- PROPOSED → RELEASED (Withdraw)
+
 ## Roles
 
-- **User** — reads 57 of 57 record types
+- **User** — reads 78 of 78 record types
 - **Administrator** — reads and changes everything the lifecycles allow
 
 A refusal means the person's role does not allow it. Say which role does, from this list, and suggest their administrator.

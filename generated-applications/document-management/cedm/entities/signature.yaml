@@ -9,9 +9,155 @@ entity:
   attributes:
     - {name: signatureId, type: uuid, required: true, immutable: true, help: {summary: 'The identity of the signature record, constant for its life.', usage: Generated on creation; documents refer to it., relationshipContext: Referenced by the signed document.}}
     - {name: effectiveAt, type: datetime, required: false, help: {summary: The date and time the signature took effect., usage: Set when signed; legal effect is measured from it., relationshipContext: Compared with the document's effective date.}}
-  relationships: []
+    - name: signatoryName
+      type: string
+      required: true
+      maxLength: 200
+      help:
+        summary: The name of the person who signs, as on the signature.
+        usage: Recorded when the signature is requested; kept even if the person's record changes later.
+        relationshipContext: Must match the identity the signing method verified.
+    - name: signatoryCapacity
+      type: string
+      required: false
+      maxLength: 150
+      help:
+        summary: The capacity in which the person signs, such as "Managing Director" or "Witness".
+        usage: Printed under the signature and checked against the person's authority to sign.
+        relationshipContext: Signing for a company needs the authority to bind it.
+    - name: sequence
+      type: integer
+      required: true
+      default: 1
+      help:
+        summary: The order in which this signer signs, when there are several.
+        usage: Signers are asked in order; the next is asked only after the previous has signed.
+        relationshipContext: Signers with the same number may sign in any order.
+    - name: method
+      type: enum
+      required: true
+      default: ELECTRONIC
+      values:
+        - WET_INK
+        - ELECTRONIC
+        - ADVANCED_ELECTRONIC
+        - QUALIFIED_ELECTRONIC
+      help:
+        summary: How the signature is given.
+        usage: Chosen when requesting it; it decides how strong the evidence is in law.
+        relationshipContext: Some documents require a qualified electronic signature or a wet signature.
+        valueSemantics:
+          WET_INK: Signed by hand on paper; the scan is the evidence.
+          ELECTRONIC: A simple electronic signature through an e-signature service.
+          ADVANCED_ELECTRONIC: An advanced electronic signature uniquely linked to the signer.
+          QUALIFIED_ELECTRONIC: A qualified electronic signature with the legal effect of a handwritten one.
+    - name: documentHash
+      type: string
+      required: false
+      maxLength: 128
+      help:
+        summary: The fingerprint (SHA-256) of the exact document version signed.
+        usage: Recorded at signature; recomputing it shows whether the document has changed since.
+        relationshipContext: A change of one character changes the fingerprint.
+    - name: requestedAt
+      type: datetime
+      required: true
+      help:
+        summary: The moment the signer was asked to sign the document.
+        usage: Recorded when the document is sent for signing; the expiry period is counted from it.
+        relationshipContext: Requests expire after the configured period.
+    - name: signedAt
+      type: datetime
+      required: false
+      help:
+        summary: When the person signed.
+        usage: Recorded from the signing service or the dated paper signature.
+        relationshipContext: Present once signed.
+    - name: evidenceReference
+      type: string
+      required: false
+      maxLength: 200
+      help:
+        summary: The identifier of the signing service's evidence (audit trail, certificate) for the signature.
+        usage: Kept to prove the signature if it is ever disputed.
+        relationshipContext: Issued by the e-signature provider.
+    - name: declineReason
+      type: string
+      required: false
+      maxLength: 500
+      help:
+        summary: Why the signer declined.
+        usage: Recorded when they decline, so the document can be corrected.
+        relationshipContext: Present only on declined signatures.
+    - name: status
+      type: enum
+      required: true
+      default: REQUESTED
+      values:
+        - REQUESTED
+        - SIGNED
+        - DECLINED
+        - EXPIRED
+        - REVOKED
+      help:
+        valueSemantics:
+          REQUESTED: Sent to the signer, who has not yet acted on it.
+          SIGNED: The signer has signed, and the evidence is recorded.
+          DECLINED: The signer refused to sign.
+          EXPIRED: Not acted on within the allowed time.
+          REVOKED: Withdrawn by the sender before it was signed.
+        summary: Whether the signature has been given.
+        usage: Moved on by the signer or the signing service.
+        relationshipContext: Only signed signatures count towards execution of the document.
+  relationships:
+    - name: document
+      target: Document
+      cardinality: "1"
+      ownership: reference
+      help:
+        summary: The document signed.
+        usage: Set when the signature is requested.
+        cardinalityMeaning: Every signature is on exactly one document.
+        context: The document is executed once every required signature is signed.
+    - name: signatory
+      target: Person
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The person who signs.
+        usage: Chosen when requesting the signature.
+        cardinalityMeaning: One per signature.
+        context: Their name is also copied onto the signature.
+    - name: onBehalfOf
+      target: Organization
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The organization the person signs for.
+        usage: Set when the person signs as a representative.
+        cardinalityMeaning: At most one.
+        context: The person must have authority to bind it.
   invariants:
     - {id: SIGNATURE-001, rule: Finalized historical evidence must not be silently rewritten; corrections or supersession require explicit governed records.}
+  workflows:
+    - name: ApprovalRequested
+      title: "Ask for a decision when a signature is put forward"
+      description: "When a signature is requested, a task asks someone to decide on it."
+      when: "status == \"REQUESTED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: decide on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "SIGNATURE-APPROVAL-{{id}}"
+              name: "Decide on signature {{id}}"
+              description: "Signature {{id}} is now {{status}}. Approve it, return it for change or reject it; the move you make is recorded on the record."
+              task_type: "APPROVAL"
+              status: "CREATED"
+              priority: "NORMAL"
   help:
     summary: Evidence that a named signatory signed a specific document, version or business transaction.
     businessMeaning: A signature record proves who approved what and when. Kept as fixed evidence, it supports contracts, approvals and audits, and a correction is a new record rather than an edit.
@@ -19,4 +165,32 @@ entity:
     relationshipContext: A signature relates to the document or transaction signed and to the signatory.
     lifecycle: A signature is recorded once and stands as evidence. It can be superseded by a later record, never changed.
     example: The sales director signs version 3 of a supply contract on 14 May.
+  lifecycle:
+    title: Signature Lifecycle
+    attribute: status
+    states:
+      - REQUESTED
+      - SIGNED
+      - DECLINED
+      - EXPIRED
+      - REVOKED
+    initial: REQUESTED
+    terminal:
+      - SIGNED
+      - DECLINED
+      - EXPIRED
+      - REVOKED
+    transitions:
+      - from: REQUESTED
+        to: SIGNED
+        action: sign
+      - from: REQUESTED
+        to: DECLINED
+        action: decline
+      - from: REQUESTED
+        to: EXPIRED
+        action: expire
+      - from: REQUESTED
+        to: REVOKED
+        action: revoke
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-SIGNATURE}

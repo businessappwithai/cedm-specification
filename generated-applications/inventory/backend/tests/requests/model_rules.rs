@@ -1,6 +1,6 @@
 //! The rules the *model* declared, and whether they reached the application.
 //!
-//! Generated: 2026-10-10T02:40:31.439Z
+//! Generated: 2026-10-16T07:47:08.775Z
 //! Project: inventory
 //!
 //! Every other rules suite creates a rule through the API and then checks that
@@ -33,6 +33,16 @@ const MODEL_RULES: &[(&str, &str, &str)] = &[
         "bus_party_role",
         "UPDATE",
     ),
+    (
+        "partyRelationshipInvariantsBeforeCreate",
+        "bus_party_relationship",
+        "CREATE",
+    ),
+    (
+        "partyRelationshipInvariantsBeforeUpdate",
+        "bus_party_relationship",
+        "UPDATE",
+    ),
     ("addressInvariantsBeforeCreate", "bus_address", "CREATE"),
     ("addressInvariantsBeforeUpdate", "bus_address", "UPDATE"),
     (
@@ -43,6 +53,18 @@ const MODEL_RULES: &[(&str, &str, &str)] = &[
     (
         "exchangeRateInvariantsBeforeUpdate",
         "bus_exchange_rate",
+        "UPDATE",
+    ),
+    ("calendarInvariantsBeforeCreate", "bus_calendar", "CREATE"),
+    ("calendarInvariantsBeforeUpdate", "bus_calendar", "UPDATE"),
+    (
+        "calendarExceptionInvariantsBeforeCreate",
+        "bus_calendar_exception",
+        "CREATE",
+    ),
+    (
+        "calendarExceptionInvariantsBeforeUpdate",
+        "bus_calendar_exception",
         "UPDATE",
     ),
     ("taskInvariantsBeforeCreate", "bus_task", "CREATE"),
@@ -77,6 +99,16 @@ const MODEL_RULES: &[(&str, &str, &str)] = &[
         "bus_inventory_count",
         "UPDATE",
     ),
+    (
+        "inventoryAdjustmentInvariantsBeforeCreate",
+        "bus_inventory_adjustment",
+        "CREATE",
+    ),
+    (
+        "inventoryAdjustmentInvariantsBeforeUpdate",
+        "bus_inventory_adjustment",
+        "UPDATE",
+    ),
     ("productInvariantsBeforeCreate", "bus_product", "CREATE"),
     ("productInvariantsBeforeUpdate", "bus_product", "UPDATE"),
     (
@@ -97,6 +129,8 @@ const MODEL_RULES: &[(&str, &str, &str)] = &[
     ("pickingInvariantsBeforeUpdate", "bus_picking", "UPDATE"),
     ("packingInvariantsBeforeCreate", "bus_packing", "CREATE"),
     ("packingInvariantsBeforeUpdate", "bus_packing", "UPDATE"),
+    ("waveInvariantsBeforeCreate", "bus_wave", "CREATE"),
+    ("waveInvariantsBeforeUpdate", "bus_wave", "UPDATE"),
     ("partyWorkflowsAfterUpdate", "bus_party", "UPDATE"),
     (
         "exchangeRateWorkflowsAfterUpdate",
@@ -116,6 +150,11 @@ const MODEL_RULES: &[(&str, &str, &str)] = &[
     (
         "inventoryTransferWorkflowsAfterUpdate",
         "bus_inventory_transfer",
+        "UPDATE",
+    ),
+    (
+        "inventoryAdjustmentWorkflowsAfterUpdate",
+        "bus_inventory_adjustment",
         "UPDATE",
     ),
     ("lotWorkflowsAfterUpdate", "bus_lot", "UPDATE"),

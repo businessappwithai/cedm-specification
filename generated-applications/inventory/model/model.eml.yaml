@@ -89,6 +89,44 @@ enums:
       ACTIVE: The party currently holds the role.
       INACTIVE: Dormant but may resume.
       EXPIRED: Ended; kept for history. A final state.
+  - name: PartyRelationshipRelationshipType
+    values: [SUBSIDIARY_OF, BRANCH_OF, EMPLOYEE_OF, AGENT_OF, GUARANTOR_FOR, BENEFICIAL_OWNER_OF, HOUSEHOLD_MEMBER_OF, OTHER]
+    table: true
+    descriptions:
+      SUBSIDIARY_OF: The first party is a subsidiary owned by the second.
+      BRANCH_OF: The first party is a branch operating as part of the second.
+      EMPLOYEE_OF: The first party works for the second as an employee.
+      AGENT_OF: The first party acts as an agent on behalf of the second.
+      GUARANTOR_FOR: The first party guarantees the second party's obligations.
+      BENEFICIAL_OWNER_OF: The first party ultimately owns or controls the second.
+      HOUSEHOLD_MEMBER_OF: The first party lives in the same household as the second.
+      OTHER: Any other kind of link, explained in the relationship name.
+  - name: PartyRelationshipStatus
+    values: [ACTIVE, ENDED]
+    table: true
+    descriptions:
+      ACTIVE: The relationship is in force today.
+      ENDED: The relationship has stopped but is kept for history.
+  - name: LegalEntityStatus
+    values: [ACTIVE, DORMANT, IN_LIQUIDATION, DISSOLVED]
+    table: true
+    descriptions:
+      ACTIVE: Registered, in good standing and free to trade, sign contracts and issue invoices.
+      DORMANT: Still registered but not trading, so it holds no live business activity.
+      IN_LIQUIDATION: Being wound up by a liquidator; no new business should be started in its name.
+      DISSOLVED: Struck off the register and gone for good; no new contracts or invoices may use it.
+  - name: BusinessUnitStatus
+    values: [ACTIVE, INACTIVE]
+    table: true
+    descriptions:
+      ACTIVE: Operating and available for new assignments.
+      INACTIVE: No longer operating after a closure or merger.
+  - name: DepartmentStatus
+    values: [ACTIVE, INACTIVE]
+    table: true
+    descriptions:
+      ACTIVE: The department exists and can receive people, positions and work.
+      INACTIVE: The department has been closed or merged away; it stays on record for history.
   - name: AddressAddressType
     values: [RESIDENTIAL, BUSINESS, BILLING, SHIPPING, REGISTERED, POSTAL, OTHER]
     table: true
@@ -107,6 +145,33 @@ enums:
       ACTIVE: Valid and available for new documents.
       INACTIVE: Temporarily not offered, for example while a move is being confirmed; it can be reactivated.
       RETIRED: No longer valid; kept only as history and in past documents.
+  - name: ContactPointChannel
+    values: [EMAIL, PHONE, MOBILE, FAX, WEBSITE, MESSAGING]
+    table: true
+    descriptions:
+      EMAIL: An email address used for written messages.
+      PHONE: A landline telephone number.
+      MOBILE: A mobile telephone number.
+      FAX: A fax number, kept for partners who still use it.
+      WEBSITE: A web address of the party's site or page.
+      MESSAGING: A handle on a messaging app.
+  - name: ContactPointPurpose
+    values: [GENERAL, BILLING, ORDERS, DELIVERY, SUPPORT, MARKETING]
+    table: true
+    descriptions:
+      GENERAL: Any purpose, when nothing more specific applies.
+      BILLING: Invoices and statements sent to accounts payable.
+      ORDERS: Order confirmations and purchase orders.
+      DELIVERY: Delivery notices and arrival updates.
+      SUPPORT: Service and support enquiries.
+      MARKETING: Marketing communication, where consent allows.
+  - name: ContactPointStatus
+    values: [ACTIVE, INACTIVE, INVALID]
+    table: true
+    descriptions:
+      ACTIVE: In use and offered for contact.
+      INACTIVE: No longer used and kept for history.
+      INVALID: Known not to work, such as a bouncing address.
   - name: LocationLocationType
     values: [SITE, WAREHOUSE, STORE, OFFICE, FACTORY, YARD, PORT, DEPOT, VIRTUAL, OTHER]
     table: true
@@ -130,6 +195,12 @@ enums:
       INACTIVE: Temporarily not used but expected to return to service.
       CLOSED: Closed down, with no new assignments but history kept.
       RETIRED: Removed from use altogether. A final state.
+  - name: LanguageDirection
+    values: [LTR, RTL]
+    table: true
+    descriptions:
+      LTR: Written left to right.
+      RTL: Written right to left.
   - name: CurrencyStatus
     values: [ACTIVE, INACTIVE, RETIRED]
     table: true
@@ -175,6 +246,25 @@ enums:
       ACTIVE: Available for use on products and documents.
       INACTIVE: Not offered for now; can be reactivated.
       RETIRED: No longer used; kept for history. A final state.
+  - name: CalendarStatus
+    values: [ACTIVE, INACTIVE]
+    table: true
+    descriptions:
+      ACTIVE: In use and available to planners.
+      INACTIVE: Retired and no longer offered.
+  - name: CalendarExceptionExceptionType
+    values: [PUBLIC_HOLIDAY, COMPANY_CLOSURE, EXTRA_WORKING_DAY]
+    table: true
+    descriptions:
+      PUBLIC_HOLIDAY: A public holiday on which work does not happen.
+      COMPANY_CLOSURE: A day the company or site is closed.
+      EXTRA_WORKING_DAY: A normally free day that is worked.
+  - name: AttachmentStatus
+    values: [ACTIVE, WITHDRAWN]
+    table: true
+    descriptions:
+      ACTIVE: Attached and part of the record's evidence.
+      WITHDRAWN: Removed from the record's evidence, but kept for the history.
   - name: TaskTaskType
     values: [USER, SYSTEM, APPROVAL, DECISION, NOTIFICATION, SCRIPT, OTHER]
     table: true
@@ -245,6 +335,29 @@ enums:
       IN_PROGRESS: The goods have been picked and are moving between the two locations.
       COMPLETED: The goods have been received at the target location. A final state.
       CANCELLED: Withdrawn before completion, with no further stock change. A final state.
+  - name: InventoryCountCountType
+    values: [CYCLE, ANNUAL, SPOT]
+    table: true
+    descriptions:
+      CYCLE: A routine count of some locations on a rolling schedule.
+      ANNUAL: The full year-end count of all stock.
+      SPOT: An unplanned count made after a problem was suspected.
+  - name: InventoryCountStatus
+    values: [PLANNED, COUNTED, RECOUNT, APPROVED]
+    table: true
+    descriptions:
+      PLANNED: Scheduled, but not yet counted.
+      COUNTED: Counted, with a difference to review.
+      RECOUNT: A recount was ordered because the difference looked wrong.
+      APPROVED: Accepted by the supervisor, so any difference is adjusted.
+  - name: InventoryAdjustmentStatus
+    values: [REQUESTED, APPROVED, POSTED, REJECTED]
+    table: true
+    descriptions:
+      REQUESTED: Asked for and waiting for approval.
+      APPROVED: Approved and waiting to be posted.
+      POSTED: Applied, so stock and accounts are updated.
+      REJECTED: Refused by the approver, so stock stays as it was.
   - name: LotStatus
     values: [ACTIVE, HOLD, QUARANTINED, RELEASED, EXPIRED, REJECTED, CONSUMED, CLOSED]
     table: true
@@ -358,6 +471,12 @@ enums:
       COLD_STORAGE: A temperature-controlled area for goods needing refrigeration or freezing.
       HAZARDOUS: A restricted area for dangerous goods, storing them under safety and regulatory controls.
       GENERAL: Ordinary storage with no special handling or purpose.
+  - name: WarehouseZoneStatus
+    values: [ACTIVE, INACTIVE]
+    table: true
+    descriptions:
+      ACTIVE: The zone is open and can receive and release stock.
+      INACTIVE: The zone is closed or being refitted and takes no new stock.
   - name: DockDockType
     values: [INBOUND, OUTBOUND, BIDIRECTIONAL, CROSS_DOCK]
     table: true
@@ -366,6 +485,12 @@ enums:
       OUTBOUND: Shipping goods to customers or other sites.
       BIDIRECTIONAL: Used for both receiving and shipping, as needed.
       CROSS_DOCK: Goods move straight from inbound to outbound without being stored.
+  - name: DockStatus
+    values: [AVAILABLE, OUT_OF_SERVICE]
+    table: true
+    descriptions:
+      AVAILABLE: In service and offered when appointments and loads are scheduled.
+      OUT_OF_SERVICE: Not usable, for example during repair, and left out of scheduling.
   - name: HandlingUnitType
     values: [PALLET, CARTON, TOTE, CAGE, DRUM, PACKAGE, OTHER]
     table: true
@@ -377,6 +502,15 @@ enums:
       DRUM: A cylindrical drum or barrel holding liquids or bulk material.
       PACKAGE: A general parcel that is none of the other forms.
       OTHER: A governed unit type not covered by the listed forms.
+  - name: HandlingUnitStatus
+    values: [OPEN, CLOSED, SHIPPED, RECEIVED, DISMANTLED]
+    table: true
+    descriptions:
+      OPEN: Still being filled; goods can be added.
+      CLOSED: Packed and labelled, and not to be reopened without unpacking.
+      SHIPPED: Has left the warehouse on its way to the destination.
+      RECEIVED: Arrived at its destination and was booked in.
+      DISMANTLED: Unpacked, so its contents are loose again.
   - name: PutawayStatus
     values: [PLANNED, RELEASED, IN_PROGRESS, COMPLETED, CANCELLED, EXCEPTION]
     table: true
@@ -416,6 +550,21 @@ enums:
       IN_PROGRESS: Workers are executing the picking, putaway or packing tasks.
       COMPLETED: All the wave's work is done. A final state.
       CANCELLED: The wave was abandoned and its tasks released for other planning. A final state.
+  - name: WaveWaveType
+    values: [PICKING, PUTAWAY, REPLENISHMENT]
+    table: true
+    descriptions:
+      PICKING: Picking for outbound orders.
+      PUTAWAY: Putting away received goods.
+      REPLENISHMENT: Moving stock from reserve to picking locations.
+  - name: PackagingPackagingLevel
+    values: [EACH, INNER, CASE, PALLET]
+    table: true
+    descriptions:
+      EACH: The single sellable unit as a customer buys it.
+      INNER: A smaller inner pack grouped inside a case.
+      CASE: A shipping case or carton holding several units.
+      PALLET: A full pallet of cases ready to be moved by forklift.
 categories:
   - name: Foundation
     description: Parties, places, units and reference data every domain shares
@@ -429,7 +578,7 @@ categories:
     entities: [Warehouse, HandlingUnit, Putaway, Picking, Packing, Wave]
   - name: Reference Data
     icon: list
-    entities: [PartyPartyType, PartyStatus, PersonGender, PersonPartyType, PersonStatus, OrganizationOrganizationType, OrganizationStatus, OrganizationPartyType, PartyRoleRoleType, PartyRoleStatus, AddressAddressType, AddressStatus, LocationLocationType, LocationStatus, CurrencyStatus, ExchangeRateRateType, ExchangeRateStatus, UnitOfMeasureCategory, UnitOfMeasureStatus, TaskTaskType, TaskStatus, TaskPriority, InventoryItemStatus, InventoryMovementMovementType, InventoryReservationStatus, InventoryTransferStatus, LotStatus, SerialNumberStatus, ProductProductType, ProductStatus, InventoryLocationLocationType, InventoryLocationStatus, WarehouseWarehouseType, WarehouseStatus, WarehouseLocationType, WarehouseZoneZoneType, DockDockType, HandlingUnitType, PutawayStatus, PickingStatus, PackingStatus, WaveStatus]
+    entities: [PartyPartyType, PartyStatus, PersonGender, PersonPartyType, PersonStatus, OrganizationOrganizationType, OrganizationStatus, OrganizationPartyType, PartyRoleRoleType, PartyRoleStatus, PartyRelationshipRelationshipType, PartyRelationshipStatus, LegalEntityStatus, BusinessUnitStatus, DepartmentStatus, AddressAddressType, AddressStatus, ContactPointChannel, ContactPointPurpose, ContactPointStatus, LocationLocationType, LocationStatus, LanguageDirection, CurrencyStatus, ExchangeRateRateType, ExchangeRateStatus, UnitOfMeasureCategory, UnitOfMeasureStatus, CalendarStatus, CalendarExceptionExceptionType, AttachmentStatus, TaskTaskType, TaskStatus, TaskPriority, InventoryItemStatus, InventoryMovementMovementType, InventoryReservationStatus, InventoryTransferStatus, InventoryCountCountType, InventoryCountStatus, InventoryAdjustmentStatus, LotStatus, SerialNumberStatus, ProductProductType, ProductStatus, InventoryLocationLocationType, InventoryLocationStatus, WarehouseWarehouseType, WarehouseStatus, WarehouseLocationType, WarehouseZoneZoneType, WarehouseZoneStatus, DockDockType, DockStatus, HandlingUnitType, HandlingUnitStatus, PutawayStatus, PickingStatus, PackingStatus, WaveStatus, WaveWaveType, PackagingPackagingLevel]
 entities:
   - name: Party
     help: The foundational CEDM business concept for an identifiable person or organization participating in business. Party separates who an actor is from the roles that actor performs. The same party can be a customer, supplier, employee, owner, provider, or contract party without creating duplicate identities. Used as the identity foundation for onboarding, customer management, procurement, sales, finance, logistics, HR, healthcare, contracts, compliance, and audit. Party connects to Person or Organization for intrinsic identity details and to PartyRole for business roles. Transactions and domain entities should reference the appropriate role when role-specific behavior matters. Party identity is long-lived. Operational eligibility is controlled by status, while historical relationships and transactions remain referentially valid. One organization may be represented by a single Party and simultaneously participate as Customer and Supplier in different business relationships.
@@ -635,6 +784,28 @@ entities:
       - name: name
         type: string(300)
         help: A readable description of the relationship, such as Acme Ltd is subsidiary of Acme Group. Entered when the relationship is created; shown in party views and lists so users can understand the link at a glance.
+      - name: relationship_type
+        type: string
+        enum: PartyRelationshipRelationshipType
+        help: Describes how the first party stands towards the second, such as subsidiary, employee or guarantor. Chosen when the link is recorded; credit, compliance and group reporting use it to interpret the connection. Read from the first party to the second. The first party is a subsidiary owned by the second. The first party is a branch operating as part of the second. The first party works for the second as an employee. The first party acts as an agent on behalf of the second. The first party guarantees the second party's obligations. The first party ultimately owns or controls the second. The first party lives in the same household as the second. Any other kind of link, explained in the relationship name.
+        default: OTHER
+      - name: ownership_percent
+        type: decimal
+        optional: true
+        help: The share the parent or owner holds, for ownership relationships. Used in consolidation and beneficial-ownership checks. Between 0 and 100.
+      - name: valid_from
+        type: date
+        optional: true
+        help: The first day on which the relationship between the two parties holds. Recorded when it is known, for example from a contract or register entry. It cannot be later than the valid-to date.
+      - name: valid_to
+        type: date
+        optional: true
+        help: The last day on which the relationship between the two parties holds. Recorded when the relationship ends, for example on resignation or sale; empty while it still applies. Empty while the relationship continues.
+      - name: status
+        type: string
+        enum: PartyRelationshipStatus
+        help: Says whether the relationship between the two parties is still in force today. Set to ended by the person maintaining the record when the relationship stops. Ended relationships stay for history. The relationship is in force today. The relationship has stopped but is kept for history.
+        default: ACTIVE
       - name: from_party_id
         type: string
         fk: true
@@ -652,6 +823,74 @@ entities:
         type: datetime
         optional: true
         help: When the entity was formed, or its record took effect. Set from the registration data.
+      - name: legal_name
+        type: string(300)
+        help: The registered name, exactly as in the register. Printed on invoices, contracts and filings. A trading name may differ; this is the one the law recognises.
+      - name: registration_number
+        type: string(60)
+        optional: true
+        help: The number under which the entity is registered, such as a company number or SIREN. Printed on documents where the law requires it; used in KYC checks. Unique within its jurisdiction.
+      - name: legal_form
+        type: string(60)
+        optional: true
+        help: The legal form, such as "SAS", "GmbH", "Ltd" or "LLC". Printed after the name on documents. Each jurisdiction has its own forms.
+      - name: incorporation_date
+        type: date
+        optional: true
+        help: The day the company or organisation was legally formed, as shown on its certificate of incorporation. Copied from the official register when the entity is set up; used for age checks, filings and group structure charts. It can never fall after the dissolution date.
+      - name: dissolution_date
+        type: date
+        optional: true
+        help: The day the legal entity formally ceased to exist and was removed from the register. Entered by company secretarial when a dissolution is confirmed; it stays empty for entities that still exist. Only dissolved entities carry a date here.
+      - name: tax_identifier
+        type: string(60)
+        optional: true
+        help: The entity's main tax number in its country. Printed on invoices and used in tax filings. Further registrations are recorded as tax registrations.
+      - name: vat_number
+        type: string(30)
+        optional: true
+        help: The entity's VAT or sales-tax registration number. Printed on invoices; validated for cross-border trade. Empty for entities not registered for VAT.
+      - name: lei
+        type: string(20)
+        optional: true
+        help: The Legal Entity Identifier, a 20-character global code. Required for financial transactions and regulatory reporting. Issued by an LEI operator and renewed every year.
+      - name: is_group_company
+        type: boolean
+        help: Whether the entity belongs to our own group. Separates the group's companies from customers' and suppliers' entities; intercompany transactions are between group companies. Group companies have their own accounts and filings.
+        default: "false"
+      - name: status
+        type: string
+        enum: LegalEntityStatus
+        help: Registered, in good standing and free to trade, sign contracts and issue invoices. Still registered but not trading, so it holds no live business activity. Being wound up by a liquidator; no new business should be started in its name. Struck off the register and gone for good; no new contracts or invoices may use it. Whether the entity exists and trades. Updated from the register or by company secretarial. Contracts and invoices must not be issued in the name of a dissolved entity.
+        default: ACTIVE
+      - name: organization_id
+        type: string
+        fk: true
+        optional: true
+        help: The organization this entity is the legal form of. Linked so that the organization's contracts and filings can be issued in the right name. At most one organization per entity. An organization may trade through several entities in different countries.
+      - name: country_id
+        type: string
+        fk: true
+        optional: true
+        help: The country the entity is registered in. Decides which law, register and tax rules apply. One per entity. A branch abroad is not a separate entity.
+      - name: registered_address_id
+        type: string
+        fk: true
+        references: Address
+        optional: true
+        help: The registered office. Printed on documents where the law requires it. One per entity. May differ from where the entity operates.
+      - name: functional_currency_id
+        type: string
+        fk: true
+        references: Currency
+        optional: true
+        help: The currency the entity keeps its accounts in. Set by finance; translations to the group currency start from it. One per entity. Usually the currency of its country.
+      - name: parent_entity_id
+        type: string
+        fk: true
+        references: LegalEntity
+        optional: true
+        help: The entity that owns this one in the group. Recorded for group companies; consolidation follows it. At most one parent. Minority holdings are not recorded here.
   - name: BusinessUnit
     help: A major business, division, product line or operating segment within an organisation. Business units are how a large organisation divides its activity for management and reporting. They let results, budgets and responsibility be assigned to a meaningful segment rather than to the organisation as a whole. Defined by management and finance; assigned to people, transactions and budgets; read when reporting by segment. Each business unit belongs to one Organization and groups the work and results of one part of it. A business unit keeps its code and identity stable. Reorganisations are recorded explicitly so earlier reports are not silently changed. The Consumer Electronics division of a manufacturer, with its own budget and profit target.
     icon: table
@@ -666,10 +905,36 @@ entities:
       - name: name
         type: string(300)
         help: The full name of the business unit, as it appears in the organisation's structure and management accounts. Entered by management or finance when the unit is created; shown in organisation charts, selectors and segment reports.
+      - name: description
+        type: text
+        optional: true
+        help: What the business unit does. Read by people placing staff or costs in it. Free text.
+      - name: status
+        type: string
+        enum: BusinessUnitStatus
+        help: Whether the business unit is still operating. Set to inactive by an administrator after a reorganisation or closure. Inactive units are not offered for new assignments. Operating and available for new assignments. No longer operating after a closure or merger.
+        default: ACTIVE
       - name: organization_id
         type: string
         fk: true
         help: The organisation to which the unit belongs. Set when the unit is created. Exactly one organisation; a unit cannot stand alone. Rolls the unit's results up into its parent organisation.
+      - name: head_id
+        type: string
+        fk: true
+        references: Person
+        optional: true
+        help: The executive responsible for the business unit. Receives its reports and approves its budgets. One per business unit. Accountable for its results.
+      - name: legal_entity_id
+        type: string
+        fk: true
+        optional: true
+        help: The company the business unit mainly trades through. Used for contracts and invoices made by the unit. At most one. A unit trading in several countries uses several entities; the main one is named.
+      - name: parent_unit_id
+        type: string
+        fk: true
+        references: BusinessUnit
+        optional: true
+        help: The larger business unit this one is part of. Builds the hierarchy. At most one. Cannot be itself.
   - name: Department
     help: A unit of an organisation that groups people, positions, responsibilities and work. Departments are how people are organised day to day. They define reporting lines, budgets and responsibilities. Defined by HR and management; assigned to people and positions; used in reporting and approvals. A department belongs to an Organization (or one of its business units). Code and identity stay stable. Reorganisations are recorded explicitly so earlier reports do not change. The Accounts Payable department of the finance function.
     icon: table
@@ -684,10 +949,40 @@ entities:
       - name: name
         type: string(300)
         help: The name of the department as the organisation calls it, such as Finance or Field Operations. Entered by an administrator; shown in organisation charts, on documents and in reports that group people and costs by department.
+      - name: description
+        type: text
+        optional: true
+        help: What the department is responsible for and what kind of work it does. Read by people placing staff, positions or work, so they choose the right department. Free text written by the organisation's administrators.
+      - name: status
+        type: string
+        enum: DepartmentStatus
+        help: Whether the department currently exists as part of the organisation. Set to inactive after a reorganisation closes or merges the department. Inactive departments are not offered when assigning people or work. The department exists and can receive people, positions and work. The department has been closed or merged away; it stays on record for history.
+        default: ACTIVE
       - name: organization_id
         type: string
         fk: true
         help: "Chosen when the department is created; reporting lines, headcount and budgets roll up through the organisation it belongs to. The organisation the department belongs to. Exactly one organisation: a department is part of a single organisation. Places the department in the reporting structure."
+      - name: business_unit_id
+        type: string
+        fk: true
+        optional: true
+        help: The business unit the department is part of. Set where the organization is divided into business units. At most one. Used in business-unit reporting.
+      - name: parent_department_id
+        type: string
+        fk: true
+        optional: true
+        help: The department this one reports to. Builds the hierarchy used for approvals. At most one. Cannot be itself.
+      - name: manager_id
+        type: string
+        fk: true
+        references: Person
+        optional: true
+        help: The person who leads the department. Approves its requests and receives its reports. One per department. Approval routing goes to this person.
+      - name: location_id
+        type: string
+        fk: true
+        optional: true
+        help: Where the department is based. Used in directories and space planning. At most one. Staff may work elsewhere.
   - name: Address
     help: A structured postal or physical address for a party or location, held once so it can be reused wherever it is needed. Addresses are reusable master data, yet an address printed on an issued invoice or shipment is historical evidence. This entity therefore holds the current address while documents keep their own copy of what was printed. Created when a party or location needs an address, selected when documents are prepared, and retired when it is no longer valid; read by invoicing, shipping, tax and mailing processes. An address is placed through its Country, optional StateProvince and City, so it follows the geography lists, and may be used by a Party or a Location. Addresses are active, can be made inactive and reactivated, and are retired when finished with. Retirement stops new use but never removes the address from past documents. A customer moves its billing address; the customer record now points to the new active address while already issued invoices keep the address that applied when they were issued. Address create/update → validate country/geography → validate Party/Location dependency → select effective address → transaction captures address evidence → later master-data changes affect future selection only.
     icon: map-pin
@@ -781,6 +1076,32 @@ entities:
       - name: name
         type: string(300)
         help: A descriptive label for the endpoint, such as Head office switchboard. Shown wherever contact points are listed.
+      - name: channel
+        type: string
+        enum: ContactPointChannel
+        help: An email address used for written messages. A landline telephone number. A mobile telephone number. A fax number, kept for partners who still use it. A web address of the party's site or page. A handle on a messaging app. What kind of channel it is. Chosen when adding it; decides how the value is validated. Read with the value.
+        default: EMAIL
+      - name: value
+        type: string(320)
+        help: The address or number itself. Entered in its standard form — international format for phone numbers. Validated according to the channel.
+      - name: purpose
+        type: string
+        enum: ContactPointPurpose
+        help: Any purpose, when nothing more specific applies. Invoices and statements sent to accounts payable. Order confirmations and purchase orders. Delivery notices and arrival updates. Service and support enquiries. Marketing communication, where consent allows. What the channel is used for. Processes pick the contact point for their purpose. A channel used for several purposes takes the main one.
+        default: GENERAL
+      - name: is_preferred
+        type: boolean
+        help: Whether this is the preferred channel for its purpose. Used first when several channels serve the same purpose. One preferred channel per party, channel and purpose.
+        default: "false"
+      - name: verified_at
+        type: datetime
+        optional: true
+        help: When the channel was last confirmed to work. Recorded by a verification message or call. Unverified channels may be refused for sensitive messages.
+      - name: status
+        type: string
+        enum: ContactPointStatus
+        help: Whether the channel is still usable for reaching the party. Changed when the channel stops being used or a message to it bounces. Inactive and invalid channels are not offered for contact. In use and offered for contact. No longer used and kept for history. Known not to work, such as a bouncing address.
+        default: ACTIVE
       - name: party_id
         type: string
         fk: true
@@ -13329,373 +13650,741 @@ entities:
       key: code
       rows:
         - code: aa
+          alpha3: aar
           name: Afar
+          direction: LTR
         - code: ab
+          alpha3: abk
           name: Abkhazian
+          direction: LTR
         - code: ae
+          alpha3: ave
           name: Avestan
+          direction: LTR
         - code: af
+          alpha3: afr
           name: Afrikaans
+          direction: LTR
         - code: ak
+          alpha3: aka
           name: Akan
+          direction: LTR
         - code: am
+          alpha3: amh
           name: Amharic
+          direction: LTR
         - code: an
+          alpha3: arg
           name: Aragonese
+          direction: LTR
         - code: ar
+          alpha3: ara
           name: Arabic
+          direction: RTL
         - code: as
+          alpha3: asm
           name: Assamese
+          direction: LTR
         - code: av
+          alpha3: ava
           name: Avaric
+          direction: LTR
         - code: ay
+          alpha3: aym
           name: Aymara
+          direction: LTR
         - code: az
+          alpha3: aze
           name: Azerbaijani
+          direction: LTR
         - code: ba
+          alpha3: bak
           name: Bashkir
+          direction: LTR
         - code: be
+          alpha3: bel
           name: Belarusian
+          direction: LTR
         - code: bg
+          alpha3: bul
           name: Bulgarian
+          direction: LTR
         - code: bi
+          alpha3: bis
           name: Bislama
+          direction: LTR
         - code: bm
+          alpha3: bam
           name: Bambara
+          direction: LTR
         - code: bn
+          alpha3: ben
           name: Bengali
+          direction: LTR
         - code: bo
+          alpha3: bod
           name: Tibetan
+          direction: LTR
         - code: br
+          alpha3: bre
           name: Breton
+          direction: LTR
         - code: bs
+          alpha3: bos
           name: Bosnian
+          direction: LTR
         - code: ca
+          alpha3: cat
           name: Catalan
+          direction: LTR
         - code: ce
+          alpha3: che
           name: Chechen
+          direction: LTR
         - code: ch
+          alpha3: cha
           name: Chamorro
+          direction: LTR
         - code: co
+          alpha3: cos
           name: Corsican
+          direction: LTR
         - code: cr
+          alpha3: cre
           name: Cree
+          direction: LTR
         - code: cs
+          alpha3: ces
           name: Czech
+          direction: LTR
         - code: cu
+          alpha3: chu
           name: Church Slavic
+          direction: LTR
         - code: cv
+          alpha3: chv
           name: Chuvash
+          direction: LTR
         - code: cy
+          alpha3: cym
           name: Welsh
+          direction: LTR
         - code: da
+          alpha3: dan
           name: Danish
+          direction: LTR
         - code: de
+          alpha3: deu
           name: German
+          direction: LTR
         - code: dv
+          alpha3: div
           name: Divehi
+          direction: RTL
         - code: dz
+          alpha3: dzo
           name: Dzongkha
+          direction: LTR
         - code: ee
+          alpha3: ewe
           name: Ewe
+          direction: LTR
         - code: el
+          alpha3: ell
           name: Modern Greek (1453-)
+          direction: LTR
         - code: en
+          alpha3: eng
           name: English
+          direction: LTR
         - code: eo
+          alpha3: epo
           name: Esperanto
+          direction: LTR
         - code: es
+          alpha3: spa
           name: Spanish
+          direction: LTR
         - code: et
+          alpha3: est
           name: Estonian
+          direction: LTR
         - code: eu
+          alpha3: eus
           name: Basque
+          direction: LTR
         - code: fa
+          alpha3: fas
           name: Persian
+          direction: RTL
         - code: ff
+          alpha3: ful
           name: Fulah
+          direction: LTR
         - code: fi
+          alpha3: fin
           name: Finnish
+          direction: LTR
         - code: fj
+          alpha3: fij
           name: Fijian
+          direction: LTR
         - code: fo
+          alpha3: fao
           name: Faroese
+          direction: LTR
         - code: fr
+          alpha3: fra
           name: French
+          direction: LTR
         - code: fy
+          alpha3: fry
           name: Western Frisian
+          direction: LTR
         - code: ga
+          alpha3: gle
           name: Irish
+          direction: LTR
         - code: gd
+          alpha3: gla
           name: Scottish Gaelic
+          direction: LTR
         - code: gl
+          alpha3: glg
           name: Galician
+          direction: LTR
         - code: gn
+          alpha3: grn
           name: Guarani
+          direction: LTR
         - code: gu
+          alpha3: guj
           name: Gujarati
+          direction: LTR
         - code: gv
+          alpha3: glv
           name: Manx
+          direction: LTR
         - code: ha
+          alpha3: hau
           name: Hausa
+          direction: LTR
         - code: he
+          alpha3: heb
           name: Hebrew
+          direction: RTL
         - code: hi
+          alpha3: hin
           name: Hindi
+          direction: LTR
         - code: ho
+          alpha3: hmo
           name: Hiri Motu
+          direction: LTR
         - code: hr
+          alpha3: hrv
           name: Croatian
+          direction: LTR
         - code: ht
+          alpha3: hat
           name: Haitian
+          direction: LTR
         - code: hu
+          alpha3: hun
           name: Hungarian
+          direction: LTR
         - code: hy
+          alpha3: hye
           name: Armenian
+          direction: LTR
         - code: hz
+          alpha3: her
           name: Herero
+          direction: LTR
         - code: ia
+          alpha3: ina
           name: Interlingua (International Auxiliary Language Association)
+          direction: LTR
         - code: id
+          alpha3: ind
           name: Indonesian
+          direction: LTR
         - code: ie
+          alpha3: ile
           name: Interlingue
+          direction: LTR
         - code: ig
+          alpha3: ibo
           name: Igbo
+          direction: LTR
         - code: ii
+          alpha3: iii
           name: Sichuan Yi
+          direction: LTR
         - code: ik
+          alpha3: ipk
           name: Inupiaq
+          direction: LTR
         - code: io
+          alpha3: ido
           name: Ido
+          direction: LTR
         - code: is
+          alpha3: isl
           name: Icelandic
+          direction: LTR
         - code: it
+          alpha3: ita
           name: Italian
+          direction: LTR
         - code: iu
+          alpha3: iku
           name: Inuktitut
+          direction: LTR
         - code: ja
+          alpha3: jpn
           name: Japanese
+          direction: LTR
         - code: jv
+          alpha3: jav
           name: Javanese
+          direction: LTR
         - code: ka
+          alpha3: kat
           name: Georgian
+          direction: LTR
         - code: kg
+          alpha3: kon
           name: Kongo
+          direction: LTR
         - code: ki
+          alpha3: kik
           name: Kikuyu
+          direction: LTR
         - code: kj
+          alpha3: kua
           name: Kuanyama
+          direction: LTR
         - code: kk
+          alpha3: kaz
           name: Kazakh
+          direction: LTR
         - code: kl
+          alpha3: kal
           name: Kalaallisut
+          direction: LTR
         - code: km
+          alpha3: khm
           name: Khmer
+          direction: LTR
         - code: kn
+          alpha3: kan
           name: Kannada
+          direction: LTR
         - code: ko
+          alpha3: kor
           name: Korean
+          direction: LTR
         - code: kr
+          alpha3: kau
           name: Kanuri
+          direction: LTR
         - code: ks
+          alpha3: kas
           name: Kashmiri
+          direction: RTL
         - code: ku
+          alpha3: kur
           name: Kurdish
+          direction: RTL
         - code: kv
+          alpha3: kom
           name: Komi
+          direction: LTR
         - code: kw
+          alpha3: cor
           name: Cornish
+          direction: LTR
         - code: ky
+          alpha3: kir
           name: Kirghiz
+          direction: LTR
         - code: la
+          alpha3: lat
           name: Latin
+          direction: LTR
         - code: lb
+          alpha3: ltz
           name: Luxembourgish
+          direction: LTR
         - code: lg
+          alpha3: lug
           name: Ganda
+          direction: LTR
         - code: li
+          alpha3: lim
           name: Limburgan
+          direction: LTR
         - code: ln
+          alpha3: lin
           name: Lingala
+          direction: LTR
         - code: lo
+          alpha3: lao
           name: Lao
+          direction: LTR
         - code: lt
+          alpha3: lit
           name: Lithuanian
+          direction: LTR
         - code: lu
+          alpha3: lub
           name: Luba-Katanga
+          direction: LTR
         - code: lv
+          alpha3: lav
           name: Latvian
+          direction: LTR
         - code: mg
+          alpha3: mlg
           name: Malagasy
+          direction: LTR
         - code: mh
+          alpha3: mah
           name: Marshallese
+          direction: LTR
         - code: mi
+          alpha3: mri
           name: Maori
+          direction: LTR
         - code: mk
+          alpha3: mkd
           name: Macedonian
+          direction: LTR
         - code: ml
+          alpha3: mal
           name: Malayalam
+          direction: LTR
         - code: mn
+          alpha3: mon
           name: Mongolian
+          direction: LTR
         - code: mr
+          alpha3: mar
           name: Marathi
+          direction: LTR
         - code: ms
+          alpha3: msa
           name: Malay (macrolanguage)
+          direction: LTR
         - code: mt
+          alpha3: mlt
           name: Maltese
+          direction: LTR
         - code: my
+          alpha3: mya
           name: Burmese
+          direction: LTR
         - code: na
+          alpha3: nau
           name: Nauru
+          direction: LTR
         - code: nb
+          alpha3: nob
           name: Norwegian Bokmål
+          direction: LTR
         - code: nd
+          alpha3: nde
           name: North Ndebele
+          direction: LTR
         - code: ne
+          alpha3: nep
           name: Nepali (macrolanguage)
+          direction: LTR
         - code: ng
+          alpha3: ndo
           name: Ndonga
+          direction: LTR
         - code: nl
+          alpha3: nld
           name: Dutch
+          direction: LTR
         - code: nn
+          alpha3: nno
           name: Norwegian Nynorsk
+          direction: LTR
         - code: no
+          alpha3: nor
           name: Norwegian
+          direction: LTR
         - code: nr
+          alpha3: nbl
           name: South Ndebele
+          direction: LTR
         - code: nv
+          alpha3: nav
           name: Navajo
+          direction: LTR
         - code: ny
+          alpha3: nya
           name: Chichewa
+          direction: LTR
         - code: oc
+          alpha3: oci
           name: Occitan (post 1500)
+          direction: LTR
         - code: oj
+          alpha3: oji
           name: Ojibwa
+          direction: LTR
         - code: om
+          alpha3: orm
           name: Oromo
+          direction: LTR
         - code: or
+          alpha3: ori
           name: Oriya (macrolanguage)
+          direction: LTR
         - code: os
+          alpha3: oss
           name: Ossetian
+          direction: LTR
         - code: pa
+          alpha3: pan
           name: Panjabi
+          direction: LTR
         - code: pi
+          alpha3: pli
           name: Pali
+          direction: LTR
         - code: pl
+          alpha3: pol
           name: Polish
+          direction: LTR
         - code: ps
+          alpha3: pus
           name: Pushto
+          direction: RTL
         - code: pt
+          alpha3: por
           name: Portuguese
+          direction: LTR
         - code: qu
+          alpha3: que
           name: Quechua
+          direction: LTR
         - code: rm
+          alpha3: roh
           name: Romansh
+          direction: LTR
         - code: rn
+          alpha3: run
           name: Rundi
+          direction: LTR
         - code: ro
+          alpha3: ron
           name: Romanian
+          direction: LTR
         - code: ru
+          alpha3: rus
           name: Russian
+          direction: LTR
         - code: rw
+          alpha3: kin
           name: Kinyarwanda
+          direction: LTR
         - code: sa
+          alpha3: san
           name: Sanskrit
+          direction: LTR
         - code: sc
+          alpha3: srd
           name: Sardinian
+          direction: LTR
         - code: sd
+          alpha3: snd
           name: Sindhi
+          direction: RTL
         - code: se
+          alpha3: sme
           name: Northern Sami
+          direction: LTR
         - code: sg
+          alpha3: sag
           name: Sango
+          direction: LTR
         - code: sh
+          alpha3: hbs
           name: Serbo-Croatian
+          direction: LTR
         - code: si
+          alpha3: sin
           name: Sinhala
+          direction: LTR
         - code: sk
+          alpha3: slk
           name: Slovak
+          direction: LTR
         - code: sl
+          alpha3: slv
           name: Slovenian
+          direction: LTR
         - code: sm
+          alpha3: smo
           name: Samoan
+          direction: LTR
         - code: sn
+          alpha3: sna
           name: Shona
+          direction: LTR
         - code: so
+          alpha3: som
           name: Somali
+          direction: LTR
         - code: sq
+          alpha3: sqi
           name: Albanian
+          direction: LTR
         - code: sr
+          alpha3: srp
           name: Serbian
+          direction: LTR
         - code: ss
+          alpha3: ssw
           name: Swati
+          direction: LTR
         - code: st
+          alpha3: sot
           name: Southern Sotho
+          direction: LTR
         - code: su
+          alpha3: sun
           name: Sundanese
+          direction: LTR
         - code: sv
+          alpha3: swe
           name: Swedish
+          direction: LTR
         - code: sw
+          alpha3: swa
           name: Swahili (macrolanguage)
+          direction: LTR
         - code: ta
+          alpha3: tam
           name: Tamil
+          direction: LTR
         - code: te
+          alpha3: tel
           name: Telugu
+          direction: LTR
         - code: tg
+          alpha3: tgk
           name: Tajik
+          direction: LTR
         - code: th
+          alpha3: tha
           name: Thai
+          direction: LTR
         - code: ti
+          alpha3: tir
           name: Tigrinya
+          direction: LTR
         - code: tk
+          alpha3: tuk
           name: Turkmen
+          direction: LTR
         - code: tl
+          alpha3: tgl
           name: Tagalog
+          direction: LTR
         - code: tn
+          alpha3: tsn
           name: Tswana
+          direction: LTR
         - code: to
+          alpha3: ton
           name: Tonga (Tonga Islands)
+          direction: LTR
         - code: tr
+          alpha3: tur
           name: Turkish
+          direction: LTR
         - code: ts
+          alpha3: tso
           name: Tsonga
+          direction: LTR
         - code: tt
+          alpha3: tat
           name: Tatar
+          direction: LTR
         - code: tw
+          alpha3: twi
           name: Twi
+          direction: LTR
         - code: ty
+          alpha3: tah
           name: Tahitian
+          direction: LTR
         - code: ug
+          alpha3: uig
           name: Uighur
+          direction: RTL
         - code: uk
+          alpha3: ukr
           name: Ukrainian
+          direction: LTR
         - code: ur
+          alpha3: urd
           name: Urdu
+          direction: RTL
         - code: uz
+          alpha3: uzb
           name: Uzbek
+          direction: LTR
         - code: ve
+          alpha3: ven
           name: Venda
+          direction: LTR
         - code: vi
+          alpha3: vie
           name: Vietnamese
+          direction: LTR
         - code: vo
+          alpha3: vol
           name: Volapük
+          direction: LTR
         - code: wa
+          alpha3: wln
           name: Walloon
+          direction: LTR
         - code: wo
+          alpha3: wol
           name: Wolof
+          direction: LTR
         - code: xh
+          alpha3: xho
           name: Xhosa
+          direction: LTR
         - code: yi
+          alpha3: yid
           name: Yiddish
+          direction: RTL
         - code: yo
+          alpha3: yor
           name: Yoruba
+          direction: LTR
         - code: za
+          alpha3: zha
           name: Zhuang
+          direction: LTR
         - code: zh
+          alpha3: zho
           name: Chinese
+          direction: LTR
         - code: zu
+          alpha3: zul
           name: Zulu
+          direction: LTR
     attributes:
       - name: id
         type: uuid
@@ -13708,6 +14397,15 @@ entities:
       - name: name
         type: string(300)
         help: The English name of the language, such as French or Portuguese. Loaded from the language reference data; it is shown in language pick-lists and reports, while the code remains the identifier.
+      - name: alpha3
+        type: string(3)
+        optional: true
+        help: The three-letter ISO 639-3 code, such as fra. Used by systems that require three-letter codes. From the standard.
+      - name: direction
+        type: string
+        enum: LanguageDirection
+        help: Whether the language is written left to right or right to left. Tells screens and documents how to lay out text. From the Unicode CLDR. Written left to right. Written right to left.
+        default: LTR
   - name: Currency
     help: Defines the monetary denomination that gives financial amounts their business meaning. Currency is not an amount. It defines the denomination in which an amount is stated and provides the reference needed for pricing, billing, settlement, banking, and accounting. Central to Product pricing, SalesOrder, Invoice, Payment, PaymentAllocation, BankTransaction, JournalEntry, ExchangeRate, and financial reporting. Product may carry reference pricing. SalesOrder establishes commercial amounts. Invoice establishes claims. Payment establishes settlement. PaymentAllocation applies settlement to claims. BankTransaction supplies external evidence. JournalEntry records accounting recognition. ExchangeRate provides auditable conversion between Currency denominations. Price → SalesOrder → Invoice → Payment → PaymentAllocation → BankTransaction reconciliation → JournalEntry. When currencies differ, an approved ExchangeRate and explicit rounding/conversion policy must be used; Currency master data never substitutes for an exchange-rate record. Currency is activated for use, may become inactive, and may eventually be retired. Lifecycle changes affect future transactions only and preserve historical financial evidence. A SalesOrder is denominated in USD and an Invoice is issued in USD. A customer pays in EUR. Payment records EUR, PaymentAllocation records the approved ExchangeRate and conversion context needed to settle the USD invoice, BankTransaction provides bank evidence in EUR, and accounting retains the rate used rather than later recalculating the historical settlement.
     icon: coins
@@ -14493,6 +15191,16 @@ entities:
         enum: ExchangeRateStatus
         help: Being prepared; not yet used. In force and usable for conversion. Its validity period has ended; kept for past conversions. Withdrawn; must not be used. Lifecycle state of the exchange-rate record. Used by conversion services to determine whether a rate may be applied. Historical calculations retain the rate record even after it expires. Prevents use of draft, cancelled, or expired rates where policy does not permit them.
         default: DRAFT
+      - name: from_currency
+        type: string
+        fk: true
+        references: Currency
+        help: Currency from which an amount is converted. Identifies the source denomination of the monetary amount being converted. Must differ from toCurrency for a meaningful exchange-rate conversion. Identifies the currency of the source Money value in an explicit conversion.
+      - name: to_currency
+        type: string
+        fk: true
+        references: Currency
+        help: Currency into which an amount is converted. Identifies the target denomination of the converted monetary amount. Conversion direction is from fromCurrency to toCurrency; reversing the direction requires an appropriate inverse rate rather than assuming arithmetic equivalence. Identifies the currency of the resulting Money value.
   - name: UnitOfMeasure
     help: Defines the measurement semantics that make numeric quantities comparable across CEDM workflows. A quantity without a valid unit is incomplete business information. UnitOfMeasure provides the dimension and conversion context needed to interpret quantities correctly. Central to Product, sales, procurement, receiving, inventory, fulfillment, invoicing, manufacturing, logistics, service, and reporting. Product supplies a default measurement context. Transaction lines may use compatible units. GoodsReceiptLine supplies received/accepted quantities. InventoryBalance and InventoryMovement require consistent measurement. InvoiceLine must be comparable for matching. UOM create/update/retire → identify Products and open transaction dependencies → validate conversions → update future eligibility/configuration → revalidate affected SalesOrderLine/PurchaseOrderLine/GoodsReceiptLine/InventoryMovement/InvoiceLine workflows → preserve historical quantity meaning. A conversion change is never a silent retroactive data transformation. Units are created and activated for use, may become inactive, and may eventually be retired. Retirement prevents new normal use but never changes the meaning of historical quantities. A change to code/name/symbol affects presentation and integrations; a change to category/baseUnit/conversionFactor affects quantity semantics and requires dependency validation; a status change affects future transaction eligibility; historical transaction evidence remains immutable. A product is stocked in EACH but purchased in BOX. If one BOX equals 10 EACH, the PO records 5 BOX and inventory posts 50 EACH after conversion. If the BOX conversion changes to 12 EACH, existing PO and receipt quantities are not silently reinterpreted. Open affected transactions must be revalidated or explicitly converted, while historical receipts and invoices retain the original conversion evidence.
     icon: list
@@ -14545,6 +15253,66 @@ entities:
       - name: name
         type: string(300)
         help: The descriptive name of the calendar, such as UK Working Days or Group Fiscal Calendar. Entered by the administrator who maintains it; shown wherever a schedule, service level or plan asks which calendar applies.
+      - name: working_days
+        type: string(50)
+        help: The days of the normal working week, such as MON-FRI or MON-SAT. Days outside it are non-working unless an exception says otherwise. Exceptions override it for particular dates.
+        default: MON-FRI
+      - name: time_zone
+        type: string(64)
+        optional: true
+        help: The time zone of the calendar, such as Europe/Paris. Decides when a day starts and ends for deadlines. An IANA time-zone name.
+      - name: valid_from
+        type: date
+        optional: true
+        help: The first day on which the calendar's working days and holidays apply. Set when the calendar is created. Not later than the valid-to date.
+      - name: valid_to
+        type: date
+        optional: true
+        help: The last day on which the calendar's working days and holidays apply. Filled in when a newer calendar replaces this one. Left empty while the calendar is still in use.
+      - name: status
+        type: string
+        enum: CalendarStatus
+        help: Whether planners may use this calendar. Made inactive by an administrator once a newer calendar replaces it. Inactive calendars are not offered when choosing one. In use and available to planners. Retired and no longer offered.
+        default: ACTIVE
+      - name: country_id
+        type: string
+        fk: true
+        optional: true
+        help: The country whose public holidays the calendar holds. Set for country calendars. At most one. Site calendars usually take their country's calendar as base.
+      - name: base_calendar_id
+        type: string
+        fk: true
+        references: Calendar
+        optional: true
+        help: The calendar whose exceptions this one also follows. Set so a site calendar inherits the country's holidays. At most one base. Cannot be itself.
+  - name: CalendarException
+    help: One holiday, closure or extra working day in a calendar. Exceptions are what make a calendar accurate. Each records a date, what it is and whether work happens on it, so that working-day calculations skip holidays and closures and count extra working days. Entered each year for the coming year's holidays and planned closures; read by every calculation that counts working days. An exception belongs to one Calendar and is listed among its exceptions. An exception has no lifecycle; it is added, and removed if the closure is cancelled. Annual calendar maintenance, due-date and delivery calculations. 14 July 2024 — 'Fête nationale', public holiday, non-working, in calendar FR.
+    icon: calendar-x
+    parent: Calendar
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: The permanent system identifier of the calendar exception record. Assigned by the application when the record is created and never changed; integrations and links use it to find the record. Other records that refer to a calendar exception store this identifier. The number or code people quote is a separate field.
+      - name: exception_date
+        type: date
+        help: The date the exception applies to. Entered when the holiday or closure is known. One exception per date in a calendar.
+      - name: name
+        type: string(150)
+        help: What the date is, such as "Christmas Day" or "Summer shutdown". Shown on calendars and in planning. Free text.
+      - name: exception_type
+        type: string
+        enum: CalendarExceptionExceptionType
+        help: What kind of departure from the normal working pattern this entry records. Chosen by the calendar owner when the entry is added. Extra working days turn a normally free day into a working day. A public holiday on which work does not happen. A day the company or site is closed. A normally free day that is worked.
+        default: PUBLIC_HOLIDAY
+      - name: is_working_day
+        type: boolean
+        help: Whether work happens on the date. Decides whether the date counts in working-day calculations. False for holidays and closures, true for extra working days.
+        default: "false"
+      - name: calendar_id
+        type: string
+        fk: true
+        help: The calendar the exception belongs to. Set when adding it. Every exception belongs to exactly one calendar. Listed under the calendar.
   - name: Attachment
     help: A file or other content attached to an enterprise record, with its content identity and provenance kept for audit. Supporting documents, photos and scans back up decisions. Keeping them as governed records, rather than loose files, proves what was attached to what and when, and lets the same content be recognised if it is attached twice. Added when a user or system attaches evidence to a record; read when someone needs to see or verify the supporting document. An attachment is linked to the record it supports; the same file may be attached to more than one. Once attached, the content is evidence and is not silently replaced; a corrected file is attached as a new record. A signed delivery note PDF is attached to a shipment record by the driver's handheld at delivery.
     icon: paperclip
@@ -14557,6 +15325,52 @@ entities:
         type: datetime
         optional: true
         help: When the attachment became part of the record. Set when the file is attached; used to show what evidence existed at a given moment.
+      - name: file_name
+        type: string(255)
+        help: The name of the file as uploaded. Shown in the record's list of attachments and used as the name when the file is downloaded. Not unique; the same name may be attached to many records.
+      - name: media_type
+        type: string(100)
+        optional: true
+        help: The type of the file's content, such as application/pdf or image/jpeg. Detected on upload; it decides whether the file can be previewed. Taken from the file, not typed by the user.
+      - name: size_bytes
+        type: integer
+        optional: true
+        help: The size of the file in bytes. Recorded on upload; used to enforce upload limits and to report storage use. Zero-size files are refused.
+      - name: storage_location
+        type: string(500)
+        help: Where the file's content is stored. Set by the system on upload; users never type it. Moving files between stores updates it without changing the attachment.
+      - name: checksum
+        type: string(128)
+        optional: true
+        help: A fingerprint of the file's content (SHA-256). Computed on upload; recomputing it later shows whether the file has been changed. Two attachments with the same checksum hold the same content.
+      - name: record_type
+        type: string(100)
+        help: The kind of record the file is attached to, such as "Goods receipt". Set by the screen the file was attached from. Read with the record identifier to find the record.
+      - name: record_id
+        type: string(64)
+        help: The identifier of the record the file is attached to. Set by the screen the file was attached from; the record's attachments are found by it. Together with the record type it identifies exactly one record.
+      - name: category
+        type: string(100)
+        optional: true
+        help: What the file is, such as "Delivery note", "Certificate" or "Photograph". Chosen on upload so that the record's attachments can be told apart without opening them. Free choice of words, though each business usually agrees a short list.
+      - name: description
+        type: string(500)
+        optional: true
+        help: A note about the file's content. Optional; useful when the file name does not say what the file shows. Free text.
+      - name: uploaded_at
+        type: datetime
+        help: When the file was attached. Recorded by the system; the record's evidence is listed in this order. Not editable.
+      - name: status
+        type: string
+        enum: AttachmentStatus
+        help: Whether the file still counts as evidence for the record. An attachment added by mistake is withdrawn; it stays visible in the history. Withdrawn attachments are not shown in the normal list. Attached and part of the record's evidence. Removed from the record's evidence, but kept for the history.
+        default: ACTIVE
+      - name: uploaded_by_id
+        type: string
+        fk: true
+        references: Person
+        optional: true
+        help: The person who attached the file. Recorded on upload. One per attachment. Shown with the file so that reviewers know where it came from.
   - name: Task
     help: A discrete unit of business work performed by a person, organisation, system or workflow participant. Tasks are how work is handed out and tracked, whether a person must act or a system step must run. Their type, status, owner and dates show what is waiting, what is stuck and what is done. Created by people or workflows; picked up by assignees; read by managers and reports. A task may belong to a workflow, an assignee, an organisation and a related document. A task is created, becomes ready, is assigned and worked, and ends completed, cancelled or failed. It may be blocked and resumed. All three end states are final. A task "Approve purchase order PO-5120" is assigned to a manager and completed the same day.
     icon: list-checks
@@ -14828,6 +15642,18 @@ entities:
         enum: InventoryTransferStatus
         help: How far the transfer of stock between locations has progressed, from request to receipt. Moved by the warehouse as work is released, goods are picked and moved, and the target location receives them; completed or cancelled transfers cannot be changed. Requested but not yet released, so no warehouse work has been assigned. Released to the warehouse, which may now begin execution. The goods have been picked and are moving between the two locations. The goods have been received at the target location. A final state. Withdrawn before completion, with no further stock change. A final state. Controls warehouse execution eligibility. Posted movements remain immutable regardless of header state.
         default: PLANNED
+      - name: moved_quantity
+        type: decimal
+        optional: true
+        help: The quantity that was actually moved between the two locations. Confirmed by the warehouse when the transfer is completed; a figure below the requested quantity means a partial transfer. Less than requested means a partial transfer.
+      - name: reason
+        type: string(300)
+        optional: true
+        help: Why the stock is moved, such as replenishment or consolidation. Recorded when requesting the transfer. Free text.
+      - name: completed_at
+        type: datetime
+        optional: true
+        help: The date and time the stock arrived at its destination location. Recorded by the warehouse when the transfer is completed; empty while it is still in progress. Present once completed.
       - name: product_id
         type: string
         fk: true
@@ -14860,6 +15686,24 @@ entities:
       - name: counted_at
         type: datetime
         help: When the count was made. Entered with the count; the system quantity at that time is the comparison. Anchors the count against ledger chronology. Movements around count time require controlled cutoff treatment.
+      - name: system_quantity
+        type: decimal
+        optional: true
+        help: How many units the system expected at the time of the count. Snapshot taken when counting starts. The difference becomes an adjustment.
+      - name: difference
+        type: decimal
+        optional: true
+        help: The counted quantity minus the quantity the system holds for the location. Calculated for review by the supervisor; large differences are recounted before being adjusted. It may be negative. May be negative.
+      - name: count_type
+        type: string
+        enum: InventoryCountCountType
+        help: Says why the count was made, whether routine, year-end or after a problem. Chosen when the count is planned; it decides who counts and when. Annual counts freeze stock movements while they run. A routine count of some locations on a rolling schedule. The full year-end count of all stock. An unplanned count made after a problem was suspected.
+        default: CYCLE
+      - name: status
+        type: string
+        enum: InventoryCountStatus
+        help: Shows how far the count has progressed from planning to approval. Moved on by the counter and the supervisor. Differences are adjusted only from approved counts. Scheduled, but not yet counted. Counted, with a difference to review. A recount was ordered because the difference looked wrong. Accepted by the supervisor, so any difference is adjusted.
+        default: PLANNED
       - name: product_id
         type: string
         fk: true
@@ -14891,6 +15735,19 @@ entities:
       - name: reason_code
         type: string(100)
         help: The reason for the correction, such as counting variance, damage or theft. Chosen from the organisation's list; reports analyse shrinkage by reason. Explains why ledger stock differs from evidenced reality. Must not be used to conceal ordinary receipts/issues.
+      - name: value_delta
+        type: Money
+        optional: true
+        help: The value of the adjustment at the product's cost. Posted to the stock-adjustment account. Same sign as the quantity.
+      - name: approved_at
+        type: datetime
+        optional: true
+        help: The date and time a manager approved the stock correction. Recorded on approval; adjustments above a value limit need approval before they can be posted, and it is empty until then. Present once approved.
+      - name: status
+        type: string
+        enum: InventoryAdjustmentStatus
+        help: Shows how far the stock correction has progressed from request to posting. Moved on by the requester, the approver and the posting step. Only posted adjustments change the stock. Asked for and waiting for approval. Approved and waiting to be posted. Applied, so stock and accounts are updated. Refused by the approver, so stock stays as it was.
+        default: REQUESTED
       - name: inventory_movement_id
         type: string
         fk: true
@@ -14952,6 +15809,14 @@ entities:
         enum: SerialNumberStatus
         help: Where the individual unit stands in its life, from expected through stock and use to end of life. Starts as EXPECTED or AVAILABLE and changes as the unit moves; it decides whether the unit can be picked, shipped or serviced. Announced on an inbound order but not yet received. In stock and free to be reserved or shipped. Set aside for a particular order or job. On its way between locations or to a customer. Fitted at a customer site or on equipment. Used up in production or service. A final state. Sent back by a customer and awaiting a decision. Held apart pending a quality or safety decision. Destroyed or written off. A final state. Taken out of service for good. A final state. Controls eligibility and custody transitions for the individual unit. Status is reconciled from authoritative business and inventory events rather than freely edited.
         default: EXPECTED
+      - name: manufactured_date
+        type: date
+        optional: true
+        help: The day on which this individual unit was produced. Taken from the manufacturer's or production record, and used to scope warranties and recalls. Not later than the warranty end date.
+      - name: warranty_end_date
+        type: date
+        optional: true
+        help: The last day of the unit's warranty. Checked when the unit is returned or serviced. From the warranty terms.
       - name: inventory_transfer_id
         type: string
         fk: true
@@ -15129,6 +15994,26 @@ entities:
         type: string
         enum: WarehouseZoneZoneType
         help: The main operational purpose of the zone, such as receiving, picking or cold storage. Chosen on creation; putaway and picking logic route stock by it, and compliance rules apply to restricted types. Where inbound goods are unloaded and checked before putaway. Bulk storage that holds stock to replenish picking areas. Forward area from which orders are picked in small quantities. A temporary holding area where goods wait to be consolidated or loaded. Where packed orders are held and loaded onto outbound transport. A segregated area holding stock that failed or awaits inspection and may not be used. Where returned goods are received and assessed for restock, repair or disposal. A temperature-controlled area for goods needing refrigeration or freezing. A restricted area for dangerous goods, storing them under safety and regulatory controls. Ordinary storage with no special handling or purpose. Governs eligible warehouse processes and stock. Location-level controls may further restrict eligibility.
+      - name: name
+        type: string(100)
+        help: The name of the zone, such as "Cold store 1". Shown in warehouse screens. Identifies the zone for people.
+      - name: min_temperature_c
+        type: decimal
+        optional: true
+        help: The lowest temperature the zone is kept at, in °C. Checked when products with storage conditions are put away. Empty for zones without temperature control.
+      - name: max_temperature_c
+        type: decimal
+        optional: true
+        help: The highest temperature the zone is kept at, in °C. Checked when products with storage conditions are put away. Not lower than the minimum.
+      - name: is_restricted
+        type: boolean
+        help: Whether access to the zone is restricted to authorised staff. Used for high-value, hazardous or quarantined goods. Tasks in restricted zones go only to authorised people.
+        default: "false"
+      - name: status
+        type: string
+        enum: WarehouseZoneStatus
+        help: Whether the zone is currently in use in the warehouse. Changed during refits or closures; inactive zones receive no putaway. The zone is open and can receive and release stock. The zone is closed or being refitted and takes no new stock. Inactive zones receive no putaway.
+        default: ACTIVE
       - name: warehouse_id
         type: string
         fk: true
@@ -15149,6 +16034,27 @@ entities:
         type: string
         enum: DockDockType
         help: What traffic the dock handles. Set by the warehouse manager; scheduling offers only docks suited to the movement. Receiving goods from suppliers or transfers. Shipping goods to customers or other sites. Used for both receiving and shipping, as needed. Goods move straight from inbound to outbound without being stored. Controls eligible receiving/shipping work. Warehouse policy may add constraints.
+      - name: name
+        type: string(100)
+        optional: true
+        help: A descriptive name for the dock, such as "North yard door 7". Shown in dock schedules and to drivers directed to the door. Optional, since the code already identifies the door.
+      - name: max_vehicle_length_m
+        type: decimal
+        optional: true
+        help: The longest vehicle the dock can take, in metres. Checked when a vehicle is scheduled at the dock. Read with the leveller and height.
+      - name: has_leveller
+        type: boolean
+        help: Whether the dock has a dock leveller for loading at truck height. Vehicles without a tail lift need one. Read when assigning vehicles.
+        default: "true"
+      - name: is_temperature_controlled
+        type: boolean
+        help: Whether the dock is sealed and temperature-controlled for chilled or frozen goods. Cold-chain loads are scheduled only at such docks. Read with the warehouse zone it serves.
+        default: "false"
+      - name: status
+        type: string
+        enum: DockStatus
+        help: In service and offered when appointments and loads are scheduled. Not usable, for example during repair, and left out of scheduling. Whether the dock can be used. Changed when the dock is out of service. Unavailable docks are not offered in scheduling.
+        default: AVAILABLE
       - name: warehouse_id
         type: string
         fk: true
@@ -15175,6 +16081,27 @@ entities:
         type: string
         enum: HandlingUnitType
         help: The physical form of the unit, such as a pallet or carton, which fixes its size and handling equipment. Chosen when the unit is created; capacity, equipment, packing and carrier planning read it. A palletised load moved by forklift or pallet truck. A cardboard box or case holding items for storage or shipment. A reusable bin or tote used for picking and internal movement. A roll cage or similar wheeled frame used to move mixed goods. A cylindrical drum or barrel holding liquids or bulk material. A general parcel that is none of the other forms. A governed unit type not covered by the listed forms. Describes packaging/handling form. Does not determine contents by itself.
+      - name: gross_weight_kg
+        type: decimal
+        optional: true
+        help: The weight of the unit with its contents, in kilograms. Weighed or computed at packing; used for loading and freight. Includes packaging.
+      - name: length_cm
+        type: decimal
+        optional: true
+        help: The length of the unit, in centimetres. Used for loading plans and volumetric freight. Measured or taken from the packaging type.
+      - name: width_cm
+        type: decimal
+        optional: true
+        help: The width of the unit, in centimetres. Used for loading plans and volumetric freight. Measured or taken from the packaging type.
+      - name: height_cm
+        type: decimal
+        optional: true
+        help: The height of the packed unit, in centimetres, including any pallet base. Measured at packing or taken from the packaging type; used for loading plans, stacking limits and carrier quotes. Measured or taken from the packaging type.
+      - name: status
+        type: string
+        enum: HandlingUnitStatus
+        help: Still being filled; goods can be added. Packed and labelled, and not to be reopened without unpacking. Has left the warehouse on its way to the destination. Arrived at its destination and was booked in. Unpacked, so its contents are loose again. Where the unit is in its use. Moved on by packing, shipping and receiving. A closed unit is not repacked without unpacking it.
+        default: OPEN
       - name: inventory_location_id
         type: string
         fk: true
@@ -15201,6 +16128,14 @@ entities:
         enum: PutawayStatus
         help: Where this storage task stands on the warehouse floor, from proposed to confirmed. Driven by warehouse orchestration and workers; completion needs movement evidence and completed and cancelled are final. Proposed by the system but not yet released to the floor. Released to the warehouse floor for a worker to carry out. Being carried out by a worker right now. Confirmed by the worker and reconciled to inventory movements. A final state. Withdrawn before the stock was moved. A final state. Could not be completed as planned, for example the target was full; needs a decision. Controls executable storage work. Completion alone does not alter stock without inventory posting.
         default: PLANNED
+      - name: putaway_number
+        type: string(40)
+        unique: true
+        help: The reference printed on the task that tells a warehouse operator where to store received goods. Assigned when the task is created and shown on the operator's handheld device; no two tasks share one. Quoted when reporting a problem with a particular storing task.
+      - name: completed_at
+        type: datetime
+        optional: true
+        help: When the goods were confirmed in their storage location. Recorded by the operator's device. Present once completed.
       - name: product_id
         type: string
         fk: true
@@ -15240,6 +16175,22 @@ entities:
         enum: PickingStatus
         help: Shows how far the pick task has advanced, from planned and released through picking to completion or a problem. Updated by warehouse staff and handheld scanners; a pick can be finished only from the in-progress state. The pick is created but not yet released to the floor, so nobody is working on it. The pick has been released to warehouse staff and is ready to be started. A picker has started collecting the goods from the source location. All the quantity was collected and moved to staging, ready for packing. A final state. Less than the required quantity was found, so the pick stops short and the shortfall needs a decision. The pick was called off before completion and no goods are moved. A final state. Something prevented picking, such as damaged stock or a blocked location, and the task needs investigation. Controls warehouse task progression. PICKED is warehouse evidence, not shipment delivery.
         default: PLANNED
+      - name: pick_number
+        type: string(40)
+        unique: true
+        help: The reference of the pick task. Shown on the picker's device and pick list. Unique.
+      - name: picked_quantity
+        type: decimal
+        optional: true
+        help: The number of units the picker actually took from the storage location. Confirmed by the picker on the handheld device; it is compared with the requested quantity. A figure below the requested quantity means a short pick.
+      - name: picked_at
+        type: datetime
+        optional: true
+        help: The date and time the picker confirmed this pick on the handheld device. Recorded automatically on confirmation; supervisors use it to measure pick rates and delays. Filled only once picked.
+      - name: short_reason
+        type: string(300)
+        optional: true
+        help: Why fewer units were picked than asked for. Entered by the picker on a short pick. Triggers a stock check of the location.
       - name: reservation_id
         type: string
         fk: true
@@ -15277,6 +16228,18 @@ entities:
         enum: PackingStatus
         help: Shows how far the packing task has progressed, from planned through packed, or into cancellation or exception. Updated by packers as work starts and finishes; shipping may proceed only once the task is packed. Created, not yet started. Packers are filling packages. Finished and ready to ship. Called off. A final state. Held because something is wrong, such as a shortage or damage. Controls packaging workflow. PACKED is not dispatch/delivery evidence.
         default: PLANNED
+      - name: packing_number
+        type: string(40)
+        unique: true
+        help: The reference of the packing task. Printed on the packing slip and scanned at the packing station. Unique.
+      - name: packed_at
+        type: datetime
+        optional: true
+        help: The date and time the packer finished and closed the packed handling unit. Recorded when the unit is closed and labelled, ready for the shipping area. Filled only once packing is done.
+      - name: exception_reason
+        type: string(300)
+        optional: true
+        help: What went wrong, such as missing items or damage found. Written when the task goes into exception. Read by the supervisor who resolves it.
       - name: picking_id
         type: string
         fk: true
@@ -15303,6 +16266,27 @@ entities:
         enum: WaveStatus
         help: How far the batch of warehouse work has progressed, from planning through release to completion. Starts as PLANNED; moved by the warehouse system or supervisor as the wave is released, worked and finished. Orders and tasks are grouped but not yet released to the floor. Released to the floor and ready for workers to start. Workers are executing the picking, putaway or packing tasks. All the wave's work is done. A final state. The wave was abandoned and its tasks released for other planning. A final state. Controls grouped task release and closure. Wave completion cannot substitute for task or inventory evidence.
         default: PLANNED
+      - name: wave_type
+        type: string
+        enum: WaveWaveType
+        help: The kind of work the wave releases to the floor. Chosen when the wave is planned and decides which tasks it groups; most waves are picking waves. Most waves are picking waves. Picking for outbound orders. Putting away received goods. Moving stock from reserve to picking locations.
+        default: PICKING
+      - name: released_at
+        type: datetime
+        optional: true
+        help: The date and time the wave was released to workers on the floor. Recorded automatically at release and empty while the wave is still planned. Present once released.
+      - name: planned_completion_at
+        type: datetime
+        optional: true
+        help: When the wave should be finished, usually to meet a carrier cut-off. Set when planning the wave. Late waves are flagged.
+      - name: completed_at
+        type: datetime
+        optional: true
+        help: The date and time the last task in the wave was finished. Recorded when the wave completes and compared with the planned completion to measure lateness. Present once completed.
+      - name: task_count
+        type: integer
+        optional: true
+        help: How many tasks, picks and putaways together, the wave contains. Calculated by the system and shown on the wave monitor so supervisors can size labour. Summed from its picks and putaways.
       - name: warehouse_id
         type: string
         fk: true
@@ -15322,6 +16306,35 @@ entities:
       - name: quantity_per_package
         type: decimal
         help: How many units of the product are in one package. Entered by logistics; used to convert between packs and units. Greater than zero. Defines pack conversion. Interpreted with UnitOfMeasure.
+      - name: packaging_level
+        type: string
+        enum: PackagingPackagingLevel
+        help: The single sellable unit as a customer buys it. A smaller inner pack grouped inside a case. A shipping case or carton holding several units. A full pallet of cases ready to be moved by forklift. The level of the packaging hierarchy. Orders and shipping work at different levels — each, case, pallet. Each level holds a whole number of the level below.
+        default: CASE
+      - name: gtin
+        type: string(14)
+        optional: true
+        help: The barcode number (GTIN) printed on this packaging. Scanned at receiving and in stores. Each packaging level has its own GTIN.
+      - name: gross_weight_kg
+        type: decimal
+        optional: true
+        help: The weight of one package with its contents, in kilograms. Used for freight and loading. Includes the packaging itself.
+      - name: length_cm
+        type: decimal
+        optional: true
+        help: The outer length of one package, measured in centimetres. Entered from the packaging specification and used by warehouse and transport planners to fit stock into locations and vehicles. Measured on the outside of the package.
+      - name: width_cm
+        type: decimal
+        optional: true
+        help: The outer width of one package, measured in centimetres. Entered from the packaging specification and used by warehouse and transport planners to fit stock into locations and vehicles. Measured on the outside of the package.
+      - name: height_cm
+        type: decimal
+        optional: true
+        help: The outer height of one package, measured in centimetres. Entered from the packaging specification and used by warehouse and transport planners to plan stacking and vehicle loading. Measured on the outside of the package.
+      - name: is_default
+        type: boolean
+        help: Whether this is the product's standard packaging at this level. Used when an order does not say otherwise. One default per product and level.
+        default: "false"
       - name: product_id
         type: string
         fk: true
@@ -15580,6 +16593,131 @@ entities:
         type: boolean
         help: Whether the value is offered on new records.
         default: "true"
+  - name: PartyRelationshipRelationshipType
+    help: "The values of party relationship relationship type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows."
+    icon: list
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string(100)
+        unique: true
+        help: The value stored on every record that uses this list. Fixed once created.
+      - name: name
+        type: string(200)
+        help: What a person reads in the dropdown and on a record.
+      - name: description
+        type: text
+        optional: true
+        help: What the value means to the business.
+      - name: sequence
+        type: integer
+        help: The position of the value in a dropdown, lowest first.
+      - name: is_active
+        type: boolean
+        help: Whether the value is offered on new records.
+        default: "true"
+  - name: PartyRelationshipStatus
+    help: "The values of party relationship status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows."
+    icon: list
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string(100)
+        unique: true
+        help: The value stored on every record that uses this list. Fixed once created.
+      - name: name
+        type: string(200)
+        help: What a person reads in the dropdown and on a record.
+      - name: description
+        type: text
+        optional: true
+        help: What the value means to the business.
+      - name: sequence
+        type: integer
+        help: The position of the value in a dropdown, lowest first.
+      - name: is_active
+        type: boolean
+        help: Whether the value is offered on new records.
+        default: "true"
+  - name: LegalEntityStatus
+    help: "The values of legal entity status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows."
+    icon: list
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string(100)
+        unique: true
+        help: The value stored on every record that uses this list. Fixed once created.
+      - name: name
+        type: string(200)
+        help: What a person reads in the dropdown and on a record.
+      - name: description
+        type: text
+        optional: true
+        help: What the value means to the business.
+      - name: sequence
+        type: integer
+        help: The position of the value in a dropdown, lowest first.
+      - name: is_active
+        type: boolean
+        help: Whether the value is offered on new records.
+        default: "true"
+  - name: BusinessUnitStatus
+    help: "The values of business unit status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows."
+    icon: list
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string(100)
+        unique: true
+        help: The value stored on every record that uses this list. Fixed once created.
+      - name: name
+        type: string(200)
+        help: What a person reads in the dropdown and on a record.
+      - name: description
+        type: text
+        optional: true
+        help: What the value means to the business.
+      - name: sequence
+        type: integer
+        help: The position of the value in a dropdown, lowest first.
+      - name: is_active
+        type: boolean
+        help: Whether the value is offered on new records.
+        default: "true"
+  - name: DepartmentStatus
+    help: "The values of department status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows."
+    icon: list
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string(100)
+        unique: true
+        help: The value stored on every record that uses this list. Fixed once created.
+      - name: name
+        type: string(200)
+        help: What a person reads in the dropdown and on a record.
+      - name: description
+        type: text
+        optional: true
+        help: What the value means to the business.
+      - name: sequence
+        type: integer
+        help: The position of the value in a dropdown, lowest first.
+      - name: is_active
+        type: boolean
+        help: Whether the value is offered on new records.
+        default: "true"
   - name: AddressAddressType
     help: "The values of address address type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows."
     icon: list
@@ -15630,6 +16768,81 @@ entities:
         type: boolean
         help: Whether the value is offered on new records.
         default: "true"
+  - name: ContactPointChannel
+    help: "The values of contact point channel, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows."
+    icon: list
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string(100)
+        unique: true
+        help: The value stored on every record that uses this list. Fixed once created.
+      - name: name
+        type: string(200)
+        help: What a person reads in the dropdown and on a record.
+      - name: description
+        type: text
+        optional: true
+        help: What the value means to the business.
+      - name: sequence
+        type: integer
+        help: The position of the value in a dropdown, lowest first.
+      - name: is_active
+        type: boolean
+        help: Whether the value is offered on new records.
+        default: "true"
+  - name: ContactPointPurpose
+    help: "The values of contact point purpose, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows."
+    icon: list
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string(100)
+        unique: true
+        help: The value stored on every record that uses this list. Fixed once created.
+      - name: name
+        type: string(200)
+        help: What a person reads in the dropdown and on a record.
+      - name: description
+        type: text
+        optional: true
+        help: What the value means to the business.
+      - name: sequence
+        type: integer
+        help: The position of the value in a dropdown, lowest first.
+      - name: is_active
+        type: boolean
+        help: Whether the value is offered on new records.
+        default: "true"
+  - name: ContactPointStatus
+    help: "The values of contact point status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows."
+    icon: list
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string(100)
+        unique: true
+        help: The value stored on every record that uses this list. Fixed once created.
+      - name: name
+        type: string(200)
+        help: What a person reads in the dropdown and on a record.
+      - name: description
+        type: text
+        optional: true
+        help: What the value means to the business.
+      - name: sequence
+        type: integer
+        help: The position of the value in a dropdown, lowest first.
+      - name: is_active
+        type: boolean
+        help: Whether the value is offered on new records.
+        default: "true"
   - name: LocationLocationType
     help: "The values of location location type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows."
     icon: list
@@ -15657,6 +16870,31 @@ entities:
         default: "true"
   - name: LocationStatus
     help: "The values of location status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows."
+    icon: list
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string(100)
+        unique: true
+        help: The value stored on every record that uses this list. Fixed once created.
+      - name: name
+        type: string(200)
+        help: What a person reads in the dropdown and on a record.
+      - name: description
+        type: text
+        optional: true
+        help: What the value means to the business.
+      - name: sequence
+        type: integer
+        help: The position of the value in a dropdown, lowest first.
+      - name: is_active
+        type: boolean
+        help: Whether the value is offered on new records.
+        default: "true"
+  - name: LanguageDirection
+    help: "The values of language direction, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows."
     icon: list
     attributes:
       - name: id
@@ -15782,6 +17020,81 @@ entities:
         default: "true"
   - name: UnitOfMeasureStatus
     help: "The values of unit of measure status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows."
+    icon: list
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string(100)
+        unique: true
+        help: The value stored on every record that uses this list. Fixed once created.
+      - name: name
+        type: string(200)
+        help: What a person reads in the dropdown and on a record.
+      - name: description
+        type: text
+        optional: true
+        help: What the value means to the business.
+      - name: sequence
+        type: integer
+        help: The position of the value in a dropdown, lowest first.
+      - name: is_active
+        type: boolean
+        help: Whether the value is offered on new records.
+        default: "true"
+  - name: CalendarStatus
+    help: "The values of calendar status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows."
+    icon: list
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string(100)
+        unique: true
+        help: The value stored on every record that uses this list. Fixed once created.
+      - name: name
+        type: string(200)
+        help: What a person reads in the dropdown and on a record.
+      - name: description
+        type: text
+        optional: true
+        help: What the value means to the business.
+      - name: sequence
+        type: integer
+        help: The position of the value in a dropdown, lowest first.
+      - name: is_active
+        type: boolean
+        help: Whether the value is offered on new records.
+        default: "true"
+  - name: CalendarExceptionExceptionType
+    help: "The values of calendar exception exception type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows."
+    icon: list
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string(100)
+        unique: true
+        help: The value stored on every record that uses this list. Fixed once created.
+      - name: name
+        type: string(200)
+        help: What a person reads in the dropdown and on a record.
+      - name: description
+        type: text
+        optional: true
+        help: What the value means to the business.
+      - name: sequence
+        type: integer
+        help: The position of the value in a dropdown, lowest first.
+      - name: is_active
+        type: boolean
+        help: Whether the value is offered on new records.
+        default: "true"
+  - name: AttachmentStatus
+    help: "The values of attachment status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows."
     icon: list
     attributes:
       - name: id
@@ -15957,6 +17270,81 @@ entities:
         default: "true"
   - name: InventoryTransferStatus
     help: "The values of inventory transfer status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows."
+    icon: list
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string(100)
+        unique: true
+        help: The value stored on every record that uses this list. Fixed once created.
+      - name: name
+        type: string(200)
+        help: What a person reads in the dropdown and on a record.
+      - name: description
+        type: text
+        optional: true
+        help: What the value means to the business.
+      - name: sequence
+        type: integer
+        help: The position of the value in a dropdown, lowest first.
+      - name: is_active
+        type: boolean
+        help: Whether the value is offered on new records.
+        default: "true"
+  - name: InventoryCountCountType
+    help: "The values of inventory count count type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows."
+    icon: list
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string(100)
+        unique: true
+        help: The value stored on every record that uses this list. Fixed once created.
+      - name: name
+        type: string(200)
+        help: What a person reads in the dropdown and on a record.
+      - name: description
+        type: text
+        optional: true
+        help: What the value means to the business.
+      - name: sequence
+        type: integer
+        help: The position of the value in a dropdown, lowest first.
+      - name: is_active
+        type: boolean
+        help: Whether the value is offered on new records.
+        default: "true"
+  - name: InventoryCountStatus
+    help: "The values of inventory count status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows."
+    icon: list
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string(100)
+        unique: true
+        help: The value stored on every record that uses this list. Fixed once created.
+      - name: name
+        type: string(200)
+        help: What a person reads in the dropdown and on a record.
+      - name: description
+        type: text
+        optional: true
+        help: What the value means to the business.
+      - name: sequence
+        type: integer
+        help: The position of the value in a dropdown, lowest first.
+      - name: is_active
+        type: boolean
+        help: Whether the value is offered on new records.
+        default: "true"
+  - name: InventoryAdjustmentStatus
+    help: "The values of inventory adjustment status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows."
     icon: list
     attributes:
       - name: id
@@ -16230,6 +17618,31 @@ entities:
         type: boolean
         help: Whether the value is offered on new records.
         default: "true"
+  - name: WarehouseZoneStatus
+    help: "The values of warehouse zone status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows."
+    icon: list
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string(100)
+        unique: true
+        help: The value stored on every record that uses this list. Fixed once created.
+      - name: name
+        type: string(200)
+        help: What a person reads in the dropdown and on a record.
+      - name: description
+        type: text
+        optional: true
+        help: What the value means to the business.
+      - name: sequence
+        type: integer
+        help: The position of the value in a dropdown, lowest first.
+      - name: is_active
+        type: boolean
+        help: Whether the value is offered on new records.
+        default: "true"
   - name: DockDockType
     help: "The values of dock dock type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows."
     icon: list
@@ -16255,8 +17668,58 @@ entities:
         type: boolean
         help: Whether the value is offered on new records.
         default: "true"
+  - name: DockStatus
+    help: "The values of dock status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows."
+    icon: list
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string(100)
+        unique: true
+        help: The value stored on every record that uses this list. Fixed once created.
+      - name: name
+        type: string(200)
+        help: What a person reads in the dropdown and on a record.
+      - name: description
+        type: text
+        optional: true
+        help: What the value means to the business.
+      - name: sequence
+        type: integer
+        help: The position of the value in a dropdown, lowest first.
+      - name: is_active
+        type: boolean
+        help: Whether the value is offered on new records.
+        default: "true"
   - name: HandlingUnitType
     help: "The values of handling unit type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows."
+    icon: list
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string(100)
+        unique: true
+        help: The value stored on every record that uses this list. Fixed once created.
+      - name: name
+        type: string(200)
+        help: What a person reads in the dropdown and on a record.
+      - name: description
+        type: text
+        optional: true
+        help: What the value means to the business.
+      - name: sequence
+        type: integer
+        help: The position of the value in a dropdown, lowest first.
+      - name: is_active
+        type: boolean
+        help: Whether the value is offered on new records.
+        default: "true"
+  - name: HandlingUnitStatus
+    help: "The values of handling unit status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows."
     icon: list
     attributes:
       - name: id
@@ -16380,6 +17843,56 @@ entities:
         type: boolean
         help: Whether the value is offered on new records.
         default: "true"
+  - name: WaveWaveType
+    help: "The values of wave wave type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows."
+    icon: list
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string(100)
+        unique: true
+        help: The value stored on every record that uses this list. Fixed once created.
+      - name: name
+        type: string(200)
+        help: What a person reads in the dropdown and on a record.
+      - name: description
+        type: text
+        optional: true
+        help: What the value means to the business.
+      - name: sequence
+        type: integer
+        help: The position of the value in a dropdown, lowest first.
+      - name: is_active
+        type: boolean
+        help: Whether the value is offered on new records.
+        default: "true"
+  - name: PackagingPackagingLevel
+    help: "The values of packaging packaging level, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows."
+    icon: list
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string(100)
+        unique: true
+        help: The value stored on every record that uses this list. Fixed once created.
+      - name: name
+        type: string(200)
+        help: What a person reads in the dropdown and on a record.
+      - name: description
+        type: text
+        optional: true
+        help: What the value means to the business.
+      - name: sequence
+        type: integer
+        help: The position of the value in a dropdown, lowest first.
+      - name: is_active
+        type: boolean
+        help: Whether the value is offered on new records.
+        default: "true"
 relationships:
   - from: Party
     fromCardinality: exactly-one
@@ -16439,11 +17952,71 @@ relationships:
     to: PartyRelationship
     toCardinality: zero-or-more
     label: from_party
+  - from: Party
+    fromCardinality: exactly-one
+    to: PartyRelationship
+    toCardinality: zero-or-more
+    label: to_party
+  - from: Organization
+    fromCardinality: exactly-one
+    to: LegalEntity
+    toCardinality: zero-or-more
+  - from: Country
+    fromCardinality: exactly-one
+    to: LegalEntity
+    toCardinality: zero-or-more
+  - from: Address
+    fromCardinality: exactly-one
+    to: LegalEntity
+    toCardinality: zero-or-more
+    label: registered_address
+  - from: Currency
+    fromCardinality: exactly-one
+    to: LegalEntity
+    toCardinality: zero-or-more
+    label: functional_currency
+  - from: LegalEntity
+    fromCardinality: exactly-one
+    to: LegalEntity
+    toCardinality: zero-or-more
+    label: parent_entity
   - from: Organization
     fromCardinality: exactly-one
     to: BusinessUnit
     toCardinality: zero-or-more
+  - from: Person
+    fromCardinality: exactly-one
+    to: BusinessUnit
+    toCardinality: zero-or-more
+    label: head
+  - from: LegalEntity
+    fromCardinality: exactly-one
+    to: BusinessUnit
+    toCardinality: zero-or-more
+  - from: BusinessUnit
+    fromCardinality: exactly-one
+    to: BusinessUnit
+    toCardinality: zero-or-more
+    label: parent_unit
   - from: Organization
+    fromCardinality: exactly-one
+    to: Department
+    toCardinality: zero-or-more
+  - from: BusinessUnit
+    fromCardinality: exactly-one
+    to: Department
+    toCardinality: zero-or-more
+  - from: Department
+    fromCardinality: exactly-one
+    to: Department
+    toCardinality: zero-or-more
+    label: parent_department
+  - from: Person
+    fromCardinality: exactly-one
+    to: Department
+    toCardinality: zero-or-more
+    label: manager
+  - from: Location
     fromCardinality: exactly-one
     to: Department
     toCardinality: zero-or-more
@@ -16506,6 +18079,16 @@ relationships:
     to: ExchangeRate
     toCardinality: zero-or-more
     label: exchange_rates_to
+  - from: Currency
+    fromCardinality: exactly-one
+    to: ExchangeRate
+    toCardinality: zero-or-more
+    label: from_currency_ref
+  - from: Currency
+    fromCardinality: exactly-one
+    to: ExchangeRate
+    toCardinality: zero-or-more
+    label: to_currency_ref
   - from: UnitOfMeasure
     fromCardinality: exactly-one
     to: UnitOfMeasure
@@ -16526,6 +18109,25 @@ relationships:
     to: InventoryMovement
     toCardinality: zero-or-more
     label: inventory_movements
+  - from: Country
+    fromCardinality: exactly-one
+    to: Calendar
+    toCardinality: zero-or-more
+  - from: Calendar
+    fromCardinality: exactly-one
+    to: Calendar
+    toCardinality: zero-or-more
+    label: base_calendar
+  - from: Calendar
+    fromCardinality: exactly-one
+    to: CalendarException
+    toCardinality: zero-or-more
+    label: exceptions
+  - from: Person
+    fromCardinality: exactly-one
+    to: Attachment
+    toCardinality: zero-or-more
+    label: uploaded_by
   - from: Party
     fromCardinality: exactly-one
     to: Task
@@ -16878,6 +18480,56 @@ rules:
         when: valid_from != null and valid_to != null and valid_to < valid_from
         props:
           message: Valid To cannot be earlier than valid from.
+  - name: partyRelationshipInvariantsBeforeCreate
+    title: PartyRelationship invariants (beforeCreate)
+    entity: PartyRelationship
+    event: beforeCreate
+    nodes:
+      - id: S
+        label: "Start: PartyRelationship beforeCreate"
+        type: start
+      - id: E
+        label: "End: invariants hold"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: PARTY-RELATIONSHIP-EXE-001
+        type: validation-error
+        when: valid_from != null and valid_to != null and valid_to < valid_from
+        props:
+          message: Valid To cannot be earlier than valid from.
+      - name: PARTY-RELATIONSHIP-EXE-002
+        type: validation-error
+        when: ownership_percent != null and (ownership_percent < 0 or ownership_percent > 100)
+        props:
+          message: Ownership Percent must be between 0 and 100.
+  - name: partyRelationshipInvariantsBeforeUpdate
+    title: PartyRelationship invariants (beforeUpdate)
+    entity: PartyRelationship
+    event: beforeUpdate
+    nodes:
+      - id: S
+        label: "Start: PartyRelationship beforeUpdate"
+        type: start
+      - id: E
+        label: "End: invariants hold"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: PARTY-RELATIONSHIP-EXE-001
+        type: validation-error
+        when: valid_from != null and valid_to != null and valid_to < valid_from
+        props:
+          message: Valid To cannot be earlier than valid from.
+      - name: PARTY-RELATIONSHIP-EXE-002
+        type: validation-error
+        when: ownership_percent != null and (ownership_percent < 0 or ownership_percent > 100)
+        props:
+          message: Ownership Percent must be between 0 and 100.
   - name: addressInvariantsBeforeCreate
     title: Address invariants (beforeCreate)
     entity: Address
@@ -16958,6 +18610,86 @@ rules:
         when: rate != null and rate < 0
         props:
           message: Rate cannot be negative.
+  - name: calendarInvariantsBeforeCreate
+    title: Calendar invariants (beforeCreate)
+    entity: Calendar
+    event: beforeCreate
+    nodes:
+      - id: S
+        label: "Start: Calendar beforeCreate"
+        type: start
+      - id: E
+        label: "End: invariants hold"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: CALENDAR-EXE-001
+        type: validation-error
+        when: valid_from != null and valid_to != null and valid_to < valid_from
+        props:
+          message: Valid To cannot be earlier than valid from.
+  - name: calendarInvariantsBeforeUpdate
+    title: Calendar invariants (beforeUpdate)
+    entity: Calendar
+    event: beforeUpdate
+    nodes:
+      - id: S
+        label: "Start: Calendar beforeUpdate"
+        type: start
+      - id: E
+        label: "End: invariants hold"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: CALENDAR-EXE-001
+        type: validation-error
+        when: valid_from != null and valid_to != null and valid_to < valid_from
+        props:
+          message: Valid To cannot be earlier than valid from.
+  - name: calendarExceptionInvariantsBeforeCreate
+    title: CalendarException invariants (beforeCreate)
+    entity: CalendarException
+    event: beforeCreate
+    nodes:
+      - id: S
+        label: "Start: CalendarException beforeCreate"
+        type: start
+      - id: E
+        label: "End: invariants hold"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: CALENDAR-EXCEPTION-001
+        type: validation-error
+        when: (exception_type == "EXTRA_WORKING_DAY" and is_working_day == false) or (exception_type != "EXTRA_WORKING_DAY" and is_working_day == true)
+        props:
+          message: The working-day flag does not match the kind of exception.
+  - name: calendarExceptionInvariantsBeforeUpdate
+    title: CalendarException invariants (beforeUpdate)
+    entity: CalendarException
+    event: beforeUpdate
+    nodes:
+      - id: S
+        label: "Start: CalendarException beforeUpdate"
+        type: start
+      - id: E
+        label: "End: invariants hold"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: CALENDAR-EXCEPTION-001
+        type: validation-error
+        when: (exception_type == "EXTRA_WORKING_DAY" and is_working_day == false) or (exception_type != "EXTRA_WORKING_DAY" and is_working_day == true)
+        props:
+          message: The working-day flag does not match the kind of exception.
   - name: taskInvariantsBeforeCreate
     title: Task invariants (beforeCreate)
     entity: Task
@@ -17128,6 +18860,46 @@ rules:
         when: counted_quantity != null and counted_quantity < 0
         props:
           message: Counted Quantity cannot be negative.
+  - name: inventoryAdjustmentInvariantsBeforeCreate
+    title: InventoryAdjustment invariants (beforeCreate)
+    entity: InventoryAdjustment
+    event: beforeCreate
+    nodes:
+      - id: S
+        label: "Start: InventoryAdjustment beforeCreate"
+        type: start
+      - id: E
+        label: "End: invariants hold"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: INVENTORY-ADJUSTMENT-EXE-001
+        type: validation-error
+        when: status == "APPROVED" and approved_at == null
+        props:
+          message: Record approved at when the inventory adjustment is approved.
+  - name: inventoryAdjustmentInvariantsBeforeUpdate
+    title: InventoryAdjustment invariants (beforeUpdate)
+    entity: InventoryAdjustment
+    event: beforeUpdate
+    nodes:
+      - id: S
+        label: "Start: InventoryAdjustment beforeUpdate"
+        type: start
+      - id: E
+        label: "End: invariants hold"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: INVENTORY-ADJUSTMENT-EXE-001
+        type: validation-error
+        when: status == "APPROVED" and approved_at == null
+        props:
+          message: Record approved at when the inventory adjustment is approved.
   - name: productInvariantsBeforeCreate
     title: Product invariants (beforeCreate)
     entity: Product
@@ -17368,6 +19140,56 @@ rules:
         when: packed_quantity != null and packed_quantity < 0
         props:
           message: Packed Quantity cannot be negative.
+  - name: waveInvariantsBeforeCreate
+    title: Wave invariants (beforeCreate)
+    entity: Wave
+    event: beforeCreate
+    nodes:
+      - id: S
+        label: "Start: Wave beforeCreate"
+        type: start
+      - id: E
+        label: "End: invariants hold"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: WAVE-EXE-001
+        type: validation-error
+        when: task_count != null and task_count < 0
+        props:
+          message: Task Count cannot be negative.
+      - name: WAVE-EXE-002
+        type: validation-error
+        when: status == "COMPLETED" and completed_at == null
+        props:
+          message: Record completed at when the wave is completed.
+  - name: waveInvariantsBeforeUpdate
+    title: Wave invariants (beforeUpdate)
+    entity: Wave
+    event: beforeUpdate
+    nodes:
+      - id: S
+        label: "Start: Wave beforeUpdate"
+        type: start
+      - id: E
+        label: "End: invariants hold"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: WAVE-EXE-001
+        type: validation-error
+        when: task_count != null and task_count < 0
+        props:
+          message: Task Count cannot be negative.
+      - name: WAVE-EXE-002
+        type: validation-error
+        when: status == "COMPLETED" and completed_at == null
+        props:
+          message: Record completed at when the wave is completed.
   - name: partyWorkflowsAfterUpdate
     title: Party workflows (afterUpdate)
     entity: Party
@@ -17473,6 +19295,36 @@ rules:
         when: status == "COMPLETED" and status != _previous_status
         props:
           workflow: InventoryTransferCompletionConfirmed
+  - name: inventoryAdjustmentWorkflowsAfterUpdate
+    title: InventoryAdjustment workflows (afterUpdate)
+    entity: InventoryAdjustment
+    event: afterUpdate
+    nodes:
+      - id: S
+        label: "Start: InventoryAdjustment afterUpdate"
+        type: start
+      - id: E
+        label: "End: workflows started"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: ApprovalRequested
+        type: trigger-workflow
+        when: status == "REQUESTED" and status != _previous_status
+        props:
+          workflow: InventoryAdjustmentApprovalRequested
+      - name: FollowUpRequired
+        type: trigger-workflow
+        when: status == "REJECTED" and status != _previous_status
+        props:
+          workflow: InventoryAdjustmentFollowUpRequired
+      - name: CompletionConfirmed
+        type: trigger-workflow
+        when: status == "POSTED" and status != _previous_status
+        props:
+          workflow: InventoryAdjustmentCompletionConfirmed
   - name: lotWorkflowsAfterUpdate
     title: Lot workflows (afterUpdate)
     entity: Lot
@@ -17736,6 +19588,65 @@ stateMachines:
       - from: INACTIVE
         to: EXPIRED
         trigger: expire
+  - name: PartyRelationshipLifecycle
+    title: Party Relationship Lifecycle
+    entity: PartyRelationship
+    states: [ACTIVE, ENDED]
+    initial: ACTIVE
+    final: [ENDED]
+    transitions:
+      - from: ACTIVE
+        to: ENDED
+        trigger: end
+  - name: LegalEntityLifecycle
+    title: Legal Entity Lifecycle
+    entity: LegalEntity
+    states: [ACTIVE, DORMANT, IN_LIQUIDATION, DISSOLVED]
+    initial: ACTIVE
+    final: [DISSOLVED]
+    transitions:
+      - from: ACTIVE
+        to: DORMANT
+        trigger: make_dormant
+      - from: DORMANT
+        to: ACTIVE
+        trigger: resume_trading
+      - from: ACTIVE
+        to: IN_LIQUIDATION
+        trigger: liquidate
+      - from: DORMANT
+        to: IN_LIQUIDATION
+        trigger: liquidate
+      - from: IN_LIQUIDATION
+        to: DISSOLVED
+        trigger: dissolve
+      - from: DORMANT
+        to: DISSOLVED
+        trigger: dissolve
+  - name: BusinessUnitLifecycle
+    title: Business Unit Lifecycle
+    entity: BusinessUnit
+    states: [ACTIVE, INACTIVE]
+    initial: ACTIVE
+    transitions:
+      - from: ACTIVE
+        to: INACTIVE
+        trigger: deactivate
+      - from: INACTIVE
+        to: ACTIVE
+        trigger: reactivate
+  - name: DepartmentLifecycle
+    title: Department Lifecycle
+    entity: Department
+    states: [ACTIVE, INACTIVE]
+    initial: ACTIVE
+    transitions:
+      - from: ACTIVE
+        to: INACTIVE
+        trigger: deactivate
+      - from: INACTIVE
+        to: ACTIVE
+        trigger: reactivate
   - name: AddressLifecycle
     title: Address Lifecycle
     entity: Address
@@ -17755,6 +19666,24 @@ stateMachines:
       - from: INACTIVE
         to: RETIRED
         trigger: retire
+  - name: ContactPointLifecycle
+    title: Contact Point Lifecycle
+    entity: ContactPoint
+    states: [ACTIVE, INACTIVE, INVALID]
+    initial: ACTIVE
+    transitions:
+      - from: ACTIVE
+        to: INACTIVE
+        trigger: deactivate
+      - from: INACTIVE
+        to: ACTIVE
+        trigger: reactivate
+      - from: ACTIVE
+        to: INVALID
+        trigger: mark_invalid
+      - from: INVALID
+        to: ACTIVE
+        trigger: reactivate
   - name: LocationLifecycle
     title: Location Lifecycle
     entity: Location
@@ -17840,6 +19769,28 @@ stateMachines:
       - from: INACTIVE
         to: RETIRED
         trigger: retire
+  - name: CalendarLifecycle
+    title: Calendar Lifecycle
+    entity: Calendar
+    states: [ACTIVE, INACTIVE]
+    initial: ACTIVE
+    transitions:
+      - from: ACTIVE
+        to: INACTIVE
+        trigger: deactivate
+      - from: INACTIVE
+        to: ACTIVE
+        trigger: reactivate
+  - name: AttachmentLifecycle
+    title: Attachment Lifecycle
+    entity: Attachment
+    states: [ACTIVE, WITHDRAWN]
+    initial: ACTIVE
+    final: [WITHDRAWN]
+    transitions:
+      - from: ACTIVE
+        to: WITHDRAWN
+        trigger: withdraw
   - name: TaskLifecycle
     title: Task Lifecycle
     entity: Task
@@ -17991,6 +19942,41 @@ stateMachines:
       - from: IN_PROGRESS
         to: CANCELLED
         trigger: cancel
+  - name: InventoryCountLifecycle
+    title: Inventory Count Lifecycle
+    entity: InventoryCount
+    states: [PLANNED, COUNTED, RECOUNT, APPROVED]
+    initial: PLANNED
+    final: [APPROVED]
+    transitions:
+      - from: PLANNED
+        to: COUNTED
+        trigger: count
+      - from: COUNTED
+        to: RECOUNT
+        trigger: order_recount
+      - from: RECOUNT
+        to: COUNTED
+        trigger: count
+      - from: COUNTED
+        to: APPROVED
+        trigger: approve
+  - name: InventoryAdjustmentLifecycle
+    title: Inventory Adjustment Lifecycle
+    entity: InventoryAdjustment
+    states: [REQUESTED, APPROVED, POSTED, REJECTED]
+    initial: REQUESTED
+    final: [POSTED, REJECTED]
+    transitions:
+      - from: REQUESTED
+        to: APPROVED
+        trigger: approve
+      - from: REQUESTED
+        to: REJECTED
+        trigger: reject
+      - from: APPROVED
+        to: POSTED
+        trigger: post
   - name: LotLifecycle
     title: Lot Lifecycle
     entity: Lot
@@ -18175,6 +20161,55 @@ stateMachines:
       - from: SUSPENDED
         to: ACTIVE
         trigger: resume
+  - name: WarehouseZoneLifecycle
+    title: Warehouse Zone Lifecycle
+    entity: WarehouseZone
+    states: [ACTIVE, INACTIVE]
+    initial: ACTIVE
+    transitions:
+      - from: ACTIVE
+        to: INACTIVE
+        trigger: deactivate
+      - from: INACTIVE
+        to: ACTIVE
+        trigger: reactivate
+  - name: DockLifecycle
+    title: Dock Lifecycle
+    entity: Dock
+    states: [AVAILABLE, OUT_OF_SERVICE]
+    initial: AVAILABLE
+    transitions:
+      - from: AVAILABLE
+        to: OUT_OF_SERVICE
+        trigger: take_out_of_service
+      - from: OUT_OF_SERVICE
+        to: AVAILABLE
+        trigger: return_to_service
+  - name: HandlingUnitLifecycle
+    title: Handling Unit Lifecycle
+    entity: HandlingUnit
+    states: [OPEN, CLOSED, SHIPPED, RECEIVED, DISMANTLED]
+    initial: OPEN
+    final: [DISMANTLED]
+    transitions:
+      - from: OPEN
+        to: CLOSED
+        trigger: close
+      - from: CLOSED
+        to: OPEN
+        trigger: reopen
+      - from: CLOSED
+        to: SHIPPED
+        trigger: ship
+      - from: SHIPPED
+        to: RECEIVED
+        trigger: receive
+      - from: RECEIVED
+        to: DISMANTLED
+        trigger: dismantle
+      - from: CLOSED
+        to: DISMANTLED
+        trigger: dismantle
   - name: PutawayLifecycle
     title: Putaway Lifecycle
     entity: Putaway
@@ -18405,6 +20440,48 @@ sagas:
           entity: bus_task
           as: taskId
           fields: '{"code":"INVENTORY-TRANSFER-COMPLETED-{{id}}","name":"Confirm inventory transfer {{transfer_number}}","description":"Inventory transfer {{transfer_number}} is now {{status}}. Check the outcome is what was agreed and close any open items.","task_type":"USER","status":"CREATED","priority":"LOW"}'
+  - name: InventoryAdjustmentApprovalRequested
+    title: Ask for a decision when a inventory adjustment is put forward
+    entity: InventoryAdjustment
+    operation: UPDATE
+    trigger: rule
+    description: When a inventory adjustment is requested, a task asks someone to decide on it.
+    steps:
+      - id: S1
+        type: CreateEntity
+        label: "Raise a task: decide on"
+        properties:
+          entity: bus_task
+          as: taskId
+          fields: '{"code":"INVENTORY-ADJUSTMENT-APPROVAL-{{id}}","name":"Decide on inventory adjustment {{adjustment_number}}","description":"Inventory adjustment {{adjustment_number}} is now {{status}}. Approve it, return it for change or reject it; the move you make is recorded on the record.","task_type":"APPROVAL","status":"CREATED","priority":"NORMAL"}'
+  - name: InventoryAdjustmentFollowUpRequired
+    title: Follow up when a inventory adjustment is ended
+    entity: InventoryAdjustment
+    operation: UPDATE
+    trigger: rule
+    description: When a inventory adjustment is rejected, a task asks someone to settle what depended on it.
+    steps:
+      - id: S1
+        type: CreateEntity
+        label: "Raise a task: follow up on"
+        properties:
+          entity: bus_task
+          as: taskId
+          fields: '{"code":"INVENTORY-ADJUSTMENT-FOLLOW-UP-{{id}}","name":"Follow up on inventory adjustment {{adjustment_number}}","description":"Inventory adjustment {{adjustment_number}} is now {{status}}. Check the records that depended on it and tell the people affected.","task_type":"USER","status":"CREATED","priority":"NORMAL"}'
+  - name: InventoryAdjustmentCompletionConfirmed
+    title: Confirm when a inventory adjustment is done
+    entity: InventoryAdjustment
+    operation: UPDATE
+    trigger: rule
+    description: When a inventory adjustment is posted, a task asks someone to confirm the outcome.
+    steps:
+      - id: S1
+        type: CreateEntity
+        label: "Raise a task: confirm"
+        properties:
+          entity: bus_task
+          as: taskId
+          fields: '{"code":"INVENTORY-ADJUSTMENT-COMPLETED-{{id}}","name":"Confirm inventory adjustment {{adjustment_number}}","description":"Inventory adjustment {{adjustment_number}} is now {{status}}. Check the outcome is what was agreed and close any open items.","task_type":"USER","status":"CREATED","priority":"LOW"}'
   - name: LotExceptionRaised
     title: Raise a task when a lot is stopped
     entity: Lot

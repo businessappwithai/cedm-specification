@@ -1,6 +1,6 @@
 //! The rules the *model* declared, and whether they reached the application.
 //!
-//! Generated: 2026-10-09T15:28:36.822Z
+//! Generated: 2026-10-16T07:46:21.829Z
 //! Project: enterprise
 //!
 //! Every other rules suite creates a rule through the API and then checks that
@@ -33,6 +33,16 @@ const MODEL_RULES: &[(&str, &str, &str)] = &[
         "bus_party_role",
         "UPDATE",
     ),
+    (
+        "partyRelationshipInvariantsBeforeCreate",
+        "bus_party_relationship",
+        "CREATE",
+    ),
+    (
+        "partyRelationshipInvariantsBeforeUpdate",
+        "bus_party_relationship",
+        "UPDATE",
+    ),
     ("addressInvariantsBeforeCreate", "bus_address", "CREATE"),
     ("addressInvariantsBeforeUpdate", "bus_address", "UPDATE"),
     (
@@ -45,8 +55,54 @@ const MODEL_RULES: &[(&str, &str, &str)] = &[
         "bus_exchange_rate",
         "UPDATE",
     ),
+    ("calendarInvariantsBeforeCreate", "bus_calendar", "CREATE"),
+    ("calendarInvariantsBeforeUpdate", "bus_calendar", "UPDATE"),
+    (
+        "calendarExceptionInvariantsBeforeCreate",
+        "bus_calendar_exception",
+        "CREATE",
+    ),
+    (
+        "calendarExceptionInvariantsBeforeUpdate",
+        "bus_calendar_exception",
+        "UPDATE",
+    ),
     ("taskInvariantsBeforeCreate", "bus_task", "CREATE"),
     ("taskInvariantsBeforeUpdate", "bus_task", "UPDATE"),
+    (
+        "organizationMembershipInvariantsBeforeCreate",
+        "bus_organization_membership",
+        "CREATE",
+    ),
+    (
+        "organizationMembershipInvariantsBeforeUpdate",
+        "bus_organization_membership",
+        "UPDATE",
+    ),
+    ("approvalInvariantsBeforeCreate", "bus_approval", "CREATE"),
+    ("approvalInvariantsBeforeUpdate", "bus_approval", "UPDATE"),
+    (
+        "assignmentInvariantsBeforeCreate",
+        "bus_assignment",
+        "CREATE",
+    ),
+    (
+        "assignmentInvariantsBeforeUpdate",
+        "bus_assignment",
+        "UPDATE",
+    ),
+    ("activityInvariantsBeforeCreate", "bus_activity", "CREATE"),
+    ("activityInvariantsBeforeUpdate", "bus_activity", "UPDATE"),
+    (
+        "businessEventInvariantsBeforeCreate",
+        "bus_business_event",
+        "CREATE",
+    ),
+    (
+        "businessEventInvariantsBeforeUpdate",
+        "bus_business_event",
+        "UPDATE",
+    ),
     (
         "businessTransactionInvariantsBeforeCreate",
         "bus_business_transaction",
@@ -69,6 +125,12 @@ const MODEL_RULES: &[(&str, &str, &str)] = &[
         "UPDATE",
     ),
     ("assignmentWorkflowsAfterUpdate", "bus_assignment", "UPDATE"),
+    ("activityWorkflowsAfterUpdate", "bus_activity", "UPDATE"),
+    (
+        "businessEventWorkflowsAfterUpdate",
+        "bus_business_event",
+        "UPDATE",
+    ),
     (
         "businessTransactionWorkflowsAfterUpdate",
         "bus_business_transaction",

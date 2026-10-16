@@ -25,6 +25,45 @@ entity:
         businessMeaning: Controls eligibility for new production release.
         usage: Engineering change and manufacturing control.
         relationshipContext: Historical orders retain prior routing evidence.
+    - name: description
+      type: text
+      required: false
+      help:
+        summary: A short account of what the routing produces and anything special about how it is made.
+        usage: Read by production engineers and planners when choosing between routings for a product.
+        relationshipContext: Free text.
+    - name: lotSizeFrom
+      type: decimal
+      required: false
+      precision: 18
+      scale: 4
+      help:
+        summary: The smallest order quantity the routing is meant for.
+        usage: Lets different routings be used for small and large lots.
+        relationshipContext: Empty for any quantity.
+    - name: lotSizeTo
+      type: decimal
+      required: false
+      precision: 18
+      scale: 4
+      help:
+        summary: The largest order quantity the routing is meant for.
+        usage: Read with the lower limit.
+        relationshipContext: Not lower than the lower limit.
+    - name: validFrom
+      type: date
+      required: false
+      help:
+        summary: The first day on which production orders may use this routing.
+        usage: Set when the routing is released, so earlier orders keep using the previous version.
+        relationshipContext: Not later than the valid-to date.
+    - name: validTo
+      type: date
+      required: false
+      help:
+        summary: The last day on which production orders may use this routing.
+        usage: Set when a newer version replaces it; orders planned after this date must pick another routing.
+        relationshipContext: Empty while the routing is still in use.
   relationships:
     - {name: product, target: Product, cardinality: '1', ownership: reference, help: {summary: Output Product this routing produces., businessMeaning: Associates process definition with manufactured item., usage: Planning and production release., cardinalityMeaning: Exactly one output Product., workflowRole: Must match work-order output.}}
     - {name: operations, target: Operation, cardinality: "1..*", ownership: aggregate, help: {summary: Ordered standard process steps., businessMeaning: Defines how production is performed., usage: "Scheduling, costing, execution, and quality gates.", cardinalityMeaning: Active routing requires at least one operation., workflowRole: Operations are instantiated/executed under ManufacturingWorkOrder.}}
@@ -32,6 +71,7 @@ entity:
     - {id: ROUTING-001, rule: code and routingVersion must be unique within the applicable manufacturing context.}
     - {id: ROUTING-002, rule: ACTIVE routing must contain at least one valid ordered Operation.}
     - {id: ROUTING-003, rule: Released production must preserve the effective routing routingVersion and must not be silently changed by later master-data revisions.}
+    - {id: ROUTING-EXE-001, rule: "Valid To must not be earlier than valid from.", violatedWhen: "valid_from != null and valid_to != null and valid_to < valid_from", message: "Valid To cannot be earlier than valid from."}
   lifecycle:
     title: Routing Lifecycle
     attribute: status

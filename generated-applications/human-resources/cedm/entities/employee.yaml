@@ -65,6 +65,21 @@ entity:
           ON_LEAVE: Employed but away on approved leave, so not currently working.
           TERMINATED: Employment ended by dismissal, resignation or end of contract. A final state.
           RETIRED: Left the organisation on retirement. A final state.
+    - name: jobTitle
+      type: string
+      required: false
+      maxLength: 150
+      help:
+        summary: The title that describes the employee's role, such as Senior Accountant.
+        usage: Shown in directories, on documents and in organisation charts.
+        relationshipContext: Usually the title of the position they hold.
+    - name: workEmail
+      type: email
+      required: false
+      help:
+        summary: The email address the employee uses for work.
+        usage: Used for system notifications, approvals and the staff directory.
+        relationshipContext: Usually also the employee's user name for signing in.
   relationships:
     - name: person
       target: Person

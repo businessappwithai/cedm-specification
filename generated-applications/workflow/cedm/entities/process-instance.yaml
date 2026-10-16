@@ -20,9 +20,96 @@ entity:
           ACTIVE: Running; steps are being executed.
           COMPLETED: Finished. A final state.
           CANCELLED: Stopped before it finished. A final state.
-  relationships: []
+    - name: instanceNumber
+      type: string
+      required: true
+      unique: true
+      maxLength: 40
+      help:
+        summary: The unique reference for one run of a process, quoted when tracking or investigating it.
+        usage: Assigned by the engine when the instance starts and used in monitoring screens and audit trails.
+        relationshipContext: No two instances share a number.
+    - name: definitionVersion
+      type: integer
+      required: true
+      help:
+        summary: The version of the process definition that this instance is following.
+        usage: Fixed by the engine when the instance starts, so the run is audited against the rules it began with.
+        relationshipContext: Publishing a later version does not change a running instance.
+    - name: recordType
+      type: string
+      required: false
+      maxLength: 100
+      help:
+        summary: The kind of record the instance is for, such as "Supplier".
+        usage: Set when the instance starts.
+        relationshipContext: Read with the record reference.
+    - name: recordReference
+      type: string
+      required: false
+      maxLength: 100
+      help:
+        summary: The reference of the record the instance is for.
+        usage: Lets users open the case's record.
+        relationshipContext: One record may have several instances of different processes.
+    - name: currentStep
+      type: string
+      required: false
+      maxLength: 150
+      help:
+        summary: The step the instance is at now.
+        usage: Updated by the engine; shown in monitoring.
+        relationshipContext: Empty once finished.
+    - name: startedAt
+      type: datetime
+      required: true
+      help:
+        summary: The date and time the process run began.
+        usage: Set automatically by the engine when the instance starts; durations and overdue checks measure from it.
+        relationshipContext: Durations are measured from this time.
+    - name: completedAt
+      type: datetime
+      required: false
+      help:
+        summary: The date and time the process run finished, whether it succeeded or was cancelled.
+        usage: Set by the engine when the last step ends or the run is stopped; empty while still running.
+        relationshipContext: Present only once finished.
+    - name: dueAt
+      type: datetime
+      required: false
+      help:
+        summary: The deadline by which the process run should be completed.
+        usage: Calculated at start from the definition's target duration so owners can see which runs are late.
+        relationshipContext: Running instances past this time are overdue.
+    - name: failureReason
+      type: text
+      required: false
+      help:
+        summary: What stopped the instance.
+        usage: Recorded when it fails; read by the administrator who restarts it.
+        relationshipContext: Present only on failed instances.
+  relationships:
+    - name: processDefinition
+      target: ProcessDefinition
+      cardinality: "1"
+      ownership: reference
+      help:
+        summary: The process the instance runs.
+        usage: Chosen when starting it.
+        cardinalityMeaning: Every instance runs exactly one definition.
+        context: The definition's version at start is copied to the instance.
+    - name: startedBy
+      target: Person
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: Who started the instance; empty when an event started it.
+        usage: Recorded at start.
+        cardinalityMeaning: One per instance.
+        context: Told when the instance finishes.
   invariants:
     - {id: PROCESS-INSTANCE-001, rule: State changes and retries must preserve auditable history and must not duplicate downstream business effects.}
+    - {id: PROCESS-INSTANCE-EXE-001, rule: "A process instance that is completed states when (completed at).", violatedWhen: "status == \"COMPLETED\" and completed_at == null", message: "Record completed at when the process instance is completed."}
   lifecycle:
     title: Process Instance Lifecycle
     attribute: status

@@ -43,6 +43,15 @@ entity:
           ACTIVE: Positions may be used subject to slot, container, equipment, safety, and yard rules.
           BLOCKED: The tier is temporarily unavailable, for example because of equipment reach limits, safety restrictions, inspection, damage, or operational constraints.
           CLOSED: The tier is administratively unavailable for normal operations until explicitly reactivated or reconfigured.
+    - name: maxWeightKg
+      type: decimal
+      required: false
+      precision: 10
+      scale: 1
+      help:
+        summary: The heaviest container allowed at this tier, in kilograms.
+        usage: Heavier boxes go lower; checked when planning a stack.
+        relationshipContext: Lower tiers usually allow more.
   relationships:
     - name: bay
       target: YardBay

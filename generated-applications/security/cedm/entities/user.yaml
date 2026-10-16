@@ -55,6 +55,58 @@ entity:
         usage: Set at each successful sign-in; reviewed to find unused accounts.
         relationshipContext: Read by security reviews.
         summary: Records when the last login event occurred. It establishes chronology, supports auditability, and helps coordinate related lifecycle and process activities.
+    - name: displayName
+      type: string
+      required: false
+      maxLength: 200
+      help:
+        summary: The name shown on screens and in the audit trail.
+        usage: Usually the person's full name.
+        relationshipContext: Taken from the person's party record where linked.
+    - name: email
+      type: email
+      required: false
+      help:
+        summary: The email address the user receives notifications and password resets at.
+        usage: Entered when the user is created; verified before use.
+        relationshipContext: Usually the same as the username for people.
+    - name: userType
+      type: enum
+      required: true
+      default: PERSON
+      values:
+        - PERSON
+        - SERVICE
+      help:
+        summary: Whether the user is a person or a system.
+        usage: System users sign in with keys or tokens, not passwords, and have no person behind them.
+        relationshipContext: System users are reviewed by their owning team.
+        valueSemantics:
+          PERSON: A person signing in interactively.
+          SERVICE: A system or integration acting through the API.
+    - name: failedLoginCount
+      type: integer
+      required: true
+      default: 0
+      help:
+        summary: How many sign-ins have failed since the last successful one.
+        usage: The user is locked when it reaches the configured limit.
+        relationshipContext: Reset on a successful sign-in.
+    - name: passwordChangedAt
+      type: datetime
+      required: false
+      help:
+        summary: When the password was last changed.
+        usage: Used to enforce password expiry where the policy requires it.
+        relationshipContext: Empty for system users.
+    - name: mfaEnabled
+      type: boolean
+      required: true
+      default: false
+      help:
+        summary: Whether the user signs in with a second factor.
+        usage: Required for privileged users by the access policy.
+        relationshipContext: Read in access reviews.
   relationships:
     - name: party
       target: Party
@@ -99,6 +151,8 @@ entity:
       - {from: ACTIVE, to: RETIRED, action: retire}
       - {from: LOCKED, to: RETIRED, action: retire}
       - {from: DISABLED, to: RETIRED, action: retire}
+  invariants:
+    - {id: USER-EXE-001, rule: "Failed Login Count cannot be negative.", violatedWhen: "failed_login_count != null and failed_login_count < 0", message: "Failed Login Count cannot be negative."}
   help:
     summary: A digital identity for a person or system that can sign in and act within the application.
     businessMeaning: A user is what the application recognises when someone signs in. It carries the sign-in name, the state of the account and the roles that decide what the identity may do, and may be linked to the person it represents.

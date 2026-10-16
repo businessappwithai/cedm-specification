@@ -20,6 +20,70 @@ Readable by every signed-in person.
 
 Fields:
   - **Code** — An optional reference number or code for the activity. Used when an external system, such as a calendar or telephony system, supplies its own reference, so the same interaction is not logged twice.
+  - **Subject** (required) — A one-line statement of what the interaction is about. Written when the activity is created and shown in every list of activities, so it should say the topic plainly, such as "Renewal pricing call". The subject is what identifies the activ…
+  - **Activity Type** (required, one of the Activity Activity Type values) — The kind of interaction. Chosen when the activity is logged; it decides how the activity is counted in activity reports and which fields matter (a meeting has a location, an email does not). Read with direction — an outbound call is a sale…
+  - **Direction** (one of the Activity Direction values) — Whether the interaction was started by the company, by the customer, or was internal. Recorded with the activity type; it separates the sales team's outreach from requests the customer made. Used together with the activity type in activity…
+  - **Status** (required, one of the Activity Status values) — Where the activity stands — still to happen, under way, held, or called off. Moved on as the activity happens; planned activities whose start has passed appear as overdue follow-ups. A completed activity needs its completion time and shoul…
+  - **Priority** (required, one of the Activity Priority values) — How urgently the activity should be done. Set when planning follow-ups so the owner's list puts the important ones first. Independent of status; a high-priority planned activity that is overdue is the first thing a manager looks at. Can wa…
+  - **Scheduled Start** — When the activity is planned to start. Set when the activity is planned; it puts the activity on the owner's calendar and makes it overdue once passed. Read with the scheduled end; for an activity logged after the fact it is when the inter…
+  - **Scheduled End** — When the activity is planned to end. Set for meetings and visits so that calendars show their length; calls and emails usually leave it empty. Must not be earlier than the scheduled start.
+  - **Completed At** — When the activity was actually held or finished. Filled in when the activity is marked completed; reports of activity volume count by this time. Required once the status is completed.
+  - **Location** — Where a meeting or visit takes place. Given for meetings and visits — an address, a room, or the link to an online meeting. Not meaningful for calls, emails, tasks or notes.
+  - **Outcome** — What came out of the interaction — decisions, commitments and next steps. Written when the activity is completed; it is the part of the record colleagues read later. The outcome often leads to a new planned activity or to a change in the o…
+  - **Notes** — Further detail about the interaction. Agenda, discussion points or background that do not belong in the subject or the outcome. Free text; no rule or process reads it.
+  - **Contact** (a Person) — The person at the customer or lead who took part in the interaction. Chosen so that the history shows who said what, and so that the next activity is addressed to the right person. One main contact per activity; others can be named in the…
+
+### Activity Activity Type
+
+The values of activity activity type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Activity Direction
+
+The values of activity direction, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Activity Priority
+
+The values of activity priority, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Activity Status
+
+The values of activity status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Address
 
@@ -79,6 +143,17 @@ Readable by every signed-in person.
 
 Fields:
   - **Status** (required, one of the Approval Status values) — Where the approval request is in its path to a decision. Moved by the approver and the workflow; a gated step proceeds only when the approval is COMPLETED with a positive decision. Requested and waiting to be picked up. Under review by the…
+  - **Subject** (required) — A one-line statement of what is to be approved. Shown in the approver's list, so it should name the item and the amount if there is one. Identifies the approval on screens; the item itself is named by its kind and reference.
+  - **Item Type** (required) — The kind of item awaiting a decision, such as "Purchase requisition" or "Expense claim". Set by the process that raises the approval; reports group approvals by it. Read with the item reference to find the item.
+  - **Item Reference** (required) — The number or reference of the item awaiting a decision. Set by the process that raises the approval, such as "PR-2024-0871"; the approver uses it to open the item. Together with the item type it identifies exactly one record.
+  - **Approval Level** (required) — Which level of a multi-level approval this is. Level 1 is decided first; a higher level is raised only after the level below is approved. Single-level approvals use level 1.
+  - **Amount** — The value of the item, where the decision depends on it. Copied from the item when the approval is raised; it decides which approval limit applies. Empty for approvals that carry no amount, such as a document review.
+  - **Requested At** (required) — When the decision was asked for. Recorded when the approval is raised; the time to decide is measured from it. Precedes the decision time.
+  - **Due At** — When the decision is needed by. Set by the process from its service level; an approval still pending after it is overdue. Overdue approvals are escalated.
+  - **Decided At** — When the approver decided. Recorded with the decision; it is the evidence of when the control operated. Present once the approval is approved or rejected.
+  - **Decision Comment** — What the approver said about the decision. Required in practice for rejections, so the requester knows what to change. Kept with the decision as audit evidence.
+  - **Approver** (required, a Person) — The person asked to decide. Chosen by the process from the approval rules; the approval appears in this person's list. One approver per approval; several approvers mean several approvals. The approver should hold the authority the item nee…
+  - **Task** (a Task) — The work item through which the approver is asked to decide. Linked when the approval is raised through the task list. At most one task per approval. Completing the task records the decision on the approval.
 
 ### Approval Status
 
@@ -101,6 +176,30 @@ Readable by every signed-in person.
 
 Fields:
   - **Status** (required, one of the Assignment Status values) — Where the assignment stands in its life. Moved by the workflow and by the assignee; work queues show ACTIVE assignments. Offered but not yet accepted or in effect. In effect; the assignee is responsible for the work. The work is done and t…
+  - **Assignment Number** (required) — The reference number that identifies this allocation of work to an assignee. Assigned by the system when the work is allocated and quoted in task lists and audit reports. Unique across all assignments.
+  - **Work Type** — The kind of work item assigned when it is not a task, such as "Customer case". Given with the work reference when the work is not a task. Empty when the assignment is for a task.
+  - **Work Reference** — The number of the work item assigned when it is not a task. Lets the assignee open the work item. Read together with the work type.
+  - **Role** (required, one of the Assignment Role values) — The part the assignee plays in the work. Chosen when assigning; only one assignee is normally responsible for a piece of work at a time. Lets the same work be assigned to a doer, a reviewer and someone kept informed. Does the work and answ…
+  - **Start Date** (required) — The day from which the assignee becomes responsible for the work. Set by whoever assigns the work, so the assignee knows when to start. Must not be later than the end date.
+  - **End Date** — When the assignment is planned to end. Set for time-boxed work; empty when it lasts until the work is done. Workload planning ignores the assignment after this date.
+  - **Allocation Percent** — The share of the assignee's working time the work takes. Summed across a person's active assignments to see whether they are overloaded. Between 0 and 100.
+  - **Notes** — Instructions, background or caveats the assignee needs in order to carry out the work. Written by whoever assigns the work and read by the assignee when opening the task. Free text.
+  - **Assignee** (a Person) — The person the work is assigned to. Chosen when assigning to an individual; the work appears in their list. At most one person per assignment. A person, a team or both may be given; at least one must be.
+  - **Team** (a Team) — The team the work is assigned to. Chosen when a team owns the work and any member may pick it up. At most one team per assignment. When both a team and a person are given, the person works on the team's behalf.
+  - **Task** (a Task) — The task being assigned. Chosen when the work is a task; most assignments are. At most one task per assignment; a task may have several assignments over time. Completing the task completes its responsible assignment.
+
+### Assignment Role
+
+The values of assignment role, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Assignment Status
 
@@ -123,6 +222,31 @@ Readable by every signed-in person.
 
 Fields:
   - **Effective At** — When the attachment became part of the record. Set when the file is attached; used to show what evidence existed at a given moment.
+  - **File Name** (required) — The name of the file as uploaded. Shown in the record's list of attachments and used as the name when the file is downloaded. Not unique; the same name may be attached to many records.
+  - **Media Type** — The type of the file's content, such as application/pdf or image/jpeg. Detected on upload; it decides whether the file can be previewed. Taken from the file, not typed by the user.
+  - **Size Bytes** — The size of the file in bytes. Recorded on upload; used to enforce upload limits and to report storage use. Zero-size files are refused.
+  - **Storage Location** (required) — Where the file's content is stored. Set by the system on upload; users never type it. Moving files between stores updates it without changing the attachment.
+  - **Checksum** — A fingerprint of the file's content (SHA-256). Computed on upload; recomputing it later shows whether the file has been changed. Two attachments with the same checksum hold the same content.
+  - **Record Type** (required) — The kind of record the file is attached to, such as "Goods receipt". Set by the screen the file was attached from. Read with the record identifier to find the record.
+  - **Record** (required) — The identifier of the record the file is attached to. Set by the screen the file was attached from; the record's attachments are found by it. Together with the record type it identifies exactly one record.
+  - **Category** — What the file is, such as "Delivery note", "Certificate" or "Photograph". Chosen on upload so that the record's attachments can be told apart without opening them. Free choice of words, though each business usually agrees a short list.
+  - **Description** — A note about the file's content. Optional; useful when the file name does not say what the file shows. Free text.
+  - **Uploaded At** (required) — When the file was attached. Recorded by the system; the record's evidence is listed in this order. Not editable.
+  - **Status** (required, one of the Attachment Status values) — Whether the file still counts as evidence for the record. An attachment added by mistake is withdrawn; it stays visible in the history. Withdrawn attachments are not shown in the normal list. Attached and part of the record's evidence. Rem…
+  - **Uploaded By** (a Person) — The person who attached the file. Recorded on upload. One per attachment. Shown with the file so that reviewers know where it came from.
+
+### Attachment Status
+
+The values of attachment status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Business Event
 
@@ -132,6 +256,28 @@ Readable by every signed-in person.
 
 Fields:
   - **Occurred At** — When the business fact happened, as opposed to when it was published. Set from the source transaction's time; consumers order and window events by it.
+  - **Event Name** (required) — The name of the fact, written in the past tense, such as "OrderPlaced" or "PaymentReceived". Set by the process that raises the event; subscribers choose events by name. One name per kind of fact, used consistently by every process.
+  - **Source Area** — The part of the business or system the fact comes from, such as "Sales" or "Warehouse". Lets subscribers and operators tell where an event originated. Set by the raising process.
+  - **Record Type** — The kind of record the event is about, such as "Shipment". Read with the record identifier to open the record. The record remains the authoritative statement of the facts.
+  - **Record** — The identifier of the record the event is about. Lets a subscriber fetch the current record if it needs more than the payload. Together with the record type it identifies the record.
+  - **Correlation Reference** — A reference shared by all events of one business transaction, such as the sales order number. Lets the events of one order or case be followed end to end. Empty for events that stand alone.
+  - **Payload** — The facts of the event, as structured data. Read by subscribers so that most of them need not look the record up. Copies facts as they were when the event happened; it is not updated later.
+  - **Publication Status** (required, one of the Business Event Publication Status values) — Whether the event has reached its subscribers. Moved on by the publishing service; operators watch failed events. The fact itself is valid whatever the publication status. Written down, not yet published. Delivered to every subscriber. Del…
+  - **Published At** — The date and time the event was handed to every subscriber that wanted it. Stamped by the publishing service and used to check delivery delays. Present once the event is published.
+  - **Attempt Count** (required) — How many times delivery has been attempted. Increased by each delivery attempt; operators look at events with many attempts. Delivery is abandoned after the configured maximum.
+
+### Business Event Publication Status
+
+The values of business event publication status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Business Transaction
 
@@ -172,7 +318,25 @@ Readable by every signed-in person.
 Fields:
   - **Code** (required) — The short reference for the unit, such as CE or EMEA-RETAIL. Assigned by finance and used on reports and in postings; kept stable because history relies on it.
   - **Name** (required) — The full name of the business unit, as it appears in the organisation's structure and management accounts. Entered by management or finance when the unit is created; shown in organisation charts, selectors and segment reports.
+  - **Description** — What the business unit does. Read by people placing staff or costs in it. Free text.
+  - **Status** (required, one of the Business Unit Status values) — Whether the business unit is still operating. Set to inactive by an administrator after a reorganisation or closure. Inactive units are not offered for new assignments. Operating and available for new assignments. No longer operating after…
   - **Organization** (required, a Organization) — The organisation to which the unit belongs. Set when the unit is created. Exactly one organisation; a unit cannot stand alone. Rolls the unit's results up into its parent organisation.
+  - **Head** (a Person) — The executive responsible for the business unit. Receives its reports and approves its budgets. One per business unit. Accountable for its results.
+  - **Legal Entity** (a Legal Entity) — The company the business unit mainly trades through. Used for contracts and invoices made by the unit. At most one. A unit trading in several countries uses several entities; the main one is named.
+  - **Parent Unit** (a Business Unit) — The larger business unit this one is part of. Builds the hierarchy. At most one. Cannot be itself.
+
+### Business Unit Status
+
+The values of business unit status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Calendar
 
@@ -183,6 +347,41 @@ Readable by every signed-in person.
 Fields:
   - **Code** (required) — The short reference for the calendar, such as DE-NAT. Assigned by the administrator; used in configuration and reports; kept stable.
   - **Name** (required) — The descriptive name of the calendar, such as UK Working Days or Group Fiscal Calendar. Entered by the administrator who maintains it; shown wherever a schedule, service level or plan asks which calendar applies.
+  - **Working Days** (required) — The days of the normal working week, such as MON-FRI or MON-SAT. Days outside it are non-working unless an exception says otherwise. Exceptions override it for particular dates.
+  - **Time Zone** — The time zone of the calendar, such as Europe/Paris. Decides when a day starts and ends for deadlines. An IANA time-zone name.
+  - **Valid From** — The first day on which the calendar's working days and holidays apply. Set when the calendar is created. Not later than the valid-to date.
+  - **Valid To** — The last day on which the calendar's working days and holidays apply. Filled in when a newer calendar replaces this one. Left empty while the calendar is still in use.
+  - **Status** (required, one of the Calendar Status values) — Whether planners may use this calendar. Made inactive by an administrator once a newer calendar replaces it. Inactive calendars are not offered when choosing one. In use and available to planners. Retired and no longer offered.
+  - **Country** (a Country) — The country whose public holidays the calendar holds. Set for country calendars. At most one. Site calendars usually take their country's calendar as base.
+  - **Base Calendar** (a Calendar) — The calendar whose exceptions this one also follows. Set so a site calendar inherits the country's holidays. At most one base. Cannot be itself.
+
+Line items — **Calendar Exception**: kept inside each Calendar and reached by opening it, never on their own. One holiday, closure or extra working day in a calendar. Exceptions are what make a calendar accurate. Each records a date, what it is and whether work happens on it, so that working-day calculations skip holidays and closures and count extra working days. Entered each year for the coming year's ho…
+
+### Calendar Exception Exception Type
+
+The values of calendar exception exception type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Calendar Status
+
+The values of calendar status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### City
 
@@ -210,6 +409,24 @@ Readable by every signed-in person.
 Fields:
   - **Code** (required) — The stable code of the classification, such as ENTERPRISE. Assigned by the steward; used in rules and integrations, so it should not change.
   - **Name** (required) — The display name of the classification. Shown in pick-lists and reports; can be reworded without changing the code.
+  - **Scheme** (required) — The scheme the value belongs to, such as NACE, SEGMENT or RISK-CAT. Chosen when the value is created; records are classified within one scheme at a time. Values are unique within their scheme.
+  - **Description** — Explains what the classification value covers and what is left out of it. Read by people classifying a record, so it should name clear examples. Should say what belongs in the value and what does not.
+  - **Level** — The depth of the value in its hierarchy — 1 for the top. Used to report at a chosen level. One more than its parent's level.
+  - **Status** (required, one of the Classification Status values) — Whether the classification value may still be assigned to new records. Set to retired by the data owner when a value is replaced or no longer wanted. Records keep retired values for history. May be assigned to records and appears in pick l…
+  - **Parent** (a Classification) — The broader value this one sits under. Builds the hierarchy. At most one parent, in the same scheme. Cannot be itself.
+
+### Classification Status
+
+The values of classification status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Contact Point
 
@@ -220,7 +437,52 @@ Readable by every signed-in person.
 Fields:
   - **Code** (required) — A short reference for the contact point. Assigned or imported; stays stable so integrations can match it.
   - **Name** (required) — A descriptive label for the endpoint, such as Head office switchboard. Shown wherever contact points are listed.
+  - **Channel** (required, one of the Contact Point Channel values) — An email address used for written messages. A landline telephone number. A mobile telephone number. A fax number, kept for partners who still use it. A web address of the party's site or page. A handle on a messaging app. What kind of chan…
+  - **Value** (required) — The address or number itself. Entered in its standard form — international format for phone numbers. Validated according to the channel.
+  - **Purpose** (required, one of the Contact Point Purpose values) — Any purpose, when nothing more specific applies. Invoices and statements sent to accounts payable. Order confirmations and purchase orders. Delivery notices and arrival updates. Service and support enquiries. Marketing communication, where…
+  - **Is Preferred** (required) — Whether this is the preferred channel for its purpose. Used first when several channels serve the same purpose. One preferred channel per party, channel and purpose.
+  - **Verified At** — When the channel was last confirmed to work. Recorded by a verification message or call. Unverified channels may be refused for sensitive messages.
+  - **Status** (required, one of the Contact Point Status values) — Whether the channel is still usable for reaching the party. Changed when the channel stops being used or a message to it bounces. Inactive and invalid channels are not offered for contact. In use and offered for contact. No longer used and…
   - **Party** (required, a Party) — The party the endpoint belongs to. Set when the endpoint is added. Exactly one party; each endpoint has one owner. Lets communications find the right channel for a party.
+
+### Contact Point Channel
+
+The values of contact point channel, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Contact Point Purpose
+
+The values of contact point purpose, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Contact Point Status
+
+The values of contact point status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Country
 
@@ -271,7 +533,26 @@ Readable by every signed-in person.
 Fields:
   - **Code** (required) — The short code of the department, such as FIN-AP. Used in postings and reports; kept stable.
   - **Name** (required) — The name of the department as the organisation calls it, such as Finance or Field Operations. Entered by an administrator; shown in organisation charts, on documents and in reports that group people and costs by department.
+  - **Description** — What the department is responsible for and what kind of work it does. Read by people placing staff, positions or work, so they choose the right department. Free text written by the organisation's administrators.
+  - **Status** (required, one of the Department Status values) — Whether the department currently exists as part of the organisation. Set to inactive after a reorganisation closes or merges the department. Inactive departments are not offered when assigning people or work. The department exists and can…
   - **Organization** (required, a Organization) — Chosen when the department is created; reporting lines, headcount and budgets roll up through the organisation it belongs to. The organisation the department belongs to. Exactly one organisation: a department is part of a single organisati…
+  - **Business Unit** (a Business Unit) — The business unit the department is part of. Set where the organization is divided into business units. At most one. Used in business-unit reporting.
+  - **Parent Department** (a Department) — The department this one reports to. Builds the hierarchy used for approvals. At most one. Cannot be itself.
+  - **Manager** (a Person) — The person who leads the department. Approves its requests and receives its reports. One per department. Approval routing goes to this person.
+  - **Location** (a Location) — Where the department is based. Used in directories and space planning. At most one. Staff may work elsewhere.
+
+### Department Status
+
+The values of department status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### ERP
 
@@ -316,6 +597,8 @@ Fields:
   - **Expires At** — Optional end of the period during which the rate is valid. Used to prevent application of expired rates. When supplied, expiresAt must be later than effectiveAt. Defines the rate's validity window for transaction and reporting calculations.
   - **Source** (required) — Identifies the provider or business authority from which the rate was obtained. Used for audit, reconciliation, regulatory reporting, and rate governance. Source identifies provenance; it does not by itself determine which rate is applicab…
   - **Status** (required, one of the Exchange Rate Status values) — Being prepared; not yet used. In force and usable for conversion. Its validity period has ended; kept for past conversions. Withdrawn; must not be used. Lifecycle state of the exchange-rate record. Used by conversion services to determine…
+  - **From Currency** (required, a Currency) — Currency from which an amount is converted. Identifies the source denomination of the monetary amount being converted. Must differ from toCurrency for a meaningful exchange-rate conversion. Identifies the currency of the source Money value…
+  - **To Currency** (required, a Currency) — Currency into which an amount is converted. Identifies the target denomination of the converted monetary amount. Conversion direction is from fromCurrency to toCurrency; reversing the direction requires an appropriate inverse rate rather t…
 
 ### Exchange Rate Rate Type
 
@@ -352,6 +635,21 @@ Readable by every signed-in person.
 Fields:
   - **Code** (required) — The two-letter ISO 639-1 code of the language, such as en or de. Taken from the standard; unique; used in locale settings and APIs.
   - **Name** (required) — The English name of the language, such as French or Portuguese. Loaded from the language reference data; it is shown in language pick-lists and reports, while the code remains the identifier.
+  - **Alpha3** — The three-letter ISO 639-3 code, such as fra. Used by systems that require three-letter codes. From the standard.
+  - **Direction** (required, one of the Language Direction values) — Whether the language is written left to right or right to left. Tells screens and documents how to lay out text. From the Unicode CLDR. Written left to right. Written right to left.
+
+### Language Direction
+
+The values of language direction, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Legal Entity
 
@@ -361,6 +659,34 @@ Readable by every signed-in person.
 
 Fields:
   - **Occurred At** — When the entity was formed, or its record took effect. Set from the registration data.
+  - **Legal Name** (required) — The registered name, exactly as in the register. Printed on invoices, contracts and filings. A trading name may differ; this is the one the law recognises.
+  - **Registration Number** — The number under which the entity is registered, such as a company number or SIREN. Printed on documents where the law requires it; used in KYC checks. Unique within its jurisdiction.
+  - **Legal Form** — The legal form, such as "SAS", "GmbH", "Ltd" or "LLC". Printed after the name on documents. Each jurisdiction has its own forms.
+  - **Incorporation Date** — The day the company or organisation was legally formed, as shown on its certificate of incorporation. Copied from the official register when the entity is set up; used for age checks, filings and group structure charts. It can never fall a…
+  - **Dissolution Date** — The day the legal entity formally ceased to exist and was removed from the register. Entered by company secretarial when a dissolution is confirmed; it stays empty for entities that still exist. Only dissolved entities carry a date here.
+  - **Tax Identifier** — The entity's main tax number in its country. Printed on invoices and used in tax filings. Further registrations are recorded as tax registrations.
+  - **Vat Number** — The entity's VAT or sales-tax registration number. Printed on invoices; validated for cross-border trade. Empty for entities not registered for VAT.
+  - **Lei** — The Legal Entity Identifier, a 20-character global code. Required for financial transactions and regulatory reporting. Issued by an LEI operator and renewed every year.
+  - **Is Group Company** (required) — Whether the entity belongs to our own group. Separates the group's companies from customers' and suppliers' entities; intercompany transactions are between group companies. Group companies have their own accounts and filings.
+  - **Status** (required, one of the Legal Entity Status values) — Registered, in good standing and free to trade, sign contracts and issue invoices. Still registered but not trading, so it holds no live business activity. Being wound up by a liquidator; no new business should be started in its name. Stru…
+  - **Organization** (a Organization) — The organization this entity is the legal form of. Linked so that the organization's contracts and filings can be issued in the right name. At most one organization per entity. An organization may trade through several entities in differen…
+  - **Country** (a Country) — The country the entity is registered in. Decides which law, register and tax rules apply. One per entity. A branch abroad is not a separate entity.
+  - **Registered Address** (a Address) — The registered office. Printed on documents where the law requires it. One per entity. May differ from where the entity operates.
+  - **Functional Currency** (a Currency) — The currency the entity keeps its accounts in. Set by finance; translations to the group currency start from it. One per entity. Usually the currency of its country.
+  - **Parent Entity** (a Legal Entity) — The entity that owns this one in the group. Recorded for group companies; consolidation follows it. At most one parent. Minority holdings are not recorded here.
+
+### Legal Entity Status
+
+The values of legal entity status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Location
 
@@ -434,6 +760,26 @@ Readable by every signed-in person.
 
 Fields:
   - **Status** (required, one of the Organization Membership Status values) — Whether the person currently belongs to the organisation. Moved by administrators or the invitation process; access based on membership applies only while ACTIVE. Offered or requested, not yet effective. In force; the person belongs to the…
+  - **Membership Role** (required) — The capacity in which the person belongs, such as "Accounts payable clerk" or "Board member". Shown in organization charts and member lists. Access rights come from access grants, not from this text.
+  - **Membership Type** (required, one of the Organization Membership Membership Type values) — The kind of membership. Chosen when recording it; it decides which processes apply, such as payroll. External members see only what is shared with them. An employee of the organization. Someone working for the organization under contract.…
+  - **Is Primary** (required) — Whether this is the person's main membership. The primary membership decides the person's home unit in reports and approvals. A person has at most one primary membership at a time.
+  - **Start Date** (required) — The day the person or party officially became a member of the organisation. Recorded when they join; it is used for access rights, headcount reports and membership history. It cannot be later than the end date.
+  - **End Date** — The day the membership stops, after which the person is no longer part of the organisation. Recorded when the member leaves and left empty while the membership is open-ended. Access tied to the membership should end with this date.
+  - **Person** (required, a Person) — The person who is a member. Chosen when recording the membership. Every membership is for exactly one person. The person's memberships make up their place in the organization.
+  - **Organization** (required, a Organization) — The organization or unit the person belongs to. Chosen when recording the membership. Every membership is in exactly one organization. The organization's member list is drawn from its active memberships.
+
+### Organization Membership Membership Type
+
+The values of organization membership membership type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Organization Membership Status
 
@@ -523,7 +869,38 @@ Readable by every signed-in person.
 Fields:
   - **Code** (required) — The code of the relationship type or instance, such as SUBSIDIARY_OF. Chosen from the relationship list; used in queries and rules.
   - **Name** (required) — A readable description of the relationship, such as Acme Ltd is subsidiary of Acme Group. Entered when the relationship is created; shown in party views and lists so users can understand the link at a glance.
+  - **Relationship Type** (required, one of the Party Relationship Relationship Type values) — Describes how the first party stands towards the second, such as subsidiary, employee or guarantor. Chosen when the link is recorded; credit, compliance and group reporting use it to interpret the connection. Read from the first party to t…
+  - **Ownership Percent** — The share the parent or owner holds, for ownership relationships. Used in consolidation and beneficial-ownership checks. Between 0 and 100.
+  - **Valid From** — The first day on which the relationship between the two parties holds. Recorded when it is known, for example from a contract or register entry. It cannot be later than the valid-to date.
+  - **Valid To** — The last day on which the relationship between the two parties holds. Recorded when the relationship ends, for example on resignation or sale; empty while it still applies. Empty while the relationship continues.
+  - **Status** (required, one of the Party Relationship Status values) — Says whether the relationship between the two parties is still in force today. Set to ended by the person maintaining the record when the relationship stops. Ended relationships stay for history. The relationship is in force today. The rel…
   - **From Party** (required, a Party) — The party at the origin of the relationship. Chosen when the relationship is created. Exactly one origin party: a relationship always starts at a particular party. Together with the other party it identifies the relationship.
+
+### Party Relationship Relationship Type
+
+The values of party relationship relationship type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Party Relationship Status
+
+The values of party relationship status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Party Role
 
@@ -719,7 +1096,39 @@ Readable by every signed-in person.
 Fields:
   - **Code** (required) — The short code of the team, such as WH-LDS. Gives a stable way to refer to the team in imports and rules. Unique; used in imports and rules. Read with the name.
   - **Name** (required) — The descriptive name of the team, such as Customer Support Tier 2. Entered by the organization administrator; shown in assignment pickers and reports, and may change without affecting the team's identity. What people look for when assignin…
+  - **Purpose** — A short description of what the team does and what work it should receive. Free text entered by the administrator and read by people deciding where to route work. Free text.
+  - **Team Type** (required, one of the Team Team Type values) — What kind of team it is. Decides how long it is expected to exist. Project teams are disbanded when the project ends. A standing team doing ongoing work. A team formed for one project. A team working a support or service queue. A sales tea…
+  - **Email Address** — The shared mailbox that reaches the whole team. Notifications addressed to the team are sent here instead of to each individual member. Notifications to the team go here instead of to each member.
+  - **Status** (required, one of the Team Status values) — Whether the team is still operating and can be given work. Set to inactive when the team is disbanded; inactive teams receive no new assignments. The team is working and can be assigned work. The team has been disbanded and receives no new…
   - **Organization** (required, a Organization) — The organisation the team belongs to. Chosen when the team is created. Exactly one organisation. Decides whose structure the team is part of.
+  - **Department** (a Department) — The department the team is part of. Set where teams sit inside departments. At most one. Used in departmental reporting.
+  - **Lead** (a Person) — The person who leads the team. Receives escalations and reports. One per team. Usually a team member.
+
+### Team Status
+
+The values of team status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
+### Team Team Type
+
+The values of team team type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Unit Of Measure
 
@@ -764,6 +1173,34 @@ Fields:
 
 ## Value lists
 
+### Activity Activity Type
+
+- **CALL** — A telephone or video call with the customer or prospect.
+- **MEETING** — A meeting in person or online with one or more people from the account.
+- **EMAIL** — An email exchange that is worth keeping on the account history.
+- **VISIT** — A visit to the customer's premises or to a site.
+- **TASK** — A piece of follow-up work done for the account without contacting it, such as preparing a quote.
+- **NOTE** — A note recorded for the account without any interaction, such as information heard from a third party.
+
+### Activity Direction
+
+- **INBOUND** — The customer or prospect started the interaction.
+- **OUTBOUND** — Someone from the company started the interaction.
+- **INTERNAL** — A discussion inside the company about the account, without the customer.
+
+### Activity Priority
+
+- **LOW** — Can wait until more pressing work is done.
+- **NORMAL** — To be done on the planned date.
+- **HIGH** — Needed promptly because a deal or a customer relationship depends on it.
+
+### Activity Status
+
+- **PLANNED** — Scheduled for the future and not yet started.
+- **IN PROGRESS** — Under way now, for example a meeting that has started.
+- **COMPLETED** — Held, with the outcome recorded.
+- **CANCELLED** — Will not take place; kept so the history shows it was planned.
+
 ### Address Address Type
 
 - **RESIDENTIAL** — A private home address.
@@ -787,12 +1224,31 @@ Fields:
 - **COMPLETED** — Decided; the decision is final evidence.
 - **CANCELLED** — Withdrawn by the requester before a decision.
 
+### Assignment Role
+
+- **RESPONSIBLE** — Does the work and answers for it being done.
+- **REVIEWER** — Checks the work once it is done.
+- **CONTRIBUTOR** — Helps with part of the work.
+- **OBSERVER** — Is kept informed but does no work.
+
 ### Assignment Status
 
 - **PENDING** — Offered but not yet accepted or in effect.
 - **ACTIVE** — In effect; the assignee is responsible for the work.
 - **COMPLETED** — The work is done and the responsibility ended.
 - **CANCELLED** — Withdrawn or replaced before completion.
+
+### Attachment Status
+
+- **ACTIVE** — Attached and part of the record's evidence.
+- **WITHDRAWN** — Removed from the record's evidence, but kept for the history.
+
+### Business Event Publication Status
+
+- **RECORDED** — Written down, not yet published.
+- **PUBLISHED** — Delivered to every subscriber.
+- **FAILED** — Delivery failed and will be retried.
+- **ABANDONED** — Delivery was given up after repeated failures; an operator has to act.
 
 ### Business Transaction Status
 
@@ -804,11 +1260,61 @@ Fields:
 - **CANCELLED** — Withdrawn before being posted; no effect on the books.
 - **REVERSED** — Posted and then undone by a reversing transaction; the original stays on record.
 
+### Business Unit Status
+
+- **ACTIVE** — Operating and available for new assignments.
+- **INACTIVE** — No longer operating after a closure or merger.
+
+### Calendar Exception Exception Type
+
+- **PUBLIC HOLIDAY** — A public holiday on which work does not happen.
+- **COMPANY CLOSURE** — A day the company or site is closed.
+- **EXTRA WORKING DAY** — A normally free day that is worked.
+
+### Calendar Status
+
+- **ACTIVE** — In use and available to planners.
+- **INACTIVE** — Retired and no longer offered.
+
+### Classification Status
+
+- **ACTIVE** — May be assigned to records and appears in pick lists.
+- **RETIRED** — No longer assigned, though existing records keep it.
+
+### Contact Point Channel
+
+- **EMAIL** — An email address used for written messages.
+- **PHONE** — A landline telephone number.
+- **MOBILE** — A mobile telephone number.
+- **FAX** — A fax number, kept for partners who still use it.
+- **WEBSITE** — A web address of the party's site or page.
+- **MESSAGING** — A handle on a messaging app.
+
+### Contact Point Purpose
+
+- **GENERAL** — Any purpose, when nothing more specific applies.
+- **BILLING** — Invoices and statements sent to accounts payable.
+- **ORDERS** — Order confirmations and purchase orders.
+- **DELIVERY** — Delivery notices and arrival updates.
+- **SUPPORT** — Service and support enquiries.
+- **MARKETING** — Marketing communication, where consent allows.
+
+### Contact Point Status
+
+- **ACTIVE** — In use and offered for contact.
+- **INACTIVE** — No longer used and kept for history.
+- **INVALID** — Known not to work, such as a bouncing address.
+
 ### Currency Status
 
 - **ACTIVE** — Available for use on new prices, documents and payments.
 - **INACTIVE** — Temporarily not offered, for example while a market is closed; it can be reactivated.
 - **RETIRED** — No longer in use, such as a replaced national currency; historical amounts keep it.
+
+### Department Status
+
+- **ACTIVE** — The department exists and can receive people, positions and work.
+- **INACTIVE** — The department has been closed or merged away; it stays on record for history.
 
 ### ERP Status
 
@@ -833,6 +1339,18 @@ Fields:
 - **EXPIRED** — Its validity period has ended; kept for past conversions.
 - **CANCELLED** — Withdrawn; must not be used.
 
+### Language Direction
+
+- **LTR** — Written left to right.
+- **RTL** — Written right to left.
+
+### Legal Entity Status
+
+- **ACTIVE** — Registered, in good standing and free to trade, sign contracts and issue invoices.
+- **DORMANT** — Still registered but not trading, so it holds no live business activity.
+- **IN LIQUIDATION** — Being wound up by a liquidator; no new business should be started in its name.
+- **DISSOLVED** — Struck off the register and gone for good; no new contracts or invoices may use it.
+
 ### Location Location Type
 
 - **SITE** — A geographic site that may contain several buildings.
@@ -853,6 +1371,14 @@ Fields:
 - **INACTIVE** — Temporarily not used but expected to return to service.
 - **CLOSED** — Closed down, with no new assignments but history kept.
 - **RETIRED** — Removed from use altogether. A final state.
+
+### Organization Membership Membership Type
+
+- **EMPLOYEE** — An employee of the organization.
+- **CONTRACTOR** — Someone working for the organization under contract.
+- **PARTNER USER** — A person from a customer, supplier or partner given access.
+- **BOARD MEMBER** — A director or member of a governing body.
+- **VOLUNTEER** — An unpaid member, such as a volunteer.
 
 ### Organization Membership Status
 
@@ -888,6 +1414,22 @@ Fields:
 
 - **PERSON** — The party represents an individual human being.
 - **ORGANIZATION** — The party represents a legal, commercial, governmental, nonprofit, or other organized body.
+
+### Party Relationship Relationship Type
+
+- **SUBSIDIARY OF** — The first party is a subsidiary owned by the second.
+- **BRANCH OF** — The first party is a branch operating as part of the second.
+- **EMPLOYEE OF** — The first party works for the second as an employee.
+- **AGENT OF** — The first party acts as an agent on behalf of the second.
+- **GUARANTOR FOR** — The first party guarantees the second party's obligations.
+- **BENEFICIAL OWNER OF** — The first party ultimately owns or controls the second.
+- **HOUSEHOLD MEMBER OF** — The first party lives in the same household as the second.
+- **OTHER** — Any other kind of link, explained in the relationship name.
+
+### Party Relationship Status
+
+- **ACTIVE** — The relationship is in force today.
+- **ENDED** — The relationship has stopped but is kept for history.
 
 ### Party Role Role Type
 
@@ -963,6 +1505,18 @@ Fields:
 - **SCRIPT** — A script run by the system.
 - **OTHER** — Work that fits no other type.
 
+### Team Status
+
+- **ACTIVE** — The team is working and can be assigned work.
+- **INACTIVE** — The team has been disbanded and receives no new work.
+
+### Team Team Type
+
+- **OPERATIONAL** — A standing team doing ongoing work.
+- **PROJECT** — A team formed for one project.
+- **SUPPORT** — A team working a support or service queue.
+- **SALES** — A sales team or territory.
+
 ### Unit Of Measure Category
 
 - **QUANTITY** — A general count or quantity of items.
@@ -1023,6 +1577,43 @@ Moves:
 - ACTIVE → EXPIRED (Expire)
 - INACTIVE → EXPIRED (Expire)
 
+### Party Relationship — Party Relationship Lifecycle
+
+Starts at **ACTIVE**.
+Final: **ENDED**.
+
+Moves:
+- ACTIVE → ENDED (End)
+
+### Legal Entity — Legal Entity Lifecycle
+
+Starts at **ACTIVE**.
+Final: **DISSOLVED**.
+
+Moves:
+- ACTIVE → DORMANT (Make Dormant)
+- DORMANT → ACTIVE (Resume Trading)
+- ACTIVE → IN LIQUIDATION (Liquidate)
+- DORMANT → IN LIQUIDATION (Liquidate)
+- IN LIQUIDATION → DISSOLVED (Dissolve)
+- DORMANT → DISSOLVED (Dissolve)
+
+### Business Unit — Business Unit Lifecycle
+
+Starts at **ACTIVE**.
+
+Moves:
+- ACTIVE → INACTIVE (Deactivate)
+- INACTIVE → ACTIVE (Reactivate)
+
+### Department — Department Lifecycle
+
+Starts at **ACTIVE**.
+
+Moves:
+- ACTIVE → INACTIVE (Deactivate)
+- INACTIVE → ACTIVE (Reactivate)
+
 ### Address — Address Lifecycle
 
 Starts at **ACTIVE**.
@@ -1033,6 +1624,16 @@ Moves:
 - INACTIVE → ACTIVE (Reactivate)
 - ACTIVE → RETIRED (Retire)
 - INACTIVE → RETIRED (Retire)
+
+### Contact Point — Contact Point Lifecycle
+
+Starts at **ACTIVE**.
+
+Moves:
+- ACTIVE → INACTIVE (Deactivate)
+- INACTIVE → ACTIVE (Reactivate)
+- ACTIVE → INVALID (Mark Invalid)
+- INVALID → ACTIVE (Reactivate)
 
 ### Location — Location Lifecycle
 
@@ -1081,6 +1682,22 @@ Moves:
 - ACTIVE → RETIRED (Retire)
 - INACTIVE → RETIRED (Retire)
 
+### Calendar — Calendar Lifecycle
+
+Starts at **ACTIVE**.
+
+Moves:
+- ACTIVE → INACTIVE (Deactivate)
+- INACTIVE → ACTIVE (Reactivate)
+
+### Attachment — Attachment Lifecycle
+
+Starts at **ACTIVE**.
+Final: **WITHDRAWN**.
+
+Moves:
+- ACTIVE → WITHDRAWN (Withdraw)
+
 ### Task — Task Lifecycle
 
 Starts at **CREATED**.
@@ -1119,6 +1736,14 @@ Moves:
 - ACTIVE → RETIRED (Retire)
 - SUSPENDED → RETIRED (Retire)
 
+### Team — Team Lifecycle
+
+Starts at **ACTIVE**.
+
+Moves:
+- ACTIVE → INACTIVE (Disband)
+- INACTIVE → ACTIVE (Reactivate)
+
 ### Organization Membership — Organization Membership Lifecycle
 
 Starts at **PENDING**.
@@ -1129,6 +1754,14 @@ Moves:
 - ACTIVE → COMPLETED (Complete)
 - PENDING → CANCELLED (Cancel)
 - ACTIVE → CANCELLED (Cancel)
+
+### Classification — Classification Lifecycle
+
+Starts at **ACTIVE**.
+Final: **RETIRED**.
+
+Moves:
+- ACTIVE → RETIRED (Retire)
 
 ### Approval — Approval Lifecycle
 
@@ -1152,6 +1785,29 @@ Moves:
 - PENDING → CANCELLED (Cancel)
 - ACTIVE → CANCELLED (Cancel)
 
+### Activity — Activity Lifecycle
+
+Starts at **PLANNED**.
+Final: **COMPLETED**, **CANCELLED**.
+
+Moves:
+- PLANNED → IN PROGRESS (Start)
+- IN PROGRESS → COMPLETED (Complete)
+- PLANNED → COMPLETED (Complete)
+- PLANNED → CANCELLED (Cancel)
+- IN PROGRESS → CANCELLED (Cancel)
+
+### Business Event — Business Event Lifecycle
+
+Starts at **RECORDED**.
+Final: **PUBLISHED**, **ABANDONED**.
+
+Moves:
+- RECORDED → PUBLISHED (Publish)
+- RECORDED → FAILED (Fail)
+- FAILED → PUBLISHED (Publish)
+- FAILED → ABANDONED (Abandon)
+
 ### Business Transaction — Business Transaction Lifecycle
 
 Starts at **DRAFT**.
@@ -1170,7 +1826,7 @@ Moves:
 
 ## Roles
 
-- **User** — reads 57 of 57 record types
+- **User** — reads 80 of 80 record types
 - **Administrator** — reads and changes everything the lifecycles allow
 
 A refusal means the person's role does not allow it. Say which role does, from this list, and suggest their administrator.

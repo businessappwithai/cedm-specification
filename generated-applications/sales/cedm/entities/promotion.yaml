@@ -9,9 +9,190 @@ entity:
   attributes:
     - {name: promotionId, type: uuid, required: true, immutable: true, help: {summary: 'The identity of the promotion, constant for its life.', usage: Generated on creation; orders and reports refer to it., relationshipContext: Referenced by the discounts and benefits it applied.}}
     - {name: code, type: string, required: false, maxLength: 120, help: {summary: 'The short code of the promotion, such as SPRING10.', usage: Entered by customers or staff where a code is needed; unique., relationshipContext: Quoted on orders that received the offer.}}
-  relationships: []
+    - name: name
+      type: string
+      required: true
+      maxLength: 150
+      help:
+        summary: The name of the promotion shown to staff.
+        usage: Shown in order lines and reports.
+        relationshipContext: The customer-facing wording is in the description.
+    - name: description
+      type: text
+      required: false
+      help:
+        summary: The offer as customers see it, with its conditions.
+        usage: Displayed on the web shop and printed on receipts.
+        relationshipContext: Must match the configured conditions.
+    - name: promotionType
+      type: enum
+      required: true
+      default: PERCENT_OFF
+      values:
+        - PERCENT_OFF
+        - AMOUNT_OFF
+        - BUY_X_GET_Y
+        - FREE_SHIPPING
+        - BUNDLE_PRICE
+      help:
+        summary: What the offer gives.
+        usage: Chosen when setting up; decides how the benefit is computed.
+        relationshipContext: Read with the benefit value.
+        valueSemantics:
+          PERCENT_OFF: A percentage off the eligible price.
+          AMOUNT_OFF: A fixed amount off the eligible price.
+          BUY_X_GET_Y: Extra items free or reduced when buying a quantity.
+          FREE_SHIPPING: Shipping charged at nothing.
+          BUNDLE_PRICE: A fixed price for a set of items bought together.
+    - name: benefitValue
+      type: decimal
+      required: false
+      precision: 18
+      scale: 4
+      help:
+        summary: The size of the benefit — the percentage or the amount off.
+        usage: Applied by price determination.
+        relationshipContext: A percentage between 0 and 100 for percentage offers.
+    - name: minimumOrderAmount
+      type: Money
+      required: false
+      help:
+        summary: The smallest basket or order value a customer must reach before the offer applies.
+        usage: Checked at checkout and order entry; an order below this value simply does not receive the discount.
+        relationshipContext: Left empty when any order qualifies, whatever its size.
+    - name: channel
+      type: enum
+      required: true
+      default: ALL
+      values:
+        - ALL
+        - WEB
+        - STORE
+        - SALES_REP
+      help:
+        summary: The sales channel through which shoppers may redeem this offer.
+        usage: Checked at checkout or order entry so the same offer is not honoured where marketing did not intend it.
+        relationshipContext: A store-only promotion is not applied to orders placed on the web shop.
+        valueSemantics:
+          ALL: Valid on every sales channel, whether web, store or sales team.
+          WEB: Valid only on orders placed through the online web shop.
+          STORE: Valid only on purchases made at the counter of a physical store.
+          SALES_REP: Valid only on orders keyed in by the sales team on behalf of customers.
+    - name: startAt
+      type: datetime
+      required: true
+      help:
+        summary: The date and time from which shoppers can begin receiving the offer.
+        usage: Set when the promotion is set up; the promotion becomes active automatically at this moment once approved.
+        relationshipContext: Must not be later than the end date and time.
+    - name: endAt
+      type: datetime
+      required: false
+      help:
+        summary: The date and time after which the offer is no longer given.
+        usage: Set when the promotion is set up; the promotion closes automatically at this moment and prices return to normal.
+        relationshipContext: Empty for open-ended promotions, which must then be ended by hand.
+    - name: usageLimit
+      type: integer
+      required: false
+      help:
+        summary: The most times the promotion may be redeemed in total.
+        usage: The promotion ends when the limit is reached.
+        relationshipContext: Empty for unlimited.
+    - name: usesPerCustomer
+      type: integer
+      required: false
+      help:
+        summary: How many times one customer may use it.
+        usage: Checked against the customer's past orders.
+        relationshipContext: Empty for unlimited.
+    - name: redemptionCount
+      type: integer
+      required: true
+      default: 0
+      help:
+        summary: How many times the promotion has been used.
+        usage: Increased with each order that applies it.
+        relationshipContext: Compared with the usage limit.
+    - name: budget
+      type: Money
+      required: false
+      help:
+        summary: The most the promotion may cost in discounts.
+        usage: Followed by marketing; the promotion may be ended when it is spent.
+        relationshipContext: In the company currency.
+    - name: status
+      type: enum
+      required: true
+      default: DRAFT
+      values:
+        - DRAFT
+        - SCHEDULED
+        - ACTIVE
+        - ENDED
+        - CANCELLED
+      help:
+        valueSemantics:
+          DRAFT: Still being set up by marketing and not yet visible to any shopper or order.
+          SCHEDULED: Approved and waiting for its start date to arrive.
+          ACTIVE: Currently on offer and applied to qualifying orders.
+          ENDED: Finished because its end date passed or its usage limit was reached.
+          CANCELLED: Stopped by the business before its planned end.
+        summary: Whether the promotion is being offered.
+        usage: Moved on by approval and by its dates and limits.
+        relationshipContext: Only active promotions are applied.
+  relationships:
+    - name: campaign
+      target: Campaign
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The marketing campaign the promotion belongs to.
+        usage: Linked so campaign results include promotion sales.
+        cardinalityMeaning: At most one campaign.
+        context: A campaign may run several promotions.
+    - name: product
+      target: Product
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The product the promotion applies to, when it is limited to one.
+        usage: Set for single-product offers.
+        cardinalityMeaning: At most one product.
+        context: Without a product or category it applies to the whole order.
+    - name: productCategory
+      target: ProductCategory
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The category the promotion applies to.
+        usage: Set for category-wide offers.
+        cardinalityMeaning: At most one category.
+        context: Includes the products of its sub-categories.
   invariants:
     - {id: PROMOTION-001, rule: "Lifecycle changes, corrections and retries must preserve historical evidence and must not duplicate downstream commercial, physical or financial effects."}
+    - {id: PROMOTION-EXE-001, rule: "End At must not be earlier than start at.", violatedWhen: "start_at != null and end_at != null and end_at < start_at", message: "End At cannot be earlier than start at."}
+    - {id: PROMOTION-EXE-002, rule: "Minimum Order Amount cannot be negative.", violatedWhen: "minimum_order_amount != null and minimum_order_amount < 0", message: "Minimum Order Amount cannot be negative."}
+    - {id: PROMOTION-EXE-003, rule: "Redemption Count cannot be negative.", violatedWhen: "redemption_count != null and redemption_count < 0", message: "Redemption Count cannot be negative."}
+  workflows:
+    - name: FollowUpRequired
+      title: "Follow up when a promotion is ended"
+      description: "When a promotion is cancelled, a task asks someone to settle what depended on it."
+      when: "status == \"CANCELLED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "PROMOTION-FOLLOW-UP-{{id}}"
+              name: "Follow up on promotion {{name}}"
+              description: "Promotion {{name}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
   help:
     summary: A time-limited commercial offer that changes price, benefit, bundle or fulfilment terms for eligible customers without rewriting base pricing.
     businessMeaning: A promotion lets the business run offers such as a seasonal discount, a bundle or free delivery, for a defined period and audience. Because it sits beside base pricing, ending it restores normal prices and the history of what each order received is kept.
@@ -19,4 +200,39 @@ entity:
     relationshipContext: A promotion is applied to orders and invoices that qualify and is described by its code and terms.
     lifecycle: A promotion is drafted, approved, runs for its period and then ends. What it already applied stays on those orders.
     example: The "Spring 10" promotion gives ten percent off garden products from 1 to 30 April.
+  lifecycle:
+    title: Promotion Lifecycle
+    attribute: status
+    states:
+      - DRAFT
+      - SCHEDULED
+      - ACTIVE
+      - ENDED
+      - CANCELLED
+    initial: DRAFT
+    terminal:
+      - ENDED
+      - CANCELLED
+    transitions:
+      - from: DRAFT
+        to: SCHEDULED
+        action: schedule
+      - from: SCHEDULED
+        to: ACTIVE
+        action: start
+      - from: DRAFT
+        to: ACTIVE
+        action: start
+      - from: ACTIVE
+        to: ENDED
+        action: end
+      - from: SCHEDULED
+        to: CANCELLED
+        action: cancel
+      - from: ACTIVE
+        to: CANCELLED
+        action: cancel
+      - from: DRAFT
+        to: CANCELLED
+        action: cancel
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-PROMOTION}

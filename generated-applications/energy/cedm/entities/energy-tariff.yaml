@@ -62,6 +62,31 @@ entity:
           ACTIVE: In force and used for billing.
           EXPIRED: Its period has ended; kept for past bills.
           RETIRED: Withdrawn before or after use; kept for history.
+    - name: unitRate
+      type: decimal
+      required: true
+      precision: 12
+      scale: 6
+      help:
+        summary: The price charged for each unit of energy consumed.
+        usage: Multiplied by the metered consumption to compute the energy charge on the bill.
+        relationshipContext: Per the tariff's unit of measure; where there are time bands it is the peak rate.
+    - name: offPeakUnitRate
+      type: decimal
+      required: false
+      precision: 12
+      scale: 6
+      help:
+        summary: The price per unit in off-peak hours, for time-of-use tariffs.
+        usage: Applied to off-peak consumption.
+        relationshipContext: Empty for single-rate tariffs.
+    - name: standingCharge
+      type: Money
+      required: false
+      help:
+        summary: The fixed charge applied each billing period, whatever the consumption.
+        usage: Added to every bill for the customer on this tariff.
+        relationshipContext: Per month unless the tariff states otherwise.
   relationships:
     - name: provider
       target: Organization

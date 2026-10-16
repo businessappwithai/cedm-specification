@@ -50,6 +50,51 @@ entity:
           RETIRED: Removed from the portfolio. A final state.
         summary: Whether the property is trading.
         usage: Set by the operator; reservations are taken only for ACTIVE hotels.
+    - name: starRating
+      type: integer
+      required: false
+      help:
+        summary: The official star classification of the hotel, from one to five stars.
+        usage: Entered from the hotel's classification certificate and shown to guests on booking channels.
+        relationshipContext: Between 1 and 5.
+    - name: checkInTime
+      type: string
+      required: false
+      maxLength: 5
+      help:
+        summary: The earliest time of day guests may take their room, written as hours and minutes such as 15:00.
+        usage: Local time at the hotel; shown on booking confirmations so guests know when to arrive.
+        relationshipContext: Local time.
+    - name: checkOutTime
+      type: string
+      required: false
+      maxLength: 5
+      help:
+        summary: The latest time of day guests must vacate their room, written as hours and minutes such as 11:00.
+        usage: Local time at the hotel; shown on confirmations and used by housekeeping to plan room turnover.
+        relationshipContext: Local time.
+    - name: roomCount
+      type: integer
+      required: false
+      help:
+        summary: The total number of rooms the hotel has available for letting.
+        usage: Entered by the hotel manager and used as the capacity figure in occupancy and revenue reports; it should match the rooms recorded.
+        relationshipContext: Equal to the number of its rooms.
+    - name: phone
+      type: string
+      required: false
+      maxLength: 40
+      help:
+        summary: The main telephone number guests and partners call to reach the hotel.
+        usage: Entered in international format with the country code, and printed on booking confirmations.
+        relationshipContext: International format.
+    - name: email
+      type: email
+      required: false
+      help:
+        summary: The email address guests and partners use to contact the hotel.
+        usage: Usually the reception desk or reservations mailbox; printed on booking confirmations.
+        relationshipContext: Usually the reception desk.
   relationships:
     - name: location
       target: Location
@@ -98,6 +143,8 @@ entity:
       - {from: ACTIVE, to: CLOSED, action: close}
       - {from: PLANNED, to: RETIRED, action: retire}
       - {from: ACTIVE, to: RETIRED, action: retire}
+  invariants:
+    - {id: HOTEL-EXE-001, rule: "Room Count cannot be negative.", violatedWhen: "room_count != null and room_count < 0", message: "Room Count cannot be negative."}
   help:
     summary: A hospitality property that provides accommodation and related services.
     businessMeaning: A hotel is the unit that sells rooms. It holds the property's identity and status and owns the rooms and reservations that make up its business.

@@ -59,6 +59,23 @@ entity:
           CONSUMED: Fully used up, with no material left to issue. A final state.
         summary: Whether the batch may be used.
         usage: Set by quality and production; only RELEASED batches may be issued to production or sold.
+    - name: quantity
+      type: decimal
+      required: false
+      precision: 18
+      scale: 4
+      help:
+        summary: How much material the batch holds, as produced or received.
+        usage: Recorded at production or goods receipt and used for yield and stock reconciliation.
+        relationshipContext: Stated in the product's unit of measure.
+    - name: certificateNumber
+      type: string
+      required: false
+      maxLength: 60
+      help:
+        summary: The number of the certificate of analysis for the batch.
+        usage: Quoted to customers who need it.
+        relationshipContext: Issued on release.
   relationships:
     - name: product
       target: Product
@@ -90,6 +107,7 @@ entity:
   invariants:
     - id: CHEMICAL-BATCH-001
       rule: expiryDate must not precede manufactureDate.
+    - {id: CHEMICAL-BATCH-EXE-001, rule: "Quantity cannot be negative.", violatedWhen: "quantity != null and quantity < 0", message: "Quantity cannot be negative."}
   lifecycle:
     title: Chemical Batch Lifecycle
     attribute: status

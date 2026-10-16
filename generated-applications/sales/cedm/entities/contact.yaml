@@ -9,9 +9,121 @@ entity:
   attributes:
     - {name: contactId, type: uuid, required: true, immutable: true, help: {summary: The identity of the contact record., usage: Generated on creation; activities and opportunities refer to the contact.}}
     - {name: code, type: string, required: false, maxLength: 120, help: {summary: 'An optional short reference for the contact, often from an import or an external CRM.', usage: Used to match records during synchronisation.}}
+    - name: jobTitle
+      type: string
+      required: false
+      maxLength: 150
+      help:
+        summary: The person's job title at their organization.
+        usage: Shown on the contact and on letters.
+        relationshipContext: As the person states it.
+    - name: contactRole
+      type: enum
+      required: true
+      default: OTHER
+      values:
+        - DECISION_MAKER
+        - BUYER
+        - TECHNICAL
+        - ACCOUNTS_PAYABLE
+        - SERVICE
+        - OTHER
+      help:
+        valueSemantics:
+          DECISION_MAKER: Decides whether to buy or sign.
+          BUYER: Places orders on behalf of the organisation.
+          TECHNICAL: Advises on technical matters.
+          ACCOUNTS_PAYABLE: Receives invoices and arranges payment.
+          SERVICE: Is the contact for service and support.
+          OTHER: Any role not listed, described elsewhere on the contact.
+        summary: The part the person plays in the business relationship.
+        usage: Lets staff find the right person for a purpose, such as sending invoices to accounts payable.
+        relationshipContext: A person may play several roles; the main one is recorded.
+    - name: isPrimary
+      type: boolean
+      required: true
+      default: false
+      help:
+        summary: Whether this is the main contact for the organization.
+        usage: Used as the default addressee.
+        relationshipContext: One primary contact per organization.
+    - name: preferredChannel
+      type: enum
+      required: false
+      default: EMAIL
+      values:
+        - EMAIL
+        - PHONE
+        - MESSAGING
+        - POST
+      help:
+        summary: The way the person prefers to be reached by the business, such as email or telephone.
+        usage: Followed by sales, service and marketing staff when they reach out.
+        relationshipContext: The contact details themselves are on the person's contact points.
+        valueSemantics:
+          EMAIL: By email to the person's address.
+          PHONE: By telephone call or voicemail.
+          MESSAGING: By instant message on a chat app.
+          POST: By letter sent to a postal address.
+    - name: marketingConsent
+      type: boolean
+      required: true
+      default: false
+      help:
+        summary: Whether the person agreed to receive marketing.
+        usage: Marketing sends only to contacts who consented.
+        relationshipContext: Read with the consent date.
+    - name: consentDate
+      type: date
+      required: false
+      help:
+        summary: The day the person gave or withdrew consent to be contacted for marketing.
+        usage: Recorded with every change of consent so the latest decision is dated.
+        relationshipContext: Serves as evidence for data-protection rules.
+    - name: status
+      type: enum
+      required: true
+      default: ACTIVE
+      values:
+        - ACTIVE
+        - INACTIVE
+      help:
+        valueSemantics:
+          ACTIVE: A current contact who can be approached.
+          INACTIVE: No longer a contact.
+        summary: Whether the person is a current contact.
+        usage: Made inactive when they leave or the relationship ends.
+        relationshipContext: Inactive contacts are kept for the history.
   relationships:
     - {name: person, target: Person, cardinality: '1', ownership: reference, help: {summary: The person who is the contact., usage: Chosen when the contact is created; supplies name and personal details., cardinalityMeaning: Exactly one person; a contact is always a specific human being., workflowRole: Keeps personal identity in one place so the same person can be a contact in several relationships., businessMeaning: Preserves canonical human identity.}}
     - {name: account, target: Account, cardinality: 0..1, ownership: reference, help: {summary: 'The customer, supplier or partner account the person is a contact for.', usage: Set when the person is linked to an organisation relationship., cardinalityMeaning: At most one account; a freelance contact may have none., workflowRole: Gives the contact its business context., businessMeaning: Identifies account for which person is a contact.}}
+    - name: customer
+      target: Customer
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The customer the person represents.
+        usage: Set for customer contacts.
+        cardinalityMeaning: At most one.
+        context: The customer's contacts are listed from it.
+    - name: supplier
+      target: Supplier
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The supplier the person represents.
+        usage: Set for supplier contacts.
+        cardinalityMeaning: At most one.
+        context: The supplier's contacts are listed from it.
+    - name: organization
+      target: Organization
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: Any other organization the person represents, such as a partner.
+        usage: Set when the person is not a customer's or supplier's contact.
+        cardinalityMeaning: At most one.
+        context: One of customer, supplier or organization is normally given.
   invariants:
     - {id: CONTACT-001, rule: "Lifecycle changes, corrections and retries must preserve historical evidence and must not duplicate downstream commercial, physical or financial effects."}
   help:
@@ -21,4 +133,19 @@ entity:
     relationshipContext: A contact is a Person associated with an Account; the Person record holds the identity and the contact adds the business context.
     lifecycle: Changes and retries preserve history and do not duplicate commercial effects of past interactions.
     example: Maria Lopez, purchasing manager at a customer account, recorded as the main contact for renewals.
+  lifecycle:
+    title: Contact Lifecycle
+    attribute: status
+    states:
+      - ACTIVE
+      - INACTIVE
+    initial: ACTIVE
+    terminal: []
+    transitions:
+      - from: ACTIVE
+        to: INACTIVE
+        action: deactivate
+      - from: INACTIVE
+        to: ACTIVE
+        action: reactivate
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-CONTACT}

@@ -20,9 +20,94 @@ entity:
           ACTIVE: In force; billing runs use it to determine charge periods.
           COMPLETED: No longer used for new billing; past runs remain valid.
           CANCELLED: Withdrawn before it was used.
-  relationships: []
+    - name: code
+      type: string
+      required: true
+      unique: true
+      maxLength: 20
+      help:
+        summary: The short code of the cycle, such as MON-01.
+        usage: Chosen when the cycle is created; subscriptions and billing reports refer to it.
+        relationshipContext: Unique.
+    - name: name
+      type: string
+      required: true
+      maxLength: 100
+      help:
+        summary: The name of the cycle, such as "Monthly, 1st of the month".
+        usage: Shown when a subscription is placed on a cycle.
+        relationshipContext: Identifies the cycle for people, with the code.
+    - name: frequency
+      type: enum
+      required: true
+      default: MONTHLY
+      values:
+        - WEEKLY
+        - MONTHLY
+        - QUARTERLY
+        - SEMI_ANNUAL
+        - ANNUAL
+      help:
+        valueSemantics:
+          WEEKLY: Each billing period lasts one week.
+          MONTHLY: Each billing period lasts one calendar month.
+          QUARTERLY: Each billing period lasts three calendar months.
+          SEMI_ANNUAL: Each billing period lasts six calendar months.
+          ANNUAL: Each billing period lasts one year.
+        summary: How long each billing period lasts.
+        usage: Chosen when the cycle is created; it cannot change once subscriptions use the cycle.
+        relationshipContext: Read with the interval count, which multiplies it.
+    - name: intervalCount
+      type: integer
+      required: true
+      default: 1
+      help:
+        summary: How many units of the frequency make one period — 2 with monthly means every two months.
+        usage: Usually 1.
+        relationshipContext: Must be at least 1.
+    - name: anchorDay
+      type: integer
+      required: false
+      help:
+        summary: The day of the month (or of the week, for weekly cycles) each period starts on.
+        usage: Set so that billing dates are predictable, such as the 1st of the month.
+        relationshipContext: Days beyond the end of a short month fall on its last day.
+    - name: cutoffOffsetDays
+      type: integer
+      required: true
+      default: 0
+      help:
+        summary: How many days after a period ends usage is still accepted into it.
+        usage: Gives late usage feeds time to arrive before the period is rated.
+        relationshipContext: Usage arriving after the cut-off goes into the next period.
+    - name: invoiceOffsetDays
+      type: integer
+      required: true
+      default: 1
+      help:
+        summary: How many days after a period ends its invoice is produced.
+        usage: Used by the billing run to schedule invoicing.
+        relationshipContext: Should not be less than the cut-off offset.
+    - name: paymentDueDays
+      type: integer
+      required: false
+      help:
+        summary: How many days after the invoice date payment is due.
+        usage: Copied onto invoices produced for this cycle unless the customer's payment terms say otherwise.
+        relationshipContext: Payment terms agreed with the customer take precedence.
+  relationships:
+    - name: currency
+      target: Currency
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The currency the cycle bills in, when it is specific to one.
+        usage: Set when cycles differ by currency; empty when any currency may use it.
+        cardinalityMeaning: At most one currency per cycle.
+        context: Subscriptions on the cycle bill in its currency.
   invariants:
     - {id: BILLING-CYCLE-001, rule: "This record must not silently duplicate or rewrite authoritative cash, accounting, tax, usage, entitlement, or billing evidence in another CEDM entity."}
+    - {id: BILLING-CYCLE-EXE-001, rule: "Interval Count cannot be negative.", violatedWhen: "interval_count != null and interval_count < 0", message: "Interval Count cannot be negative."}
   lifecycle:
     title: Billing Cycle Lifecycle
     attribute: status

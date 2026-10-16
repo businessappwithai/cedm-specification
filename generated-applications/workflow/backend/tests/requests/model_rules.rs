@@ -1,6 +1,6 @@
 //! The rules the *model* declared, and whether they reached the application.
 //!
-//! Generated: 2026-10-09T15:31:13.756Z
+//! Generated: 2026-10-16T07:49:45.882Z
 //! Project: workflow
 //!
 //! Every other rules suite creates a rule through the API and then checks that
@@ -33,6 +33,16 @@ const MODEL_RULES: &[(&str, &str, &str)] = &[
         "bus_party_role",
         "UPDATE",
     ),
+    (
+        "partyRelationshipInvariantsBeforeCreate",
+        "bus_party_relationship",
+        "CREATE",
+    ),
+    (
+        "partyRelationshipInvariantsBeforeUpdate",
+        "bus_party_relationship",
+        "UPDATE",
+    ),
     ("addressInvariantsBeforeCreate", "bus_address", "CREATE"),
     ("addressInvariantsBeforeUpdate", "bus_address", "UPDATE"),
     (
@@ -45,6 +55,18 @@ const MODEL_RULES: &[(&str, &str, &str)] = &[
         "bus_exchange_rate",
         "UPDATE",
     ),
+    ("calendarInvariantsBeforeCreate", "bus_calendar", "CREATE"),
+    ("calendarInvariantsBeforeUpdate", "bus_calendar", "UPDATE"),
+    (
+        "calendarExceptionInvariantsBeforeCreate",
+        "bus_calendar_exception",
+        "CREATE",
+    ),
+    (
+        "calendarExceptionInvariantsBeforeUpdate",
+        "bus_calendar_exception",
+        "UPDATE",
+    ),
     ("taskInvariantsBeforeCreate", "bus_task", "CREATE"),
     ("taskInvariantsBeforeUpdate", "bus_task", "UPDATE"),
     (
@@ -55,6 +77,16 @@ const MODEL_RULES: &[(&str, &str, &str)] = &[
     (
         "businessProcessInvariantsBeforeUpdate",
         "bus_business_process",
+        "UPDATE",
+    ),
+    (
+        "processInstanceInvariantsBeforeCreate",
+        "bus_process_instance",
+        "CREATE",
+    ),
+    (
+        "processInstanceInvariantsBeforeUpdate",
+        "bus_process_instance",
         "UPDATE",
     ),
     ("partyWorkflowsAfterUpdate", "bus_party", "UPDATE"),

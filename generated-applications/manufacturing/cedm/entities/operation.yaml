@@ -11,6 +11,30 @@ entity:
     - {name: sequence, type: integer, required: true, minimum: 1, help: {summary: The position of the operation in the routing., usage: 'Set by the process engineer, usually in steps of ten so steps can be inserted later.', businessMeaning: Defines process precedence., relationshipContext: Unique within Routing.}}
     - {name: name, type: string, required: true, maxLength: 300, help: {summary: 'The name of the operation, such as Weld frame.', usage: Shown on shop-floor instructions and in reports., businessMeaning: Communicates operation purpose., relationshipContext: Interpreted within Routing.}}
     - {name: standardMinutes, type: decimal, required: false, precision: 12, scale: 3, help: {summary: The standard time allowed for the operation., usage: Set from time studies; planning uses it for capacity and costing for labour and machine cost., businessMeaning: Planning/costing expectation rather than actual elapsed time., relationshipContext: Actual execution may differ.}}
+    - name: setupMinutes
+      type: decimal
+      required: false
+      precision: 10
+      scale: 2
+      help:
+        summary: The time to set the work centre up for the step, in minutes.
+        usage: Added once per production order.
+        relationshipContext: Spread over the lot when costing.
+    - name: instructions
+      type: text
+      required: false
+      help:
+        summary: How to carry out the step.
+        usage: Printed on the job card or shown at the work centre.
+        relationshipContext: Linked documents give detail.
+    - name: isQualityCheckpoint
+      type: boolean
+      required: true
+      default: false
+      help:
+        summary: Whether the step ends with a quality check that must pass before continuing.
+        usage: Production stops at the step until the check passes.
+        relationshipContext: Read with the quality plan.
   relationships:
     - {name: routing, target: Routing, cardinality: '1', ownership: reference, inverse: operations, help: {summary: The routing the operation is a step of., usage: Set when the operation is created., cardinalityMeaning: 'Exactly one routing: a step has no meaning outside the process it belongs to.', workflowRole: Operations are released and retired with their routing., businessMeaning: Supplies product/process context.}}
     - {name: workCenter, target: WorkCenter, cardinality: 0..1, ownership: reference, help: {summary: The work centre where the operation is carried out., usage: Chosen when the routing is designed., cardinalityMeaning: At most one work centre; an operation may be assigned later., workflowRole: Determines the capacity the operation loads., businessMeaning: Defines where/by whom work is normally executed.}}

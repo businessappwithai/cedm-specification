@@ -20,9 +20,123 @@ entity:
           ACTIVE: The plan is on offer and customers can subscribe to it.
           COMPLETED: The plan has run its course and is no longer offered, though existing subscriptions keep their terms. A final state.
           CANCELLED: The plan was withdrawn without ever being fully offered. A final state.
-  relationships: []
+    - name: code
+      type: string
+      required: true
+      unique: true
+      maxLength: 40
+      help:
+        summary: The code of the plan, such as PRO-M-EUR.
+        usage: Used by billing, the portal and integrations.
+        relationshipContext: Unique.
+    - name: name
+      type: string
+      required: true
+      maxLength: 150
+      help:
+        summary: The name customers see, such as "Pro, monthly".
+        usage: Shown on the pricing page, in contracts and on invoices.
+        relationshipContext: Identifies the plan for people, with the code.
+    - name: description
+      type: text
+      required: false
+      help:
+        summary: A description of what the plan includes and costs, written for customers.
+        usage: Shown on the pricing page and in sign-up emails to help people choose a plan.
+        relationshipContext: Must match the entitlements configured on the plan.
+    - name: recurringFee
+      type: Money
+      required: true
+      help:
+        summary: The fee charged each billing period.
+        usage: Charged by every billing run for each active subscription.
+        relationshipContext: Per unit when the plan is priced per user or per seat.
+    - name: pricingUnit
+      type: enum
+      required: true
+      default: FLAT
+      values:
+        - FLAT
+        - PER_USER
+        - PER_UNIT
+      help:
+        summary: What the recurring fee is charged per.
+        usage: Decides whether the fee is multiplied by the subscription's quantity.
+        relationshipContext: Read with the recurring fee.
+        valueSemantics:
+          FLAT: One fee for the whole subscription.
+          PER_USER: The fee times the number of users.
+          PER_UNIT: The fee times another counted unit, such as devices or sites.
+    - name: includedUsage
+      type: decimal
+      required: false
+      precision: 18
+      scale: 4
+      help:
+        summary: How much usage each period includes before overage is charged.
+        usage: Billing rates usage above it at the overage price.
+        relationshipContext: In the plan's usage unit.
+    - name: usageUnit
+      type: string
+      required: false
+      maxLength: 50
+      help:
+        summary: The unit usage is measured in, such as "API calls" or "GB".
+        usage: Shown on invoices next to usage quantities.
+        relationshipContext: Usage records are in this unit.
+    - name: overagePrice
+      type: Money
+      required: false
+      help:
+        summary: The price per unit of usage above what is included.
+        usage: Applied by usage rating.
+        relationshipContext: Empty when extra usage is not allowed or not charged.
+    - name: trialDays
+      type: integer
+      required: false
+      help:
+        summary: How many days a new subscriber may use the plan free.
+        usage: The first charge falls after the trial.
+        relationshipContext: Empty or zero for no trial.
+    - name: minimumTermMonths
+      type: integer
+      required: false
+      help:
+        summary: The minimum commitment, in months.
+        usage: A subscription cannot be cancelled to take effect before it ends.
+        relationshipContext: Empty for no commitment.
+  relationships:
+    - name: product
+      target: Product
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The product the plan sells.
+        usage: Linked for revenue reporting by product.
+        cardinalityMeaning: One per plan.
+        context: A product is usually sold in several plans.
+    - name: billingCycle
+      target: BillingCycle
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The cycle subscriptions on the plan are billed on.
+        usage: Copied to new subscriptions.
+        cardinalityMeaning: One per plan.
+        context: Monthly and annual variants are separate plans.
+    - name: currency
+      target: Currency
+      cardinality: "1"
+      ownership: reference
+      help:
+        summary: The currency of the plan's prices.
+        usage: Set when designing the plan.
+        cardinalityMeaning: One per plan.
+        context: Each currency needs its own plan.
   invariants:
     - {id: SUBSCRIPTION-PLAN-001, rule: "This record must not silently duplicate or rewrite authoritative cash, accounting, tax, usage, entitlement, or billing evidence in another CEDM entity."}
+    - {id: SUBSCRIPTION-PLAN-EXE-001, rule: "Recurring Fee cannot be negative.", violatedWhen: "recurring_fee != null and recurring_fee < 0", message: "Recurring Fee cannot be negative."}
+    - {id: SUBSCRIPTION-PLAN-EXE-002, rule: "Overage Price cannot be negative.", violatedWhen: "overage_price != null and overage_price < 0", message: "Overage Price cannot be negative."}
   lifecycle:
     title: Subscription Plan Lifecycle
     attribute: status

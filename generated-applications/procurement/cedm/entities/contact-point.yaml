@@ -10,6 +10,89 @@ entity:
     - {name: contactPointId, type: uuid, required: true, immutable: true, help: {summary: The identity of the contact point., usage: Generated on creation; messages and preferences refer to it.}}
     - {name: code, type: string, required: true, maxLength: 100, help: {summary: A short reference for the contact point., usage: Assigned or imported; stays stable so integrations can match it.}}
     - {name: name, type: string, required: true, maxLength: 300, help: {summary: 'A descriptive label for the endpoint, such as Head office switchboard.', usage: Shown wherever contact points are listed.}}
+    - name: channel
+      type: enum
+      required: true
+      default: EMAIL
+      values:
+        - EMAIL
+        - PHONE
+        - MOBILE
+        - FAX
+        - WEBSITE
+        - MESSAGING
+      help:
+        valueSemantics:
+          EMAIL: An email address used for written messages.
+          PHONE: A landline telephone number.
+          MOBILE: A mobile telephone number.
+          FAX: A fax number, kept for partners who still use it.
+          WEBSITE: A web address of the party's site or page.
+          MESSAGING: A handle on a messaging app.
+        summary: What kind of channel it is.
+        usage: Chosen when adding it; decides how the value is validated.
+        relationshipContext: Read with the value.
+    - name: value
+      type: string
+      required: true
+      maxLength: 320
+      help:
+        summary: The address or number itself.
+        usage: Entered in its standard form — international format for phone numbers.
+        relationshipContext: Validated according to the channel.
+    - name: purpose
+      type: enum
+      required: true
+      default: GENERAL
+      values:
+        - GENERAL
+        - BILLING
+        - ORDERS
+        - DELIVERY
+        - SUPPORT
+        - MARKETING
+      help:
+        valueSemantics:
+          GENERAL: Any purpose, when nothing more specific applies.
+          BILLING: Invoices and statements sent to accounts payable.
+          ORDERS: Order confirmations and purchase orders.
+          DELIVERY: Delivery notices and arrival updates.
+          SUPPORT: Service and support enquiries.
+          MARKETING: Marketing communication, where consent allows.
+        summary: What the channel is used for.
+        usage: Processes pick the contact point for their purpose.
+        relationshipContext: A channel used for several purposes takes the main one.
+    - name: isPreferred
+      type: boolean
+      required: true
+      default: false
+      help:
+        summary: Whether this is the preferred channel for its purpose.
+        usage: Used first when several channels serve the same purpose.
+        relationshipContext: One preferred channel per party, channel and purpose.
+    - name: verifiedAt
+      type: datetime
+      required: false
+      help:
+        summary: When the channel was last confirmed to work.
+        usage: Recorded by a verification message or call.
+        relationshipContext: Unverified channels may be refused for sensitive messages.
+    - name: status
+      type: enum
+      required: true
+      default: ACTIVE
+      values:
+        - ACTIVE
+        - INACTIVE
+        - INVALID
+      help:
+        summary: Whether the channel is still usable for reaching the party.
+        usage: Changed when the channel stops being used or a message to it bounces.
+        relationshipContext: Inactive and invalid channels are not offered for contact.
+        valueSemantics:
+          ACTIVE: In use and offered for contact.
+          INACTIVE: No longer used and kept for history.
+          INVALID: Known not to work, such as a bouncing address.
   relationships:
     - {name: party, target: Party, cardinality: "1", ownership: reference, help: {summary: The party the endpoint belongs to., usage: Set when the endpoint is added., cardinalityMeaning: Exactly one party; each endpoint has one owner., workflowRole: Lets communications find the right channel for a party.}}
   invariants:
@@ -21,4 +104,26 @@ entity:
     relationshipContext: Each contact point belongs to one Party, which may have several.
     lifecycle: Code and identity stay stable, and an endpoint that is retired remains in history.
     example: The billing team's email address invoices@acme.example, recorded for a customer.
+  lifecycle:
+    title: Contact Point Lifecycle
+    attribute: status
+    states:
+      - ACTIVE
+      - INACTIVE
+      - INVALID
+    initial: ACTIVE
+    terminal: []
+    transitions:
+      - from: ACTIVE
+        to: INACTIVE
+        action: deactivate
+      - from: INACTIVE
+        to: ACTIVE
+        action: reactivate
+      - from: ACTIVE
+        to: INVALID
+        action: mark_invalid
+      - from: INVALID
+        to: ACTIVE
+        action: reactivate
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-CONTACT-POINT}

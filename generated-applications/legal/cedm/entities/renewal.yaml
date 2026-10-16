@@ -20,10 +20,89 @@ entity:
           ACTIVE: Offered to or confirmed with the customer and now being carried out.
           COMPLETED: The new term is in place and the entitlement continues. A final state.
           CANCELLED: The customer chose not to continue, so no new term starts. A final state.
+    - name: renewalNumber
+      type: string
+      required: true
+      unique: true
+      maxLength: 40
+      help:
+        summary: The reference by which sales and customers identify this particular renewal.
+        usage: Assigned when the renewal is created and quoted on renewal offers and reminders to the customer.
+        relationshipContext: Unique across all renewals.
+    - name: currentTermEnd
+      type: date
+      required: true
+      help:
+        summary: The last day of the subscription's current term.
+        usage: Copied from the subscription; the renewal must be decided before it.
+        relationshipContext: The new term starts the day after.
+    - name: newTermStart
+      type: date
+      required: false
+      help:
+        summary: The first day of the period the customer will be entitled to once the renewal takes effect.
+        usage: Entered when the renewal is confirmed and passed on to billing and entitlement.
+        relationshipContext: Usually the day after the current term ends.
+    - name: newTermEnd
+      type: date
+      required: false
+      help:
+        summary: The last day of the period covered by the renewal.
+        usage: Entered when the renewal is confirmed; the next renewal decision falls due before this date.
+        relationshipContext: Not earlier than the new term start.
+    - name: currentValue
+      type: Money
+      required: false
+      help:
+        summary: The recurring value of the subscription in its current term.
+        usage: Copied from the subscription; the basis for retention figures.
+        relationshipContext: Annualised for comparison.
+    - name: renewalValue
+      type: Money
+      required: false
+      help:
+        summary: The recurring value offered or agreed for the new term.
+        usage: Entered with the quote; compared with the current value for expansion or contraction.
+        relationshipContext: In the subscription's currency.
+    - name: isAutomatic
+      type: boolean
+      required: true
+      default: false
+      help:
+        summary: Tells whether the renewal happens by itself or needs the customer's explicit agreement.
+        usage: Copied from the subscription terms when the renewal is created, so staff know whether to chase a confirmation.
+        relationshipContext: Automatic renewals still appear here so they can be reviewed.
+    - name: churnReason
+      type: string
+      required: false
+      maxLength: 300
+      help:
+        summary: Why the customer did not renew.
+        usage: Recorded when the renewal is lost; churn analysis groups by it.
+        relationshipContext: Present only on churned renewals.
   relationships:
     - {name: customer, target: Customer, cardinality: 0..1, ownership: reference, help: {summary: The customer whose subscription is being renewed., usage: Chosen when the renewal is created., cardinalityMeaning: At most one customer; empty until identified., workflowRole: Decides whom to invoice and contact.}}
+    - name: subscription
+      target: Subscription
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The subscription being renewed.
+        usage: Set when the renewal is created.
+        cardinalityMeaning: One per renewal.
+        context: The subscription's term follows the confirmed renewal.
+    - name: newPlan
+      target: SubscriptionPlan
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The plan for the new term, when it changes.
+        usage: Set when the customer upgrades or downgrades on renewal.
+        cardinalityMeaning: At most one.
+        context: Empty when the plan stays the same.
   invariants:
     - {id: RENEWAL-001, rule: "This record must not silently duplicate or rewrite authoritative cash, accounting, tax, usage, entitlement, or billing evidence in another CEDM entity."}
+    - {id: RENEWAL-EXE-001, rule: "New Term End must not be earlier than new term start.", violatedWhen: "new_term_start != null and new_term_end != null and new_term_end < new_term_start", message: "New Term End cannot be earlier than new term start."}
   lifecycle:
     title: Renewal Lifecycle
     attribute: status

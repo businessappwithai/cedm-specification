@@ -1,6 +1,6 @@
 //! The rules the *model* declared, and whether they reached the application.
 //!
-//! Generated: 2026-10-10T02:39:14.876Z
+//! Generated: 2026-10-16T07:45:31.809Z
 //! Project: compliance
 //!
 //! Every other rules suite creates a rule through the API and then checks that
@@ -33,6 +33,16 @@ const MODEL_RULES: &[(&str, &str, &str)] = &[
         "bus_party_role",
         "UPDATE",
     ),
+    (
+        "partyRelationshipInvariantsBeforeCreate",
+        "bus_party_relationship",
+        "CREATE",
+    ),
+    (
+        "partyRelationshipInvariantsBeforeUpdate",
+        "bus_party_relationship",
+        "UPDATE",
+    ),
     ("addressInvariantsBeforeCreate", "bus_address", "CREATE"),
     ("addressInvariantsBeforeUpdate", "bus_address", "UPDATE"),
     (
@@ -43,6 +53,18 @@ const MODEL_RULES: &[(&str, &str, &str)] = &[
     (
         "exchangeRateInvariantsBeforeUpdate",
         "bus_exchange_rate",
+        "UPDATE",
+    ),
+    ("calendarInvariantsBeforeCreate", "bus_calendar", "CREATE"),
+    ("calendarInvariantsBeforeUpdate", "bus_calendar", "UPDATE"),
+    (
+        "calendarExceptionInvariantsBeforeCreate",
+        "bus_calendar_exception",
+        "CREATE",
+    ),
+    (
+        "calendarExceptionInvariantsBeforeUpdate",
+        "bus_calendar_exception",
         "UPDATE",
     ),
     ("taskInvariantsBeforeCreate", "bus_task", "CREATE"),
@@ -59,6 +81,38 @@ const MODEL_RULES: &[(&str, &str, &str)] = &[
         "bus_audit_case",
         "UPDATE",
     ),
+    (
+        "complianceRequirementInvariantsBeforeCreate",
+        "bus_compliance_requirement",
+        "CREATE",
+    ),
+    (
+        "complianceRequirementInvariantsBeforeUpdate",
+        "bus_compliance_requirement",
+        "UPDATE",
+    ),
+    (
+        "riskTreatmentInvariantsBeforeCreate",
+        "bus_risk_treatment",
+        "CREATE",
+    ),
+    (
+        "riskTreatmentInvariantsBeforeUpdate",
+        "bus_risk_treatment",
+        "UPDATE",
+    ),
+    ("filingInvariantsBeforeCreate", "bus_filing", "CREATE"),
+    ("filingInvariantsBeforeUpdate", "bus_filing", "UPDATE"),
+    (
+        "lossEventInvariantsBeforeCreate",
+        "bus_loss_event",
+        "CREATE",
+    ),
+    (
+        "lossEventInvariantsBeforeUpdate",
+        "bus_loss_event",
+        "UPDATE",
+    ),
     ("partyWorkflowsAfterUpdate", "bus_party", "UPDATE"),
     (
         "exchangeRateWorkflowsAfterUpdate",
@@ -67,10 +121,17 @@ const MODEL_RULES: &[(&str, &str, &str)] = &[
     ),
     ("auditCaseWorkflowsAfterUpdate", "bus_audit_case", "UPDATE"),
     (
+        "riskAssessmentWorkflowsAfterUpdate",
+        "bus_risk_assessment",
+        "UPDATE",
+    ),
+    (
         "riskTreatmentWorkflowsAfterUpdate",
         "bus_risk_treatment",
         "UPDATE",
     ),
+    ("filingWorkflowsAfterUpdate", "bus_filing", "UPDATE"),
+    ("obligationWorkflowsAfterUpdate", "bus_obligation", "UPDATE"),
 ];
 
 /// Every rule reached `sys_rule_definitions`, bound to the physical

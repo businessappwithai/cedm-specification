@@ -10,10 +10,78 @@ entity:
     - {name: departmentId, type: uuid, required: true, immutable: true, help: {summary: The identity of the department., usage: 'Generated on creation; people, positions and budgets refer to it.'}}
     - {name: code, type: string, required: true, maxLength: 100, help: {summary: 'The short code of the department, such as FIN-AP.', usage: Used in postings and reports; kept stable.}}
     - {name: name, type: string, required: true, maxLength: 300, help: {summary: 'The name of the department as the organisation calls it, such as Finance or Field Operations.', usage: 'Entered by an administrator; shown in organisation charts, on documents and in reports that group people and costs by department.'}}
+    - name: description
+      type: text
+      required: false
+      help:
+        summary: What the department is responsible for and what kind of work it does.
+        usage: Read by people placing staff, positions or work, so they choose the right department.
+        relationshipContext: Free text written by the organisation's administrators.
+    - name: status
+      type: enum
+      required: true
+      default: ACTIVE
+      values:
+        - ACTIVE
+        - INACTIVE
+      help:
+        summary: Whether the department currently exists as part of the organisation.
+        usage: Set to inactive after a reorganisation closes or merges the department.
+        relationshipContext: Inactive departments are not offered when assigning people or work.
+        valueSemantics:
+          ACTIVE: The department exists and can receive people, positions and work.
+          INACTIVE: The department has been closed or merged away; it stays on record for history.
   relationships:
     - {name: organization, target: Organization, cardinality: "1", ownership: reference, help: {usage: 'Chosen when the department is created; reporting lines, headcount and budgets roll up through the organisation it belongs to.', summary: The organisation the department belongs to., cardinalityMeaning: 'Exactly one organisation: a department is part of a single organisation.', workflowRole: Places the department in the reporting structure.}}
+    - name: businessUnit
+      target: BusinessUnit
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The business unit the department is part of.
+        usage: Set where the organization is divided into business units.
+        cardinalityMeaning: At most one.
+        context: Used in business-unit reporting.
+    - name: parentDepartment
+      target: Department
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The department this one reports to.
+        usage: Builds the hierarchy used for approvals.
+        cardinalityMeaning: At most one.
+        context: Cannot be itself.
+    - name: manager
+      target: Person
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The person who leads the department.
+        usage: Approves its requests and receives its reports.
+        cardinalityMeaning: One per department.
+        context: Approval routing goes to this person.
+    - name: costCenter
+      target: CostCenter
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The cost centre that carries the department's costs.
+        usage: Defaulted onto the department's purchases and time.
+        cardinalityMeaning: At most one.
+        context: Set by controlling.
+    - name: location
+      target: Location
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: Where the department is based.
+        usage: Used in directories and space planning.
+        cardinalityMeaning: At most one.
+        context: Staff may work elsewhere.
   invariants:
     - {id: DEPARTMENT-001, rule: Code and identity semantics must remain stable within the governing context and historical references must not be silently repointed.}
+    - id: DEPARTMENT-002
+      rule: A Department must not be its own ancestor through parentDepartment; the parentDepartment chain is acyclic.
   help:
     summary: A unit of an organisation that groups people, positions, responsibilities and work.
     businessMeaning: Departments are how people are organised day to day. They define reporting lines, budgets and responsibilities.
@@ -21,4 +89,19 @@ entity:
     relationshipContext: A department belongs to an Organization (or one of its business units).
     lifecycle: Code and identity stay stable. Reorganisations are recorded explicitly so earlier reports do not change.
     example: The Accounts Payable department of the finance function.
+  lifecycle:
+    title: Department Lifecycle
+    attribute: status
+    states:
+      - ACTIVE
+      - INACTIVE
+    initial: ACTIVE
+    terminal: []
+    transitions:
+      - from: ACTIVE
+        to: INACTIVE
+        action: deactivate
+      - from: INACTIVE
+        to: ACTIVE
+        action: reactivate
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-DEPARTMENT}

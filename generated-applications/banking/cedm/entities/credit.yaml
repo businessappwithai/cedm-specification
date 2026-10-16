@@ -81,8 +81,74 @@ entity:
         summary: The date the credit was issued.
         usage: Set when issued; the credit may be applied from this date.
         relationshipContext: Compared with charge dates.
+    - name: description
+      type: string
+      required: false
+      maxLength: 500
+      help:
+        summary: What the credit is for, as the customer will see it.
+        usage: Printed on the invoice where it is applied.
+        relationshipContext: Should let the customer recognise it.
+    - name: appliedAmount
+      type: Money
+      required: false
+      help:
+        summary: How much of the credit has been used.
+        usage: Increased each time it is applied to an invoice or charge.
+        relationshipContext: Not more than the amount.
+    - name: grantedDate
+      type: date
+      required: true
+      help:
+        summary: The day the credit was granted to the customer or account.
+        usage: Recorded by whoever grants the credit; the expiry period and any approval limit are counted from this date.
+        relationshipContext: Not later than the expiry date.
+    - name: expiryDate
+      type: date
+      required: false
+      help:
+        summary: The last day the credit can still be applied to a charge.
+        usage: Credit left unused after this day lapses and can no longer be applied to invoices or charges.
+        relationshipContext: Left empty when the credit never expires.
   relationships:
     - {name: customer, target: Customer, cardinality: 0..1, ownership: reference, help: {summary: The customer to whom the credit is owed., usage: Set when the credit is issued; it can be applied only to that customer's charges., cardinalityMeaning: At most one customer; an unassigned credit is a draft not yet attached to anyone., workflowRole: Decides whose charges the credit can reduce.}}
+    - name: subscription
+      target: Subscription
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The subscription the credit concerns, such as the one that suffered an outage.
+        usage: Linked for service credits.
+        cardinalityMeaning: At most one.
+        context: May restrict the credit to that subscription's charges.
+    - name: invoice
+      target: Invoice
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The invoice the credit corrects or was granted against.
+        usage: Linked for billing corrections.
+        cardinalityMeaning: At most one.
+        context: The credit is applied to later invoices, not by changing this one.
+    - name: grantedBy
+      target: Person
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The person who decided to grant the credit.
+        usage: Recorded when the credit is granted, so a reviewer can see who authorised it and why.
+        cardinalityMeaning: At most one person is recorded as granting each credit.
+        workflowRole: Credits above an approval limit are checked against the grantor's authority before they take effect.
+        context: Credits above a limit need approval.
+    - name: currency
+      target: Currency
+      cardinality: "1"
+      ownership: reference
+      help:
+        summary: The currency of the credit.
+        usage: The customer's billing currency.
+        cardinalityMeaning: One per credit.
+        context: Applied only to invoices in the same currency.
   invariants:
     - {id: CREDIT-001, rule: "This record must not silently duplicate or rewrite authoritative cash, accounting, tax, usage, entitlement, or billing evidence in another CEDM entity."}
     - id: CREDIT-002

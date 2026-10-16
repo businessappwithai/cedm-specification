@@ -9,6 +9,74 @@ entity:
   attributes:
     - {name: contractClauseId, type: uuid, required: true, immutable: true, help: {summary: The identity of the clause., usage: Generated on creation; amendments and reviews refer to the clause.}}
     - {name: effectiveAt, type: datetime, required: false, help: {summary: When this wording of the clause took effect., usage: Set from the contract or amendment that introduced it; the effective text on any date is the latest clause in force then.}}
+    - name: clauseNumber
+      type: string
+      required: true
+      maxLength: 20
+      help:
+        summary: The number of the clause in the contract, such as 14.2.
+        usage: Taken from the contract document.
+        relationshipContext: Unique within the contract.
+    - name: heading
+      type: string
+      required: true
+      maxLength: 200
+      help:
+        summary: The clause's heading, such as "Limitation of liability".
+        usage: Shown in the contract's list of clauses.
+        relationshipContext: Taken from the document.
+    - name: category
+      type: enum
+      required: true
+      default: OTHER
+      values:
+        - LIABILITY
+        - INDEMNITY
+        - TERMINATION
+        - CONFIDENTIALITY
+        - DATA_PROTECTION
+        - PAYMENT
+        - WARRANTY
+        - GOVERNING_LAW
+        - INTELLECTUAL_PROPERTY
+        - OTHER
+      help:
+        valueSemantics:
+          LIABILITY: Limits or exclusions of liability.
+          INDEMNITY: Indemnities between the parties.
+          TERMINATION: Rights and notice to end the contract.
+          CONFIDENTIALITY: Protection of confidential information.
+          DATA_PROTECTION: Processing of personal data.
+          PAYMENT: Payment terms, invoicing and late payment.
+          WARRANTY: Warranties about goods or services.
+          GOVERNING_LAW: The governing law and jurisdiction.
+          INTELLECTUAL_PROPERTY: Ownership and licensing of rights.
+          OTHER: Any term that fits none of the other categories.
+        summary: The kind of term the clause contains.
+        usage: Chosen when recording it; clause searches across contracts use it.
+        relationshipContext: Follows the legal team's clause library.
+    - name: summaryText
+      type: text
+      required: false
+      help:
+        summary: What the clause says, in plain words.
+        usage: Lets readers compare clauses without opening every document.
+        relationshipContext: The document's wording is authoritative.
+    - name: isDeviation
+      type: boolean
+      required: true
+      default: false
+      help:
+        summary: Whether the clause departs from the company's standard position.
+        usage: Set by legal on review; deviations need approval and are reviewed before renewal.
+        relationshipContext: Read with the deviation note.
+    - name: deviationNote
+      type: text
+      required: false
+      help:
+        summary: How and why the clause departs from the standard.
+        usage: Written when the clause is a deviation.
+        relationshipContext: Required when the clause is flagged as a deviation.
   relationships:
     - {name: contract, target: Contract, cardinality: '1', ownership: reference, help: {cardinalityMeaning: 'Exactly one contract: a clause has no meaning outside the agreement it belongs to.', summary: The contract of which the clause is a part., usage: Set when the clause is created., workflowRole: Groups the clauses that make up the agreement.}}
   invariants:

@@ -1,6 +1,6 @@
 //! The rules the *model* declared, and whether they reached the application.
 //!
-//! Generated: 2026-10-10T02:40:47.660Z
+//! Generated: 2026-10-16T07:47:27.949Z
 //! Project: logistics
 //!
 //! Every other rules suite creates a rule through the API and then checks that
@@ -33,6 +33,16 @@ const MODEL_RULES: &[(&str, &str, &str)] = &[
         "bus_party_role",
         "UPDATE",
     ),
+    (
+        "partyRelationshipInvariantsBeforeCreate",
+        "bus_party_relationship",
+        "CREATE",
+    ),
+    (
+        "partyRelationshipInvariantsBeforeUpdate",
+        "bus_party_relationship",
+        "UPDATE",
+    ),
     ("addressInvariantsBeforeCreate", "bus_address", "CREATE"),
     ("addressInvariantsBeforeUpdate", "bus_address", "UPDATE"),
     (
@@ -43,6 +53,18 @@ const MODEL_RULES: &[(&str, &str, &str)] = &[
     (
         "exchangeRateInvariantsBeforeUpdate",
         "bus_exchange_rate",
+        "UPDATE",
+    ),
+    ("calendarInvariantsBeforeCreate", "bus_calendar", "CREATE"),
+    ("calendarInvariantsBeforeUpdate", "bus_calendar", "UPDATE"),
+    (
+        "calendarExceptionInvariantsBeforeCreate",
+        "bus_calendar_exception",
+        "CREATE",
+    ),
+    (
+        "calendarExceptionInvariantsBeforeUpdate",
+        "bus_calendar_exception",
         "UPDATE",
     ),
     ("taskInvariantsBeforeCreate", "bus_task", "CREATE"),
@@ -69,6 +91,40 @@ const MODEL_RULES: &[(&str, &str, &str)] = &[
         "bus_shipment_line",
         "UPDATE",
     ),
+    ("carrierInvariantsBeforeCreate", "bus_carrier", "CREATE"),
+    ("carrierInvariantsBeforeUpdate", "bus_carrier", "UPDATE"),
+    (
+        "consignmentInvariantsBeforeCreate",
+        "bus_consignment",
+        "CREATE",
+    ),
+    (
+        "consignmentInvariantsBeforeUpdate",
+        "bus_consignment",
+        "UPDATE",
+    ),
+    (
+        "freightChargeInvariantsBeforeCreate",
+        "bus_freight_charge",
+        "CREATE",
+    ),
+    (
+        "freightChargeInvariantsBeforeUpdate",
+        "bus_freight_charge",
+        "UPDATE",
+    ),
+    (
+        "fulfillmentInvariantsBeforeCreate",
+        "bus_fulfillment",
+        "CREATE",
+    ),
+    (
+        "fulfillmentInvariantsBeforeUpdate",
+        "bus_fulfillment",
+        "UPDATE",
+    ),
+    ("loadInvariantsBeforeCreate", "bus_load", "CREATE"),
+    ("loadInvariantsBeforeUpdate", "bus_load", "UPDATE"),
     ("tripInvariantsBeforeCreate", "bus_trip", "CREATE"),
     ("tripInvariantsBeforeUpdate", "bus_trip", "UPDATE"),
     (
@@ -93,6 +149,8 @@ const MODEL_RULES: &[(&str, &str, &str)] = &[
     ),
     ("productInvariantsBeforeCreate", "bus_product", "CREATE"),
     ("productInvariantsBeforeUpdate", "bus_product", "UPDATE"),
+    ("messageInvariantsBeforeCreate", "bus_message", "CREATE"),
+    ("messageInvariantsBeforeUpdate", "bus_message", "UPDATE"),
     ("partyWorkflowsAfterUpdate", "bus_party", "UPDATE"),
     (
         "exchangeRateWorkflowsAfterUpdate",
@@ -105,6 +163,17 @@ const MODEL_RULES: &[(&str, &str, &str)] = &[
         "bus_sales_order",
         "UPDATE",
     ),
+    (
+        "consignmentWorkflowsAfterUpdate",
+        "bus_consignment",
+        "UPDATE",
+    ),
+    (
+        "fulfillmentWorkflowsAfterUpdate",
+        "bus_fulfillment",
+        "UPDATE",
+    ),
+    ("loadWorkflowsAfterUpdate", "bus_load", "UPDATE"),
     ("tripWorkflowsAfterUpdate", "bus_trip", "UPDATE"),
     (
         "tripSegmentWorkflowsAfterUpdate",
@@ -118,6 +187,7 @@ const MODEL_RULES: &[(&str, &str, &str)] = &[
     ),
     ("customerWorkflowsAfterUpdate", "bus_customer", "UPDATE"),
     ("productWorkflowsAfterUpdate", "bus_product", "UPDATE"),
+    ("messageWorkflowsAfterUpdate", "bus_message", "UPDATE"),
 ];
 
 /// Every rule reached `sys_rule_definitions`, bound to the physical

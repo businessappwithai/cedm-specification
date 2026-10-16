@@ -41,6 +41,61 @@ entity:
           COMPLETED: The commitment has ended as planned. A final state.
           CANCELLED: Withdrawn before or during the commitment. A final state.
         relationshipContext: Status changes can affect related Project workflows but never erase historical evidence.
+    - name: projectRole
+      type: string
+      required: true
+      maxLength: 100
+      help:
+        summary: The role the person plays on the project, such as "Data engineer".
+        usage: Shown in the project's staffing plan.
+        relationshipContext: May differ from the person's job title.
+    - name: startDate
+      type: date
+      required: true
+      help:
+        summary: The first day on which the person or resource is committed to the project.
+        usage: Set when the assignment is planned, and used to build the capacity plan for the period.
+        relationshipContext: Not later than the end date.
+    - name: endDate
+      type: date
+      required: false
+      help:
+        summary: The last day of the assignment.
+        usage: Set when planning; moved if the project slips.
+        relationshipContext: Empty for open-ended assignments.
+    - name: allocationPercent
+      type: decimal
+      required: true
+      precision: 5
+      scale: 2
+      default: 100
+      help:
+        summary: The share of the person's time the project takes.
+        usage: Summed across a person's assignments to check for overbooking.
+        relationshipContext: Between 0 and 100.
+    - name: plannedHours
+      type: decimal
+      required: false
+      precision: 10
+      scale: 2
+      help:
+        summary: The total working hours the project manager expects this person to give the project.
+        usage: Compared with the hours actually booked to show whether the assignment is on track.
+        relationshipContext: Usually the allocation percentage times the hours available in the period.
+    - name: costRate
+      type: Money
+      required: false
+      help:
+        summary: The internal cost of an hour of the person's time.
+        usage: Used to cost the project.
+        relationshipContext: From the person's grade.
+    - name: billRate
+      type: Money
+      required: false
+      help:
+        summary: The rate charged to the client per hour, for billable projects.
+        usage: Used to bill the project.
+        relationshipContext: From the contract or rate card.
   relationships:
     - name: context
       target: Project
@@ -51,6 +106,33 @@ entity:
         usage: Chosen when the assignment is created.
         cardinalityMeaning: Exactly one project; an assignment to two projects is two assignments.
         context: Places the commitment in the right plan and budget.
+    - name: project
+      target: Project
+      cardinality: "1"
+      ownership: reference
+      help:
+        summary: The project the person is assigned to.
+        usage: Chosen when proposing the assignment.
+        cardinalityMeaning: Every assignment is to exactly one project.
+        context: The project's staffing plan lists its assignments.
+    - name: person
+      target: Person
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The person assigned.
+        usage: Named once known; a role may be requested before a person is found.
+        cardinalityMeaning: At most one.
+        context: Their availability limits the allocation.
+    - name: task
+      target: ProjectTask
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The project task the assignment is for, when it is that specific.
+        usage: Set for task-level staffing.
+        cardinalityMeaning: At most one.
+        context: Time booked rolls up to the task.
   invariants:
     - id: RESOURCE-ASSIGNMENT-001
       rule: The governing Project relationship is required and must reference a valid record.
@@ -58,6 +140,10 @@ entity:
       rule: Completed records must not be destructively rewritten; corrections require controlled amendment, replacement, reversal, or follow-up evidence appropriate to the domain.
     - id: RESOURCE-ASSIGNMENT-003
       rule: Creation and lifecycle transitions must be idempotent and auditable.
+    - {id: RESOURCE-ASSIGNMENT-EXE-001, rule: "End Date must not be earlier than start date.", violatedWhen: "start_date != null and end_date != null and end_date < start_date", message: "End Date cannot be earlier than start date."}
+    - {id: RESOURCE-ASSIGNMENT-EXE-002, rule: "Allocation Percent is a percentage between 0 and 100.", violatedWhen: "allocation_percent != null and (allocation_percent < 0 or allocation_percent > 100)", message: "Allocation Percent must be between 0 and 100."}
+    - {id: RESOURCE-ASSIGNMENT-EXE-003, rule: "Cost Rate cannot be negative.", violatedWhen: "cost_rate != null and cost_rate < 0", message: "Cost Rate cannot be negative."}
+    - {id: RESOURCE-ASSIGNMENT-EXE-004, rule: "Bill Rate cannot be negative.", violatedWhen: "bill_rate != null and bill_rate < 0", message: "Bill Rate cannot be negative."}
   lifecycle:
     title: Resource Assignment Lifecycle
     attribute: status

@@ -55,6 +55,38 @@ entity:
           ACTIVE: Currently grown or available for planting.
           INACTIVE: Not grown at present, for example out of season; it can be reactivated.
           RETIRED: No longer grown; kept for history.
+    - name: scientificName
+      type: string
+      required: false
+      maxLength: 150
+      help:
+        summary: The botanical name of the crop, such as Triticum aestivum for bread wheat.
+        usage: Used in seed orders, certificates and regulatory records where a common name would be ambiguous.
+        relationshipContext: Written as genus and species.
+    - name: variety
+      type: string
+      required: false
+      maxLength: 100
+      help:
+        summary: The particular variety or cultivar of the crop that is grown, such as a named wheat strain.
+        usage: Recorded so yields, treatments and seed lots can be traced and compared between varieties.
+        relationshipContext: Spelled as on the seed certificate.
+    - name: growingDays
+      type: integer
+      required: false
+      help:
+        summary: The typical number of days from sowing to harvest for this crop.
+        usage: Agronomists use it to plan sowing windows, field rotation and expected harvest dates.
+        relationshipContext: Varies with climate and season, so treat it as a planning average.
+    - name: typicalYieldPerHectare
+      type: decimal
+      required: false
+      precision: 10
+      scale: 2
+      help:
+        summary: The usual yield, in tonnes per hectare.
+        usage: Used for planning and to judge a season's results.
+        relationshipContext: An average over recent seasons.
   relationships:
     - name: farms
       target: Farm

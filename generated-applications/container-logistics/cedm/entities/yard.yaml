@@ -54,6 +54,37 @@ entity:
           ACTIVE: Facility can perform normal operations subject to capacity, safety, equipment, and process constraints.
           SUSPENDED: Normal operations are temporarily restricted because of incidents, maintenance, weather, regulatory action, or another controlled reason.
           CLOSED: Facility is no longer available for normal operations; closure activities may still be performed under controlled processes.
+    - name: yardType
+      type: enum
+      required: true
+      default: TERMINAL
+      values:
+        - TERMINAL
+        - DEPOT
+        - INLAND
+      help:
+        summary: The kind of facility the yard is, such as a terminal, depot or inland dry port.
+        usage: Chosen when the yard is set up and decides which operations it supports.
+        relationshipContext: Depots store empty containers and do not load vessels.
+        valueSemantics:
+          TERMINAL: A port or rail terminal where containers are loaded and discharged.
+          DEPOT: A depot that stores and repairs empty containers.
+          INLAND: An inland dry port or container freight station away from the coast.
+    - name: capacityTeu
+      type: integer
+      required: false
+      help:
+        summary: How many twenty-foot equivalent containers the yard can hold in total.
+        usage: Equals the sum of its blocks' capacity and is used for utilisation and planning reports.
+        relationshipContext: Sum of its blocks.
+    - name: operatingHours
+      type: string
+      required: false
+      maxLength: 200
+      help:
+        summary: The hours during which the yard gate is open, such as 24/7 or Monday to Friday 06:00 to 22:00.
+        usage: Shown to hauliers booking gate slots.
+        relationshipContext: Such as "24/7" or "Mon–Fri 06:00–22:00".
   relationships:
     - name: location
       target: Location

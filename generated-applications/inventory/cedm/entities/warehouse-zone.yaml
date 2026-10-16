@@ -29,6 +29,54 @@ entity:
           GENERAL: Ordinary storage with no special handling or purpose.
         businessMeaning: Governs eligible warehouse processes and stock.
         relationshipContext: Location-level controls may further restrict eligibility.
+    - name: name
+      type: string
+      required: true
+      maxLength: 100
+      help:
+        summary: The name of the zone, such as "Cold store 1".
+        usage: Shown in warehouse screens.
+        relationshipContext: Identifies the zone for people.
+    - name: minTemperatureC
+      type: decimal
+      required: false
+      precision: 5
+      scale: 1
+      help:
+        summary: The lowest temperature the zone is kept at, in °C.
+        usage: Checked when products with storage conditions are put away.
+        relationshipContext: Empty for zones without temperature control.
+    - name: maxTemperatureC
+      type: decimal
+      required: false
+      precision: 5
+      scale: 1
+      help:
+        summary: The highest temperature the zone is kept at, in °C.
+        usage: Checked when products with storage conditions are put away.
+        relationshipContext: Not lower than the minimum.
+    - name: isRestricted
+      type: boolean
+      required: true
+      default: false
+      help:
+        summary: Whether access to the zone is restricted to authorised staff.
+        usage: Used for high-value, hazardous or quarantined goods.
+        relationshipContext: Tasks in restricted zones go only to authorised people.
+    - name: status
+      type: enum
+      required: true
+      default: ACTIVE
+      values:
+        - ACTIVE
+        - INACTIVE
+      help:
+        summary: Whether the zone is currently in use in the warehouse.
+        usage: Changed during refits or closures; inactive zones receive no putaway.
+        valueSemantics:
+          ACTIVE: The zone is open and can receive and release stock.
+          INACTIVE: The zone is closed or being refitted and takes no new stock.
+        relationshipContext: Inactive zones receive no putaway.
   relationships:
     - {name: warehouse, target: Warehouse, cardinality: '1', ownership: reference, inverse: zones, help: {summary: The warehouse the zone belongs to., cardinalityMeaning: Each zone belongs to exactly one warehouse., businessMeaning: Supplies facility and operating context., usage: WMS hierarchy., workflowRole: Warehouse status constrains zone use.}}
     - {name: inventoryLocations, target: InventoryLocation, cardinality: "0..*", ownership: aggregate, help: {summary: Stock-holding/staging locations within zone., businessMeaning: Provides executable storage granularity., usage: "Putaway, picking, count and transfer.", cardinalityMeaning: Zero or many locations., workflowRole: Zone rules constrain location eligibility.}}
@@ -43,4 +91,19 @@ entity:
     relationshipContext: Zone rules guide InventoryTransfer and WMS tasks but do not themselves alter inventory.
     lifecycle: Configured → active/restricted → retired while historical transactions retain zone context.
     changePropagation: Zone control changes revalidate future putaway/picking/transfer destinations without rewriting completed movements.
+  lifecycle:
+    title: Warehouse Zone Lifecycle
+    attribute: status
+    states:
+      - ACTIVE
+      - INACTIVE
+    initial: ACTIVE
+    terminal: []
+    transitions:
+      - from: ACTIVE
+        to: INACTIVE
+        action: deactivate
+      - from: INACTIVE
+        to: ACTIVE
+        action: reactivate
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-WAREHOUSE-ZONE}

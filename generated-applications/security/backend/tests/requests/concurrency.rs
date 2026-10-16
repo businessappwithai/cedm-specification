@@ -1,6 +1,6 @@
 //! Two people, one record: optimistic locking and closed transactions.
 //!
-//! Generated: 2026-10-10T12:33:10.739Z
+//! Generated: 2026-10-16T07:49:06.364Z
 //! Project: security
 //!
 //! Every entity is optimistic unless the model says `concurrency:
@@ -39,11 +39,14 @@ const FINAL_STATES: &[(&str, &str, &str)] = &[
     ("Party", "status", "RETIRED"),
     ("Organization", "status", "RETIRED"),
     ("PartyRole", "status", "EXPIRED"),
+    ("PartyRelationship", "status", "ENDED"),
+    ("LegalEntity", "status", "DISSOLVED"),
     ("Address", "status", "RETIRED"),
     ("Location", "status", "CLOSED"),
     ("Currency", "status", "RETIRED"),
     ("ExchangeRate", "status", "EXPIRED"),
     ("UnitOfMeasure", "status", "RETIRED"),
+    ("Attachment", "status", "WITHDRAWN"),
     ("Task", "status", "COMPLETED"),
     ("User", "status", "RETIRED"),
     ("Identity", "status", "REVOKED"),
@@ -63,7 +66,17 @@ const FIRST_MOVES: &[(&str, &str, &str, &[&str])] = &[
     ),
     ("Organization", "status", "DRAFT", &["ACTIVE", "RETIRED"]),
     ("PartyRole", "status", "ACTIVE", &["INACTIVE", "EXPIRED"]),
+    ("PartyRelationship", "status", "ACTIVE", &["ENDED"]),
+    (
+        "LegalEntity",
+        "status",
+        "ACTIVE",
+        &["DORMANT", "IN_LIQUIDATION"],
+    ),
+    ("BusinessUnit", "status", "ACTIVE", &["INACTIVE"]),
+    ("Department", "status", "ACTIVE", &["INACTIVE"]),
     ("Address", "status", "ACTIVE", &["INACTIVE", "RETIRED"]),
+    ("ContactPoint", "status", "ACTIVE", &["INACTIVE", "INVALID"]),
     ("Location", "status", "PLANNED", &["ACTIVE", "RETIRED"]),
     ("Currency", "status", "ACTIVE", &["INACTIVE", "RETIRED"]),
     ("ExchangeRate", "status", "DRAFT", &["ACTIVE", "CANCELLED"]),
@@ -73,6 +86,8 @@ const FIRST_MOVES: &[(&str, &str, &str, &[&str])] = &[
         "ACTIVE",
         &["INACTIVE", "RETIRED"],
     ),
+    ("Calendar", "status", "ACTIVE", &["INACTIVE"]),
+    ("Attachment", "status", "ACTIVE", &["WITHDRAWN"]),
     ("Task", "status", "CREATED", &["READY", "CANCELLED"]),
     ("User", "status", "PENDING", &["ACTIVE", "RETIRED"]),
     (

@@ -13,7 +13,7 @@
  * word, so a dropdown that lost an option or a state machine that lost an edge
  * fails a test instead of quietly shipping.
  *
- * Generated: 2026-10-09T15:28:38.447Z
+ * Generated: 2026-10-16T07:46:24.263Z
  * Project: enterprise
  */
 
@@ -50,138 +50,248 @@ export interface StateMachine {
 
 export const modelEnums: ModelEnum[] = [
   {
-    name: "AddressAddressType",
+    name: "ActivityActivityType",
     referenceId: 1000,
+    values: ["CALL", "MEETING", "EMAIL", "VISIT", "TASK", "NOTE"],
+  },
+  {
+    name: "ActivityDirection",
+    referenceId: 1001,
+    values: ["INBOUND", "OUTBOUND", "INTERNAL"],
+  },
+  {
+    name: "ActivityPriority",
+    referenceId: 1002,
+    values: ["LOW", "NORMAL", "HIGH"],
+  },
+  {
+    name: "ActivityStatus",
+    referenceId: 1003,
+    values: ["PLANNED", "IN_PROGRESS", "COMPLETED", "CANCELLED"],
+  },
+  {
+    name: "AddressAddressType",
+    referenceId: 1004,
     values: ["RESIDENTIAL", "BUSINESS", "BILLING", "SHIPPING", "REGISTERED", "POSTAL", "OTHER"],
   },
   {
     name: "AddressStatus",
-    referenceId: 1001,
-    values: ["ACTIVE", "INACTIVE", "RETIRED"],
-  },
-  {
-    name: "ApprovalStatus",
-    referenceId: 1002,
-    values: ["PENDING", "ACTIVE", "COMPLETED", "CANCELLED"],
-  },
-  {
-    name: "AssignmentStatus",
-    referenceId: 1003,
-    values: ["PENDING", "ACTIVE", "COMPLETED", "CANCELLED"],
-  },
-  {
-    name: "BusinessTransactionStatus",
-    referenceId: 1004,
-    values: ["DRAFT", "OPEN", "APPROVED", "POSTED", "COMPLETED", "CANCELLED", "REVERSED"],
-  },
-  {
-    name: "CurrencyStatus",
     referenceId: 1005,
     values: ["ACTIVE", "INACTIVE", "RETIRED"],
   },
   {
-    name: "ERPStatus",
+    name: "ApprovalStatus",
     referenceId: 1006,
+    values: ["PENDING", "ACTIVE", "COMPLETED", "CANCELLED"],
+  },
+  {
+    name: "AssignmentRole",
+    referenceId: 1007,
+    values: ["RESPONSIBLE", "REVIEWER", "CONTRIBUTOR", "OBSERVER"],
+  },
+  {
+    name: "AssignmentStatus",
+    referenceId: 1008,
+    values: ["PENDING", "ACTIVE", "COMPLETED", "CANCELLED"],
+  },
+  {
+    name: "AttachmentStatus",
+    referenceId: 1009,
+    values: ["ACTIVE", "WITHDRAWN"],
+  },
+  {
+    name: "BusinessEventPublicationStatus",
+    referenceId: 1010,
+    values: ["RECORDED", "PUBLISHED", "FAILED", "ABANDONED"],
+  },
+  {
+    name: "BusinessTransactionStatus",
+    referenceId: 1011,
+    values: ["DRAFT", "OPEN", "APPROVED", "POSTED", "COMPLETED", "CANCELLED", "REVERSED"],
+  },
+  {
+    name: "BusinessUnitStatus",
+    referenceId: 1012,
+    values: ["ACTIVE", "INACTIVE"],
+  },
+  {
+    name: "CalendarExceptionExceptionType",
+    referenceId: 1013,
+    values: ["PUBLIC_HOLIDAY", "COMPANY_CLOSURE", "EXTRA_WORKING_DAY"],
+  },
+  {
+    name: "CalendarStatus",
+    referenceId: 1014,
+    values: ["ACTIVE", "INACTIVE"],
+  },
+  {
+    name: "ClassificationStatus",
+    referenceId: 1015,
+    values: ["ACTIVE", "RETIRED"],
+  },
+  {
+    name: "ContactPointChannel",
+    referenceId: 1016,
+    values: ["EMAIL", "PHONE", "MOBILE", "FAX", "WEBSITE", "MESSAGING"],
+  },
+  {
+    name: "ContactPointPurpose",
+    referenceId: 1017,
+    values: ["GENERAL", "BILLING", "ORDERS", "DELIVERY", "SUPPORT", "MARKETING"],
+  },
+  {
+    name: "ContactPointStatus",
+    referenceId: 1018,
+    values: ["ACTIVE", "INACTIVE", "INVALID"],
+  },
+  {
+    name: "CurrencyStatus",
+    referenceId: 1019,
+    values: ["ACTIVE", "INACTIVE", "RETIRED"],
+  },
+  {
+    name: "DepartmentStatus",
+    referenceId: 1020,
+    values: ["ACTIVE", "INACTIVE"],
+  },
+  {
+    name: "ERPStatus",
+    referenceId: 1021,
     values: ["DRAFT", "ACTIVE", "SUSPENDED", "RETIRED"],
   },
   {
     name: "ExchangeRateRateType",
-    referenceId: 1007,
+    referenceId: 1022,
     values: ["SPOT", "CONTRACT", "DAILY", "MONTHLY", "ACCOUNTING", "CUSTOM"],
   },
   {
     name: "ExchangeRateStatus",
-    referenceId: 1008,
+    referenceId: 1023,
     values: ["DRAFT", "ACTIVE", "EXPIRED", "CANCELLED"],
   },
   {
+    name: "LanguageDirection",
+    referenceId: 1024,
+    values: ["LTR", "RTL"],
+  },
+  {
+    name: "LegalEntityStatus",
+    referenceId: 1025,
+    values: ["ACTIVE", "DORMANT", "IN_LIQUIDATION", "DISSOLVED"],
+  },
+  {
     name: "LocationLocationType",
-    referenceId: 1009,
+    referenceId: 1026,
     values: ["SITE", "WAREHOUSE", "STORE", "OFFICE", "FACTORY", "YARD", "PORT", "DEPOT", "VIRTUAL", "OTHER"],
   },
   {
     name: "LocationStatus",
-    referenceId: 1010,
+    referenceId: 1027,
     values: ["PLANNED", "ACTIVE", "INACTIVE", "CLOSED", "RETIRED"],
   },
   {
+    name: "OrganizationMembershipMembershipType",
+    referenceId: 1028,
+    values: ["EMPLOYEE", "CONTRACTOR", "PARTNER_USER", "BOARD_MEMBER", "VOLUNTEER"],
+  },
+  {
     name: "OrganizationMembershipStatus",
-    referenceId: 1011,
+    referenceId: 1029,
     values: ["PENDING", "ACTIVE", "COMPLETED", "CANCELLED"],
   },
   {
     name: "OrganizationOrganizationType",
-    referenceId: 1012,
+    referenceId: 1030,
     values: ["ENTERPRISE", "COMPANY", "BUSINESS_UNIT", "DIVISION", "DEPARTMENT", "BRANCH", "SUBSIDIARY", "OTHER"],
   },
   {
     name: "OrganizationPartyType",
-    referenceId: 1013,
+    referenceId: 1031,
     values: ["PERSON", "ORGANIZATION"],
   },
   {
     name: "OrganizationStatus",
-    referenceId: 1014,
+    referenceId: 1032,
     values: ["DRAFT", "ACTIVE", "INACTIVE", "RETIRED"],
   },
   {
     name: "PartyPartyType",
-    referenceId: 1015,
+    referenceId: 1033,
     values: ["PERSON", "ORGANIZATION"],
   },
   {
+    name: "PartyRelationshipRelationshipType",
+    referenceId: 1034,
+    values: ["SUBSIDIARY_OF", "BRANCH_OF", "EMPLOYEE_OF", "AGENT_OF", "GUARANTOR_FOR", "BENEFICIAL_OWNER_OF", "HOUSEHOLD_MEMBER_OF", "OTHER"],
+  },
+  {
+    name: "PartyRelationshipStatus",
+    referenceId: 1035,
+    values: ["ACTIVE", "ENDED"],
+  },
+  {
     name: "PartyRoleRoleType",
-    referenceId: 1016,
+    referenceId: 1036,
     values: ["CUSTOMER", "SUPPLIER", "EMPLOYEE", "PARTNER", "CARRIER", "AGENT", "CONTRACTOR", "OWNER", "INVESTOR", "OTHER"],
   },
   {
     name: "PartyRoleStatus",
-    referenceId: 1017,
+    referenceId: 1037,
     values: ["ACTIVE", "INACTIVE", "EXPIRED"],
   },
   {
     name: "PartyStatus",
-    referenceId: 1018,
+    referenceId: 1038,
     values: ["ACTIVE", "INACTIVE", "BLOCKED", "RETIRED"],
   },
   {
     name: "PersonGender",
-    referenceId: 1019,
+    referenceId: 1039,
     values: ["FEMALE", "MALE", "NON_BINARY", "OTHER", "UNSPECIFIED"],
   },
   {
     name: "PersonPartyType",
-    referenceId: 1020,
+    referenceId: 1040,
     values: ["PERSON", "ORGANIZATION"],
   },
   {
     name: "PersonStatus",
-    referenceId: 1021,
+    referenceId: 1041,
     values: ["ACTIVE", "INACTIVE", "BLOCKED", "RETIRED"],
   },
   {
     name: "TaskPriority",
-    referenceId: 1022,
+    referenceId: 1042,
     values: ["LOW", "NORMAL", "HIGH", "CRITICAL"],
   },
   {
     name: "TaskStatus",
-    referenceId: 1023,
+    referenceId: 1043,
     values: ["CREATED", "READY", "ASSIGNED", "IN_PROGRESS", "BLOCKED", "COMPLETED", "CANCELLED", "FAILED"],
   },
   {
     name: "TaskTaskType",
-    referenceId: 1024,
+    referenceId: 1044,
     values: ["USER", "SYSTEM", "APPROVAL", "DECISION", "NOTIFICATION", "SCRIPT", "OTHER"],
   },
   {
+    name: "TeamStatus",
+    referenceId: 1045,
+    values: ["ACTIVE", "INACTIVE"],
+  },
+  {
+    name: "TeamTeamType",
+    referenceId: 1046,
+    values: ["OPERATIONAL", "PROJECT", "SUPPORT", "SALES"],
+  },
+  {
     name: "UnitOfMeasureCategory",
-    referenceId: 1025,
+    referenceId: 1047,
     values: ["QUANTITY", "LENGTH", "AREA", "VOLUME", "MASS", "TIME", "COUNT", "CURRENCY", "OTHER"],
   },
   {
     name: "UnitOfMeasureStatus",
-    referenceId: 1026,
+    referenceId: 1048,
     values: ["ACTIVE", "INACTIVE", "RETIRED"],
   },
 ];
@@ -232,6 +342,53 @@ export const stateMachines: StateMachine[] = [
     ],
   },
   {
+    entity: "PartyRelationship",
+    tableName: "bus_party_relationship",
+    statusField: "status",
+    initial: "ACTIVE",
+    terminal: ["ENDED"],
+    edges: [
+      { from: "ACTIVE", to: "ENDED", trigger: "end" },
+    ],
+  },
+  {
+    entity: "LegalEntity",
+    tableName: "bus_legal_entity",
+    statusField: "status",
+    initial: "ACTIVE",
+    terminal: ["DISSOLVED"],
+    edges: [
+      { from: "ACTIVE", to: "DORMANT", trigger: "make_dormant" },
+      { from: "DORMANT", to: "ACTIVE", trigger: "resume_trading" },
+      { from: "ACTIVE", to: "IN_LIQUIDATION", trigger: "liquidate" },
+      { from: "DORMANT", to: "IN_LIQUIDATION", trigger: "liquidate" },
+      { from: "IN_LIQUIDATION", to: "DISSOLVED", trigger: "dissolve" },
+      { from: "DORMANT", to: "DISSOLVED", trigger: "dissolve" },
+    ],
+  },
+  {
+    entity: "BusinessUnit",
+    tableName: "bus_business_unit",
+    statusField: "status",
+    initial: "ACTIVE",
+    terminal: [],
+    edges: [
+      { from: "ACTIVE", to: "INACTIVE", trigger: "deactivate" },
+      { from: "INACTIVE", to: "ACTIVE", trigger: "reactivate" },
+    ],
+  },
+  {
+    entity: "Department",
+    tableName: "bus_department",
+    statusField: "status",
+    initial: "ACTIVE",
+    terminal: [],
+    edges: [
+      { from: "ACTIVE", to: "INACTIVE", trigger: "deactivate" },
+      { from: "INACTIVE", to: "ACTIVE", trigger: "reactivate" },
+    ],
+  },
+  {
     entity: "Address",
     tableName: "bus_address",
     statusField: "status",
@@ -242,6 +399,19 @@ export const stateMachines: StateMachine[] = [
       { from: "INACTIVE", to: "ACTIVE", trigger: "reactivate" },
       { from: "ACTIVE", to: "RETIRED", trigger: "retire" },
       { from: "INACTIVE", to: "RETIRED", trigger: "retire" },
+    ],
+  },
+  {
+    entity: "ContactPoint",
+    tableName: "bus_contact_point",
+    statusField: "status",
+    initial: "ACTIVE",
+    terminal: [],
+    edges: [
+      { from: "ACTIVE", to: "INACTIVE", trigger: "deactivate" },
+      { from: "INACTIVE", to: "ACTIVE", trigger: "reactivate" },
+      { from: "ACTIVE", to: "INVALID", trigger: "mark_invalid" },
+      { from: "INVALID", to: "ACTIVE", trigger: "reactivate" },
     ],
   },
   {
@@ -300,6 +470,27 @@ export const stateMachines: StateMachine[] = [
     ],
   },
   {
+    entity: "Calendar",
+    tableName: "bus_calendar",
+    statusField: "status",
+    initial: "ACTIVE",
+    terminal: [],
+    edges: [
+      { from: "ACTIVE", to: "INACTIVE", trigger: "deactivate" },
+      { from: "INACTIVE", to: "ACTIVE", trigger: "reactivate" },
+    ],
+  },
+  {
+    entity: "Attachment",
+    tableName: "bus_attachment",
+    statusField: "status",
+    initial: "ACTIVE",
+    terminal: ["WITHDRAWN"],
+    edges: [
+      { from: "ACTIVE", to: "WITHDRAWN", trigger: "withdraw" },
+    ],
+  },
+  {
     entity: "Task",
     tableName: "bus_task",
     statusField: "status",
@@ -342,6 +533,17 @@ export const stateMachines: StateMachine[] = [
     ],
   },
   {
+    entity: "Team",
+    tableName: "bus_team",
+    statusField: "status",
+    initial: "ACTIVE",
+    terminal: [],
+    edges: [
+      { from: "ACTIVE", to: "INACTIVE", trigger: "disband" },
+      { from: "INACTIVE", to: "ACTIVE", trigger: "reactivate" },
+    ],
+  },
+  {
     entity: "OrganizationMembership",
     tableName: "bus_organization_membership",
     statusField: "status",
@@ -352,6 +554,16 @@ export const stateMachines: StateMachine[] = [
       { from: "ACTIVE", to: "COMPLETED", trigger: "complete" },
       { from: "PENDING", to: "CANCELLED", trigger: "cancel" },
       { from: "ACTIVE", to: "CANCELLED", trigger: "cancel" },
+    ],
+  },
+  {
+    entity: "Classification",
+    tableName: "bus_classification",
+    statusField: "status",
+    initial: "ACTIVE",
+    terminal: ["RETIRED"],
+    edges: [
+      { from: "ACTIVE", to: "RETIRED", trigger: "retire" },
     ],
   },
   {
@@ -378,6 +590,33 @@ export const stateMachines: StateMachine[] = [
       { from: "ACTIVE", to: "COMPLETED", trigger: "complete" },
       { from: "PENDING", to: "CANCELLED", trigger: "cancel" },
       { from: "ACTIVE", to: "CANCELLED", trigger: "cancel" },
+    ],
+  },
+  {
+    entity: "Activity",
+    tableName: "bus_activity",
+    statusField: "status",
+    initial: "PLANNED",
+    terminal: ["COMPLETED", "CANCELLED"],
+    edges: [
+      { from: "PLANNED", to: "IN_PROGRESS", trigger: "start" },
+      { from: "IN_PROGRESS", to: "COMPLETED", trigger: "complete" },
+      { from: "PLANNED", to: "COMPLETED", trigger: "complete" },
+      { from: "PLANNED", to: "CANCELLED", trigger: "cancel" },
+      { from: "IN_PROGRESS", to: "CANCELLED", trigger: "cancel" },
+    ],
+  },
+  {
+    entity: "BusinessEvent",
+    tableName: "bus_business_event",
+    statusField: "workflow_status",
+    initial: "RECORDED",
+    terminal: ["PUBLISHED", "ABANDONED"],
+    edges: [
+      { from: "RECORDED", to: "PUBLISHED", trigger: "publish" },
+      { from: "RECORDED", to: "FAILED", trigger: "fail" },
+      { from: "FAILED", to: "PUBLISHED", trigger: "publish" },
+      { from: "FAILED", to: "ABANDONED", trigger: "abandon" },
     ],
   },
   {
