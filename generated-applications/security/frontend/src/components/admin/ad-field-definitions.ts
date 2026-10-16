@@ -224,7 +224,7 @@ export const SYS_FIELD_FORM_FIELDS: FieldMetadata[] = [
     ref_endpoint: "/sys/columns",
     ref_id_field: "sys_column_id",
     ref_label_field: "name",
-    ref_filter_param: "tableId",
+    ref_filter_param: "table_id",
     ref_filter_source: "sys_table_id",
   }),
   field("name", "Name", REF.STRING, { is_mandatory: true, seq_no: 10, field_length: 100 }),

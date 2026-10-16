@@ -56,7 +56,7 @@ function SetupDictionaryButton({ tableId }: { tableId: string }) {
         disabled={status === "loading"}
         className="border-amber-400 text-amber-800 hover:bg-amber-100"
       >
-        {status === "loading" ? "Setting up…" : "⚙ Setup Dictionary (Window / Tab / Fields)"}
+        {status === "loading" ? "Setting up…" : "⚙ Set up window, tab and fields"}
       </Button>
       {status !== "idle" && (
         <span
@@ -67,8 +67,8 @@ function SetupDictionaryButton({ tableId }: { tableId: string }) {
       )}
       {status === "idle" && (
         <Text size="xs" className="text-amber-700">
-          Auto-creates sys_window, sys_tab, and sys_field records so this entity appears in the CRM
-          application.
+          Creates the window, tab and fields for this table, so it appears in the application's
+          menu and dashboard.
         </Text>
       )}
     </HStack>

@@ -21,6 +21,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { useEntityLabel } from "@/components/admin/use-dictionary-entities";
 import { Skeleton } from "@/components/ui/skeleton";
 import { apiClient } from "@/lib/api-client";
 import { Box, Grid, HStack, Text, VStack } from "@/components/ui/layout";
@@ -272,6 +273,7 @@ const PAGE_SIZES = [25, 50, 100, 250] as const;
 const DEFAULT_PAGE_SIZE = 50;
 
 function AuditLogPage() {
+  const entityLabel = useEntityLabel();
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState<number>(DEFAULT_PAGE_SIZE);
   const [filters, setFilters] = useState({
@@ -421,7 +423,7 @@ function AuditLogPage() {
               <option value="">All entities</option>
               {(entityTypes ?? []).map((t) => (
                 <option key={t} value={t}>
-                  {t}
+                  {entityLabel(t)}
                 </option>
               ))}
             </select>
@@ -582,7 +584,7 @@ function AuditLogPage() {
                     </td>
                     <td className="px-4 py-2">{actionBadge(ev.action)}</td>
                     <td className="px-4 py-2 text-xs">
-                      {ev.entity_type && <Text weight="medium">{ev.entity_type}</Text>}
+                      {ev.entity_type && <Text weight="medium">{entityLabel(ev.entity_type)}</Text>}
                       {ev.entity_id && (
                         <Text color="secondary" truncate className="block font-mono max-w-[120px]">
                           {ev.entity_id}
