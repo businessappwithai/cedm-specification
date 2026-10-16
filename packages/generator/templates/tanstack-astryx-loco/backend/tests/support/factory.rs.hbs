@@ -62,6 +62,10 @@ pub fn value_for(field: &FieldMeta) -> Value {
     let n = unique() + offset;
     match field.field_type {
         FieldType::Integer => json!(i64::try_from(n).unwrap_or(1) + 1),
+        // A percentage runs from 0 to 100 — the rule the model derives for any column named
+        // like one — and the counter-based value below is far above that. The bun harness's
+        // name table says the same.
+        FieldType::Decimal if is_percentage(field.name) => json!((n % 99) as f64 + 0.5),
         FieldType::Decimal => json!(n as f64 + 0.5),
         FieldType::Boolean => json!(n.is_multiple_of(2)),
         FieldType::Date => json!("2026-06-01"),
@@ -72,6 +76,15 @@ pub fn value_for(field: &FieldMeta) -> Value {
         FieldType::Reference => json!("00000000-0000-4000-8000-000000000000"),
         FieldType::String | FieldType::Text => json!(fit(field, format!("e2e-{}-{token}-{n}", field.name), n)),
     }
+}
+
+/// Whether a column holds a percentage, by the same name test the model's derived rule uses
+/// (`percent`, `percentage` or `pct` at the end).
+fn is_percentage(column: &str) -> bool {
+    let name = column.to_ascii_lowercase();
+    ["percent", "percentage", "pct"]
+        .iter()
+        .any(|suffix| name.ends_with(suffix))
 }
 
 /// A fresh value for `field` that carries `label` when the column is long
