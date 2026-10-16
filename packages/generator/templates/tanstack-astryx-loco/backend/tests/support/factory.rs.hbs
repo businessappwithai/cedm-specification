@@ -276,7 +276,33 @@ async fn create_inner(
         .json(&Value::Object(minimal))
         .await;
 
-    (retry.status_code() == 201).then(|| retry.json::<Value>())
+    if retry.status_code() == 201 {
+        return Some(retry.json::<Value>());
+    }
+
+    // A rule over a flag and another field — a public holiday is not a working day —
+    // refuses the factory's flag whichever way its counter fell, and sending only the
+    // required fields sends the same flag again. The other polarity is the other
+    // combination such a rule can ask for, so try every flag reversed, once.
+    let mut flipped = payload;
+    for field in entity
+        .writable_fields()
+        .filter(|f| f.field_type == FieldType::Boolean)
+    {
+        if let Some(Value::Bool(flag)) = flipped.get(field.name).cloned() {
+            flipped.insert(field.name.to_string(), Value::Bool(!flag));
+        }
+    }
+    for (key, value) in overrides {
+        flipped.insert((*key).to_string(), value.clone());
+    }
+    let last = request
+        .post(&format!("/api/bus/{}", entity.route))
+        .add_header("authorization", bearer(token))
+        .json(&Value::Object(flipped))
+        .await;
+
+    (last.status_code() == 201).then(|| last.json::<Value>())
 }
 
 enum Choice {
