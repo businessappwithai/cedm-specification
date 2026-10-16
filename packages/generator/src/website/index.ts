@@ -133,11 +133,6 @@ function stateLabel(value: string): string {
   return spaced.charAt(0).toUpperCase() + spaced.slice(1);
 }
 
-/** A Mermaid-safe node id for a state or step name. */
-function mid(value: string): string {
-  return value.replace(/[^A-Za-z0-9_]/g, "_") || "S";
-}
-
 /** "before a Party is created" for `beforeCreate` on the Party window. */
 function eventPhrase(event: string, window: string): string {
   const lower = event.toLowerCase();
@@ -339,9 +334,6 @@ function lifecycleSection(ctx: Ctx, entity: Entity): string {
   if (machines.length === 0) return "";
   return machines
     .map((machine) => {
-      const diagram = machine.transitions
-        .map((t) => `  ${mid(t.from)} --> ${mid(t.to)}: ${(t.trigger ?? "move").replace(/[:;]/g, " ")}`)
-        .join("\n");
       const rows = machine.transitions
         .map(
           (t) =>
@@ -354,13 +346,7 @@ A ${ctx.windowOf(entity.name).toLowerCase()} record starts as **${stateLabel(mac
         machine.terminal.length
           ? ` and ends as ${machine.terminal.map((state) => `**${stateLabel(state)}**`).join(" or ")}`
           : ""
-      }. Open a record and the bar above its fields shows its current **State** and, after **Next**, a button for each move that leaves it; choose one to make the move. Any move the diagram does not draw is refused, for everyone including the administrator.
-
-\`\`\`mermaid
-stateDiagram-v2
-  [*] --> ${mid(machine.initial ?? machine.states[0]?.name ?? "START")}
-${diagram}
-\`\`\`
+      }. Open a record and the bar above its fields shows its current **State** and, after **Next**, a button for each move that leaves it; choose one to make the move. Any move not listed below is refused, for everyone including the administrator.
 
 | From | To | Move |
 | --- | --- | --- |
@@ -798,8 +784,11 @@ function lifecyclesPage(ctx: Ctx): string {
   const { model, site } = ctx;
   const blocks = model.workflows.map((machine) => {
     const window = ctx.windowOf(machine.entity);
-    const diagram = machine.transitions
-      .map((t) => `  ${mid(t.from)} --> ${mid(t.to)}: ${(t.trigger ?? "move").replace(/[:;]/g, " ")}`)
+    const moves = machine.transitions
+      .map(
+        (t) =>
+          `| ${cell(stateLabel(t.from))} | ${cell(stateLabel(t.to))} | ${cell(t.trigger ? humanize(t.trigger) : "—")} |`
+      )
       .join("\n");
     const roleRules = model.rbac.transitions.filter((t) => t.entity === machine.entity);
     return `## ${window}: ${humanize(machine.name)}
@@ -808,16 +797,14 @@ States: ${machine.states.map((state) => `**${stateLabel(state.name)}**`).join(",
       machine.terminal.length ? `; **${machine.terminal.map(stateLabel).join("**, **")}** ends the lifecycle` : ""
     }.
 
-\`\`\`mermaid
-stateDiagram-v2
-  [*] --> ${mid(machine.initial ?? machine.states[0]?.name ?? "START")}
-${diagram}
-\`\`\`
+| From | To | Move |
+| --- | --- | --- |
+${moves}
 
 ${
   roleRules.length
     ? `Role restrictions: ${roleRules.map((t) => `${t.edges.map((edge) => `${stateLabel(edge.from)} → ${stateLabel(edge.to)}`).join(", ") || humanize(t.transition)} by ${t.roles.map(humanize).join(", ")}`).join("; ")}.\n`
-    : "Any role that may change the record may make any move the diagram draws.\n"
+    : "Any role that may change the record may make any move listed above.\n"
 }
 ${img(site.shots, SHOT.entityRecord(machine.entity), `${window} lifecycle bar`)}
 See [${window}](${entityPath(ctx, machine.entity)}) for the record itself.
@@ -825,7 +812,7 @@ See [${window}](${entityPath(ctx, machine.entity)}) for the record itself.
   });
   return `${frontMatter({ title: "Record lifecycles", sidebar_position: 2, description: "Every state a record can be in and every move between states." })}# Record lifecycles
 
-A lifecycle is the set of states a record can be in and the moves between them. The application enforces it on every write, through the screen and through the API: a move the diagram does not draw is refused for everyone, administrators included. Role restrictions narrow who may make a particular move. This application has **${model.workflows.length}** lifecycles.
+A lifecycle is the set of states a record can be in and the moves between them. The application enforces it on every write, through the screen and through the API: a move not listed is refused for everyone, administrators included. Role restrictions narrow who may make a particular move. This application has **${model.workflows.length}** lifecycles.
 
 ${img(site.shots, SHOT.admin("workflows"), "The workflow monitor")}
 ${blocks.join("\n") || "This application declares no record lifecycles."}
@@ -839,19 +826,11 @@ function processesPage(ctx: Ctx): string {
     const steps = saga.steps
       .map((step, index) => `${index + 1}. **${humanize(step.label)}** — ${stepSentence(ctx, step)}`)
       .join("\n");
-    const chart = saga.steps.map((step, index) => `  S${index}["${humanize(step.label).replace(/["\n]/g, "'")}"]`).join("\n");
-    const links = saga.steps.slice(1).map((_s, index) => `  S${index} --> S${index + 1}`).join("\n");
     return `## ${humanize(saga.name)} {#${kebabCase(saga.name)}}
 
 ${saga.description ?? ""}
 
 Runs when a **${window}** is ${operationWord(saga.operation)}${saga.trigger === "rule" ? ", started by a business rule" : " automatically"}.
-
-\`\`\`mermaid
-flowchart TD
-${chart}
-${links}
-\`\`\`
 
 ${steps}
 
@@ -1028,10 +1007,8 @@ const config = {
   onBrokenLinks: "warn",
   markdown: {
     format: "detect",
-    mermaid: true,
     hooks: { onBrokenMarkdownLinks: "warn" },
   },
-  themes: ["@docusaurus/theme-mermaid"],
   presets: [
     [
       "classic",
@@ -1073,7 +1050,6 @@ function packageJson(site: SiteContext): string {
       dependencies: {
         "@docusaurus/core": "3.9.2",
         "@docusaurus/preset-classic": "3.9.2",
-        "@docusaurus/theme-mermaid": "3.9.2",
         react: "^19.0.0",
         "react-dom": "^19.0.0",
       },

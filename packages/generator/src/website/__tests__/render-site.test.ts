@@ -45,7 +45,7 @@ describe("renderSite", () => {
   });
 
   it("explains every rule and lifecycle", () => {
-    expect(files.get("docs/administration/lifecycles.md")).toContain("stateDiagram-v2");
+    expect(files.get("docs/administration/lifecycles.md")).toContain("| From | To | Move |");
     if (model.rules.length > 0) {
       expect([...files.keys()].some((file) => file.startsWith("docs/administration/rules/"))).toBe(true);
     }
